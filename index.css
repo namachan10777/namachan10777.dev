@@ -2,8 +2,18 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	background-color: #FBFBFB;
+	margin: 0;
 }
 
 section.section {
-	width: 60%;
+	width: 50%;
+	color: #101010;
+}
+
+header {
+	width: 100%;
+	text-align: center;
+	color: #EEEEEE;
+	background-color: #303030;
 }
