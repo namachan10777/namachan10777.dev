@@ -7,8 +7,8 @@ body {
 }
 
 section.section {
-	width: 50%;
 	color: #101010;
+	text-align: center;
 }
 
 header {
