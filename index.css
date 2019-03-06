@@ -6,10 +6,20 @@ body {
 	margin: 0;
 }
 
-h1 {
-	font-family: 'Roboto Slab', serif;
-	font-size: 5vh;
-	color: #FFA000;
+@media screen and (max-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		color: #FFA000;
+		width: 100%;
+		font-size: calc(100vw / 9);
+	}
+}
+@media screen and (min-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		font-size: 5vh;
+		color: #FFA000;
+	}
 }
 
 h2 {
