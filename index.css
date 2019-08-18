@@ -1,0 +1,17 @@
+@page {
+	size: 22.75rem 11.75rem;
+	margin: 0;
+}
+
+@media print {
+	body {
+		-webkit-print-color-adjust: exact;
+		margin: 0;
+	}
+}
+
+.namecard {
+	background-color: #000;
+	width: 22.75rem;
+	height: 11.75rem;
+}
