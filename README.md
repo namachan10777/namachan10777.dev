@@ -1,4 +1,5 @@
 # NAMECARD
+![Imgur](https://i.imgur.com/G5PvC2p.png)
 
 # License & Credit
 ## Code
