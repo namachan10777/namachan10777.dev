@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono&display=swap');
+
 @page {
-	size: 22.75rem 11.75rem;
+	size: 405mm 235mm;
 	margin: 0;
 }
 
@@ -10,8 +12,80 @@
 	}
 }
 
+body {
+	margin: 0 0 0 0;
+}
+
 .namecard {
-	background-color: #000;
-	width: 22.75rem;
-	height: 11.75rem;
+	background-color: #01171a;
+	width: 405mm;
+	height: 235mm;
+	border: 1px solid #01171a;
+	box-sizing: border-box;
+}
+
+.main-content {
+	display: flex;
+	margin-top: 30mm;
+}
+
+.icon {
+	width: 100mm;
+	height: 100mm;
+	border-radius: 50mm;
+	margin: 5mm;
+	border: 1mm solid #cedadb;
+}
+
+.namebox {
+	padding: 10mm;
+	margin: 10mm 0 0 0;
+}
+
+.name {
+	color: #ccc;
+	font-family: 'Lexend Deca', sans-serif;
+	font-size: 30mm;
+}
+
+.handlename {
+	color: #bbb;
+	font-family: 'Lexend Deca', sans-serif;
+	font-size: 15mm;
+}
+
+.belong {
+	font-family: 'Barlow Semi Candensed', sans-serif;
+	font-size: 7mm;
+	color: #999;
+}
+
+.code {
+	outline: none;
+	font-family: 'Fira Mono', monospace;
+	font-size: 10mm;
+	color: #ddd;
+	margin: 15mm 0 0 0;
+}
+
+.arrow {
+	color: #ff2c29;
+}
+
+.dir {
+	color: #d48517;
+}
+
+.cmd {
+	font-weight: bold;
+	color: #eee;
+}
+
+.key {
+	margin-left: 15mm;
+	color: #40ace3;
+}
+
+.string {
+	color: #d48517;
 }
