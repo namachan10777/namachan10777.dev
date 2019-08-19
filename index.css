@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
 
 @page {
 	size: 405mm 235mm;
@@ -26,7 +26,7 @@ body {
 
 .main-content {
 	display: flex;
-	margin-top: 30mm;
+	margin-top: 20mm;
 }
 
 .icon {
@@ -34,7 +34,7 @@ body {
 	height: 100mm;
 	border-radius: 50mm;
 	margin: 5mm;
-	border: 1mm solid #cedadb;
+	border: 1.2mm solid #cedadb;
 }
 
 .namebox {
@@ -43,27 +43,27 @@ body {
 }
 
 .name {
-	color: #ccc;
+	color: #ddd;
 	font-family: 'Lexend Deca', sans-serif;
 	font-size: 30mm;
 }
 
 .handlename {
-	color: #bbb;
+	color: #ddd;
 	font-family: 'Lexend Deca', sans-serif;
 	font-size: 15mm;
 }
 
 .belong {
-	font-family: 'Barlow Semi Candensed', sans-serif;
+	font-family: 'Roboto Candensed', sans-serif;
 	font-size: 7mm;
-	color: #999;
+	color: #bbb;
 }
 
 .code {
 	outline: none;
 	font-family: 'Fira Mono', monospace;
-	font-size: 10mm;
+	font-size: 11mm;
 	color: #ddd;
 	margin: 15mm 0 0 0;
 }
