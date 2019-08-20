@@ -81,6 +81,10 @@ body {
 	color: #eee;
 }
 
+.option {
+	color: #00acb5;
+}
+
 .key {
 	margin-left: 15mm;
 	color: #40ace3;
@@ -88,4 +92,52 @@ body {
 
 .string {
 	color: #d48517;
+}
+
+.category {
+	color: #cf80b3;
+}
+
+.title {
+	color: #40ace3;
+}
+
+.content {
+	color: #ebe973;
+}
+
+.info-left {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.info-right {
+	margin-left: 10mm;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.info {
+	display: flex;
+	flex-direction: row;
+}
+
+.invalid-cmd {
+	color: #c91212;
+	margin: 0;
+}
+
+.complete-cmd {
+	color: #919191;
+}
+
+.complete-cmd-cursor {
+	background-color: #919191;
+	color: #111;
+}
+
+.back-content {
+	margin-left: 10mm;
 }
