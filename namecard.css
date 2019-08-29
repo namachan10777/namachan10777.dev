@@ -1,0 +1,192 @@
+<<<<<<< HEAD
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #FBFBFB;
+	margin: 0;
+}
+
+@media screen and (max-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		color: #FFA000;
+		width: 100%;
+		font-size: calc(100vw / 9);
+	}
+}
+@media screen and (min-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		font-size: 5vh;
+		color: #FFA000;
+	}
+}
+
+h2 {
+	font-family: 'Roboto Slab', serif;
+}
+
+section {
+	color: #101010;
+	text-align: center;
+	font-family: 'Roboto Slab', 'Sawarabi Mincho', serif;
+	margin: 1vh;
+}
+
+p {
+	word-break: break-word;
+}
+
+header {
+	width: 100%;
+	text-align: center;
+	color: #EEEEEE;
+	background-color: #303030;
+	margin: 0;
+}
+=======
+@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
+
+@page {
+	size: 405mm 235mm;
+	margin: 0;
+}
+
+@media print {
+	body {
+		-webkit-print-color-adjust: exact;
+		margin: 0;
+	}
+}
+
+body {
+	margin: 0 0 0 0;
+}
+
+.namecard {
+	background-color: #01171a;
+	width: 405mm;
+	height: 235mm;
+	border: 1px solid #01171a;
+	box-sizing: border-box;
+}
+
+.main-content {
+	display: flex;
+	margin-top: 20mm;
+}
+
+.icon {
+	width: 100mm;
+	height: 100mm;
+	border-radius: 50mm;
+	margin: 5mm;
+	border: 1.2mm solid #cedadb;
+}
+
+.namebox {
+	padding: 10mm;
+	margin: 10mm 0 0 0;
+}
+
+.name {
+	color: #ddd;
+	font-family: 'Lexend Deca', sans-serif;
+	font-size: 30mm;
+}
+
+.handlename {
+	color: #ddd;
+	font-family: 'Lexend Deca', sans-serif;
+	font-size: 15mm;
+}
+
+.belong {
+	font-family: 'Roboto Candensed', sans-serif;
+	font-size: 7mm;
+	color: #bbb;
+}
+
+.code {
+	outline: none;
+	font-family: 'Fira Mono', monospace;
+	font-size: 11mm;
+	color: #ddd;
+	margin: 15mm 0 0 0;
+}
+
+.arrow {
+	color: #ff2c29;
+}
+
+.dir {
+	color: #d48517;
+}
+
+.cmd {
+	font-weight: bold;
+	color: #eee;
+}
+
+.option {
+	color: #00acb5;
+}
+
+.key {
+	margin-left: 15mm;
+	color: #40ace3;
+}
+
+.string {
+	color: #d48517;
+}
+
+.category {
+	color: #cf80b3;
+}
+
+.title {
+	color: #40ace3;
+}
+
+.content {
+	color: #ebe973;
+}
+
+.info-left {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.info-right {
+	margin-left: 10mm;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.info {
+	display: flex;
+	flex-direction: row;
+}
+
+.invalid-cmd {
+	color: #c91212;
+	margin: 0;
+}
+
+.complete-cmd {
+	color: #919191;
+}
+
+.complete-cmd-cursor {
+	background-color: #919191;
+	color: #111;
+}
+
+.back-content {
+	margin-left: 10mm;
+}
+>>>>>>> namecard/master
