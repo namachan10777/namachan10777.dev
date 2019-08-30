@@ -1,0 +1,51 @@
+.timeline {
+	border-left: 2px solid #004ffc;
+	border-bottom-right-radius: 2px;
+	border-top-right-radius: 2px;
+	background: fade(black, 3%);
+	color: fade(black, 80%);
+	margin: 50px auto;
+	letter-spacing: 0.5px;
+	position: relative;
+	padding: 50px;
+	list-style: none;
+	text-align: left;
+	max-width: 30%;
+}
+
+.timeline li {
+	border-bottom: 1px dashed fade(black, 10%);
+	padding-bottom: 25px;
+	margin-bottom: 50px;
+	position: relative;
+}
+
+.timeline li:last-of-type {
+	padding-bottom: 0;
+	margin-bottom: 0;
+	border: none;
+}
+
+.timeline li:before {
+	position: absolute;
+	display: block;
+	top: 0;
+	left: calc(((120px * 0.6) + 50px + 2px + 10px + (4px * 2)) * -1.5);
+	color: fade(black, 40px);
+	content: attr(data-date);
+	text-align: right;
+}
+
+.timeline li::after {
+	background: #fff;
+	position: absolute;
+	display: block;
+	top: 0;
+	box-shadow: 0 0 0 4px #004ffc;
+	left: calc((50px + 2px + (10px * 0.4)) * -1);
+	border-radius: 50%;
+	height: 10px;
+	width: 10px;
+	content: "";
+	top: 5px;
+}
