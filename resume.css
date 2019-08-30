@@ -41,6 +41,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	position: relative;
 }
 
 .header {
@@ -101,10 +102,10 @@ body {
 
 .timeline li {
 	border-bottom: 1px dashed fade(black, 10%);
-	padding-bottom: 25px;
-	margin-bottom: 2vw;
+	padding-bottom: 1vw;
+	margin-bottom: 1vw;
 	position: relative;
-	font-size: 1.5vw;
+	font-size: 1.3vw;
 }
 
 .timeline li:last-of-type {
@@ -136,6 +137,18 @@ body {
 	width: .7vw;
 	content: "";
 	top: 5px;
+}
+
+.timeline li p {
+	font-size: 1.1vw;
+	margin-top: 0.5vw;
+	color: #222;
+}
+
+.timeline li h3 {
+	font-weight: normal;
+	margin-top: 1vw;
+	margin-bottom: 0;
 }
 
 .future {
@@ -176,6 +189,7 @@ body {
 .left-content div h3 {
 	font-family: sans-serif;
 	font-size: 1.6vw;
+	margin: 2vw 0 .3vw 0;
 }
 
 .secret-input {
@@ -195,4 +209,32 @@ body {
 	vertical-align: bottom;
 	border-radius: 10%;
 	margin-right: 0.5vw;
+}
+
+.badge {
+	font-size: 1.2vw;
+	border-radius: 0.4vw;
+	display: inline-block;
+	margin-right: 1vw;
+	padding: 0 0.4vw 0 0.4vw;
+}
+
+.green {
+  	background-color: #47d43f;
+	color: #444;
+}
+
+.blue {
+  	background-color: #3f7bd6;
+	color: #ddd;
+}
+
+.copyrights {
+	font-size: 1vw;
+	color: #999;
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	bottom: 1vw;
+	right: 1vw;
 }
