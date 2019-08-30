@@ -4,29 +4,72 @@
 	<head>
 		<link rel="stylesheet" href="resume.css" />
 		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+		<script src="https://kit.fontawesome.com/2d51319651.js"></script>
 		<meta charset="UTF-8"/>
 	</head>
 	<body>
-		<div class="header">
+		<div class="left">
 			<img src="./res/icon.jpg" class="icon"/>
-			<div class="namebox">
-				<span class="name-en">Nakano Masaki</span>
-				<span class="name-ja">中野 将生</span>
+			<div class="left-content">
+				<h2><i class="fas fa-file-alt"></i> 資格</h2>
+				<div>
+					<h3>TOEIC L&amp;R 765</h3>
+				</div>
 			</div>
-			<ul class="timeline">
-				<li class="event" data-date="2015.4">
-					<header>香川高等専門学校 機械工学科 入学</header>
-				</li>
-				<li class="event" data-date="2016.4">
-					<header>香川高等専門学校 電気情報工学科 転科</header>
-				</li>
-				<li class="event" data-date="2020.3">
-					<header>香川高専専門学校 卒業(予定)</header>
-				</li>
-				<li class="event" data-date="2020.4">
-					<header>筑波大学 情報学郡 情報科学類 編入(予定)</header>
-				</li>
-			</ul>
+			<div class="left-content">
+				<h2><i class="fas fa-at"></i> 連絡先</h2>
+				<div>
+					<h3><i class="fas fa-phone"></i> 携帯電話</h3>
+					<span>080-3928-1077</span>
+				</div>
+				<div>
+					<h3><i class="fas fa-envelope"></i> Eメール</h3>
+					<span>namachan10777@gmail.com</span>
+				</div>
+			</div>
+			<div class="left-content">
+				<h2><i class="fas fa-home"></i> 住所</h2>
+				<input type="text" class="secret-input"/>
+				<input type="text" class="secret-input"/>
+			</div>
+		</div>
+		<div class="right">
+			<div class="namebox">
+				<p>
+					<span class="name-ja">中野</span>
+					<span class="name-en">Nakano</span>
+				</p>
+				<p>
+					<span class="name-ja">将生</span>
+					<span class="name-en">Masaki</span>
+				</p>
+			</div>
+			<div class="right-content">
+				<h2>
+					<span class="aboutme-icon"><i class="fas fa-pencil-ruler"></i></span>
+					<span>自己紹介</span>
+				</h2>
+			</div>
+			<div class="right-content">
+				<h2>
+					<span class="history-icon"><i class="fas fa-school"></i></span>
+					<span>学歴・職歴</span>
+				</h2>
+				<ul class="timeline">
+					<li data-date="2015.4">
+						<span>香川高専 機械工学科 入学</span>
+					</li>
+					<li data-date="2016.4">
+						<span>香川高専 電気情報工学科 転科</span>
+					</li>
+					<li data-date="2018.8">
+						jig.jpにてインターン
+					</li>
+					<li data-date="2020.3" class="future">
+						<span>香川高専 電気情報工学科 卒業見込み</span>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</body>
 </html>

@@ -1,23 +1,109 @@
+@import url('https://fonts.googleapis.com/css?family=Sawarabi+Gothic|Lexend+Deca|Sawarabi+Mincho|Cousine&display=swap');
+
+@page {
+	margin: 0;	
+	width: 100vw;
+	height: 141.421356vw;
+}
+
+@media print {
+	body {
+		-webkit-print-color-adjust: exact;
+		margin: 0;
+	}
+}
+
+html {
+	height: 100%;
+	min-height: 100vw;
+}
+
+body {
+	font-family: "Sawarabi Gothic", serif;
+	height:100%; 
+	display: flex;
+	flex-direction: row;
+	padding: 0;
+	margin: 0;
+}
+
+.left {
+	width: 35%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: #434343;
+	box-shadow: 0vw 0 0.5vw 0.2vw #555;
+}
+
+.right {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.header {
+	padding: 2vw;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.icon {
+	margin-top: 2vw;
+	border-radius: 50%;
+	border: .5vw solid #7D532C;
+	width: 20vw;
+	height: 20vw;
+	margin-left: calc((100% - 20vw - 1vw) / 2);
+}
+
+.namebox {
+	margin-top: 6vw;
+	margin-left: 20vw;
+	display: flex;
+	flex-direction: row;
+}
+
+.namebox p {
+	margin-right: 3vw;
+	display: flex;
+	flex-direction: column;
+}
+
+.name-en {
+	font-family: "Lexend Deca";
+	font-weight: 400;
+	font-size: 3vw;
+	text-align: right;
+}
+
+.name-ja {
+	font-family: sans-serif;
+	font-weight: 500;
+	font-size: 7vw;
+}
+
 .timeline {
-	border-left: 2px solid #004ffc;
+	border-left: 2px solid #006284;
 	border-bottom-right-radius: 2px;
 	border-top-right-radius: 2px;
 	background: fade(black, 3%);
 	color: fade(black, 80%);
-	margin: 50px auto;
 	letter-spacing: 0.5px;
 	position: relative;
-	padding: 50px;
+	margin-left: 10vw;
+	padding: 4vw;
 	list-style: none;
 	text-align: left;
-	max-width: 30%;
 }
 
 .timeline li {
 	border-bottom: 1px dashed fade(black, 10%);
 	padding-bottom: 25px;
-	margin-bottom: 50px;
+	margin-bottom: 2vw;
 	position: relative;
+	font-size: 1.5vw;
 }
 
 .timeline li:last-of-type {
@@ -30,9 +116,10 @@
 	position: absolute;
 	display: block;
 	top: 0;
-	left: calc(((120px * 0.6) + 50px + 2px + 10px + (4px * 2)) * -1.5);
+	left: calc(((4vw * 0.6) + 4vw + 2px + 0.5vw + (0.5vw * 2)) * -1.5);
 	color: fade(black, 40px);
 	content: attr(data-date);
+	font-family: "Cousine";
 	text-align: right;
 }
 
@@ -41,11 +128,60 @@
 	position: absolute;
 	display: block;
 	top: 0;
-	box-shadow: 0 0 0 4px #004ffc;
-	left: calc((50px + 2px + (10px * 0.4)) * -1);
+	box-shadow: 0 0 0 4px #006284;
+	left: calc((4vw + 2px + (.7vw * 0.4)) * -1);
 	border-radius: 50%;
-	height: 10px;
-	width: 10px;
+	height: .7vw;
+	width: .7vw;
 	content: "";
 	top: 5px;
+}
+
+.future {
+	color: #566C73;
+}
+
+.right-content {
+	margin-left: 10vw;
+}
+
+.right-content h2 {
+	font-family: sans-serif;
+	font-size: 2vw;
+	border-bottom: 2px solid black;
+}
+
+.aboutme-icon {
+	color: #d3a243;
+}
+
+.history-icon {
+	color: #7B90D2;
+}
+
+.left-content {
+	color: #ddd;
+	width: 80%;
+	margin-left: 10%;
+}
+
+.left-content h2 {
+	font-family: sans-serif;
+	font-size: 2vw;
+	color: #eee;
+	border-bottom: 2px solid #eee;
+}
+
+.left-content div h3 {
+	font-family: sans-serif;
+	font-size: 1.6vw;
+}
+
+.secret-input {
+	font-family: sans-serif;
+	color: #ddd;
+	background: none;
+	outline: 0;
+	border: 0;
+	width: 100%;
 }
