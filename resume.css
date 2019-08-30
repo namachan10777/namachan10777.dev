@@ -15,7 +15,7 @@
 
 html {
 	height: 100%;
-	min-height: 100vw;
+	min-height: 125vw;
 }
 
 body {
@@ -151,18 +151,12 @@ body {
 	border-bottom: 2px solid black;
 }
 
-.aboutme-icon {
-	color: #d3a243;
-}
-
-.history-icon {
-	color: #7B90D2;
-}
-
 .left-content {
 	color: #ddd;
 	width: 80%;
 	margin-left: 10%;
+	margin-top: 1vw;
+	font-size: 1.5vw;
 }
 
 .left-content h2 {
@@ -179,9 +173,19 @@ body {
 
 .secret-input {
 	font-family: sans-serif;
+	font-size: 1.6vw;
 	color: #ddd;
 	background: none;
 	outline: 0;
 	border: 0;
 	width: 100%;
+}
+
+.small-icon {
+	width: 2.5vw;
+	height: 2.5vw;
+	margin-bottom: 0;
+	vertical-align: bottom;
+	border-radius: 10%;
+	margin-right: 0.5vw;
 }
