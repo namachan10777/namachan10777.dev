@@ -56,6 +56,19 @@ type TypingStatus
     | NoInput
 
 
+complete : String -> Maybe String
+complete current =
+    let
+        candidates =
+            [ "name", "help", "icon" ]
+    in
+    let
+        currentLen =
+            String.length current
+    in
+    candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
+
+
 analyzeCurrent current =
     let
         candidates =
@@ -72,7 +85,7 @@ analyzeCurrent current =
             currentLen =
                 String.length current
         in
-        case candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head of
+        case complete current of
             Just candidate ->
                 Yet ( current, String.right (String.length candidate - currentLen) candidate )
 
@@ -112,6 +125,14 @@ update msg model =
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
 
+        Type (Types.Control "ArrowRight") ->
+            case complete model.current of
+                Just completed ->
+                    ( { model | current = completed }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
         Type (Types.Control _) ->
             ( model, Cmd.none )
 
@@ -124,8 +145,8 @@ renderPrompt =
     span [] [ span [ class "arrow" ] [ text "×> " ], span [ class "dir" ] [ text "~/ " ] ]
 
 
-renderCurrent s =
-    case complete s of
+renderCurrent current =
+    case analyzeCurrent current of
         NoInput ->
             span [] []
 
