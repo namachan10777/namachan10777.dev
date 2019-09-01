@@ -1,3 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
+
+body {
+	margin: 0;
+	background-color: #01171a;
+	font-size: 3vw;
+	font-family: 'Fira Mono';
+	color: #ddd;
+}
+
+.yet {
+	color: #666;
+}
+
 .error {
 	color: #ff5e5e;
+}
+
+.arrow {
+	color: #ff2c29;
+	margin-right: 1vw;
+}
+
+.dir {
+	color: #d48517;
 }

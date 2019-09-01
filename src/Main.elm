@@ -38,7 +38,7 @@ type Msg
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { current = ""
+    ( { current = "help"
       , hists = []
       }
     , Cmd.none
@@ -86,7 +86,34 @@ update msg model =
 
 
 renderPrompt =
-    span [] [ span [ class "arrow" ] [ text "×>" ], span [ class "div" ] [ text "~/ " ] ]
+    span [] [ span [ class "arrow" ] [ text "×> " ], span [ class "dir" ] [ text "~/ " ] ]
+
+
+renderCurrent s =
+    let
+        candidates =
+            [ "name", "help", "icon" ]
+    in
+    if s == "" then
+        span [] [ text "" ]
+
+    else if candidates |> List.any (\candidate -> candidate == s) then
+        span [ class "exact" ] [ text s ]
+
+    else
+        let
+            currentLen =
+                String.length s
+        in
+        case candidates |> List.filter (\candidate -> s == String.left currentLen candidate) |> List.head of
+            Just candidate ->
+                span []
+                    [ span [ class "error" ] [ text s ]
+                    , span [ class "yet" ] [ text (String.right (String.length candidate - currentLen) candidate) ]
+                    ]
+
+            Nothing ->
+                span [ class "error" ] [ text s ]
 
 
 renderHists hists =
@@ -121,7 +148,7 @@ view : Model -> Html Msg
 view model =
     let
         lists =
-            div [] [ renderPrompt, text model.current ] :: renderHists model.hists
+            div [] [ renderPrompt, renderCurrent model.current ] :: renderHists model.hists
     in
     div [] (List.reverse lists)
 
