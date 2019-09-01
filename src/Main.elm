@@ -3,8 +3,8 @@ module Main exposing (Model)
 import Browser
 import Browser.Events
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Attributes exposing (src)
 import Json.Decode as Decode
 import Types exposing (KeyValue)
 import Util
@@ -19,8 +19,17 @@ main =
 -- MODEL
 
 
+type Hist
+    = Help
+    | Name
+    | Icon
+    | Error String
+
+
 type alias Model =
-    { current : String }
+    { current : String
+    , hists : List Hist
+    }
 
 
 type Msg
@@ -30,6 +39,7 @@ type Msg
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { current = ""
+      , hists = []
       }
     , Cmd.none
     )
@@ -39,6 +49,22 @@ init _ =
 -- UPDATE
 
 
+decode : String -> Hist
+decode acc =
+    case acc of
+        "help" ->
+            Help
+
+        "name" ->
+            Name
+
+        "icon" ->
+            Icon
+
+        err ->
+            Error err
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -46,12 +72,12 @@ update msg model =
             ( { model | current = model.current ++ String.fromChar c }, Cmd.none )
 
         Type (Types.Control "Enter") ->
-            ( { model | current = "" }, Cmd.none )
+            ( { model | current = "", hists = decode model.current :: model.hists }, Cmd.none )
 
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
 
-        Type (Types.Control c) ->
+        Type (Types.Control _) ->
             ( model, Cmd.none )
 
 
@@ -59,10 +85,29 @@ update msg model =
 -- VIEW
 
 
+renderHists hists =
+    List.map
+        (\hist ->
+            case hist of
+                Help ->
+                    div [] [ text "type \"name\" or \"icon\"" ]
+
+                Name ->
+                    div [] [ text "Nakano Masaki" ]
+
+                Icon ->
+                    img [ src "./res/icon.jpg" ] []
+
+                Error s ->
+                    div [] [ text s ]
+        )
+        hists
+
+
 view : Model -> Html Msg
 view model =
     div []
-        [ text model.current ]
+        (List.append (renderHists model.hists) [ text model.current ])
 
 
 
@@ -70,7 +115,7 @@ view model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown (Decode.map Type Util.keyDecoder)
         ]
