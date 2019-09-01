@@ -46,6 +46,41 @@ init _ =
 
 
 
+-- UTIL
+
+
+type TypingStatus
+    = Complete String
+    | Yet ( String, String )
+    | Invalid String
+    | NoInput
+
+
+analyzeCurrent current =
+    let
+        candidates =
+            [ "name", "help", "icon" ]
+    in
+    if current == "" then
+        NoInput
+
+    else if candidates |> List.any (\candidate -> candidate == current) then
+        Complete current
+
+    else
+        let
+            currentLen =
+                String.length current
+        in
+        case candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head of
+            Just candidate ->
+                Yet ( current, String.right (String.length candidate - currentLen) candidate )
+
+            Nothing ->
+                Invalid current
+
+
+
 -- UPDATE
 
 
@@ -90,30 +125,18 @@ renderPrompt =
 
 
 renderCurrent s =
-    let
-        candidates =
-            [ "name", "help", "icon" ]
-    in
-    if s == "" then
-        span [] [ text "" ]
+    case complete s of
+        NoInput ->
+            span [] []
 
-    else if candidates |> List.any (\candidate -> candidate == s) then
-        span [ class "exact" ] [ text s ]
+        Invalid typed ->
+            span [ class "error" ] [ text typed ]
 
-    else
-        let
-            currentLen =
-                String.length s
-        in
-        case candidates |> List.filter (\candidate -> s == String.left currentLen candidate) |> List.head of
-            Just candidate ->
-                span []
-                    [ span [ class "error" ] [ text s ]
-                    , span [ class "yet" ] [ text (String.right (String.length candidate - currentLen) candidate) ]
-                    ]
+        Yet ( typed, yet ) ->
+            span [] [ span [ class "error" ] [ text typed ], span [ class "yet" ] [ text yet ] ]
 
-            Nothing ->
-                span [ class "error" ] [ text s ]
+        Complete typed ->
+            span [ class "complete" ] [ text typed ]
 
 
 renderHists hists =
