@@ -3,8 +3,8 @@ module Main exposing (Model)
 import Browser
 import Browser.Events
 import Html exposing (..)
+import Html.Attributes exposing (class, src)
 import Html.Events exposing (..)
-import Html.Attributes exposing (src)
 import Json.Decode as Decode
 import Types exposing (KeyValue)
 import Util
@@ -20,9 +20,9 @@ main =
 
 
 type Hist
-    = Help
-    | Name
-    | Icon
+    = Help String
+    | Name String
+    | Icon String
     | Error String
 
 
@@ -53,13 +53,13 @@ decode : String -> Hist
 decode acc =
     case acc of
         "help" ->
-            Help
+            Help "help"
 
         "name" ->
-            Name
+            Name "name"
 
         "icon" ->
-            Icon
+            Icon "icon"
 
         err ->
             Error err
@@ -85,29 +85,45 @@ update msg model =
 -- VIEW
 
 
+renderPrompt =
+    span [] [ span [ class "arrow" ] [ text "×>" ], span [ class "div" ] [ text "~/ " ] ]
+
+
 renderHists hists =
     List.map
         (\hist ->
             case hist of
-                Help ->
-                    div [] [ text "type \"name\" or \"icon\"" ]
+                Help s ->
+                    div []
+                        [ div [] [ renderPrompt, text s ]
+                        , div [] [ renderPrompt, text "type \"name\" or \"icon\"" ]
+                        ]
 
-                Name ->
-                    div [] [ text "Nakano Masaki" ]
+                Name s ->
+                    div []
+                        [ div [] [ renderPrompt, text s ]
+                        , div [] [ renderPrompt, text "Nakano Masaki" ]
+                        ]
 
-                Icon ->
-                    img [ src "./res/icon.jpg" ] []
+                Icon s ->
+                    div []
+                        [ div [] [ renderPrompt, text s ]
+                        , img [ src "./res/icon.jpg" ] [ renderPrompt ]
+                        ]
 
                 Error s ->
-                    div [] [ text s ]
+                    div [ class "error" ] [ renderPrompt, text s ]
         )
         hists
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        (List.append (renderHists model.hists) [ text model.current ])
+    let
+        lists =
+            div [] [ renderPrompt, text model.current ] :: renderHists model.hists
+    in
+    div [] (List.reverse lists)
 
 
 
