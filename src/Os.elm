@@ -10,6 +10,44 @@ type Fs
     | File ( List String, String, Id )
 
 
+initialFs =
+    Dir
+        ( []
+        , ""
+        , [ Dir
+                ( []
+                , "usr"
+                , [ Dir
+                        ( [ "usr" ]
+                        , "bin"
+                        , [ File ( [ "usr", "bin" ], "echo", 0 )
+                          , File ( [ "usr", "bin" ], "cat", 1 )
+                          , File ( [ "usr", "bin" ], "show-img", 2 )
+                          , File ( [ "usr", "bin" ], "mv", 3 )
+                          , File ( [ "usr", "bin" ], "rm", 4 )
+                          , File ( [ "usr", "bin" ], "cd", 5 )
+                          , File ( [ "usr", "bin" ], "ls", 5 )
+                          , File ( [ "usr", "bin" ], "pwd", 6 )
+                          ]
+                        )
+                  ]
+                )
+          , Dir
+                ( []
+                , "home"
+                , [ Dir
+                        ( [ "home" ]
+                        , "namachan"
+                        , [ File ( [ "home", "namachan" ], "icon", 7 )
+                          , File ( [ "home", "namachan" ], "basic-info", 8 )
+                          ]
+                        )
+                  ]
+                )
+          ]
+        )
+
+
 queryPath : Fs -> Fs -> List String -> Maybe Fs
 queryPath root current path =
     case path of
