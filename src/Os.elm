@@ -52,3 +52,43 @@ queryPath root current path =
                                             Nothing
                             )
                         |> List.head
+
+
+type Resolved
+    = Succes Fs
+    | IsNotDir Fs
+    | NotFound
+
+
+resolvePath root current path =
+    let
+        ( dirExpect, shrinked ) =
+            if String.endsWith "/" path then
+                ( True, String.dropRight 1 path )
+
+            else
+                ( False, path )
+
+        queried =
+            if String.startsWith "/" path then
+                if path == "/" then
+                    Just root
+
+                else
+                    queryPath root root (shrinked |> String.dropLeft 1 |> String.split "/")
+
+            else
+                queryPath root current (shrinked |> String.split "/")
+    in
+    case ( dirExpect, queried ) of
+        ( True, Just ((File _) as f) ) ->
+            IsNotDir f
+
+        ( True, Just ((Dir _) as d) ) ->
+            Succes d
+
+        ( _, Just f ) ->
+            Succes f
+
+        ( _, Nothing ) ->
+            NotFound
