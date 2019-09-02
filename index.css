@@ -1,9 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
 
+html {
+	height: 100%;
+}
+
 body {
+	height: 100%;
 	margin: 0;
 	background-color: #01171a;
-	font-size: 3vw;
+	font-size: 3vh;
 	font-family: 'Fira Mono';
 	color: #ddd;
 }
@@ -31,6 +36,19 @@ body {
 }
 
 #root {
+	height: 100%;
+}
+
+#scroll-area {
 	overflow-y: scroll;
-	height: 100vh;
+	height: calc(100% - 4vh);
+}
+
+footer {
+	color: #eee;
+	height: 4vh;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	background-color: #0a91ff;
 }
