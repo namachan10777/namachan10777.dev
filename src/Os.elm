@@ -12,34 +12,81 @@ type Fs
 
 getFromAbsPath : List String -> Fs -> Maybe Fs
 getFromAbsPath path dir =
-    case dir of
-        Dir ( dirname, children ) ->
-            case path of
-                [] ->
+    case path of
+        [] ->
+            Just dir
+
+        name :: tail ->
+            case dir of
+                File _ ->
                     Nothing
 
-                name :: [] ->
-                    if name == dirname then
-                        Just dir
+                Dir ( _, children ) ->
+                    children
+                        |> List.filterMap
+                            (\child ->
+                                case child of
+                                    File ( fname, _ ) ->
+                                        if fname == name then
+                                            getFromAbsPath tail child
 
-                    else
-                        Nothing
+                                        else
+                                            Nothing
 
-                name :: tail ->
-                    if name == dirname then
-                        children |> List.map (getFromAbsPath tail) |> List.filterMap identity |> List.head
+                                    Dir ( dname, _ ) ->
+                                        if dname == name then
+                                            getFromAbsPath tail child
 
-                    else
-                        Nothing
+                                        else
+                                            Nothing
+                            )
+                        |> List.head
 
-        File ( filename, id ) ->
-            case path of
-                name :: [] ->
-                    if name == filename then
-                        Just dir
 
-                    else
-                        Nothing
+type Resolved
+    = Exist Fs
+    | IsNotDir Fs
+    | NotFound
 
-                _ ->
-                    Nothing
+
+// FIXME
+resolvePath : Fs -> Fs -> String -> Resolved
+resolvePath root current text =
+    let
+        ( base, frontShrinked ) =
+            if String.startsWith "/" text then
+                ( root, String.dropLeft 1 text )
+
+            else if String.startsWith "./" text then
+                ( current, String.dropLeft 2 text )
+
+            else
+                ( current, text )
+    in
+    let
+        ( dirExpect, shrinked ) =
+            if String.endsWith "/" text then
+                ( True, String.dropRight 1 frontShrinked )
+
+            else
+                ( False, frontShrinked )
+
+        splited =
+            if shrinked == "" then
+                []
+
+            else
+                String.split "/" shrinked
+    in
+    case ( dirExpect, getFromAbsPath splited base ) of
+        ( True, Just (Dir fs) ) ->
+            Exist (Dir fs)
+
+        ( True, Just (File fs) ) ->
+            IsNotDir (File fs)
+
+        ( False, Just fs ) ->
+            Exist fs
+
+        ( _, Nothing ) ->
+            NotFound
