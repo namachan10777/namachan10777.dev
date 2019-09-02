@@ -170,19 +170,19 @@ renderHists hists =
             case hist of
                 Help s ->
                     div []
-                        [ div [] [ renderPrompt, text s ]
+                        [ div [ class "complete" ] [ renderPrompt, text s ]
                         , div [] [ renderPrompt, text "type \"name\" or \"icon\"" ]
                         ]
 
                 Name s ->
                     div []
-                        [ div [] [ renderPrompt, text s ]
+                        [ div [ class "complete" ] [ renderPrompt, text s ]
                         , div [] [ renderPrompt, text "Nakano Masaki" ]
                         ]
 
                 Icon s ->
                     div []
-                        [ div [] [ renderPrompt, text s ]
+                        [ div [ class "complete" ] [ renderPrompt, text s ]
                         , img [ src "./res/icon.jpg" ] [ renderPrompt ]
                         ]
 

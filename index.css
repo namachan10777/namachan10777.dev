@@ -8,6 +8,11 @@ body {
 	color: #ddd;
 }
 
+.complete {
+	font-weight: bolder;
+	color: #fff;
+}
+
 .yet {
 	color: #666;
 }
