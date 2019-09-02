@@ -71,28 +71,24 @@ type TypingStatus
     | NoInput
 
 
+command_candidates =
+    [ "name", "help", "icon", "clear" ]
+
+
 complete : String -> Maybe String
 complete current =
-    let
-        candidates =
-            [ "name", "help", "icon", "clear" ]
-    in
     let
         currentLen =
             String.length current
     in
-    candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
+    command_candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
 
 
 analyzeCurrent current =
-    let
-        candidates =
-            [ "name", "help", "icon", "clear" ]
-    in
     if current == "" then
         NoInput
 
-    else if candidates |> List.any (\candidate -> candidate == current) then
+    else if command_candidates |> List.any (\candidate -> candidate == current) then
         Complete current
 
     else
