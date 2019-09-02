@@ -25,6 +25,7 @@ type Hist
     = Help String
     | Name String
     | Icon String
+    | Clear String
     | Error String
 
 
@@ -74,7 +75,7 @@ complete : String -> Maybe String
 complete current =
     let
         candidates =
-            [ "name", "help", "icon" ]
+            [ "name", "help", "icon", "clear" ]
     in
     let
         currentLen =
@@ -86,7 +87,7 @@ complete current =
 analyzeCurrent current =
     let
         candidates =
-            [ "name", "help", "icon" ]
+            [ "name", "help", "icon", "clear" ]
     in
     if current == "" then
         NoInput
@@ -126,6 +127,9 @@ decode acc =
         "icon" ->
             Icon "icon"
 
+        "clear" ->
+            Clear "clear"
+
         err ->
             Error err
 
@@ -137,7 +141,12 @@ update msg model =
             ( { model | current = model.current ++ String.fromChar c }, Cmd.none )
 
         Type (Types.Control "Enter") ->
-            ( { model | current = "", hists = decode model.current :: model.hists }, scrollBottom () )
+            case decode model.current of
+                Clear s ->
+                    ( { model | current = "", hists = [ Clear s ] }, scrollBottom () )
+
+                other ->
+                    ( { model | current = "", hists = other :: model.hists }, scrollBottom () )
 
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
@@ -277,8 +286,11 @@ renderHists hists =
                             ]
                         ]
 
+                Clear s ->
+                    div [] [ renderPrompt, span [ class "complete" ] [ text s ] ]
+
                 Error s ->
-                    div [ class "error" ] [ renderPrompt, text s ]
+                    div [] [ renderPrompt, span [ class "error" ] [ text s ] ]
         )
         hists
 
@@ -289,9 +301,10 @@ view model =
         lists =
             div [] [ renderPrompt, renderCurrent model.current ] :: renderHists model.hists
     in
-    div [ id "root" ] [
-        div [ id "scroll-area" ] (List.reverse lists)
-        , renderPowerline model ]
+    div [ id "root" ]
+        [ div [ id "scroll-area" ] (List.reverse lists)
+        , renderPowerline model
+        ]
 
 
 
