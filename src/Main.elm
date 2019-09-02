@@ -1,9 +1,9 @@
-module Main exposing (Model)
+port module Main exposing (Model)
 
 import Browser
 import Browser.Events
 import Html exposing (..)
-import Html.Attributes exposing (class, src)
+import Html.Attributes exposing (class, src, id)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Types exposing (KeyValue)
@@ -34,6 +34,7 @@ type alias Model =
 
 type Msg
     = Type KeyValue
+    | ScrollBottom
 
 
 init : () -> ( Model, Cmd Msg )
@@ -96,6 +97,7 @@ analyzeCurrent current =
 
 -- UPDATE
 
+port scrollBottom: () -> Cmd msg
 
 decode : String -> Hist
 decode acc =
@@ -120,7 +122,7 @@ update msg model =
             ( { model | current = model.current ++ String.fromChar c }, Cmd.none )
 
         Type (Types.Control "Enter") ->
-            ( { model | current = "", hists = decode model.current :: model.hists }, Cmd.none )
+            ( { model | current = "", hists = decode model.current :: model.hists }, scrollBottom () )
 
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
@@ -136,6 +138,8 @@ update msg model =
         Type (Types.Control _) ->
             ( model, Cmd.none )
 
+        ScrollBottom ->
+            ( model,  scrollBottom ())
 
 
 -- VIEW
@@ -194,7 +198,7 @@ view model =
         lists =
             div [] [ renderPrompt, renderCurrent model.current ] :: renderHists model.hists
     in
-    div [] (List.reverse lists)
+    div [ id "root" ] (List.reverse lists)
 
 
 

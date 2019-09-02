@@ -24,3 +24,8 @@ body {
 .dir {
 	color: #d48517;
 }
+
+#root {
+	overflow-y: scroll;
+	height: 100vh;
+}

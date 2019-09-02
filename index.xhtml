@@ -18,9 +18,15 @@
 		<script src="elm.js"></script>
 	</head>
 	<body>
-		<div id="root"></div>
+		<div id="root" class="console"></div>
 		<script>
-			Elm.Main.init({ node: document.getElementById("root") });
+			const app = Elm.Main.init({ node: document.getElementById("root") });
+			app.ports.scrollBottom.subscribe(data => {
+				const root = document.getElementById("root");
+				setTimeout(() => {
+					root.scrollTop = root.scrollHeight;
+				}, 5);
+			});
 		</script>
 	</body>
 </html>
