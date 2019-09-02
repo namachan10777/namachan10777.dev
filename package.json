@@ -11,7 +11,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "elm make ./src/Main.elm --output=elm.js && elm-format --yes ./src/*.elm"
+    "dev": "elm make ./src/Main.elm --output=elm.js && elm-format --yes ./src/*.elm ./tests/*.elm",
+    "test": "elm-test && elm-format --yes ./src/*.elm ./tests/*.elm"
   },
   "repository": {
     "type": "git",
