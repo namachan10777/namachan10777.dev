@@ -6,87 +6,49 @@ type alias Id =
 
 
 type Fs
-    = Dir ( String, List Fs )
-    | File ( String, Id )
+    = Dir ( List String, String, List Fs )
+    | File ( List String, String, Id )
 
 
-getFromAbsPath : List String -> Fs -> Maybe Fs
-getFromAbsPath path dir =
+queryPath : Fs -> Fs -> List String -> Maybe Fs
+queryPath root current path =
     case path of
         [] ->
-            Just dir
+            Just current
+
+        "." :: tail ->
+            queryPath root current tail
+
+        ".." :: tail ->
+            case current of
+                File ( parent, _, _ ) ->
+                    queryPath root root (List.append parent tail)
+
+                Dir ( parent, _, _ ) ->
+                    queryPath root root (List.append parent tail)
 
         name :: tail ->
-            case dir of
+            case current of
                 File _ ->
                     Nothing
 
-                Dir ( _, children ) ->
+                Dir ( _, _, children ) ->
                     children
                         |> List.filterMap
                             (\child ->
                                 case child of
-                                    File ( fname, _ ) ->
+                                    File ( _, fname, _ ) ->
                                         if fname == name then
-                                            getFromAbsPath tail child
+                                            queryPath root child tail
 
                                         else
                                             Nothing
 
-                                    Dir ( dname, _ ) ->
+                                    Dir ( _, dname, _ ) ->
                                         if dname == name then
-                                            getFromAbsPath tail child
+                                            queryPath root child tail
 
                                         else
                                             Nothing
                             )
                         |> List.head
-
-
-type Resolved
-    = Exist Fs
-    | IsNotDir Fs
-    | NotFound
-
-
-// FIXME
-resolvePath : Fs -> Fs -> String -> Resolved
-resolvePath root current text =
-    let
-        ( base, frontShrinked ) =
-            if String.startsWith "/" text then
-                ( root, String.dropLeft 1 text )
-
-            else if String.startsWith "./" text then
-                ( current, String.dropLeft 2 text )
-
-            else
-                ( current, text )
-    in
-    let
-        ( dirExpect, shrinked ) =
-            if String.endsWith "/" text then
-                ( True, String.dropRight 1 frontShrinked )
-
-            else
-                ( False, frontShrinked )
-
-        splited =
-            if shrinked == "" then
-                []
-
-            else
-                String.split "/" shrinked
-    in
-    case ( dirExpect, getFromAbsPath splited base ) of
-        ( True, Just (Dir fs) ) ->
-            Exist (Dir fs)
-
-        ( True, Just (File fs) ) ->
-            IsNotDir (File fs)
-
-        ( False, Just fs ) ->
-            Exist fs
-
-        ( _, Nothing ) ->
-            NotFound

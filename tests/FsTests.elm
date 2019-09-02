@@ -8,10 +8,12 @@ import Test exposing (..)
 usr : Fs
 usr =
     Dir
-        ( "usr"
+        ( []
+        , "usr"
         , [ Dir
-                ( "bin"
-                , [ File ( "echo", 1 )
+                ( [ "usr" ]
+                , "bin"
+                , [ File ( [ "usr", "bin" ], "echo", 1 )
                   ]
                 )
           ]
@@ -21,8 +23,9 @@ usr =
 root : Fs
 root =
     Dir
-        ( "/"
-        , [ File ( "root.txt", 0 )
+        ( []
+        , ""
+        , [ File ( [], "root.txt", 0 )
           , usr
           ]
         )
@@ -31,30 +34,20 @@ root =
 fsTests : Test
 fsTests =
     describe "test Os module"
-        [ describe "getFromAbsPath"
+        [ describe "queryPath"
             [ test "root" <|
-                \_ -> Expect.equal (getFromAbsPath [] root) (Just root)
+                \_ -> Expect.equal (queryPath root root []) (Just root)
             , test "root.txt" <|
-                \_ -> Expect.equal (getFromAbsPath [ "root.txt" ] root) (Just (File ( "root.txt", 0 )))
+                \_ -> Expect.equal (queryPath root root [ "root.txt" ]) (Just (File ( [], "root.txt", 0 )))
             , test "echo" <|
-                \_ -> Expect.equal (getFromAbsPath [ "usr", "bin", "echo" ] root) (Just (File ( "echo", 1 )))
-            , test "not found" <|
-                \_ -> Expect.equal (getFromAbsPath [ "usr", "bin", "ech" ] root) Nothing
-            ]
-        , describe "resolvePath"
-            [ test "absolute root" <|
-                \_ -> Expect.equal (resolvePath root usr "/") (Exist root)
-            , test "absolute echo" <|
-                \_ -> Expect.equal (resolvePath root usr "/usr/bin/echo") (Exist (File ( "echo", 1 )))
-            , test "relative echo 1" <|
-                \_ -> Expect.equal (resolvePath root usr "./bin/echo") (Exist (File ( "echo", 1 )))
+                \_ -> Expect.equal (queryPath root root [ "usr", "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
+            , test "relative echo" <|
+                \_ -> Expect.equal (queryPath root usr [ "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
             , test "relative echo 2" <|
-                \_ -> Expect.equal (resolvePath root usr "bin/echo") (Exist (File ( "echo", 1 )))
-            , test "relative echo expect dir" <|
-                \_ -> Expect.equal (resolvePath root usr "bin/echo/") (IsNotDir (File ( "echo", 1 )))
-            , test "here" <|
-                \_ -> Expect.equal (resolvePath root usr "./") (Exist usr)
+                \_ -> Expect.equal (queryPath root usr [ ".", "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
+            , test "relative root.txt" <|
+                \_ -> Expect.equal (queryPath root usr [ "..", "root.txt" ]) (Just (File ( [], "root.txt", 0 )))
             , test "not found" <|
-                \_ -> Expect.equal (resolvePath root usr "./none") NotFound
+                \_ -> Expect.equal (queryPath root root [ "usr", "bin", "ech" ]) Nothing
             ]
         ]
