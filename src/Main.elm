@@ -3,7 +3,7 @@ port module Main exposing (Model)
 import Browser
 import Browser.Events
 import Html exposing (..)
-import Html.Attributes exposing (class, src, id)
+import Html.Attributes exposing (class, src, id, href)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Types exposing (KeyValue)
@@ -184,6 +184,10 @@ renderHists hists =
                     div []
                         [ div [ class "complete" ] [ renderPrompt, text s ]
                         , img [ src "./res/icon.jpg" ] [ renderPrompt ]
+                        , div [] [
+                                span [] [ text "by " ],
+                                a [ href "https://twitter.com/hsm_hx" ] [ text "@hsm_hx" ]
+                            ]
                         ]
 
                 Error s ->
