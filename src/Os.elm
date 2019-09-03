@@ -10,6 +10,12 @@ type Fs
     | File ( List String, String, Id )
 
 
+type alias System =
+    { root : Fs
+    , current : Fs
+    }
+
+
 exePath : String
 exePath =
     "/usr/bin/"
@@ -34,6 +40,7 @@ initialFs =
                           , File ( [ "usr", "bin" ], "cd", 5 )
                           , File ( [ "usr", "bin" ], "ls", 5 )
                           , File ( [ "usr", "bin" ], "pwd", 6 )
+                          , File ( [ "usr", "bin" ], "ls", 7 )
                           ]
                         )
                   ]
@@ -54,25 +61,25 @@ initialFs =
         )
 
 
-queryPath : Fs -> Fs -> List String -> Maybe Fs
-queryPath root current path =
+queryPath : System -> List String -> Maybe Fs
+queryPath system path =
     case path of
         [] ->
-            Just current
+            Just system.current
 
         "." :: tail ->
-            queryPath root current tail
+            queryPath system tail
 
         ".." :: tail ->
-            case current of
+            case system.current of
                 File ( parent, _, _ ) ->
-                    queryPath root root (List.append parent tail)
+                    queryPath { root = system.root, current = system.root } (List.append parent tail)
 
                 Dir ( parent, _, _ ) ->
-                    queryPath root root (List.append parent tail)
+                    queryPath { root = system.root, current = system.root } (List.append parent tail)
 
         name :: tail ->
-            case current of
+            case system.current of
                 File _ ->
                     Nothing
 
@@ -83,14 +90,14 @@ queryPath root current path =
                                 case child of
                                     File ( _, fname, _ ) ->
                                         if fname == name then
-                                            queryPath root child tail
+                                            queryPath { root = system.root, current = child } tail
 
                                         else
                                             Nothing
 
                                     Dir ( _, dname, _ ) ->
                                         if dname == name then
-                                            queryPath root child tail
+                                            queryPath { root = system.root, current = child } tail
 
                                         else
                                             Nothing
@@ -104,7 +111,8 @@ type Resolved
     | NotFound
 
 
-resolvePath root current path =
+resolvePath : System -> String -> Resolved
+resolvePath system path =
     let
         ( dirExpect, shrinked ) =
             if String.endsWith "/" path then
@@ -116,13 +124,13 @@ resolvePath root current path =
         queried =
             if String.startsWith "/" path then
                 if path == "/" then
-                    Just root
+                    Just system.root
 
                 else
-                    queryPath root root (shrinked |> String.dropLeft 1 |> String.split "/")
+                    queryPath { root = system.root, current = system.root } (shrinked |> String.dropLeft 1 |> String.split "/")
 
             else
-                queryPath root current (shrinked |> String.split "/")
+                queryPath system (shrinked |> String.split "/")
     in
     case ( dirExpect, queried ) of
         ( True, Just ((File _) as f) ) ->
@@ -138,19 +146,19 @@ resolvePath root current path =
             NotFound
 
 
-resolveExe : Fs -> Fs -> String -> Resolved
-resolveExe root current path =
+resolveExe : System -> String -> Resolved
+resolveExe system path =
     if String.startsWith "." path || String.startsWith "/" path then
-        resolvePath root current path
+        resolvePath system path
 
     else
-        case resolvePath root current path of
+        case resolvePath system path of
             NotFound ->
                 if String.length path < 1 || String.contains "/" path then
                     NotFound
 
                 else
-                    resolvePath root current (String.append exePath path)
+                    resolvePath system (String.append exePath path)
 
             other ->
                 other
