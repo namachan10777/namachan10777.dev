@@ -10,6 +10,12 @@ type Fs
     | File ( List String, String, Id )
 
 
+exePath : String
+exePath =
+    "/usr/bin/"
+
+
+initialFs : Fs
 initialFs =
     Dir
         ( []
@@ -130,3 +136,21 @@ resolvePath root current path =
 
         ( _, Nothing ) ->
             NotFound
+
+
+resolveExe : Fs -> Fs -> String -> Resolved
+resolveExe root current path =
+    if String.startsWith "." path || String.startsWith "/" path then
+        resolvePath root current path
+
+    else
+        case resolvePath root current path of
+            NotFound ->
+                if String.length path < 1 || String.contains "/" path then
+                    NotFound
+
+                else
+                    resolvePath root current (String.append exePath path)
+
+            other ->
+                other

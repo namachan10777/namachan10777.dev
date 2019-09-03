@@ -76,4 +76,14 @@ fsTests =
             , test "not found" <|
                 \_ -> Expect.equal (resolvePath root root "/usr/bin/ech") NotFound
             ]
+        , describe "resolveExe"
+            [ test "absulute echo" <|
+                \_ -> Expect.equal (resolveExe root usr "/usr/bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+            , test "relative echo" <|
+                \_ -> Expect.equal (resolveExe root usr "./bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+            , test "path echo" <|
+                \_ -> Expect.equal (resolveExe root usr "echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+            , test "relative echo IsNotDir" <|
+                \_ -> Expect.equal (resolveExe root usr "./bin/echo/") (IsNotDir (File ( [ "usr", "bin" ], "echo", 1 )))
+            ]
         ]
