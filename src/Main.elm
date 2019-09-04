@@ -248,7 +248,7 @@ renderHists hists =
                     ( cmd, Os.Stdout s ) ->
                         div []
                             [ div [] [ renderPrompt, renderLine cmd ]
-                            , div [] [ renderPrompt, text s ]
+                            , div [] [ text s ]
                             ]
 
                     ( cmd, Os.Icon ) ->
