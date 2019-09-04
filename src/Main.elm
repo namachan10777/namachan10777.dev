@@ -22,9 +22,13 @@ main =
 -- MODEL
 
 
+type alias Hist =
+    ( LineInput, Os.CmdResult )
+
+
 type alias Model =
     { current : String
-    , hists : List ( String, Os.CmdResult )
+    , hists : List Hist
     , posix : Time.Posix
     , zone : Time.Zone
     , system : Os.System
@@ -59,46 +63,6 @@ init _ =
 
 
 -- UTIL
-
-
-type TypingStatus
-    = Complete String
-    | Yet ( String, String )
-    | Invalid String
-    | NoInput
-
-
-complete : List String -> String -> Maybe String
-complete candidates current =
-    let
-        currentLen =
-            String.length current
-    in
-    candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
-
-
-analyzeCurrent : List String -> String -> TypingStatus
-analyzeCurrent candidates current =
-    if current == "" then
-        NoInput
-
-    else if candidates |> List.any (\candidate -> candidate == current) then
-        Complete current
-
-    else
-        let
-            currentLen =
-                String.length current
-        in
-        case complete candidates current of
-            Just candidate ->
-                Yet ( current, String.right (String.length candidate - currentLen) candidate )
-
-            Nothing ->
-                Invalid current
-
-
-
 -- UPDATE
 
 
@@ -125,7 +89,7 @@ update msg model =
                 Os.Clear ->
                     ( { model
                         | current = ""
-                        , hists = [ ( model.current, Os.Clear ) ]
+                        , hists = [ ( modelToLineInput model, Os.Clear ) ]
                         , candidates = Os.enumerateCmds newSystem
                         , system = newSystem
                       }
@@ -135,7 +99,7 @@ update msg model =
                 other ->
                     ( { model
                         | current = ""
-                        , hists = ( model.current, other ) :: model.hists
+                        , hists = ( modelToLineInput model, other ) :: model.hists
                         , candidates = Os.enumerateCmds newSystem
                         , system = newSystem
                       }
@@ -145,13 +109,13 @@ update msg model =
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
 
-        Type (Types.Control "ArrowRight") ->
-            case complete model.candidates model.current of
-                Just completed ->
-                    ( { model | current = completed }, Cmd.none )
-
-                Nothing ->
+        Type (Types.Control "Space") ->
+            case model.current of
+                "" ->
                     ( model, Cmd.none )
+
+                other ->
+                    ( { model | current = model.current ++ " " }, Cmd.none )
 
         Type (Types.Control _) ->
             ( model, Cmd.none )
@@ -174,21 +138,41 @@ renderPrompt =
     span [] [ span [ class "arrow" ] [ text "×> " ], span [ class "dir" ] [ text "~/ " ] ]
 
 
-renderCurrent candidates current =
-    case analyzeCurrent candidates current of
-        NoInput ->
-            span [] []
-
-        Invalid typed ->
-            span [ class "error" ] [ text typed ]
-
-        Yet ( typed, yet ) ->
-            span [] [ span [ class "error" ] [ text typed ], span [ class "yet" ] [ text yet ] ]
-
-        Complete typed ->
-            span [ class "complete" ] [ text typed ]
+type LineInput
+    = Invalid ( String, String )
+    | Valid ( String, String )
 
 
+modelToLineInput : Model -> LineInput
+modelToLineInput model =
+    let
+        splited =
+            model.current |> String.split " "
+
+        cmd =
+            splited |> List.head |> Maybe.withDefault ""
+
+        args =
+            splited |> List.tail |> Maybe.withDefault [] |> String.join " "
+    in
+    if List.member cmd model.candidates then
+        Valid ( cmd, args )
+
+    else
+        Invalid ( cmd, args )
+
+
+renderLine : LineInput -> Html Msg
+renderLine input =
+    case input of
+        Valid ( cmd, args ) ->
+            span [] [ span [ class "complete" ] [ text cmd ], text " ", span [ class "args" ] [ text args ] ]
+
+        Invalid ( cmd, args ) ->
+            span [] [ span [ class "error" ] [ text cmd ], text " ", span [ class "args" ] [ text args ] ]
+
+
+toEnMonth : Time.Month -> String
 toEnMonth month =
     case month of
         Time.Jan ->
@@ -228,6 +212,7 @@ toEnMonth month =
             "Dec"
 
 
+renderPowerline : Model -> Html Msg
 renderPowerline model =
     let
         year =
@@ -254,40 +239,38 @@ renderPowerline model =
         ]
 
 
+renderHists : List Hist -> List (Html Msg)
 renderHists hists =
-    List.map
-        (\hist ->
-            case hist of
-                ( cmd, Os.Stdout s ) ->
-                    div []
-                        [ div [ class "complete" ] [ renderPrompt, text cmd ]
-                        , div [] [ renderPrompt, text s ]
-                        ]
-
-                ( cmd, Os.Icon ) ->
-                    div []
-                        [ div [ class "complete" ] [ renderPrompt, text cmd ]
-                        , img [ src "./res/icon.jpg" ] [ renderPrompt ]
-                        , div []
-                            [ span [] [ text "by " ]
-                            , a [ href "https://twitter.com/hsm_hx" ] [ text "@hsm_hx" ]
+    hists
+        |> List.map
+            (\hist ->
+                case hist of
+                    ( cmd, Os.Stdout s ) ->
+                        div []
+                            [ div [] [ renderPrompt, renderLine cmd ]
+                            , div [] [ renderPrompt, text s ]
                             ]
-                        ]
 
-                ( cmd, Os.Clear ) ->
-                    div [] [ renderPrompt, span [ class "complete" ] [ text cmd ] ]
+                    ( cmd, Os.Icon ) ->
+                        div []
+                            [ div [] [ renderPrompt, renderLine cmd ]
+                            , img [ src "./res/icon.jpg" ] [ renderPrompt ]
+                            , div []
+                                [ span [] [ text "by " ]
+                                , a [ href "https://twitter.com/hsm_hx" ] [ text "@hsm_hx" ]
+                                ]
+                            ]
 
-                ( cmd, Os.NoCmd ) ->
-                    div [] [ renderPrompt, span [ class "error" ] [ text cmd ] ]
-        )
-        hists
+                    ( cmd, _ ) ->
+                        div [] [ renderPrompt, renderLine cmd ]
+            )
 
 
 view : Model -> Html Msg
 view model =
     let
         lists =
-            div [] [ renderPrompt, renderCurrent model.candidates model.current ] :: renderHists model.hists
+            div [] [ renderPrompt, renderLine (modelToLineInput model) ] :: renderHists model.hists
     in
     div [ id "root" ]
         [ div [ id "scroll-area" ] (List.reverse lists)
