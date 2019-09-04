@@ -11,6 +11,7 @@ bin =
         ( [ "usr" ]
         , "bin"
         , [ File ( [ "usr", "bin" ], "echo", 1 )
+          , File ( [ "usr", "bin" ], "cd", 1 )
           ]
         )
 
@@ -99,5 +100,11 @@ fsTests =
                 \_ -> Expect.equal (resolveExe atUsr "echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
             , test "relative echo IsNotDir" <|
                 \_ -> Expect.equal (resolveExe atUsr "./bin/echo/") (IsNotDir (File ( [ "usr", "bin" ], "echo", 1 )))
+            ]
+        , describe "enumerateCmds"
+            [ test "enumerate 1" <|
+                \_ -> Expect.equal (enumerateCmds atRoot) [ "echo", "cd" ]
+            , test "enumerate 2" <|
+                \_ -> Expect.equal (enumerateCmds atUsr) [ "echo", "cd" ]
             ]
         ]

@@ -40,7 +40,6 @@ initialFs =
                           , File ( [ "usr", "bin" ], "cd", 5 )
                           , File ( [ "usr", "bin" ], "ls", 5 )
                           , File ( [ "usr", "bin" ], "pwd", 6 )
-                          , File ( [ "usr", "bin" ], "ls", 7 )
                           ]
                         )
                   ]
@@ -59,6 +58,13 @@ initialFs =
                 )
           ]
         )
+
+
+initialSystem : System
+initialSystem =
+    { root = initialFs
+    , current = initialFs
+    }
 
 
 queryPath : System -> List String -> Maybe Fs
@@ -162,3 +168,100 @@ resolveExe system path =
 
             other ->
                 other
+
+
+type CmdResult
+    = Icon
+    | Stdout String
+    | NoCmd
+    | Clear
+
+
+execEcho : System -> List String -> ( CmdResult, System )
+execEcho system arg =
+    ( Stdout (String.join " " arg), system )
+
+
+execCat : System -> List String -> ( CmdResult, System )
+execCat system _ =
+    ( NoCmd, system )
+
+
+execShowImg : System -> List String -> ( CmdResult, System )
+execShowImg system _ =
+    ( NoCmd, system )
+
+
+execMv : System -> List String -> ( CmdResult, System )
+execMv system _ =
+    ( NoCmd, system )
+
+
+execRm : System -> List String -> ( CmdResult, System )
+execRm system _ =
+    ( NoCmd, system )
+
+
+execCd : System -> List String -> ( CmdResult, System )
+execCd system _ =
+    ( NoCmd, system )
+
+
+execLs : System -> List String -> ( CmdResult, System )
+execLs system _ =
+    ( NoCmd, system )
+
+
+execPwd : System -> List String -> ( CmdResult, System )
+execPwd system _ =
+    ( NoCmd, system )
+
+
+exec : System -> String -> List String -> ( CmdResult, System )
+exec system path args =
+    case resolveExe system path of
+        Succes (File ( _, _, 0 )) ->
+            execEcho system args
+
+        Succes (File ( _, _, 1 )) ->
+            execCat system args
+
+        Succes (File ( _, _, 2 )) ->
+            execShowImg system args
+
+        Succes (File ( _, _, 3 )) ->
+            execMv system args
+
+        Succes (File ( _, _, 4 )) ->
+            execRm system args
+
+        Succes (File ( _, _, 5 )) ->
+            execCd system args
+
+        Succes (File ( _, _, 6 )) ->
+            execLs system args
+
+        Succes (File ( _, _, 7 )) ->
+            execPwd system args
+
+        _ ->
+            ( NoCmd, system )
+
+
+enumerateCmds : System -> List String
+enumerateCmds system =
+    case resolvePath system exePath of
+        Succes (Dir ( _, _, files )) ->
+            files
+                |> List.filterMap
+                    (\file ->
+                        case file of
+                            File ( _, name, _ ) ->
+                                Just name
+
+                            _ ->
+                                Nothing
+                    )
+
+        _ ->
+            []

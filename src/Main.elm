@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href, id, src)
 import Html.Events exposing (..)
 import Json.Decode as Decode
+import Os
 import Task
 import Time
 import Types exposing (KeyValue)
@@ -21,19 +22,13 @@ main =
 -- MODEL
 
 
-type Hist
-    = Help String
-    | Name String
-    | Icon String
-    | Clear String
-    | Error String
-
-
 type alias Model =
     { current : String
-    , hists : List Hist
+    , hists : List ( String, Os.CmdResult )
     , posix : Time.Posix
     , zone : Time.Zone
+    , system : Os.System
+    , candidates : List String
     }
 
 
@@ -55,6 +50,8 @@ init _ =
       , hists = []
       , posix = Time.millisToPosix 0
       , zone = Time.utc
+      , system = Os.initialSystem
+      , candidates = Os.enumerateCmds Os.initialSystem
       }
     , setSystemTime
     )
@@ -71,24 +68,21 @@ type TypingStatus
     | NoInput
 
 
-command_candidates =
-    [ "name", "help", "icon", "clear" ]
-
-
-complete : String -> Maybe String
-complete current =
+complete : List String -> String -> Maybe String
+complete candidates current =
     let
         currentLen =
             String.length current
     in
-    command_candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
+    candidates |> List.filter (\candidate -> current == String.left currentLen candidate) |> List.head
 
 
-analyzeCurrent current =
+analyzeCurrent : List String -> String -> TypingStatus
+analyzeCurrent candidates current =
     if current == "" then
         NoInput
 
-    else if command_candidates |> List.any (\candidate -> candidate == current) then
+    else if candidates |> List.any (\candidate -> candidate == current) then
         Complete current
 
     else
@@ -96,7 +90,7 @@ analyzeCurrent current =
             currentLen =
                 String.length current
         in
-        case complete current of
+        case complete candidates current of
             Just candidate ->
                 Yet ( current, String.right (String.length candidate - currentLen) candidate )
 
@@ -111,25 +105,6 @@ analyzeCurrent current =
 port scrollBottom : () -> Cmd msg
 
 
-decode : String -> Hist
-decode acc =
-    case acc of
-        "help" ->
-            Help "help"
-
-        "name" ->
-            Name "name"
-
-        "icon" ->
-            Icon "icon"
-
-        "clear" ->
-            Clear "clear"
-
-        err ->
-            Error err
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -137,18 +112,41 @@ update msg model =
             ( { model | current = model.current ++ String.fromChar c }, Cmd.none )
 
         Type (Types.Control "Enter") ->
-            case decode model.current of
-                Clear s ->
-                    ( { model | current = "", hists = [ Clear s ] }, scrollBottom () )
+            let
+                ( execResult, newSystem ) =
+                    case String.split " " model.current of
+                        cmd :: args ->
+                            Os.exec model.system cmd args
+
+                        _ ->
+                            ( Os.NoCmd, model.system )
+            in
+            case execResult of
+                Os.Clear ->
+                    ( { model
+                        | current = ""
+                        , hists = [ ( model.current, Os.Clear ) ]
+                        , candidates = Os.enumerateCmds newSystem
+                        , system = newSystem
+                      }
+                    , scrollBottom ()
+                    )
 
                 other ->
-                    ( { model | current = "", hists = other :: model.hists }, scrollBottom () )
+                    ( { model
+                        | current = ""
+                        , hists = ( model.current, other ) :: model.hists
+                        , candidates = Os.enumerateCmds newSystem
+                        , system = newSystem
+                      }
+                    , scrollBottom ()
+                    )
 
         Type (Types.Control "Backspace") ->
             ( { model | current = String.left (String.length model.current - 1) model.current }, Cmd.none )
 
         Type (Types.Control "ArrowRight") ->
-            case complete model.current of
+            case complete model.candidates model.current of
                 Just completed ->
                     ( { model | current = completed }, Cmd.none )
 
@@ -176,8 +174,8 @@ renderPrompt =
     span [] [ span [ class "arrow" ] [ text "×> " ], span [ class "dir" ] [ text "~/ " ] ]
 
 
-renderCurrent current =
-    case analyzeCurrent current of
+renderCurrent candidates current =
+    case analyzeCurrent candidates current of
         NoInput ->
             span [] []
 
@@ -260,21 +258,15 @@ renderHists hists =
     List.map
         (\hist ->
             case hist of
-                Help s ->
+                ( cmd, Os.Stdout s ) ->
                     div []
-                        [ div [ class "complete" ] [ renderPrompt, text s ]
-                        , div [] [ renderPrompt, text "type \"name\" or \"icon\"" ]
+                        [ div [ class "complete" ] [ renderPrompt, text cmd ]
+                        , div [] [ renderPrompt, text s ]
                         ]
 
-                Name s ->
+                ( cmd, Os.Icon ) ->
                     div []
-                        [ div [ class "complete" ] [ renderPrompt, text s ]
-                        , div [] [ renderPrompt, text "Nakano Masaki" ]
-                        ]
-
-                Icon s ->
-                    div []
-                        [ div [ class "complete" ] [ renderPrompt, text s ]
+                        [ div [ class "complete" ] [ renderPrompt, text cmd ]
                         , img [ src "./res/icon.jpg" ] [ renderPrompt ]
                         , div []
                             [ span [] [ text "by " ]
@@ -282,11 +274,11 @@ renderHists hists =
                             ]
                         ]
 
-                Clear s ->
-                    div [] [ renderPrompt, span [ class "complete" ] [ text s ] ]
+                ( cmd, Os.Clear ) ->
+                    div [] [ renderPrompt, span [ class "complete" ] [ text cmd ] ]
 
-                Error s ->
-                    div [] [ renderPrompt, span [ class "error" ] [ text s ] ]
+                ( cmd, Os.NoCmd ) ->
+                    div [] [ renderPrompt, span [ class "error" ] [ text cmd ] ]
         )
         hists
 
@@ -295,7 +287,7 @@ view : Model -> Html Msg
 view model =
     let
         lists =
-            div [] [ renderPrompt, renderCurrent model.current ] :: renderHists model.hists
+            div [] [ renderPrompt, renderCurrent model.candidates model.current ] :: renderHists model.hists
     in
     div [ id "root" ]
         [ div [ id "scroll-area" ] (List.reverse lists)
