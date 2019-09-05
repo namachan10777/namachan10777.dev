@@ -178,13 +178,35 @@ type CmdResult
 
 
 execEcho : System -> List String -> ( CmdResult, System )
-execEcho system arg =
-    ( Stdout (String.join " " arg), system )
+execEcho system args =
+    ( Stdout (String.join " " args), system )
 
 
 execCat : System -> List String -> ( CmdResult, System )
-execCat system _ =
-    ( NoCmd, system )
+execCat system args =
+    args
+        |> List.map
+            (\arg ->
+                case resolvePath system arg of
+                    Succes (File ( _, fname, id )) ->
+                        case id of
+                            8 ->
+                                "Nakano Masaki<namachan10777@gmail.com\n"
+
+                            _ ->
+                                String.append fname " is not a text file\n"
+
+                    Succes (Dir ( _, dname, _ )) ->
+                        String.append dname " is a directory\n"
+
+                    IsNotDir (File ( _, fname, id )) ->
+                        String.append fname " is not a directory\n"
+
+                    _ ->
+                        String.append arg " is not found\n"
+            )
+        |> String.concat
+        |> (\s -> ( Stdout s, system ))
 
 
 execShowImg : System -> List String -> ( CmdResult, System )
