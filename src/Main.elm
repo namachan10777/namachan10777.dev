@@ -80,7 +80,18 @@ update msg model =
                 ( execResult, newSystem ) =
                     case String.split " " model.current of
                         cmd :: args ->
-                            Os.exec model.system cmd (args |> List.filterMap (\s -> if s == "" then Nothing else Just s))
+                            Os.exec model.system
+                                cmd
+                                (args
+                                    |> List.filterMap
+                                        (\s ->
+                                            if s == "" then
+                                                Nothing
+
+                                            else
+                                                Just s
+                                        )
+                                )
 
                         _ ->
                             ( Os.NoCmd, model.system )
@@ -239,26 +250,40 @@ renderPowerline model =
         ]
 
 
+renderStdout : List Os.Output -> Html Msg
+renderStdout outputs =
+    outputs
+        |> List.map
+            (\output ->
+                case output of
+                    Os.Str s ->
+                        pre [ class "stdout" ] [ text s ]
+
+                    Os.Img ( cssClass, imgSrc, Nothing ) ->
+                        img [ class cssClass, src imgSrc ] []
+
+                    Os.Img ( cssClass, imgSrc, Just ( author, link ) ) ->
+                        div []
+                            [ img [ class cssClass, src imgSrc ] []
+                            , div []
+                                [ span [] [ text "by " ]
+                                , a [ href link ] [ text author ]
+                                ]
+                            ]
+            )
+        |> (\elements -> div [] elements)
+
+
 renderHists : List Hist -> List (Html Msg)
 renderHists hists =
     hists
         |> List.map
             (\hist ->
                 case hist of
-                    ( cmd, Os.Stdout s ) ->
+                    ( cmd, Os.Stdout outputs ) ->
                         div []
                             [ div [] [ renderPrompt, renderLine cmd ]
-                            , pre [ class "stdout" ] [ text s ]
-                            ]
-
-                    ( cmd, Os.Icon ) ->
-                        div []
-                            [ div [] [ renderPrompt, renderLine cmd ]
-                            , img [ src "./res/icon.jpg" ] [ renderPrompt ]
-                            , div []
-                                [ span [] [ text "by " ]
-                                , a [ href "https://twitter.com/hsm_hx" ] [ text "@hsm_hx" ]
-                                ]
+                            , renderStdout outputs
                             ]
 
                     ( cmd, _ ) ->

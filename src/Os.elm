@@ -34,7 +34,6 @@ initialFs =
                         , "bin"
                         , [ File ( [ "usr", "bin" ], "echo", 0 )
                           , File ( [ "usr", "bin" ], "cat", 1 )
-                          , File ( [ "usr", "bin" ], "show-img", 2 )
                           , File ( [ "usr", "bin" ], "mv", 3 )
                           , File ( [ "usr", "bin" ], "rm", 4 )
                           , File ( [ "usr", "bin" ], "cd", 5 )
@@ -170,16 +169,22 @@ resolveExe system path =
                 other
 
 
+type
+    Output
+    -- class src author
+    = Img ( String, String, Maybe ( String, String ) )
+    | Str String
+
+
 type CmdResult
-    = Icon
-    | Stdout String
+    = Stdout (List Output)
     | NoCmd
     | Clear
 
 
 execEcho : System -> List String -> ( CmdResult, System )
 execEcho system args =
-    ( Stdout (String.join " " args), system )
+    ( Stdout [ Str (String.join " " args) ], system )
 
 
 execCat : System -> List String -> ( CmdResult, System )
@@ -191,27 +196,24 @@ execCat system args =
                     Succes (File ( _, fname, id )) ->
                         case id of
                             8 ->
-                                "Nakano Masaki<namachan10777@gmail.com\n"
+                                Str "Nakano Masaki<namachan10777@gmail.com\n"
+
+                            7 ->
+                                Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) )
 
                             _ ->
-                                String.append fname " is not a text file\n"
+                                Str (String.append fname " is not a text file\n")
 
                     Succes (Dir ( _, dname, _ )) ->
-                        String.append dname " is a directory\n"
+                        Str (String.append dname " is a directory\n")
 
                     IsNotDir (File ( _, fname, id )) ->
-                        String.append fname " is not a directory\n"
+                        Str (String.append fname " is not a directory\n")
 
                     _ ->
-                        String.append arg " is not found\n"
+                        Str (String.append arg " is not found\n")
             )
-        |> String.concat
-        |> (\s -> ( Stdout s, system ))
-
-
-execShowImg : System -> List String -> ( CmdResult, System )
-execShowImg system _ =
-    ( NoCmd, system )
+        |> (\outputs -> ( Stdout outputs, system ))
 
 
 execMv : System -> List String -> ( CmdResult, System )
@@ -247,9 +249,6 @@ exec system path args =
 
         Succes (File ( _, _, 1 )) ->
             execCat system args
-
-        Succes (File ( _, _, 2 )) ->
-            execShowImg system args
 
         Succes (File ( _, _, 3 )) ->
             execMv system args
