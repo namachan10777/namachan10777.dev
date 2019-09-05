@@ -107,4 +107,14 @@ fsTests =
             , test "enumerate 2" <|
                 \_ -> Expect.equal (enumerateCmds atUsr) [ "echo", "cd" ]
             ]
+        , describe "normalizePath"
+            [ test "normalize rel" <|
+                \_ -> Expect.equal (normalizePath [ ".", "foo", "bar" ]) (Just [ "foo", "bar" ])
+            , test "normalize parent" <|
+                \_ -> Expect.equal (normalizePath [ "foo", "..", "bar" ]) (Just [ "bar" ])
+            , test "normalize complex" <|
+                \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", ".." ]) (Just [])
+            , test "invalid return" <|
+                \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", "..", ".." ]) Nothing
+            ]
         ]

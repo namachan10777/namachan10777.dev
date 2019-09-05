@@ -10,6 +10,26 @@ type Fs
     | File ( List String, String, Id )
 
 
+normalizePathRev path =
+    case path of
+        [] ->
+            Just []
+
+        "." :: tail ->
+            normalizePathRev tail
+
+        ".." :: tail ->
+            normalizePathRev tail |> Maybe.andThen List.tail
+
+        other :: tail ->
+            normalizePathRev tail |> Maybe.andThen (\succes -> Just (other :: succes))
+
+
+normalizePath : List String -> Maybe (List String)
+normalizePath path =
+    path |> List.reverse |> normalizePathRev |> Maybe.map List.reverse
+
+
 type alias System =
     { root : Fs
     , current : Fs
