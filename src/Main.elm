@@ -80,7 +80,7 @@ update msg model =
                 ( execResult, newSystem ) =
                     case String.split " " model.current of
                         cmd :: args ->
-                            Os.exec model.system cmd args
+                            Os.exec model.system cmd (args |> List.filterMap (\s -> if s == "" then Nothing else Just s))
 
                         _ ->
                             ( Os.NoCmd, model.system )
