@@ -8,10 +8,9 @@ import Test exposing (..)
 bin : Fs
 bin =
     Dir
-        ( [ "usr" ]
-        , "bin"
-        , [ File ( [ "usr", "bin" ], "echo", 1 )
-          , File ( [ "usr", "bin" ], "cd", 1 )
+        ( "bin"
+        , [ File ( "echo", 1 )
+          , File ( "cd", 1 )
           ]
         )
 
@@ -19,8 +18,7 @@ bin =
 usr : Fs
 usr =
     Dir
-        ( []
-        , "usr"
+        ( "usr"
         , [ bin ]
         )
 
@@ -28,9 +26,8 @@ usr =
 root : Fs
 root =
     Dir
-        ( []
-        , ""
-        , [ File ( [], "root.txt", 0 )
+        ( ""
+        , [ File ( "root.txt", 0 )
           , usr
           ]
         )
@@ -39,67 +36,79 @@ root =
 atUsr : System
 atUsr =
     { root = root
-    , current = usr
+    , current = [ "", "usr" ]
     }
 
 
 atRoot : System
 atRoot =
     { root = root
-    , current = root
+    , current = [ "" ]
     }
 
 
 fsTests : Test
 fsTests =
     describe "test Os module"
-        [ describe "queryPath"
+        [ describe "queryPathAbs"
             [ test "root" <|
-                \_ -> Expect.equal (queryPath atRoot []) (Just root)
+                \_ -> Expect.equal (queryPathAbs root [ "" ]) (Just root)
             , test "root.txt" <|
-                \_ -> Expect.equal (queryPath atRoot [ "root.txt" ]) (Just (File ( [], "root.txt", 0 )))
+                \_ -> Expect.equal (queryPathAbs root [ "", "root.txt" ]) (Just (File ( "root.txt", 0 )))
+            , test "usr bin" <|
+                \_ -> Expect.equal (queryPathAbs root [ "", "usr", "bin" ]) (Just bin)
+            , test "fail" <|
+                \_ -> Expect.equal (queryPathAbs root [ "", "usr", "bi" ]) Nothing
+            ]
+        , describe "queryPath"
+            [ test "root" <|
+                \_ -> Expect.equal (queryPath atRoot []) (Just ( root, [ "" ] ))
+            , test "root.txt" <|
+                \_ -> Expect.equal (queryPath atRoot [ "root.txt" ]) (Just ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
+            , test "root.txt-root" <|
+                \_ -> Expect.equal (queryPath atRoot [ "", "root.txt" ]) (Just ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "echo" <|
-                \_ -> Expect.equal (queryPath atRoot [ "usr", "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (queryPath atRoot [ "usr", "bin", "echo" ]) (Just ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo" <|
-                \_ -> Expect.equal (queryPath atUsr [ "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (queryPath atUsr [ "bin", "echo" ]) (Just ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo 2" <|
-                \_ -> Expect.equal (queryPath atUsr [ ".", "bin", "echo" ]) (Just (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (queryPath atUsr [ ".", "bin", "echo" ]) (Just ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative root.txt" <|
-                \_ -> Expect.equal (queryPath atUsr [ "..", "root.txt" ]) (Just (File ( [], "root.txt", 0 )))
+                \_ -> Expect.equal (queryPath atUsr [ "..", "root.txt" ]) (Just ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "not found" <|
                 \_ -> Expect.equal (queryPath atRoot [ "usr", "bin", "ech" ]) Nothing
             ]
         , describe "resolvePath"
             [ test "root" <|
-                \_ -> Expect.equal (resolvePath atRoot "/") (Succes root)
+                \_ -> Expect.equal (resolvePath atRoot "/") (Succes ( root, [ "" ] ))
             , test "root.txt" <|
-                \_ -> Expect.equal (resolvePath atUsr "/root.txt") (Succes (File ( [], "root.txt", 0 )))
+                \_ -> Expect.equal (resolvePath atUsr "/root.txt") (Succes ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "root.txt not dir" <|
-                \_ -> Expect.equal (resolvePath atUsr "/root.txt/") (IsNotDir (File ( [], "root.txt", 0 )))
+                \_ -> Expect.equal (resolvePath atUsr "/root.txt/") (IsNotDir ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "echo" <|
-                \_ -> Expect.equal (resolvePath atUsr "/usr/bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolvePath atUsr "/usr/bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo" <|
-                \_ -> Expect.equal (resolvePath atUsr "bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolvePath atUsr "bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo not dir" <|
-                \_ -> Expect.equal (resolvePath atUsr "bin/echo/") (IsNotDir (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolvePath atUsr "bin/echo/") (IsNotDir ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo 2" <|
-                \_ -> Expect.equal (resolvePath atUsr "./bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolvePath atUsr "./bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative dir" <|
-                \_ -> Expect.equal (resolvePath atUsr "./bin/") (Succes bin)
+                \_ -> Expect.equal (resolvePath atUsr "./bin/") (Succes ( bin, [ "", "usr", "bin" ] ))
             , test "relative root.txt" <|
-                \_ -> Expect.equal (resolvePath atUsr "../root.txt") (Succes (File ( [], "root.txt", 0 )))
+                \_ -> Expect.equal (resolvePath atUsr "../root.txt") (Succes ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "not found" <|
                 \_ -> Expect.equal (resolvePath atRoot "/usr/bin/ech") NotFound
             ]
         , describe "resolveExe"
             [ test "absulute echo" <|
-                \_ -> Expect.equal (resolveExe atUsr "/usr/bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolveExe atUsr "/usr/bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo" <|
-                \_ -> Expect.equal (resolveExe atUsr "./bin/echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolveExe atUsr "./bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "path echo" <|
-                \_ -> Expect.equal (resolveExe atUsr "echo") (Succes (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolveExe atUsr "echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative echo IsNotDir" <|
-                \_ -> Expect.equal (resolveExe atUsr "./bin/echo/") (IsNotDir (File ( [ "usr", "bin" ], "echo", 1 )))
+                \_ -> Expect.equal (resolveExe atUsr "./bin/echo/") (IsNotDir ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             ]
         , describe "enumerateCmds"
             [ test "enumerate 1" <|

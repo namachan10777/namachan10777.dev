@@ -6,8 +6,8 @@ type alias Id =
 
 
 type Fs
-    = Dir ( List String, String, List Fs )
-    | File ( List String, String, Id )
+    = Dir ( String, List Fs )
+    | File ( String, Id )
 
 
 normalizePathRev path =
@@ -32,7 +32,7 @@ normalizePath path =
 
 type alias System =
     { root : Fs
-    , current : Fs
+    , current : List String
     }
 
 
@@ -44,33 +44,28 @@ exePath =
 initialFs : Fs
 initialFs =
     Dir
-        ( []
-        , ""
+        ( ""
         , [ Dir
-                ( []
-                , "usr"
+                ( "usr"
                 , [ Dir
-                        ( [ "usr" ]
-                        , "bin"
-                        , [ File ( [ "usr", "bin" ], "echo", 0 )
-                          , File ( [ "usr", "bin" ], "cat", 1 )
-                          , File ( [ "usr", "bin" ], "mv", 3 )
-                          , File ( [ "usr", "bin" ], "rm", 4 )
-                          , File ( [ "usr", "bin" ], "cd", 5 )
-                          , File ( [ "usr", "bin" ], "ls", 5 )
-                          , File ( [ "usr", "bin" ], "pwd", 6 )
+                        ( "bin"
+                        , [ File ( "echo", 0 )
+                          , File ( "cat", 1 )
+                          , File ( "mv", 3 )
+                          , File ( "rm", 4 )
+                          , File ( "cd", 5 )
+                          , File ( "ls", 5 )
+                          , File ( "pwd", 6 )
                           ]
                         )
                   ]
                 )
           , Dir
-                ( []
-                , "home"
+                ( "home"
                 , [ Dir
-                        ( [ "home" ]
-                        , "namachan"
-                        , [ File ( [ "home", "namachan" ], "icon", 7 )
-                          , File ( [ "home", "namachan" ], "basic-info", 8 )
+                        ( "namachan"
+                        , [ File ( "icon", 7 )
+                          , File ( "basic-info", 8 )
                           ]
                         )
                   ]
@@ -82,57 +77,74 @@ initialFs =
 initialSystem : System
 initialSystem =
     { root = initialFs
-    , current = initialFs
+    , current = []
     }
 
 
-queryPath : System -> List String -> Maybe Fs
-queryPath system path =
+queryPathAbs : Fs -> List String -> Maybe Fs
+queryPathAbs fs path =
     case path of
+        -- unreachable
         [] ->
-            Just system.current
+            Nothing
 
-        "." :: tail ->
-            queryPath system tail
+        -- unreachable
+        "." :: _ ->
+            Nothing
 
-        ".." :: tail ->
-            case system.current of
-                File ( parent, _, _ ) ->
-                    queryPath { root = system.root, current = system.root } (List.append parent tail)
+        -- unreachable
+        ".." :: _ ->
+            Nothing
 
-                Dir ( parent, _, _ ) ->
-                    queryPath { root = system.root, current = system.root } (List.append parent tail)
+        name :: [] ->
+            case fs of
+                (File ( fname, _ )) as f ->
+                    if name == fname then
+                        Just f
+
+                    else
+                        Nothing
+
+                (Dir ( dname, _ )) as d ->
+                    if name == dname then
+                        Just d
+
+                    else
+                        Nothing
 
         name :: tail ->
-            case system.current of
+            case fs of
                 File _ ->
                     Nothing
 
-                Dir ( _, _, children ) ->
-                    children
-                        |> List.filterMap
-                            (\child ->
-                                case child of
-                                    File ( _, fname, _ ) ->
-                                        if fname == name then
-                                            queryPath { root = system.root, current = child } tail
+                Dir ( dname, children ) ->
+                    if name == dname then
+                        children
+                            |> List.map (\child -> queryPathAbs child tail)
+                            |> List.filterMap identity
+                            |> List.head
 
-                                        else
-                                            Nothing
+                    else
+                        Nothing
 
-                                    Dir ( _, dname, _ ) ->
-                                        if dname == name then
-                                            queryPath { root = system.root, current = child } tail
 
-                                        else
-                                            Nothing
-                            )
-                        |> List.head
+queryPath : System -> List String -> Maybe ( Fs, List String )
+queryPath system path =
+    let
+        normalized =
+            case path of
+                "" :: _ ->
+                    normalizePath path
+
+                _ ->
+                    normalizePath (List.append system.current path)
+    in
+    normalized |> Maybe.andThen (\p -> queryPathAbs system.root p |> Maybe.map (\fs -> ( fs, p )))
 
 
 type Resolved
-    = Succes Fs
-    | IsNotDir Fs
+    = Succes ( Fs, List String )
+    | IsNotDir ( Fs, List String )
     | NotFound
 
 
@@ -145,27 +157,16 @@ resolvePath system path =
 
             else
                 ( False, path )
-
-        queried =
-            if String.startsWith "/" path then
-                if path == "/" then
-                    Just system.root
-
-                else
-                    queryPath { root = system.root, current = system.root } (shrinked |> String.dropLeft 1 |> String.split "/")
-
-            else
-                queryPath system (shrinked |> String.split "/")
     in
-    case ( dirExpect, queried ) of
-        ( True, Just ((File _) as f) ) ->
-            IsNotDir f
+    case ( dirExpect, shrinked |> String.split "/" |> queryPath system ) of
+        ( True, Just ( (File _) as f, p ) ) ->
+            IsNotDir ( f, p )
 
-        ( True, Just ((Dir _) as d) ) ->
-            Succes d
+        ( True, Just ( (Dir _) as d, p ) ) ->
+            Succes ( d, p )
 
-        ( _, Just f ) ->
-            Succes f
+        ( _, Just ( f, p ) ) ->
+            Succes ( f, p )
 
         ( _, Nothing ) ->
             NotFound
@@ -176,17 +177,11 @@ resolveExe system path =
     if String.startsWith "." path || String.startsWith "/" path then
         resolvePath system path
 
+    else if String.length path > 0 && not (String.contains "/" path) then
+        resolvePath system (String.append exePath path)
+
     else
-        case resolvePath system path of
-            NotFound ->
-                if String.length path < 1 || String.contains "/" path then
-                    NotFound
-
-                else
-                    resolvePath system (String.append exePath path)
-
-            other ->
-                other
+        NotFound
 
 
 type
@@ -213,7 +208,7 @@ execCat system args =
         |> List.map
             (\arg ->
                 case resolvePath system arg of
-                    Succes (File ( _, fname, id )) ->
+                    Succes ( File ( fname, id ), p ) ->
                         case id of
                             8 ->
                                 Str "Nakano Masaki<namachan10777@gmail.com\n"
@@ -224,10 +219,10 @@ execCat system args =
                             _ ->
                                 Str (String.append fname " is not a text file\n")
 
-                    Succes (Dir ( _, dname, _ )) ->
+                    Succes ( Dir ( dname, _ ), p ) ->
                         Str (String.append dname " is a directory\n")
 
-                    IsNotDir (File ( _, fname, id )) ->
+                    IsNotDir ( File ( fname, id ), p ) ->
                         Str (String.append fname " is not a directory\n")
 
                     _ ->
@@ -264,25 +259,25 @@ execPwd system _ =
 exec : System -> String -> List String -> ( CmdResult, System )
 exec system path args =
     case resolveExe system path of
-        Succes (File ( _, _, 0 )) ->
+        Succes ( File ( _, 0 ), _ ) ->
             execEcho system args
 
-        Succes (File ( _, _, 1 )) ->
+        Succes ( File ( _, 1 ), _ ) ->
             execCat system args
 
-        Succes (File ( _, _, 3 )) ->
+        Succes ( File ( _, 3 ), _ ) ->
             execMv system args
 
-        Succes (File ( _, _, 4 )) ->
+        Succes ( File ( _, 4 ), _ ) ->
             execRm system args
 
-        Succes (File ( _, _, 5 )) ->
+        Succes ( File ( _, 5 ), _ ) ->
             execCd system args
 
-        Succes (File ( _, _, 6 )) ->
+        Succes ( File ( _, 6 ), _ ) ->
             execLs system args
 
-        Succes (File ( _, _, 7 )) ->
+        Succes ( File ( _, 7 ), _ ) ->
             execPwd system args
 
         _ ->
@@ -292,12 +287,12 @@ exec system path args =
 enumerateCmds : System -> List String
 enumerateCmds system =
     case resolvePath system exePath of
-        Succes (Dir ( _, _, files )) ->
+        Succes ( Dir ( _, files ), _ ) ->
             files
                 |> List.filterMap
                     (\file ->
                         case file of
-                            File ( _, name, _ ) ->
+                            File ( name, _ ) ->
                                 Just name
 
                             _ ->
