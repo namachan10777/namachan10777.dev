@@ -2,7 +2,7 @@ module Os exposing (..)
 
 
 type alias Id =
-    Int
+    String
 
 
 type Fs
@@ -49,13 +49,13 @@ initialFs =
                 ( "usr"
                 , [ Dir
                         ( "bin"
-                        , [ File ( "echo", 0 )
-                          , File ( "cat", 1 )
-                          , File ( "mv", 3 )
-                          , File ( "rm", 4 )
-                          , File ( "cd", 5 )
-                          , File ( "ls", 6 )
-                          , File ( "pwd", 7 )
+                        , [ File ( "echo", "echo" )
+                          , File ( "cat", "cat" )
+                          , File ( "mv", "mv" )
+                          , File ( "rm", "rm" )
+                          , File ( "cd", "cd" )
+                          , File ( "ls", "ls" )
+                          , File ( "pwd", "pwd" )
                           ]
                         )
                   ]
@@ -64,8 +64,8 @@ initialFs =
                 ( "home"
                 , [ Dir
                         ( "namachan"
-                        , [ File ( "icon", 8 )
-                          , File ( "basic-info", 9 )
+                        , [ File ( "icon", "icon" )
+                          , File ( "basic-info", "basic-info" )
                           ]
                         )
                   ]
@@ -210,10 +210,10 @@ execCat system args =
                 case resolvePath system arg of
                     Succes ( File ( fname, id ), p ) ->
                         case id of
-                            9 ->
+                            "basic-info" ->
                                 Str "Nakano Masaki<namachan10777@gmail.com\n"
 
-                            8 ->
+                            "icon" ->
                                 Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) )
 
                             _ ->
@@ -303,25 +303,25 @@ execPwd system _ =
 exec : System -> String -> List String -> ( CmdResult, System )
 exec system path args =
     case resolveExe system path of
-        Succes ( File ( _, 0 ), _ ) ->
+        Succes ( File ( _, "echo" ), _ ) ->
             execEcho system args
 
-        Succes ( File ( _, 1 ), _ ) ->
+        Succes ( File ( _, "cat" ), _ ) ->
             execCat system args
 
-        Succes ( File ( _, 3 ), _ ) ->
+        Succes ( File ( _, "mv" ), _ ) ->
             execMv system args
 
-        Succes ( File ( _, 4 ), _ ) ->
+        Succes ( File ( _, "rm" ), _ ) ->
             execRm system args
 
-        Succes ( File ( _, 5 ), _ ) ->
+        Succes ( File ( _, "cd" ), _ ) ->
             execCd system args
 
-        Succes ( File ( _, 6 ), _ ) ->
+        Succes ( File ( _, "ls" ), _ ) ->
             execLs system args
 
-        Succes ( File ( _, 7 ), _ ) ->
+        Succes ( File ( _, "pwd" ), _ ) ->
             execPwd system args
 
         _ ->
