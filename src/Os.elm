@@ -242,8 +242,28 @@ execRm system _ =
 
 
 execCd : System -> List String -> ( CmdResult, System )
-execCd system _ =
-    ( NoCmd, system )
+execCd system arg =
+    let
+        implCd path =
+            case resolvePath system path of
+                Succes ( Dir ( _, _ ), normalized ) ->
+                    ( Stdout [], { root = system.root, current = normalized } )
+
+                NotFound ->
+                    ( Stdout [ Str (path ++ " is not found") ], system )
+
+                _ ->
+                    ( Stdout [ Str (path ++ " is not a directory") ], system )
+    in
+    case arg of
+        [] ->
+            implCd "/home/namachan/"
+
+        path :: [] ->
+            implCd path
+
+        _ ->
+            ( Stdout [ Str "Too many args for cd" ], system )
 
 
 execLs : System -> List String -> ( CmdResult, System )
