@@ -316,8 +316,13 @@ execLs system paths =
 
 
 execPwd : System -> List String -> ( CmdResult, System )
-execPwd system _ =
-    ( NoCmd, system )
+execPwd system args =
+    case args of
+        [] ->
+            ( Stdout [ Str ((system.current |> String.join "/") ++ "/") ], system )
+
+        _ ->
+            ( Stdout [ Str "pwd: Expected 0 args, got 1" ], system )
 
 
 exec : System -> String -> List String -> ( CmdResult, System )
