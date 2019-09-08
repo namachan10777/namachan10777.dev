@@ -54,8 +54,8 @@ initialFs =
                           , File ( "mv", 3 )
                           , File ( "rm", 4 )
                           , File ( "cd", 5 )
-                          , File ( "ls", 5 )
-                          , File ( "pwd", 6 )
+                          , File ( "ls", 6 )
+                          , File ( "pwd", 7 )
                           ]
                         )
                   ]
@@ -64,8 +64,8 @@ initialFs =
                 ( "home"
                 , [ Dir
                         ( "namachan"
-                        , [ File ( "icon", 7 )
-                          , File ( "basic-info", 8 )
+                        , [ File ( "icon", 8 )
+                          , File ( "basic-info", 9 )
                           ]
                         )
                   ]
@@ -210,10 +210,10 @@ execCat system args =
                 case resolvePath system arg of
                     Succes ( File ( fname, id ), p ) ->
                         case id of
-                            8 ->
+                            9 ->
                                 Str "Nakano Masaki<namachan10777@gmail.com\n"
 
-                            7 ->
+                            8 ->
                                 Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) )
 
                             _ ->
@@ -247,8 +247,52 @@ execCd system _ =
 
 
 execLs : System -> List String -> ( CmdResult, System )
-execLs system _ =
-    ( NoCmd, system )
+execLs system paths =
+    let
+        _ =
+            Debug.log "" ( system, paths )
+
+        showDirIncludes path =
+            case resolvePath system path of
+                Succes ( Dir ( _, children ), _ ) ->
+                    children
+                        |> List.map
+                            (\child ->
+                                case child of
+                                    File ( name, _ ) ->
+                                        name
+
+                                    Dir ( name, _ ) ->
+                                        name
+                            )
+                        |> String.join " "
+
+                NotFound ->
+                    path ++ ": directory not found"
+
+                _ ->
+                    path ++ "is not a directory"
+    in
+    case paths of
+        [] ->
+            ( Stdout [ Str (showDirIncludes ".") ], system )
+
+        path :: [] ->
+            ( Stdout [ Str (showDirIncludes path) ], system )
+
+        _ ->
+            ( Stdout
+                (paths
+                    |> List.map
+                        (\path ->
+                            [ Str (path ++ ":")
+                            , Str (showDirIncludes path)
+                            ]
+                        )
+                    |> List.concat
+                )
+            , system
+            )
 
 
 execPwd : System -> List String -> ( CmdResult, System )
