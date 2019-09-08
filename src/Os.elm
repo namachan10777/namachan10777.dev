@@ -77,7 +77,7 @@ initialFs =
 initialSystem : System
 initialSystem =
     { root = initialFs
-    , current = []
+    , current = [ "" ]
     }
 
 
