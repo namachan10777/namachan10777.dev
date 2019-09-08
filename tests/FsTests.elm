@@ -95,6 +95,10 @@ fsTests =
                 \_ -> Expect.equal (resolvePath atUsr "./bin/echo") (Succes ( File ( "echo", 1 ), [ "", "usr", "bin", "echo" ] ))
             , test "relative dir" <|
                 \_ -> Expect.equal (resolvePath atUsr "./bin/") (Succes ( bin, [ "", "usr", "bin" ] ))
+            , test "here 2" <|
+                \_ -> Expect.equal (resolvePath atUsr ".") (Succes ( usr, [ "", "usr" ] ))
+            , test "here 1" <|
+                \_ -> Expect.equal (resolvePath atUsr "./") (Succes ( usr, [ "", "usr" ] ))
             , test "relative root.txt" <|
                 \_ -> Expect.equal (resolvePath atUsr "../root.txt") (Succes ( File ( "root.txt", 0 ), [ "", "root.txt" ] ))
             , test "not found" <|
