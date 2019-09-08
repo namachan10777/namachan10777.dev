@@ -226,6 +226,9 @@ toEnMonth month =
 renderPowerline : Model -> Html Msg
 renderPowerline model =
     let
+        zeroPadding n s =
+            String.repeat (n - String.length s) "0" ++ s
+
         year =
             Time.toYear model.zone model.posix |> String.fromInt
 
@@ -236,13 +239,13 @@ renderPowerline model =
             Time.toDay model.zone model.posix |> String.fromInt
 
         hour =
-            Time.toHour model.zone model.posix |> String.fromInt
+            Time.toHour model.zone model.posix |> String.fromInt |> zeroPadding 2
 
         minute =
-            Time.toMinute model.zone model.posix |> String.fromInt
+            Time.toMinute model.zone model.posix |> String.fromInt |> zeroPadding 2
 
         second =
-            Time.toSecond model.zone model.posix |> String.fromInt
+            Time.toSecond model.zone model.posix |> String.fromInt |> zeroPadding 2
     in
     footer []
         [ span [ class "terminal-info" ] [ text "fish- 1:namachan10777*" ]
