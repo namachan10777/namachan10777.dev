@@ -10,6 +10,16 @@ type Fs
     | File ( String, Id )
 
 
+getFileName : Fs -> String
+getFileName fs =
+    case fs of
+        Dir ( name, _ ) ->
+            name
+
+        File ( name, _ ) ->
+            name
+
+
 normalizePathRev path =
     case path of
         [] ->
@@ -184,6 +194,16 @@ resolveExe system path =
         NotFound
 
 
+removeFile : List String -> System -> System
+removeFile _ system =
+    system
+
+
+overwriteFile : List String -> Fs -> System -> System
+overwriteFile _ _ system =
+    system
+
+
 type
     Output
     -- class src author
@@ -232,8 +252,61 @@ execCat system args =
 
 
 execMv : System -> List String -> ( CmdResult, System )
-execMv system _ =
-    ( NoCmd, system )
+execMv system args =
+    case List.reverse args of
+        [] ->
+            ( Stdout [ Str "mv: missing file operand" ], system )
+
+        op :: [] ->
+            ( Stdout [ Str ("mv: missing destination file operand after " ++ op) ], system )
+
+        dest :: src :: [] ->
+            case ( resolvePath system dest, resolvePath system src ) of
+                ( _, NotFound ) ->
+                    ( Stdout [ Str ("cannot stat " ++ src ++ ": No such file or directory") ], system )
+
+                ( _, IsNotDir _ ) ->
+                    ( Stdout [ Str ("cannot stat " ++ src ++ ": Is not a directory") ], system )
+
+                ( IsNotDir _, _ ) ->
+                    ( Stdout [ Str ("failed to access" ++ dest ++ ": Is not a directory") ], system )
+
+                ( NotFound, _ ) ->
+                    ( Stdout [ Str ("failed to access" ++ dest ++ ": No such file or directory") ], system )
+
+                ( Succes ( File ( name, _ ), normalizedDest ), Succes ( fs, normalizedSrc ) ) ->
+                    ( Stdout [], system |> overwriteFile normalizedDest fs |> removeFile normalizedSrc )
+
+                ( Succes ( Dir ( name, _ ), normalizedDest ), Succes ( fs, normalizedSrc ) ) ->
+                    ( Stdout [], system |> overwriteFile (List.append normalizedDest [ getFileName fs ]) fs |> removeFile normalizedSrc )
+
+        dest :: srcs ->
+            case resolvePath system dest of
+                NotFound ->
+                    ( Stdout [ Str ("failed to access" ++ dest ++ ": No such file or directory") ], system )
+
+                IsNotDir ( _, _ ) ->
+                    ( Stdout [ Str ("failed to access" ++ dest ++ ": Is not a directory") ], system )
+
+                Succes ( File _, _ ) ->
+                    ( Stdout [ Str ("target" ++ dest ++ "is not a directory") ], system )
+
+                Succes ( Dir ( _, _ ), normalizedDest ) ->
+                    List.foldl
+                        (\src ( sys, outputs ) ->
+                            case resolvePath system src of
+                                NotFound ->
+                                    ( sys, Str ("cannot stat " ++ dest ++ ": No such file or directory") :: outputs )
+
+                                IsNotDir _ ->
+                                    ( sys, Str ("cannot stat " ++ src ++ ": Is not a directory") :: outputs )
+
+                                Succes ( fs, normalizedSrc ) ->
+                                    ( sys |> overwriteFile (List.append normalizedDest [ getFileName fs ]) fs |> removeFile normalizedSrc, outputs )
+                        )
+                        ( system, [] )
+                        srcs
+                        |> (\( sys, outputs ) -> ( Stdout outputs, sys ))
 
 
 execRm : System -> List String -> ( CmdResult, System )
