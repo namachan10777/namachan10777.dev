@@ -5,6 +5,14 @@ type alias Id =
     String
 
 
+type alias Path =
+    List String
+
+
+type alias AbsolutePath =
+    List String
+
+
 type Fs
     = Dir ( String, List Fs )
     | File ( String, Id )
@@ -35,14 +43,14 @@ normalizePathRev path =
             normalizePathRev tail |> Maybe.andThen (\succes -> Just (other :: succes))
 
 
-normalizePath : List String -> Maybe (List String)
+normalizePath : Path -> Maybe AbsolutePath
 normalizePath path =
     path |> List.reverse |> normalizePathRev |> Maybe.map List.reverse
 
 
 type alias System =
     { root : Fs
-    , current : List String
+    , current : AbsolutePath
     }
 
 
@@ -91,7 +99,7 @@ initialSystem =
     }
 
 
-queryPathAbs : Fs -> List String -> Maybe Fs
+queryPathAbs : Fs -> AbsolutePath -> Maybe Fs
 queryPathAbs fs path =
     case path of
         -- unreachable
@@ -138,7 +146,7 @@ queryPathAbs fs path =
                         Nothing
 
 
-queryPath : System -> List String -> Maybe ( Fs, List String )
+queryPath : System -> Path -> Maybe ( Fs, AbsolutePath )
 queryPath system path =
     let
         normalized =
@@ -153,8 +161,8 @@ queryPath system path =
 
 
 type Resolved
-    = Succes ( Fs, List String )
-    | IsNotDir ( Fs, List String )
+    = Succes ( Fs, AbsolutePath )
+    | IsNotDir ( Fs, AbsolutePath )
     | NotFound
 
 
@@ -194,12 +202,12 @@ resolveExe system path =
         NotFound
 
 
-removeFile : List String -> System -> System
+removeFile : AbsolutePath -> System -> System
 removeFile _ system =
     system
 
 
-overwriteFile : List String -> Fs -> System -> System
+overwriteFile : AbsolutePath -> Fs -> System -> System
 overwriteFile _ _ system =
     system
 
@@ -426,7 +434,7 @@ exec system path args =
             ( NoCmd, system )
 
 
-enumerateCmds : System -> List String
+enumerateCmds : System -> Path
 enumerateCmds system =
     case resolvePath system exePath of
         Succes ( Dir ( _, files ), _ ) ->
