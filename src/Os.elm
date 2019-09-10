@@ -28,6 +28,22 @@ getFileName fs =
             name
 
 
+changeFileName : Fs -> String -> Fs
+changeFileName fs name =
+    case fs of
+        Dir ( _, children ) ->
+            Dir ( name, children )
+
+        File ( _, id ) ->
+            File ( name, id )
+
+
+includeAsSubdir : AbsolutePath -> AbsolutePath -> Bool
+includeAsSubdir src dest =
+    List.map2 (==) src dest |> List.foldl (&&) True
+
+
+normalizePathRev : List String -> Maybe AbsolutePath
 normalizePathRev path =
     case path of
         [] ->
@@ -46,6 +62,11 @@ normalizePathRev path =
 normalizePath : Path -> Maybe AbsolutePath
 normalizePath path =
     path |> List.reverse |> normalizePathRev |> Maybe.map List.reverse
+
+
+toAbsolutePath : System -> String -> Maybe AbsolutePath
+toAbsolutePath system path =
+    path |> String.split "/" |> List.append system.current |> normalizePath
 
 
 type alias System =
@@ -146,18 +167,19 @@ queryPathAbs fs path =
                         Nothing
 
 
+getAbsPath : System -> Path -> Maybe AbsolutePath
+getAbsPath system path =
+    case path of
+        "" :: _ ->
+            normalizePath path
+
+        _ ->
+            normalizePath (List.append system.current path)
+
+
 queryPath : System -> Path -> Maybe ( Fs, AbsolutePath )
 queryPath system path =
-    let
-        normalized =
-            case path of
-                "" :: _ ->
-                    normalizePath path
-
-                _ ->
-                    normalizePath (List.append system.current path)
-    in
-    normalized |> Maybe.andThen (\p -> queryPathAbs system.root p |> Maybe.map (\fs -> ( fs, p )))
+    path |> getAbsPath system |> Maybe.andThen (\p -> queryPathAbs system.root p |> Maybe.map (\fs -> ( fs, p )))
 
 
 type Resolved
@@ -202,14 +224,69 @@ resolveExe system path =
         NotFound
 
 
-removeFile : AbsolutePath -> System -> System
-removeFile _ system =
-    system
+removeFile : AbsolutePath -> Fs -> Fs
+removeFile path =
+    fsUpdate identity (path |> List.reverse |> List.head |> Maybe.withDefault "") (path |> dropRight 1)
 
 
-overwriteFile : AbsolutePath -> Fs -> System -> System
-overwriteFile _ _ system =
-    system
+overwriteFile : AbsolutePath -> Fs -> Fs -> Fs
+overwriteFile path src dest =
+    fsUpdate (\l -> src :: l) (getFileName src) path dest
+
+
+fsUpdate : (List Fs -> List Fs) -> String -> AbsolutePath -> Fs -> Fs
+fsUpdate f target path dest =
+    case path of
+        [] ->
+            dest
+
+        name :: [] ->
+            case dest of
+                File _ ->
+                    dest
+
+                Dir ( dname, children ) ->
+                    if dname == name then
+                        Dir
+                            ( dname
+                            , f
+                                (children
+                                    |> List.filterMap
+                                        (\child ->
+                                            if target == getFileName child then
+                                                Nothing
+
+                                            else
+                                                Just child
+                                        )
+                                )
+                            )
+
+                    else
+                        dest
+
+        name :: tail ->
+            case dest of
+                File _ ->
+                    dest
+
+                Dir ( dname, children ) ->
+                    if dname == name then
+                        Dir
+                            ( dname
+                            , children
+                                |> List.map
+                                    (\child ->
+                                        if target == getFileName child then
+                                            fsUpdate f target tail child
+
+                                        else
+                                            child
+                                    )
+                            )
+
+                    else
+                        dest
 
 
 type
@@ -259,62 +336,77 @@ execCat system args =
         |> (\outputs -> ( Stdout outputs, system ))
 
 
+dropRight : Int -> List a -> List a
+dropRight n l =
+    l |> List.reverse |> List.drop n |> List.reverse
+
+
+mvImpl : System -> String -> String -> ( Maybe Output, System )
+mvImpl system src dest =
+    case ( resolvePath system src, resolvePath system dest ) of
+        ( NotFound, _ ) ->
+            ( Just (Str ("mv: cannot stat " ++ src ++ ": No such file or directory")), system )
+
+        ( IsNotDir _, _ ) ->
+            ( Just (Str ("mv: cannot stat " ++ src ++ ": Not a directory")), system )
+
+        ( Succes ( Dir _, _ ), Succes ( File _, _ ) ) ->
+            ( Just (Str ("mv: cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
+
+        ( Succes ( file, srcAbs ), IsNotDir _ ) ->
+            ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
+
+        ( Succes ( file, srcAbs ), Succes ( Dir _, destAbs ) ) ->
+            ( Nothing, { system | root = overwriteFile destAbs file system.root } )
+
+        ( Succes ( file, srcAbs ), Succes ( File ( name, _ ), destAbs ) ) ->
+            ( Nothing
+            , { system
+                | root =
+                    system.root
+                        |> overwriteFile (dropRight 1 destAbs) (changeFileName file name)
+                        |> removeFile srcAbs
+              }
+            )
+
+        ( Succes ( file, srcAbs ), _ ) ->
+            case getAbsPath system (String.split "/" dest) of
+                Nothing ->
+                    ( Just (Str ("mv: failed to acces " ++ dest ++ ": No such a directory")), system )
+
+                Just destAbs ->
+                    let
+                        name =
+                            destAbs |> List.reverse |> List.head |> Maybe.withDefault ""
+                    in
+                    ( Nothing
+                    , { system
+                        | root =
+                            system.root
+                                |> overwriteFile (dropRight 1 destAbs) (changeFileName file name)
+                                |> removeFile srcAbs
+                      }
+                    )
+
+
 execMv : System -> List String -> ( CmdResult, System )
 execMv system args =
     case List.reverse args of
         [] ->
             ( Stdout [ Str "mv: missing file operand" ], system )
 
-        op :: [] ->
-            ( Stdout [ Str ("mv: missing destination file operand after " ++ op) ], system )
+        src :: [] ->
+            ( Stdout [ Str ("mv: missing file destination operand after " ++ src) ], system )
 
         dest :: src :: [] ->
-            case ( resolvePath system dest, resolvePath system src ) of
-                ( _, NotFound ) ->
-                    ( Stdout [ Str ("cannot stat " ++ src ++ ": No such file or directory") ], system )
+            let
+                ( output, updatedSystem ) =
+                    mvImpl system src dest
+            in
+            ( Stdout ([ output ] |> List.filterMap identity), updatedSystem )
 
-                ( _, IsNotDir _ ) ->
-                    ( Stdout [ Str ("cannot stat " ++ src ++ ": Is not a directory") ], system )
-
-                ( IsNotDir _, _ ) ->
-                    ( Stdout [ Str ("failed to access" ++ dest ++ ": Is not a directory") ], system )
-
-                ( NotFound, _ ) ->
-                    ( Stdout [ Str ("failed to access" ++ dest ++ ": No such file or directory") ], system )
-
-                ( Succes ( File ( name, _ ), normalizedDest ), Succes ( fs, normalizedSrc ) ) ->
-                    ( Stdout [], system |> overwriteFile normalizedDest fs |> removeFile normalizedSrc )
-
-                ( Succes ( Dir ( name, _ ), normalizedDest ), Succes ( fs, normalizedSrc ) ) ->
-                    ( Stdout [], system |> overwriteFile (List.append normalizedDest [ getFileName fs ]) fs |> removeFile normalizedSrc )
-
-        dest :: srcs ->
-            case resolvePath system dest of
-                NotFound ->
-                    ( Stdout [ Str ("failed to access" ++ dest ++ ": No such file or directory") ], system )
-
-                IsNotDir ( _, _ ) ->
-                    ( Stdout [ Str ("failed to access" ++ dest ++ ": Is not a directory") ], system )
-
-                Succes ( File _, _ ) ->
-                    ( Stdout [ Str ("target" ++ dest ++ "is not a directory") ], system )
-
-                Succes ( Dir ( _, _ ), normalizedDest ) ->
-                    List.foldl
-                        (\src ( sys, outputs ) ->
-                            case resolvePath system src of
-                                NotFound ->
-                                    ( sys, Str ("cannot stat " ++ dest ++ ": No such file or directory") :: outputs )
-
-                                IsNotDir _ ->
-                                    ( sys, Str ("cannot stat " ++ src ++ ": Is not a directory") :: outputs )
-
-                                Succes ( fs, normalizedSrc ) ->
-                                    ( sys |> overwriteFile (List.append normalizedDest [ getFileName fs ]) fs |> removeFile normalizedSrc, outputs )
-                        )
-                        ( system, [] )
-                        srcs
-                        |> (\( sys, outputs ) -> ( Stdout outputs, sys ))
+        _ ->
+            ( NoCmd, system )
 
 
 execRm : System -> List String -> ( CmdResult, System )

@@ -33,6 +33,27 @@ root =
         )
 
 
+root2 : Fs
+root2 =
+    Dir
+        ( ""
+        , [ File ( "root.txt", "root2.txt" )
+          , usr
+          ]
+        )
+
+
+root3 : Fs
+root3 =
+    Dir
+        ( ""
+        , [ File ( "root3.txt", "root3.txt" )
+          , File ( "root.txt", "root.txt" )
+          , usr
+          ]
+        )
+
+
 atUsr : System
 atUsr =
     { root = root
@@ -129,5 +150,15 @@ fsTests =
                 \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", ".." ]) (Just [])
             , test "invalid return" <|
                 \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", "..", ".." ]) Nothing
+            ]
+        , describe "overwriteFile"
+            [ test "overwrite root.txt" <|
+                \_ ->
+                    Expect.equal (overwriteFile [ "" ] (File ( "root.txt", "root2.txt" )) root)
+                        root2
+            , test
+                "make root3.txt"
+              <|
+                \_ -> Expect.equal (overwriteFile [ "" ] (File ( "root3.txt", "root3.txt" )) root) root3
             ]
         ]
