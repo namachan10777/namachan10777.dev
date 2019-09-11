@@ -277,11 +277,7 @@ fsUpdate f target path dest =
                             , children
                                 |> List.map
                                     (\child ->
-                                        if target == getFileName child then
-                                            fsUpdate f target tail child
-
-                                        else
-                                            child
+                                        fsUpdate f target tail child
                                     )
                             )
 
@@ -341,25 +337,31 @@ dropRight n l =
     l |> List.reverse |> List.drop n |> List.reverse
 
 
-mvImpl : System -> String -> String -> ( Maybe Output, System )
-mvImpl system src dest =
-    case ( resolvePath system src, resolvePath system dest ) of
-        ( NotFound, _ ) ->
+implMv : Bool -> System -> String -> String -> ( Maybe Output, System )
+implMv isSingleArg system src dest =
+    case ( isSingleArg, resolvePath system src, resolvePath system dest ) of
+        ( _, NotFound, _ ) ->
             ( Just (Str ("mv: cannot stat " ++ src ++ ": No such file or directory")), system )
 
-        ( IsNotDir _, _ ) ->
+        ( _, IsNotDir _, _ ) ->
             ( Just (Str ("mv: cannot stat " ++ src ++ ": Not a directory")), system )
 
-        ( Succes ( Dir _, _ ), Succes ( File _, _ ) ) ->
+        ( _, Succes ( Dir _, _ ), Succes ( File _, _ ) ) ->
             ( Just (Str ("mv: cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
 
-        ( Succes ( file, srcAbs ), IsNotDir _ ) ->
+        ( _, Succes ( file, srcAbs ), IsNotDir _ ) ->
             ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
 
-        ( Succes ( file, srcAbs ), Succes ( Dir _, destAbs ) ) ->
-            ( Nothing, { system | root = overwriteFile destAbs file system.root } )
+        ( False, _, Succes ( File _, _ ) ) ->
+            ( Just (Str ("mv: target " ++ dest ++ "is not a directory")), system )
 
-        ( Succes ( file, srcAbs ), Succes ( File ( name, _ ), destAbs ) ) ->
+        ( False, _, NotFound ) ->
+            ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
+
+        ( _, Succes ( file, srcAbs ), Succes ( Dir _, destAbs ) ) ->
+            ( Nothing, { system | root = system.root |> overwriteFile destAbs file |> removeFile srcAbs } )
+
+        ( _, Succes ( file, srcAbs ), Succes ( File ( name, _ ), destAbs ) ) ->
             ( Nothing
             , { system
                 | root =
@@ -369,7 +371,7 @@ mvImpl system src dest =
               }
             )
 
-        ( Succes ( file, srcAbs ), _ ) ->
+        ( _, Succes ( file, srcAbs ), _ ) ->
             case getAbsPath system (String.split "/" dest) of
                 Nothing ->
                     ( Just (Str ("mv: failed to acces " ++ dest ++ ": No such a directory")), system )
@@ -401,12 +403,26 @@ execMv system args =
         dest :: src :: [] ->
             let
                 ( output, updatedSystem ) =
-                    mvImpl system src dest
+                    implMv True system src dest
             in
             ( Stdout ([ output ] |> List.filterMap identity), updatedSystem )
 
-        _ ->
-            ( NoCmd, system )
+        dest :: srcs ->
+            let
+                ( outputs, updatedSystem ) =
+                    srcs
+                        |> List.reverse
+                        |> List.foldl
+                            (\src ( acc, sys ) ->
+                                let
+                                    ( output, nextSys ) =
+                                        implMv False sys src dest
+                                in
+                                ( output :: acc, nextSys )
+                            )
+                            ( [], system )
+            in
+            ( Stdout (outputs |> List.filterMap identity), updatedSystem )
 
 
 execRm : System -> List String -> ( CmdResult, System )
@@ -442,9 +458,6 @@ execCd system arg =
 execLs : System -> List String -> ( CmdResult, System )
 execLs system paths =
     let
-        _ =
-            Debug.log "" ( system, paths )
-
         showDirIncludes path =
             case resolvePath system path of
                 Succes ( Dir ( _, children ), _ ) ->

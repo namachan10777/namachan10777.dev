@@ -54,6 +54,21 @@ root3 =
         )
 
 
+root4 : Fs
+root4 =
+    Dir
+        ( ""
+        , [ File ( "root.txt", "root.txt" )
+          , Dir
+                ( "usr"
+                , [ File ( "usr.txt", "usr.txt" )
+                  , bin
+                  ]
+                )
+          ]
+        )
+
+
 atUsr : System
 atUsr =
     { root = root
@@ -156,9 +171,9 @@ fsTests =
                 \_ ->
                     Expect.equal (overwriteFile [ "" ] (File ( "root.txt", "root2.txt" )) root)
                         root2
-            , test
-                "make root3.txt"
-              <|
+            , test "make root3.txt" <|
                 \_ -> Expect.equal (overwriteFile [ "" ] (File ( "root3.txt", "root3.txt" )) root) root3
+            , test "make in subdir" <|
+                \_ -> Expect.equal (overwriteFile [ "", "usr" ] (File ( "usr.txt", "usr.txt" )) root) root4
             ]
         ]
