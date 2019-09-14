@@ -226,63 +226,39 @@ resolveExe system path =
 
 removeFile : AbsolutePath -> Fs -> Fs
 removeFile path =
-    fsUpdate identity (path |> List.reverse |> List.head |> Maybe.withDefault "") (path |> dropRight 1)
+    fsMap
+        (\brothers current ->
+            List.filter (\boy -> path /= List.append current [ getFileName boy ]) brothers
+        )
 
 
 overwriteFile : AbsolutePath -> Fs -> Fs -> Fs
-overwriteFile path src dest =
-    fsUpdate (\l -> src :: l) (getFileName src) path dest
+overwriteFile path src =
+    fsMap
+        (\brothers current ->
+            if path == current then
+                src :: List.filter (\boy -> getFileName boy /= getFileName src) brothers
+
+            else
+                brothers
+        )
 
 
-fsUpdate : (List Fs -> List Fs) -> String -> AbsolutePath -> Fs -> Fs
-fsUpdate f target path dest =
-    case path of
-        [] ->
-            dest
-
-        name :: [] ->
-            case dest of
+fsMap : (List Fs -> AbsolutePath -> List Fs) -> Fs -> Fs
+fsMap f root =
+    let
+        impl g fs current =
+            case fs of
                 File _ ->
-                    dest
+                    fs
 
                 Dir ( dname, children ) ->
-                    if dname == name then
-                        Dir
-                            ( dname
-                            , f
-                                (children
-                                    |> List.filterMap
-                                        (\child ->
-                                            if target == getFileName child then
-                                                Nothing
-
-                                            else
-                                                Just child
-                                        )
-                                )
-                            )
-
-                    else
-                        dest
-
-        name :: tail ->
-            case dest of
-                File _ ->
-                    dest
-
-                Dir ( dname, children ) ->
-                    if dname == name then
-                        Dir
-                            ( dname
-                            , children
-                                |> List.map
-                                    (\child ->
-                                        fsUpdate f target tail child
-                                    )
-                            )
-
-                    else
-                        dest
+                    Dir
+                        ( dname
+                        , List.map (\child -> impl g child (List.append current [ dname ])) (g children (List.append current [ dname ]))
+                        )
+    in
+    impl f root []
 
 
 type
