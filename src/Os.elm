@@ -41,7 +41,8 @@ initialFs =
                 , [ Fs.Dir
                         ( "namachan"
                         , [ Fs.File ( "icon", "icon" )
-                          , Fs.File ( "basic-info", "basic-info" )
+                          , Fs.File ( "name", "name" )
+                          , Fs.File ( "belongs", "belongs" )
                           ]
                         )
                   ]
@@ -128,25 +129,34 @@ execCat system args =
                 case resolvePath system arg of
                     Succes ( Fs.File ( fname, id ), p ) ->
                         case id of
-                            "basic-info" ->
-                                Str "Nakano Masaki<namachan10777@gmail.com\n"
+                            "name" ->
+                                [ Str "Nakano Masaki<namachan10777@gmail.com\n" ]
 
                             "icon" ->
-                                Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) )
+                                [ Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) ) ]
+
+                            "belongs" ->
+                                [ Str " school : National Institute of Techonology, Kagawa College."
+                                , Str "  dept. : Electrical & Computer Engineering"
+                                , Str " conty. : Japan"
+                                , Str "  pref. : Kagawa"
+                                , Str "  orgs. : Mechanical System Research Club."
+                                , Str "        : Infomation Techonology Research Club."
+                                ]
 
                             _ ->
-                                Str (String.append fname " is not a text file\n")
+                                [ Str (String.append fname " is not a text file\n") ]
 
                     Succes ( Fs.Dir ( dname, _ ), p ) ->
-                        Str (String.append dname " is a directory\n")
+                        [ Str (String.append dname " is a directory\n") ]
 
                     IsNotDir ( Fs.File ( fname, id ), p ) ->
-                        Str (String.append fname " is not a directory\n")
+                        [ Str (String.append fname " is not a directory\n") ]
 
                     _ ->
-                        Str (String.append arg " is not found\n")
+                        [ Str (String.append arg " is not found\n") ]
             )
-        |> (\outputs -> ( Stdout outputs, system ))
+        |> (\outputs -> ( Stdout (List.concat outputs), system ))
 
 
 dropRight : Int -> List a -> List a
