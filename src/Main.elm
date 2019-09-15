@@ -23,7 +23,7 @@ main =
 
 
 type alias Hist =
-    ( String, Os.CmdResult )
+    ( String, String, Os.CmdResult )
 
 
 type alias Model =
@@ -92,7 +92,7 @@ update msg model =
                 Os.Clear ->
                     ( { model
                         | current = ""
-                        , hists = [ ( model.current, result ) ]
+                        , hists = [ ( String.join "/" model.system.current, model.current, result ) ]
                         , system = newSystem
                       }
                     , Cmd.batch
@@ -104,7 +104,7 @@ update msg model =
                 _ ->
                     ( { model
                         | current = ""
-                        , hists = ( model.current, result ) :: model.hists
+                        , hists = ( String.join "/" model.system.current, model.current, result ) :: model.hists
                         , system = newSystem
                       }
                     , Cmd.batch
@@ -133,8 +133,9 @@ update msg model =
 -- VIEW
 
 
-renderPrompt =
-    span [] [ span [ class "arrow" ] [ text "×> " ], span [ class "dir" ] [ text "~/ " ] ]
+renderPrompt : String -> Html Msg
+renderPrompt dir =
+    span [] [ text (String.concat [ " ", dir, " # " ]) ]
 
 
 toEnMonth : Time.Month -> String
@@ -231,20 +232,20 @@ renderStdout outputs =
         |> (\elements -> div [] elements)
 
 
-renderHists : List Hist -> List (Html Msg)
-renderHists hists =
-    hists
+renderHists : Model -> List (Html Msg)
+renderHists model =
+    model.hists
         |> List.map
             (\hist ->
                 case hist of
-                    ( cmd, Os.Stdout outputs ) ->
+                    ( dir, cmd, Os.Stdout outputs ) ->
                         div []
-                            [ div [] [ renderPrompt, text cmd ]
+                            [ div [] [ renderPrompt dir, text cmd ]
                             , renderStdout outputs
                             ]
 
-                    ( cmd, _ ) ->
-                        div [] [ renderPrompt, text cmd ]
+                    ( dir, cmd, _ ) ->
+                        div [] [ renderPrompt dir, text cmd ]
             )
 
 
@@ -253,10 +254,10 @@ view model =
     let
         lists =
             div []
-                [ renderPrompt
+                [ renderPrompt (String.join "/" model.system.current)
                 , input [ class "input", id "input", value model.current, onInput Change, autofocus True ] []
                 ]
-                :: renderHists model.hists
+                :: renderHists model
     in
     div [ id "root" ]
         [ div [ id "scroll-area" ] (List.reverse lists)

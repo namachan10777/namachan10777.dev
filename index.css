@@ -45,6 +45,7 @@ body {
 }
 
 #scroll-area {
+	margin-left: 1vh;
 	overflow-y: scroll;
 	height: calc(100% - 4vh);
 	word-wrap: break-word;
