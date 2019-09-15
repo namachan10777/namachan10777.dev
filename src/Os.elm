@@ -28,6 +28,7 @@ initialFs =
                           , Fs.File ( "cat", "cat" )
                           , Fs.File ( "mv", "mv" )
                           , Fs.File ( "rm", "rm" )
+                          , Fs.File ( "cp", "cp" )
                           , Fs.File ( "cd", "cd" )
                           , Fs.File ( "ls", "ls" )
                           , Fs.File ( "pwd", "pwd" )
@@ -153,6 +154,11 @@ dropRight n l =
     l |> List.reverse |> List.drop n |> List.reverse
 
 
+isIncludeAsSubDir : Fs.AbsolutePath -> Fs.AbsolutePath -> Bool
+isIncludeAsSubDir src dest =
+    List.length src < List.length dest && (List.map2 (==) src dest |> List.foldl (&&) True)
+
+
 implMv : Bool -> System -> String -> String -> ( Maybe Output, System )
 implMv isSingleArg system src dest =
     case ( isSingleArg, resolvePath system src, resolvePath system dest ) of
@@ -175,17 +181,25 @@ implMv isSingleArg system src dest =
             ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
 
         ( _, Succes ( file, srcAbs ), Succes ( Fs.Dir _, destAbs ) ) ->
-            ( Nothing, { system | root = system.root |> Fs.overwriteFile destAbs file |> Fs.removeFile srcAbs } )
+            if isIncludeAsSubDir srcAbs destAbs then
+                ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+
+            else
+                ( Nothing, { system | root = system.root |> Fs.overwriteFile destAbs file |> Fs.removeFile srcAbs } )
 
         ( _, Succes ( file, srcAbs ), Succes ( Fs.File ( name, _ ), destAbs ) ) ->
-            ( Nothing
-            , { system
-                | root =
-                    system.root
-                        |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
-                        |> Fs.removeFile srcAbs
-              }
-            )
+            if isIncludeAsSubDir srcAbs destAbs then
+                ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+
+            else
+                ( Nothing
+                , { system
+                    | root =
+                        system.root
+                            |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
+                            |> Fs.removeFile srcAbs
+                  }
+                )
 
         ( _, Succes ( file, srcAbs ), _ ) ->
             case Path.toAbsolute system.current (String.split "/" dest) of
@@ -197,14 +211,18 @@ implMv isSingleArg system src dest =
                         name =
                             destAbs |> List.reverse |> List.head |> Maybe.withDefault ""
                     in
-                    ( Nothing
-                    , { system
-                        | root =
-                            system.root
-                                |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
-                                |> Fs.removeFile srcAbs
-                      }
-                    )
+                    if isIncludeAsSubDir srcAbs destAbs then
+                        ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+
+                    else
+                        ( Nothing
+                        , { system
+                            | root =
+                                system.root
+                                    |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
+                                    |> Fs.removeFile srcAbs
+                          }
+                        )
 
 
 execMv : System -> List String -> ( CmdResult, System )
