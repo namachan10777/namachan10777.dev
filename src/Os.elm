@@ -24,6 +24,7 @@ initialFs =
                 , [ Fs.Dir
                         ( "bin"
                         , [ Fs.File ( "echo", "echo" )
+                          , Fs.File ( "clear", "clear" )
                           , Fs.File ( "cat", "cat" )
                           , Fs.File ( "mv", "mv" )
                           , Fs.File ( "rm", "rm" )
@@ -326,29 +327,45 @@ execPwd system args =
             ( Stdout [ Str "pwd: Expected 0 args, got 1" ], system )
 
 
-exec : System -> String -> List String -> ( CmdResult, System )
-exec system path args =
-    case resolveExe system path of
-        Succes ( Fs.File ( _, "echo" ), _ ) ->
-            execEcho system args
-
-        Succes ( Fs.File ( _, "cat" ), _ ) ->
-            execCat system args
-
-        Succes ( Fs.File ( _, "mv" ), _ ) ->
-            execMv system args
-
-        Succes ( Fs.File ( _, "rm" ), _ ) ->
-            execRm system args
-
-        Succes ( Fs.File ( _, "cd" ), _ ) ->
-            execCd system args
-
-        Succes ( Fs.File ( _, "ls" ), _ ) ->
-            execLs system args
-
-        Succes ( Fs.File ( _, "pwd" ), _ ) ->
-            execPwd system args
+execClear : System -> List String -> ( CmdResult, System )
+execClear system args =
+    case args of
+        [] ->
+            ( Clear, system )
 
         _ ->
-            ( NoCmd, system )
+            ( Stdout [ Str "clear: Expected 0 args, got 1" ], system )
+
+
+exec : System -> String -> List String -> ( CmdResult, System )
+exec system path args =
+    (case resolveExe system path of
+        Succes ( Fs.File ( _, "echo" ), _ ) ->
+            execEcho
+
+        Succes ( Fs.File ( _, "clear" ), _ ) ->
+            execClear
+
+        Succes ( Fs.File ( _, "cat" ), _ ) ->
+            execCat
+
+        Succes ( Fs.File ( _, "mv" ), _ ) ->
+            execMv
+
+        Succes ( Fs.File ( _, "rm" ), _ ) ->
+            execRm
+
+        Succes ( Fs.File ( _, "cd" ), _ ) ->
+            execCd
+
+        Succes ( Fs.File ( _, "ls" ), _ ) ->
+            execLs
+
+        Succes ( Fs.File ( _, "pwd" ), _ ) ->
+            execPwd
+
+        _ ->
+            \_ _ -> ( NoCmd, system )
+    )
+        system
+        args
