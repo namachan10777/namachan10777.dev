@@ -218,7 +218,7 @@ renderStdout outputs =
                         pre [ class "stdout" ] [ text s ]
 
                     Os.A ( s, link ) ->
-                        a [ href link ] [ text s ]
+                        a [ href link ] [ pre [ class "stdout" ] [ text s ] ]
 
                     Os.Img ( cssClass, imgSrc, Nothing ) ->
                         img [ class cssClass, src imgSrc ] []

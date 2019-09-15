@@ -45,6 +45,7 @@ initialFs =
                           , Fs.File ( "belongs", "belongs" )
                           , Fs.File ( "skills", "skills" )
                           , Fs.File ( "works", "works" )
+                          , Fs.File ( "links", "links" )
                           ]
                         )
                   ]
@@ -161,6 +162,16 @@ execCat system args =
                                 , Str "Ergonomics keyboard"
                                 , A ( "kck", "https://github.com/namachan10777/kck" )
                                 , Str "C compiler"
+                                ]
+
+                            "links" ->
+                                [ A ( "Twitter", "https://twitter.com/namachan10777" )
+                                , A ( "hatenablog", "https://namachan10777.hatenablog.com/" )
+                                , A ( "GitHub", "https://github.com/namachan10777" )
+                                , A ( "Steam", "https://steamcommunity.com/id/namachan10777/" )
+                                , A ( "Amazon Wishlist", "http://amzn.asia/6JUD39R" )
+                                , A ( "My namecard", "https://namachan10777.github.io/namecard.html" )
+                                , A ( "My resume", "https://namachan10777.github.io/resume.html" )
                                 ]
 
                             _ ->
