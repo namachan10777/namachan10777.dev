@@ -297,8 +297,32 @@ execCp deleteAfterCopy system args =
 
 
 execRm : System -> List String -> ( CmdResult, System )
-execRm system _ =
-    ( NoCmd, system )
+execRm system args =
+    let
+        rmRecurse =
+            List.member "-r" args
+
+        cmdArgs =
+            List.filter (\s -> s /= "-r") args
+    in
+    cmdArgs
+        |> List.foldl
+            (\target ( acc, sys ) ->
+                case ( rmRecurse, resolvePath sys target ) of
+                    ( False, Succes ( Fs.Dir _, _ ) ) ->
+                        ( Str ("rm: cannot remove " ++ target ++ ": Is not a directory") :: acc, sys )
+
+                    ( _, Succes ( _, path ) ) ->
+                        ( acc, { sys | root = sys.root |> Fs.removeFile path } )
+
+                    ( _, IsNotDir _ ) ->
+                        ( Str ("rm: cannot remove " ++ target ++ ": Not a directory") :: acc, sys )
+
+                    ( _, NotFound ) ->
+                        ( Str ("rm: cannot remove " ++ target ++ ": No such file or directory") :: acc, sys )
+            )
+            ( [], system )
+        |> (\( acc, sys ) -> ( Stdout acc, sys ))
 
 
 execCd : System -> List String -> ( CmdResult, System )
