@@ -59,3 +59,12 @@ footer {
 	justify-content: space-between;
 	background-color: #0a91ff;
 }
+
+.input {
+	border: none;
+	outline: none;
+	background: none;
+	font-size: inherit;
+	font-family: inherit;
+	color: inherit;
+}

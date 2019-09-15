@@ -27,6 +27,12 @@
 					root.scrollTop = root.scrollHeight;
 				}, 5);
 			});
+			app.ports.focusInput.subscribe(data => {
+				setTimeout(() => {
+					const input = document.getElementById("input");
+					input.focus();
+				}, 5);
+			});
 		</script>
 	</body>
 </html>

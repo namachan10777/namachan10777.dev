@@ -352,22 +352,3 @@ exec system path args =
 
         _ ->
             ( NoCmd, system )
-
-
-enumerateCmds : System -> Fs.Path
-enumerateCmds system =
-    case resolvePath system exePath of
-        Succes ( Fs.Dir ( _, files ), _ ) ->
-            files
-                |> List.filterMap
-                    (\file ->
-                        case file of
-                            Fs.File ( name, _ ) ->
-                                Just name
-
-                            _ ->
-                                Nothing
-                    )
-
-        _ ->
-            []
