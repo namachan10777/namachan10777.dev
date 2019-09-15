@@ -217,6 +217,9 @@ renderStdout outputs =
                     Os.Str s ->
                         pre [ class "stdout" ] [ text s ]
 
+                    Os.A ( s, link ) ->
+                        a [ href link ] [ text s ]
+
                     Os.Img ( cssClass, imgSrc, Nothing ) ->
                         img [ class cssClass, src imgSrc ] []
 

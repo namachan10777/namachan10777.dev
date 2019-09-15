@@ -43,6 +43,8 @@ initialFs =
                         , [ Fs.File ( "icon", "icon" )
                           , Fs.File ( "name", "name" )
                           , Fs.File ( "belongs", "belongs" )
+                          , Fs.File ( "skills", "skills" )
+                          , Fs.File ( "works", "works" )
                           ]
                         )
                   ]
@@ -108,6 +110,7 @@ type
     -- class src author
     = Img ( String, String, Maybe ( String, String ) )
     | Str String
+    | A ( String, String )
 
 
 type CmdResult
@@ -142,6 +145,22 @@ execCat system args =
                                 , Str "  pref. : Kagawa"
                                 , Str "  orgs. : Mechanical System Research Club."
                                 , Str "        : Infomation Techonology Research Club."
+                                ]
+
+                            "skills" ->
+                                [ Str " languages : D, OCaml, Rust, TypeScript, Python, C++, TeX"
+                                , Str "        OS : Arch Linux"
+                                , Str "       CAD : KiCAD, Inventor, OpenSCAD"
+                                , Str "     TOEIC : 765"
+                                ]
+
+                            "works" ->
+                                [ A ( "namaco", "https://github.com/namachan10777/namaco" )
+                                , Str "Morphlogical analyzer"
+                                , A ( "folivora", "https://github.com/namachan10777/folivora" )
+                                , Str "Ergonomics keyboard"
+                                , A ( "kck", "https://github.com/namachan10777/kck" )
+                                , Str "C compiler"
                                 ]
 
                             _ ->
