@@ -1,77 +1,12 @@
 module Os exposing (..)
 
-
-type alias Id =
-    String
-
-
-type alias Path =
-    List String
-
-
-type alias AbsolutePath =
-    List String
-
-
-type Fs
-    = Dir ( String, List Fs )
-    | File ( String, Id )
-
-
-getFileName : Fs -> String
-getFileName fs =
-    case fs of
-        Dir ( name, _ ) ->
-            name
-
-        File ( name, _ ) ->
-            name
-
-
-changeFileName : Fs -> String -> Fs
-changeFileName fs name =
-    case fs of
-        Dir ( _, children ) ->
-            Dir ( name, children )
-
-        File ( _, id ) ->
-            File ( name, id )
-
-
-includeAsSubdir : AbsolutePath -> AbsolutePath -> Bool
-includeAsSubdir src dest =
-    List.map2 (==) src dest |> List.foldl (&&) True
-
-
-normalizePathRev : List String -> Maybe AbsolutePath
-normalizePathRev path =
-    case path of
-        [] ->
-            Just []
-
-        "." :: tail ->
-            normalizePathRev tail
-
-        ".." :: tail ->
-            normalizePathRev tail |> Maybe.andThen List.tail
-
-        other :: tail ->
-            normalizePathRev tail |> Maybe.andThen (\succes -> Just (other :: succes))
-
-
-normalizePath : Path -> Maybe AbsolutePath
-normalizePath path =
-    path |> List.reverse |> normalizePathRev |> Maybe.map List.reverse
-
-
-toAbsolutePath : System -> String -> Maybe AbsolutePath
-toAbsolutePath system path =
-    path |> String.split "/" |> List.append system.current |> normalizePath
+import Fs
+import Path
 
 
 type alias System =
-    { root : Fs
-    , current : AbsolutePath
+    { root : Fs.Fs
+    , current : Fs.AbsolutePath
     }
 
 
@@ -80,31 +15,31 @@ exePath =
     "/usr/bin/"
 
 
-initialFs : Fs
+initialFs : Fs.Fs
 initialFs =
-    Dir
+    Fs.Dir
         ( ""
-        , [ Dir
+        , [ Fs.Dir
                 ( "usr"
-                , [ Dir
+                , [ Fs.Dir
                         ( "bin"
-                        , [ File ( "echo", "echo" )
-                          , File ( "cat", "cat" )
-                          , File ( "mv", "mv" )
-                          , File ( "rm", "rm" )
-                          , File ( "cd", "cd" )
-                          , File ( "ls", "ls" )
-                          , File ( "pwd", "pwd" )
+                        , [ Fs.File ( "echo", "echo" )
+                          , Fs.File ( "cat", "cat" )
+                          , Fs.File ( "mv", "mv" )
+                          , Fs.File ( "rm", "rm" )
+                          , Fs.File ( "cd", "cd" )
+                          , Fs.File ( "ls", "ls" )
+                          , Fs.File ( "pwd", "pwd" )
                           ]
                         )
                   ]
                 )
-          , Dir
+          , Fs.Dir
                 ( "home"
-                , [ Dir
+                , [ Fs.Dir
                         ( "namachan"
-                        , [ File ( "icon", "icon" )
-                          , File ( "basic-info", "basic-info" )
+                        , [ Fs.File ( "icon", "icon" )
+                          , Fs.File ( "basic-info", "basic-info" )
                           ]
                         )
                   ]
@@ -120,71 +55,9 @@ initialSystem =
     }
 
 
-queryPathAbs : Fs -> AbsolutePath -> Maybe Fs
-queryPathAbs fs path =
-    case path of
-        -- unreachable
-        [] ->
-            Nothing
-
-        -- unreachable
-        "." :: _ ->
-            Nothing
-
-        -- unreachable
-        ".." :: _ ->
-            Nothing
-
-        name :: [] ->
-            case fs of
-                (File ( fname, _ )) as f ->
-                    if name == fname then
-                        Just f
-
-                    else
-                        Nothing
-
-                (Dir ( dname, _ )) as d ->
-                    if name == dname then
-                        Just d
-
-                    else
-                        Nothing
-
-        name :: tail ->
-            case fs of
-                File _ ->
-                    Nothing
-
-                Dir ( dname, children ) ->
-                    if name == dname then
-                        children
-                            |> List.map (\child -> queryPathAbs child tail)
-                            |> List.filterMap identity
-                            |> List.head
-
-                    else
-                        Nothing
-
-
-getAbsPath : System -> Path -> Maybe AbsolutePath
-getAbsPath system path =
-    case path of
-        "" :: _ ->
-            normalizePath path
-
-        _ ->
-            normalizePath (List.append system.current path)
-
-
-queryPath : System -> Path -> Maybe ( Fs, AbsolutePath )
-queryPath system path =
-    path |> getAbsPath system |> Maybe.andThen (\p -> queryPathAbs system.root p |> Maybe.map (\fs -> ( fs, p )))
-
-
 type Resolved
-    = Succes ( Fs, AbsolutePath )
-    | IsNotDir ( Fs, AbsolutePath )
+    = Succes ( Fs.Fs, Fs.AbsolutePath )
+    | IsNotDir ( Fs.Fs, Fs.AbsolutePath )
     | NotFound
 
 
@@ -197,16 +70,19 @@ resolvePath system path =
 
             else
                 ( False, path )
+
+        absPath =
+            shrinked
+                |> String.split "/"
+                |> Path.toAbsolute system.current
+                |> Maybe.withDefault []
     in
-    case ( dirExpect, shrinked |> String.split "/" |> queryPath system ) of
-        ( True, Just ( (File _) as f, p ) ) ->
-            IsNotDir ( f, p )
+    case ( dirExpect, Fs.queryPathAbs system.root absPath ) of
+        ( True, Just ((Fs.File _) as f) ) ->
+            IsNotDir ( f, absPath )
 
-        ( True, Just ( (Dir _) as d, p ) ) ->
-            Succes ( d, p )
-
-        ( _, Just ( f, p ) ) ->
-            Succes ( f, p )
+        ( _, Just f ) ->
+            Succes ( f, absPath )
 
         ( _, Nothing ) ->
             NotFound
@@ -222,43 +98,6 @@ resolveExe system path =
 
     else
         NotFound
-
-
-removeFile : AbsolutePath -> Fs -> Fs
-removeFile path =
-    fsMap
-        (\brothers current ->
-            List.filter (\boy -> path /= List.append current [ getFileName boy ]) brothers
-        )
-
-
-overwriteFile : AbsolutePath -> Fs -> Fs -> Fs
-overwriteFile path src =
-    fsMap
-        (\brothers current ->
-            if path == current then
-                src :: List.filter (\boy -> getFileName boy /= getFileName src) brothers
-
-            else
-                brothers
-        )
-
-
-fsMap : (List Fs -> AbsolutePath -> List Fs) -> Fs -> Fs
-fsMap f root =
-    let
-        impl g fs current =
-            case fs of
-                File _ ->
-                    fs
-
-                Dir ( dname, children ) ->
-                    Dir
-                        ( dname
-                        , List.map (\child -> impl g child (List.append current [ dname ])) (g children (List.append current [ dname ]))
-                        )
-    in
-    impl f root []
 
 
 type
@@ -285,7 +124,7 @@ execCat system args =
         |> List.map
             (\arg ->
                 case resolvePath system arg of
-                    Succes ( File ( fname, id ), p ) ->
+                    Succes ( Fs.File ( fname, id ), p ) ->
                         case id of
                             "basic-info" ->
                                 Str "Nakano Masaki<namachan10777@gmail.com\n"
@@ -296,10 +135,10 @@ execCat system args =
                             _ ->
                                 Str (String.append fname " is not a text file\n")
 
-                    Succes ( Dir ( dname, _ ), p ) ->
+                    Succes ( Fs.Dir ( dname, _ ), p ) ->
                         Str (String.append dname " is a directory\n")
 
-                    IsNotDir ( File ( fname, id ), p ) ->
+                    IsNotDir ( Fs.File ( fname, id ), p ) ->
                         Str (String.append fname " is not a directory\n")
 
                     _ ->
@@ -322,33 +161,33 @@ implMv isSingleArg system src dest =
         ( _, IsNotDir _, _ ) ->
             ( Just (Str ("mv: cannot stat " ++ src ++ ": Not a directory")), system )
 
-        ( _, Succes ( Dir _, _ ), Succes ( File _, _ ) ) ->
+        ( _, Succes ( Fs.Dir _, _ ), Succes ( Fs.File _, _ ) ) ->
             ( Just (Str ("mv: cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
 
         ( _, Succes ( file, srcAbs ), IsNotDir _ ) ->
             ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
 
-        ( False, _, Succes ( File _, _ ) ) ->
+        ( False, _, Succes ( Fs.File _, _ ) ) ->
             ( Just (Str ("mv: target " ++ dest ++ "is not a directory")), system )
 
         ( False, _, NotFound ) ->
             ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
 
-        ( _, Succes ( file, srcAbs ), Succes ( Dir _, destAbs ) ) ->
-            ( Nothing, { system | root = system.root |> overwriteFile destAbs file |> removeFile srcAbs } )
+        ( _, Succes ( file, srcAbs ), Succes ( Fs.Dir _, destAbs ) ) ->
+            ( Nothing, { system | root = system.root |> Fs.overwriteFile destAbs file |> Fs.removeFile srcAbs } )
 
-        ( _, Succes ( file, srcAbs ), Succes ( File ( name, _ ), destAbs ) ) ->
+        ( _, Succes ( file, srcAbs ), Succes ( Fs.File ( name, _ ), destAbs ) ) ->
             ( Nothing
             , { system
                 | root =
                     system.root
-                        |> overwriteFile (dropRight 1 destAbs) (changeFileName file name)
-                        |> removeFile srcAbs
+                        |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
+                        |> Fs.removeFile srcAbs
               }
             )
 
         ( _, Succes ( file, srcAbs ), _ ) ->
-            case getAbsPath system (String.split "/" dest) of
+            case Path.toAbsolute system.current (String.split "/" dest) of
                 Nothing ->
                     ( Just (Str ("mv: failed to acces " ++ dest ++ ": No such a directory")), system )
 
@@ -361,8 +200,8 @@ implMv isSingleArg system src dest =
                     , { system
                         | root =
                             system.root
-                                |> overwriteFile (dropRight 1 destAbs) (changeFileName file name)
-                                |> removeFile srcAbs
+                                |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
+                                |> Fs.removeFile srcAbs
                       }
                     )
 
@@ -411,7 +250,7 @@ execCd system arg =
     let
         implCd path =
             case resolvePath system path of
-                Succes ( Dir ( _, _ ), normalized ) ->
+                Succes ( Fs.Dir ( _, _ ), normalized ) ->
                     ( Stdout [], { root = system.root, current = normalized } )
 
                 NotFound ->
@@ -436,15 +275,15 @@ execLs system paths =
     let
         showDirIncludes path =
             case resolvePath system path of
-                Succes ( Dir ( _, children ), _ ) ->
+                Succes ( Fs.Dir ( _, children ), _ ) ->
                     children
                         |> List.map
                             (\child ->
                                 case child of
-                                    File ( name, _ ) ->
+                                    Fs.File ( name, _ ) ->
                                         name
 
-                                    Dir ( name, _ ) ->
+                                    Fs.Dir ( name, _ ) ->
                                         name
                             )
                         |> String.join " "
@@ -490,40 +329,40 @@ execPwd system args =
 exec : System -> String -> List String -> ( CmdResult, System )
 exec system path args =
     case resolveExe system path of
-        Succes ( File ( _, "echo" ), _ ) ->
+        Succes ( Fs.File ( _, "echo" ), _ ) ->
             execEcho system args
 
-        Succes ( File ( _, "cat" ), _ ) ->
+        Succes ( Fs.File ( _, "cat" ), _ ) ->
             execCat system args
 
-        Succes ( File ( _, "mv" ), _ ) ->
+        Succes ( Fs.File ( _, "mv" ), _ ) ->
             execMv system args
 
-        Succes ( File ( _, "rm" ), _ ) ->
+        Succes ( Fs.File ( _, "rm" ), _ ) ->
             execRm system args
 
-        Succes ( File ( _, "cd" ), _ ) ->
+        Succes ( Fs.File ( _, "cd" ), _ ) ->
             execCd system args
 
-        Succes ( File ( _, "ls" ), _ ) ->
+        Succes ( Fs.File ( _, "ls" ), _ ) ->
             execLs system args
 
-        Succes ( File ( _, "pwd" ), _ ) ->
+        Succes ( Fs.File ( _, "pwd" ), _ ) ->
             execPwd system args
 
         _ ->
             ( NoCmd, system )
 
 
-enumerateCmds : System -> Path
+enumerateCmds : System -> Fs.Path
 enumerateCmds system =
     case resolvePath system exePath of
-        Succes ( Dir ( _, files ), _ ) ->
+        Succes ( Fs.Dir ( _, files ), _ ) ->
             files
                 |> List.filterMap
                     (\file ->
                         case file of
-                            File ( name, _ ) ->
+                            Fs.File ( name, _ ) ->
                                 Just name
 
                             _ ->

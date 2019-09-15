@@ -1,7 +1,9 @@
 module FsTests exposing (fsTests)
 
 import Expect
+import Fs exposing (..)
 import Os exposing (..)
+import Path exposing (..)
 import Test exposing (..)
 
 
@@ -96,24 +98,6 @@ fsTests =
             , test "fail" <|
                 \_ -> Expect.equal (queryPathAbs root [ "", "usr", "bi" ]) Nothing
             ]
-        , describe "queryPath"
-            [ test "root" <|
-                \_ -> Expect.equal (queryPath atRoot []) (Just ( root, [ "" ] ))
-            , test "root.txt" <|
-                \_ -> Expect.equal (queryPath atRoot [ "root.txt" ]) (Just ( File ( "root.txt", "root.txt" ), [ "", "root.txt" ] ))
-            , test "root.txt-root" <|
-                \_ -> Expect.equal (queryPath atRoot [ "", "root.txt" ]) (Just ( File ( "root.txt", "root.txt" ), [ "", "root.txt" ] ))
-            , test "echo" <|
-                \_ -> Expect.equal (queryPath atRoot [ "usr", "bin", "echo" ]) (Just ( File ( "echo", "echo" ), [ "", "usr", "bin", "echo" ] ))
-            , test "relative echo" <|
-                \_ -> Expect.equal (queryPath atUsr [ "bin", "echo" ]) (Just ( File ( "echo", "echo" ), [ "", "usr", "bin", "echo" ] ))
-            , test "relative echo 2" <|
-                \_ -> Expect.equal (queryPath atUsr [ ".", "bin", "echo" ]) (Just ( File ( "echo", "echo" ), [ "", "usr", "bin", "echo" ] ))
-            , test "relative root.txt" <|
-                \_ -> Expect.equal (queryPath atUsr [ "..", "root.txt" ]) (Just ( File ( "root.txt", "root.txt" ), [ "", "root.txt" ] ))
-            , test "not found" <|
-                \_ -> Expect.equal (queryPath atRoot [ "usr", "bin", "ech" ]) Nothing
-            ]
         , describe "resolvePath"
             [ test "root" <|
                 \_ -> Expect.equal (resolvePath atRoot "/") (Succes ( root, [ "" ] ))
@@ -156,15 +140,17 @@ fsTests =
             , test "enumerate 2" <|
                 \_ -> Expect.equal (enumerateCmds atUsr) [ "echo", "cd" ]
             ]
-        , describe "normalizePath"
-            [ test "normalize rel" <|
-                \_ -> Expect.equal (normalizePath [ ".", "foo", "bar" ]) (Just [ "foo", "bar" ])
-            , test "normalize parent" <|
-                \_ -> Expect.equal (normalizePath [ "foo", "..", "bar" ]) (Just [ "bar" ])
-            , test "normalize complex" <|
-                \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", ".." ]) (Just [])
-            , test "invalid return" <|
-                \_ -> Expect.equal (normalizePath [ ".", "foo", "..", "bar", "..", ".." ]) Nothing
+        , describe "toAbsolute"
+            [ test "reltive" <|
+                \_ -> Expect.equal (toAbsolute [ "", "usr" ] [ ".", "foo", "bar" ]) (Just [ "", "usr", "foo", "bar" ])
+            , test "parent" <|
+                \_ -> Expect.equal (toAbsolute [ "" ] [ "foo", "..", "bar" ]) (Just [ "", "bar" ])
+            , test "complex" <|
+                \_ -> Expect.equal (toAbsolute [ "" ] [ ".", "foo", "..", "bar", ".." ]) (Just [ "" ])
+            , test "root of root" <|
+                \_ -> Expect.equal (toAbsolute [ "" ] [ ".", "foo", "..", "bar", "..", ".." ]) (Just [])
+            , test "nowhere" <|
+                \_ -> Expect.equal (toAbsolute [ "" ] [ ".", "foo", "..", "..", "bar", "..", ".." ]) Nothing
             ]
         , describe "overwriteFile"
             [ test "overwrite root.txt" <|
