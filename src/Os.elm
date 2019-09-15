@@ -159,52 +159,69 @@ isIncludeAsSubDir src dest =
     List.length src < List.length dest && (List.map2 (==) src dest |> List.foldl (&&) True)
 
 
-implMv : Bool -> System -> String -> String -> ( Maybe Output, System )
-implMv isSingleArg system src dest =
-    case ( isSingleArg, resolvePath system src, resolvePath system dest ) of
-        ( _, NotFound, _ ) ->
-            ( Just (Str ("mv: cannot stat " ++ src ++ ": No such file or directory")), system )
-
-        ( _, IsNotDir _, _ ) ->
-            ( Just (Str ("mv: cannot stat " ++ src ++ ": Not a directory")), system )
-
-        ( _, Succes ( Fs.Dir _, _ ), Succes ( Fs.File _, _ ) ) ->
-            ( Just (Str ("mv: cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
-
-        ( _, Succes ( file, srcAbs ), IsNotDir _ ) ->
-            ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
-
-        ( False, _, Succes ( Fs.File _, _ ) ) ->
-            ( Just (Str ("mv: target " ++ dest ++ "is not a directory")), system )
-
-        ( False, _, NotFound ) ->
-            ( Just (Str ("mv: failed to acces" ++ dest ++ ": Not a directory")), system )
-
-        ( _, Succes ( file, srcAbs ), Succes ( Fs.Dir _, destAbs ) ) ->
-            if isIncludeAsSubDir srcAbs destAbs then
-                ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+implCp : Bool -> Bool -> Bool -> System -> String -> String -> ( Maybe Output, System )
+implCp deleteAfterCopy cpDirectory isSingleArg system src dest =
+    let
+        cmdName =
+            if deleteAfterCopy then
+                "mv"
 
             else
-                ( Nothing, { system | root = system.root |> Fs.overwriteFile destAbs file |> Fs.removeFile srcAbs } )
+                "cp"
+
+        updater srcPath destPath file root =
+            if deleteAfterCopy then
+                root |> Fs.overwriteFile destPath file |> Fs.removeFile srcPath
+
+            else
+                root |> Fs.overwriteFile destPath file
+    in
+    case ( isSingleArg, resolvePath system src, resolvePath system dest ) of
+        ( _, NotFound, _ ) ->
+            ( Just (Str (cmdName ++ ": cannot stat " ++ src ++ ": No such file or directory")), system )
+
+        ( _, IsNotDir _, _ ) ->
+            ( Just (Str (cmdName ++ ": cannot stat " ++ src ++ ": Not a directory")), system )
+
+        ( _, Succes ( Fs.Dir _, _ ), Succes ( Fs.File _, _ ) ) ->
+            ( Just (Str (cmdName ++ ": cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
+
+        ( _, Succes ( file, srcAbs ), IsNotDir _ ) ->
+            ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
+
+        ( False, _, Succes ( Fs.File _, _ ) ) ->
+            ( Just (Str (cmdName ++ ": target " ++ dest ++ "is not a directory")), system )
+
+        ( False, _, NotFound ) ->
+            ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
+
+        ( _, Succes ( file, srcAbs ), Succes ( Fs.Dir _, destAbs ) ) ->
+            if deleteAfterCopy && isIncludeAsSubDir srcAbs destAbs then
+                ( Just (Str (cmdName ++ ": cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+
+            else if Fs.isDir file && not cpDirectory then
+                ( Just (Str (cmdName ++ ": -r not specified; omitting directory " ++ src)), system )
+
+            else
+                ( Nothing, { system | root = system.root |> updater srcAbs destAbs file } )
 
         ( _, Succes ( file, srcAbs ), Succes ( Fs.File ( name, _ ), destAbs ) ) ->
             if isIncludeAsSubDir srcAbs destAbs then
-                ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+                ( Just (Str (cmdName ++ ": cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
 
             else
                 ( Nothing
                 , { system
                     | root =
                         system.root
-                            |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
-                            |> Fs.removeFile srcAbs
+                            |> updater srcAbs (dropRight 1 destAbs) (Fs.changeName file name)
                   }
                 )
 
         ( _, Succes ( file, srcAbs ), _ ) ->
             case Path.toAbsolute system.current (String.split "/" dest) of
                 Nothing ->
-                    ( Just (Str ("mv: failed to acces " ++ dest ++ ": No such a directory")), system )
+                    ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": No such a directory")), system )
 
                 Just destAbs ->
                     let
@@ -212,32 +229,52 @@ implMv isSingleArg system src dest =
                             destAbs |> List.reverse |> List.head |> Maybe.withDefault ""
                     in
                     if isIncludeAsSubDir srcAbs destAbs then
-                        ( Just (Str ("mv: cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+                        ( Just (Str (": cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
+
+                    else if Fs.isDir file && not cpDirectory then
+                        ( Just (Str (cmdName ++ ": -r not specified; omitting directory " ++ src)), system )
 
                     else
                         ( Nothing
                         , { system
                             | root =
                                 system.root
-                                    |> Fs.overwriteFile (dropRight 1 destAbs) (Fs.changeName file name)
-                                    |> Fs.removeFile srcAbs
+                                    |> updater srcAbs (dropRight 1 destAbs) (Fs.changeName file name)
                           }
                         )
 
 
-execMv : System -> List String -> ( CmdResult, System )
-execMv system args =
-    case List.reverse args of
+execCp : Bool -> System -> List String -> ( CmdResult, System )
+execCp deleteAfterCopy system args =
+    let
+        cmdName =
+            if deleteAfterCopy then
+                "mv"
+
+            else
+                "cp"
+
+        cpDirectory =
+            deleteAfterCopy || List.member "-r" args
+
+        cmdArgs =
+            if deleteAfterCopy then
+                args
+
+            else
+                List.filter (\s -> s /= "-r") args
+    in
+    case List.reverse cmdArgs of
         [] ->
-            ( Stdout [ Str "mv: missing file operand" ], system )
+            ( Stdout [ Str (cmdName ++ ": missing file operand") ], system )
 
         src :: [] ->
-            ( Stdout [ Str ("mv: missing file destination operand after " ++ src) ], system )
+            ( Stdout [ Str (cmdName ++ ": missing file destination operand after " ++ src) ], system )
 
         dest :: src :: [] ->
             let
                 ( output, updatedSystem ) =
-                    implMv True system src dest
+                    implCp deleteAfterCopy cpDirectory True system src dest
             in
             ( Stdout ([ output ] |> List.filterMap identity), updatedSystem )
 
@@ -250,7 +287,7 @@ execMv system args =
                             (\src ( acc, sys ) ->
                                 let
                                     ( output, nextSys ) =
-                                        implMv False sys src dest
+                                        implCp deleteAfterCopy cpDirectory False sys src dest
                                 in
                                 ( output :: acc, nextSys )
                             )
@@ -367,8 +404,11 @@ exec system path args =
         Succes ( Fs.File ( _, "cat" ), _ ) ->
             execCat
 
+        Succes ( Fs.File ( _, "cp" ), _ ) ->
+            execCp False
+
         Succes ( Fs.File ( _, "mv" ), _ ) ->
-            execMv
+            execCp True
 
         Succes ( Fs.File ( _, "rm" ), _ ) ->
             execRm

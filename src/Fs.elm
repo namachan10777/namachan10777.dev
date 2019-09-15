@@ -18,6 +18,16 @@ type Fs
     | File ( String, Id )
 
 
+isDir : Fs -> Bool
+isDir fs =
+    case fs of
+        Dir _ ->
+            True
+
+        _ ->
+            False
+
+
 getName : Fs -> String
 getName fs =
     case fs of
