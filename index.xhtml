@@ -25,13 +25,13 @@
 				const root = document.getElementById("scroll-area");
 				setTimeout(() => {
 					root.scrollTop = root.scrollHeight;
-				}, 5);
+				}, 10);
 			});
 			app.ports.focusInput.subscribe(data => {
 				setTimeout(() => {
 					const input = document.getElementById("input");
 					input.focus();
-				}, 5);
+				}, 10);
 			});
 		</script>
 	</body>
