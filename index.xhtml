@@ -33,6 +33,19 @@
 					input.focus();
 				}, 10);
 			});
+			app.ports.storeStoraged.subscribe(data => {
+				console.log("save:", data);
+				localStorage.setItem('env', JSON.stringify(data));
+			});
+			app.ports.requestStoraged.subscribe(() => {
+				try {
+					const storaged = JSON.parse(localStorage.env);
+					console.log(storaged);
+					app.ports.loadStoraged.send(JSON.parse(localStorage.env));
+				}
+				catch (e) {
+				}
+			});
 		</script>
 	</body>
 </html>

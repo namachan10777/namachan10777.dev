@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, href, id, src, value)
 import Html.Events exposing (..)
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Os
 import Storage
 import Task
@@ -36,6 +37,7 @@ type Msg
     | SetSystemTime ( Time.Zone, Time.Posix )
     | SetCurrentTime Time.Posix
     | Change String
+    | LoadStoraged Encode.Value
 
 
 setSystemTime : Cmd Msg
@@ -45,13 +47,16 @@ setSystemTime =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { current = "help"
+    ( { current = ""
       , hists = []
       , posix = Time.millisToPosix 0
       , zone = Time.utc
       , system = Os.initialSystem
       }
-    , setSystemTime
+    , Cmd.batch
+        [ setSystemTime
+        , Storage.requestStoraged ()
+        ]
     )
 
 
@@ -111,26 +116,36 @@ update msg model =
             in
             case result of
                 Os.Clear ->
+                    let
+                        newHists =
+                            [ ( String.join "/" model.system.current, model.current, result ) ]
+                    in
                     ( { model
                         | current = ""
-                        , hists = [ ( String.join "/" model.system.current, model.current, result ) ]
+                        , hists = newHists
                         , system = newSystem
                       }
                     , Cmd.batch
                         [ scrollBottom ()
                         , focusInput ()
+                        , Storage.storeStoraged (Storage.storagedEncode ( newHists, newSystem ))
                         ]
                     )
 
                 _ ->
+                    let
+                        newHists =
+                            ( String.join "/" model.system.current, model.current, result ) :: model.hists
+                    in
                     ( { model
                         | current = ""
-                        , hists = ( String.join "/" model.system.current, model.current, result ) :: model.hists
+                        , hists = newHists
                         , system = newSystem
                       }
                     , Cmd.batch
                         [ scrollBottom ()
                         , focusInput ()
+                        , Storage.storeStoraged (Storage.storagedEncode ( newHists, newSystem ))
                         ]
                     )
 
@@ -148,6 +163,18 @@ update msg model =
 
         SetCurrentTime time ->
             ( { model | posix = time }, Cmd.none )
+
+        LoadStoraged v ->
+            case Decode.decodeValue Storage.storagedDecoder v of
+                Ok ( hists, system ) ->
+                    ( { model | hists = hists, system = system }, focusInput () )
+
+                Err errMsg ->
+                    let
+                        _ =
+                            Debug.log "failed to decode sotraged: " errMsg
+                    in
+                    ( model, Cmd.none )
 
 
 
@@ -298,4 +325,5 @@ subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown (Decode.map Type keyDecoder)
         , Time.every 1000 SetCurrentTime
+        , Storage.loadStoraged LoadStoraged
         ]
