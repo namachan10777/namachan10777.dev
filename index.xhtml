@@ -33,7 +33,7 @@
 					input.focus();
 				}, 10);
 			});
-			app.ports.storeStoraged.subscribe(data => {
+			app.ports.storeStoragedPort.subscribe(data => {
 				console.log("save:", data);
 				localStorage.setItem('env', JSON.stringify(data));
 			});
@@ -41,7 +41,7 @@
 				try {
 					const storaged = JSON.parse(localStorage.env);
 					console.log(storaged);
-					app.ports.loadStoraged.send(JSON.parse(localStorage.env));
+					app.ports.loadStoragedPort.send(JSON.parse(localStorage.env));
 				}
 				catch (e) {
 				}

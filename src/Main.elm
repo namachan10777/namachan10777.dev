@@ -37,7 +37,7 @@ type Msg
     | SetSystemTime ( Time.Zone, Time.Posix )
     | SetCurrentTime Time.Posix
     | Change String
-    | LoadStoraged Encode.Value
+    | LoadStoraged (Result Decode.Error Storage.Storaged)
 
 
 setSystemTime : Cmd Msg
@@ -128,7 +128,7 @@ update msg model =
                     , Cmd.batch
                         [ scrollBottom ()
                         , focusInput ()
-                        , Storage.storeStoraged (Storage.storagedEncode ( newHists, newSystem ))
+                        , Storage.storeStoraged newSystem newHists
                         ]
                     )
 
@@ -145,7 +145,7 @@ update msg model =
                     , Cmd.batch
                         [ scrollBottom ()
                         , focusInput ()
-                        , Storage.storeStoraged (Storage.storagedEncode ( newHists, newSystem ))
+                        , Storage.storeStoraged newSystem newHists
                         ]
                     )
 
@@ -164,17 +164,15 @@ update msg model =
         SetCurrentTime time ->
             ( { model | posix = time }, Cmd.none )
 
-        LoadStoraged v ->
-            case Decode.decodeValue Storage.storagedDecoder v of
-                Ok ( hists, system ) ->
-                    ( { model | hists = hists, system = system }, focusInput () )
+        LoadStoraged (Ok ( hists, system )) ->
+            ( { model | hists = hists, system = system }, focusInput () )
 
-                Err errMsg ->
-                    let
-                        _ =
-                            Debug.log "failed to decode sotraged: " errMsg
-                    in
-                    ( model, Cmd.none )
+        LoadStoraged (Err errMsg) ->
+            let
+                _ =
+                    Debug.log "failed to decode sotraged: " errMsg
+            in
+            ( model, Cmd.none )
 
 
 

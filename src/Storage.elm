@@ -6,13 +6,23 @@ import Json.Encode as Encode
 import Os
 
 
-port storeStoraged : Encode.Value -> Cmd msg
+port storeStoragedPort : Encode.Value -> Cmd msg
+
+
+storeStoraged : Os.System -> List Hist -> Cmd msg
+storeStoraged system hists =
+    ( hists, system ) |> storagedEncode |> storeStoragedPort
 
 
 port requestStoraged : () -> Cmd msg
 
 
-port loadStoraged : (Encode.Value -> msg) -> Sub msg
+port loadStoragedPort : (Encode.Value -> msg) -> Sub msg
+
+
+loadStoraged : (Result Decode.Error Storaged -> msg) -> Sub msg
+loadStoraged f =
+    loadStoragedPort (\value -> Decode.decodeValue storagedDecoder value |> f)
 
 
 type alias Hist =
