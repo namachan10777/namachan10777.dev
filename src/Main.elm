@@ -9,8 +9,6 @@ import Json.Decode as Decode
 import Os
 import Task
 import Time
-import Types exposing (KeyValue)
-import Util
 
 
 main : Program () Model Msg
@@ -61,8 +59,34 @@ init _ =
 
 
 
--- UTIL
 -- UPDATE
+
+
+type KeyValue
+    = Character Char
+    | Control String
+
+
+type alias Keys =
+    List KeyValue
+
+
+keyDecoder : Decode.Decoder KeyValue
+keyDecoder =
+    Decode.map toKeyValue (Decode.field "key" Decode.string)
+
+
+toKeyValue : String -> KeyValue
+toKeyValue string =
+    case String.uncons string of
+        Just ( ' ', "" ) ->
+            Control "Space"
+
+        Just ( char, "" ) ->
+            Character char
+
+        _ ->
+            Control string
 
 
 port scrollBottom : () -> Cmd msg
@@ -74,7 +98,7 @@ port focusInput : () -> Cmd msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Type (Types.Control "Enter") ->
+        Type (Control "Enter") ->
             let
                 inputs =
                     model.current |> String.split " " |> List.filter (\s -> s /= "")
@@ -275,6 +299,6 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Browser.Events.onKeyDown (Decode.map Type Util.keyDecoder)
+        [ Browser.Events.onKeyDown (Decode.map Type keyDecoder)
         , Time.every 1000 SetCurrentTime
         ]
