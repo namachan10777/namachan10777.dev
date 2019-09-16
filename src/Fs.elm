@@ -14,14 +14,14 @@ type alias AbsolutePath =
 
 
 type Fs
-    = Dir ( String, List Fs )
-    | File ( String, Id )
+    = Dir String (List Fs)
+    | File String Id
 
 
 isDir : Fs -> Bool
 isDir fs =
     case fs of
-        Dir _ ->
+        Dir _ _ ->
             True
 
         _ ->
@@ -31,21 +31,21 @@ isDir fs =
 getName : Fs -> String
 getName fs =
     case fs of
-        Dir ( name, _ ) ->
+        Dir name _ ->
             name
 
-        File ( name, _ ) ->
+        File name _ ->
             name
 
 
 changeName : Fs -> String -> Fs
 changeName fs name =
     case fs of
-        Dir ( _, children ) ->
-            Dir ( name, children )
+        Dir _ children ->
+            Dir name children
 
-        File ( _, id ) ->
-            File ( name, id )
+        File _ id ->
+            File name id
 
 
 queryPathAbs : Fs -> AbsolutePath -> Maybe Fs
@@ -65,14 +65,14 @@ queryPathAbs fs path =
 
         name :: [] ->
             case fs of
-                (File ( fname, _ )) as f ->
+                (File fname _) as f ->
                     if name == fname then
                         Just f
 
                     else
                         Nothing
 
-                (Dir ( dname, _ )) as d ->
+                (Dir dname _) as d ->
                     if name == dname then
                         Just d
 
@@ -81,10 +81,10 @@ queryPathAbs fs path =
 
         name :: tail ->
             case fs of
-                File _ ->
+                File _ _ ->
                     Nothing
 
-                Dir ( dname, children ) ->
+                Dir dname children ->
                     if name == dname then
                         children
                             |> List.map (\child -> queryPathAbs child tail)
@@ -120,13 +120,11 @@ fsMap f root =
     let
         impl g fs current =
             case fs of
-                File _ ->
+                File _ _ ->
                     fs
 
-                Dir ( dname, children ) ->
-                    Dir
-                        ( dname
-                        , List.map (\child -> impl g child (List.append current [ dname ])) (g children (List.append current [ dname ]))
-                        )
+                Dir dname children ->
+                    Dir dname
+                        (List.map (\child -> impl g child (List.append current [ dname ])) (g children (List.append current [ dname ])))
     in
     impl f root []

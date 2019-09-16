@@ -18,40 +18,35 @@ exePath =
 initialFs : Fs.Fs
 initialFs =
     Fs.Dir
-        ( ""
-        , [ Fs.Dir
-                ( "usr"
-                , [ Fs.Dir
-                        ( "bin"
-                        , [ Fs.File ( "echo", "echo" )
-                          , Fs.File ( "clear", "clear" )
-                          , Fs.File ( "cat", "cat" )
-                          , Fs.File ( "mv", "mv" )
-                          , Fs.File ( "rm", "rm" )
-                          , Fs.File ( "cp", "cp" )
-                          , Fs.File ( "cd", "cd" )
-                          , Fs.File ( "ls", "ls" )
-                          , Fs.File ( "pwd", "pwd" )
-                          ]
-                        )
-                  ]
-                )
-          , Fs.Dir
-                ( "home"
-                , [ Fs.Dir
-                        ( "namachan"
-                        , [ Fs.File ( "icon", "icon" )
-                          , Fs.File ( "name", "name" )
-                          , Fs.File ( "belongs", "belongs" )
-                          , Fs.File ( "skills", "skills" )
-                          , Fs.File ( "works", "works" )
-                          , Fs.File ( "links", "links" )
-                          ]
-                        )
-                  ]
-                )
-          ]
-        )
+        ""
+        [ Fs.Dir
+            "usr"
+            [ Fs.Dir
+                "bin"
+                [ Fs.File "echo" "echo"
+                , Fs.File "clear" "clear"
+                , Fs.File "cat" "cat"
+                , Fs.File "mv" "mv"
+                , Fs.File "rm" "rm"
+                , Fs.File "cp" "cp"
+                , Fs.File "cd" "cd"
+                , Fs.File "ls" "ls"
+                , Fs.File "pwd" "pwd"
+                ]
+            ]
+        , Fs.Dir
+            "home"
+            [ Fs.Dir
+                "namachan"
+                [ Fs.File "icon" "icon"
+                , Fs.File "name" "name"
+                , Fs.File "belongs" "belongs"
+                , Fs.File "skills" "skills"
+                , Fs.File "works" "works"
+                , Fs.File "links" "links"
+                ]
+            ]
+        ]
 
 
 initialSystem : System
@@ -62,8 +57,8 @@ initialSystem =
 
 
 type Resolved
-    = Succes ( Fs.Fs, Fs.AbsolutePath )
-    | IsNotDir ( Fs.Fs, Fs.AbsolutePath )
+    = Succes Fs.Fs Fs.AbsolutePath
+    | IsNotDir Fs.Fs Fs.AbsolutePath
     | NotFound
 
 
@@ -84,11 +79,11 @@ resolvePath system path =
                 |> Maybe.withDefault []
     in
     case ( dirExpect, Fs.queryPathAbs system.root absPath ) of
-        ( True, Just ((Fs.File _) as f) ) ->
-            IsNotDir ( f, absPath )
+        ( True, Just ((Fs.File _ _) as f) ) ->
+            IsNotDir f absPath
 
         ( _, Just f ) ->
-            Succes ( f, absPath )
+            Succes f absPath
 
         ( _, Nothing ) ->
             NotFound
@@ -109,9 +104,9 @@ resolveExe system path =
 type
     Output
     -- class src author
-    = Img ( String, String, Maybe ( String, String ) )
+    = Img String String (Maybe ( String, String ))
     | Str String
-    | A ( String, String )
+    | A String String
 
 
 type CmdResult
@@ -131,13 +126,13 @@ execCat system args =
         |> List.map
             (\arg ->
                 case resolvePath system arg of
-                    Succes ( Fs.File ( fname, id ), p ) ->
+                    Succes (Fs.File fname id) p ->
                         case id of
                             "name" ->
                                 [ Str "Nakano Masaki<namachan10777@gmail.com\n" ]
 
                             "icon" ->
-                                [ Img ( "icon", "./res/icon.jpg", Just ( "@hsm_hx", "https://twitter.com/hsm_hx" ) ) ]
+                                [ Img "icon" "./res/icon.jpg" (Just ( "@hsm_hx", "https://twitter.com/hsm_hx" )) ]
 
                             "belongs" ->
                                 [ Str " school : National Institute of Techonology, Kagawa College."
@@ -156,31 +151,31 @@ execCat system args =
                                 ]
 
                             "works" ->
-                                [ A ( "namaco", "https://github.com/namachan10777/namaco" )
+                                [ A "namaco" "https://github.com/namachan10777/namaco"
                                 , Str "Morphlogical analyzer"
-                                , A ( "folivora", "https://github.com/namachan10777/folivora" )
+                                , A "folivora" "https://github.com/namachan10777/folivora"
                                 , Str "Ergonomics keyboard"
-                                , A ( "kck", "https://github.com/namachan10777/kck" )
+                                , A "kck" "https://github.com/namachan10777/kck"
                                 , Str "C compiler"
                                 ]
 
                             "links" ->
-                                [ A ( "Twitter", "https://twitter.com/namachan10777" )
-                                , A ( "hatenablog", "https://namachan10777.hatenablog.com/" )
-                                , A ( "GitHub", "https://github.com/namachan10777" )
-                                , A ( "Steam", "https://steamcommunity.com/id/namachan10777/" )
-                                , A ( "Amazon Wishlist", "http://amzn.asia/6JUD39R" )
-                                , A ( "My namecard", "https://namachan10777.github.io/namecard.html" )
-                                , A ( "My resume", "https://namachan10777.github.io/resume.html" )
+                                [ A "Twitter" "https://twitter.com/namachan10777"
+                                , A "hatenablog" "https://namachan10777.hatenablog.com/"
+                                , A "GitHub" "https://github.com/namachan10777"
+                                , A "Steam" "https://steamcommunity.com/id/namachan10777/"
+                                , A "Amazon Wishlist" "http://amzn.asia/6JUD39R"
+                                , A "My namecard" "https://namachan10777.github.io/namecard.html"
+                                , A "My resume" "https://namachan10777.github.io/resume.html"
                                 ]
 
                             _ ->
                                 [ Str (String.append fname " is not a text file\n") ]
 
-                    Succes ( Fs.Dir ( dname, _ ), p ) ->
+                    Succes (Fs.Dir dname _) p ->
                         [ Str (String.append dname " is a directory\n") ]
 
-                    IsNotDir ( Fs.File ( fname, id ), p ) ->
+                    IsNotDir (Fs.File fname id) p ->
                         [ Str (String.append fname " is not a directory\n") ]
 
                     _ ->
@@ -220,22 +215,22 @@ implCp deleteAfterCopy cpDirectory isSingleArg system src dest =
         ( _, NotFound, _ ) ->
             ( Just (Str (cmdName ++ ": cannot stat " ++ src ++ ": No such file or directory")), system )
 
-        ( _, IsNotDir _, _ ) ->
+        ( _, IsNotDir _ _, _ ) ->
             ( Just (Str (cmdName ++ ": cannot stat " ++ src ++ ": Not a directory")), system )
 
-        ( _, Succes ( Fs.Dir _, _ ), Succes ( Fs.File _, _ ) ) ->
+        ( _, Succes (Fs.Dir _ _) _, Succes (Fs.File _ _) _ ) ->
             ( Just (Str (cmdName ++ ": cannot overwrte non-directory " ++ dest ++ ": with directory" ++ src)), system )
 
-        ( _, Succes ( file, srcAbs ), IsNotDir _ ) ->
+        ( _, Succes file srcAbs, IsNotDir _ _ ) ->
             ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
 
-        ( False, _, Succes ( Fs.File _, _ ) ) ->
+        ( False, _, Succes (Fs.File _ _) _ ) ->
             ( Just (Str (cmdName ++ ": target " ++ dest ++ "is not a directory")), system )
 
         ( False, _, NotFound ) ->
             ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
 
-        ( _, Succes ( file, srcAbs ), Succes ( Fs.Dir _, destAbs ) ) ->
+        ( _, Succes file srcAbs, Succes (Fs.Dir _ _) destAbs ) ->
             if deleteAfterCopy && isIncludeAsSubDir srcAbs destAbs then
                 ( Just (Str (cmdName ++ ": cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
 
@@ -245,7 +240,7 @@ implCp deleteAfterCopy cpDirectory isSingleArg system src dest =
             else
                 ( Nothing, { system | root = system.root |> updater srcAbs destAbs file } )
 
-        ( _, Succes ( file, srcAbs ), Succes ( Fs.File ( name, _ ), destAbs ) ) ->
+        ( _, Succes file srcAbs, Succes (Fs.File name _) destAbs ) ->
             if isIncludeAsSubDir srcAbs destAbs then
                 ( Just (Str (cmdName ++ ": cannot move " ++ src ++ " to a subdirectory of itself, " ++ dest)), system )
 
@@ -258,7 +253,7 @@ implCp deleteAfterCopy cpDirectory isSingleArg system src dest =
                   }
                 )
 
-        ( _, Succes ( file, srcAbs ), _ ) ->
+        ( _, Succes file srcAbs, _ ) ->
             case Path.toAbsolute system.current (String.split "/" dest) of
                 Nothing ->
                     ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": No such a directory")), system )
@@ -349,13 +344,13 @@ execRm system args =
         |> List.foldl
             (\target ( acc, sys ) ->
                 case ( rmRecurse, resolvePath sys target ) of
-                    ( False, Succes ( Fs.Dir _, _ ) ) ->
+                    ( False, Succes (Fs.Dir _ _) _ ) ->
                         ( Str ("rm: cannot remove " ++ target ++ ": Is not a directory") :: acc, sys )
 
-                    ( _, Succes ( _, path ) ) ->
+                    ( _, Succes _ path ) ->
                         ( acc, { sys | root = sys.root |> Fs.removeFile path } )
 
-                    ( _, IsNotDir _ ) ->
+                    ( _, IsNotDir _ _ ) ->
                         ( Str ("rm: cannot remove " ++ target ++ ": Not a directory") :: acc, sys )
 
                     ( _, NotFound ) ->
@@ -370,7 +365,7 @@ execCd system arg =
     let
         implCd path =
             case resolvePath system path of
-                Succes ( Fs.Dir ( _, _ ), normalized ) ->
+                Succes (Fs.Dir _ _) normalized ->
                     ( Stdout [], { root = system.root, current = normalized } )
 
                 NotFound ->
@@ -395,15 +390,15 @@ execLs system paths =
     let
         showDirIncludes path =
             case resolvePath system path of
-                Succes ( Fs.Dir ( _, children ), _ ) ->
+                Succes (Fs.Dir _ children) _ ->
                     children
                         |> List.map
                             (\child ->
                                 case child of
-                                    Fs.File ( name, _ ) ->
+                                    Fs.File name _ ->
                                         name
 
-                                    Fs.Dir ( name, _ ) ->
+                                    Fs.Dir name _ ->
                                         name
                             )
                         |> String.join " "
@@ -459,31 +454,31 @@ execClear system args =
 exec : System -> String -> List String -> ( CmdResult, System )
 exec system path args =
     (case resolveExe system path of
-        Succes ( Fs.File ( _, "echo" ), _ ) ->
+        Succes (Fs.File _ "echo") _ ->
             execEcho
 
-        Succes ( Fs.File ( _, "clear" ), _ ) ->
+        Succes (Fs.File _ "clear") _ ->
             execClear
 
-        Succes ( Fs.File ( _, "cat" ), _ ) ->
+        Succes (Fs.File _ "cat") _ ->
             execCat
 
-        Succes ( Fs.File ( _, "cp" ), _ ) ->
+        Succes (Fs.File _ "cp") _ ->
             execCp False
 
-        Succes ( Fs.File ( _, "mv" ), _ ) ->
+        Succes (Fs.File _ "mv") _ ->
             execCp True
 
-        Succes ( Fs.File ( _, "rm" ), _ ) ->
+        Succes (Fs.File _ "rm") _ ->
             execRm
 
-        Succes ( Fs.File ( _, "cd" ), _ ) ->
+        Succes (Fs.File _ "cd") _ ->
             execCd
 
-        Succes ( Fs.File ( _, "ls" ), _ ) ->
+        Succes (Fs.File _ "ls") _ ->
             execLs
 
-        Succes ( Fs.File ( _, "pwd" ), _ ) ->
+        Succes (Fs.File _ "pwd") _ ->
             execPwd
 
         _ ->

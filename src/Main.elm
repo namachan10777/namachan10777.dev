@@ -7,6 +7,7 @@ import Html.Attributes exposing (autofocus, class, href, id, src, value)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import Os
+import Storage
 import Task
 import Time
 
@@ -20,13 +21,9 @@ main =
 -- MODEL
 
 
-type alias Hist =
-    ( String, String, Os.CmdResult )
-
-
 type alias Model =
     { current : String
-    , hists : List Hist
+    , hists : List Storage.Hist
     , posix : Time.Posix
     , zone : Time.Zone
     , system : Os.System
@@ -241,13 +238,13 @@ renderStdout outputs =
                     Os.Str s ->
                         pre [ class "stdout" ] [ text s ]
 
-                    Os.A ( s, link ) ->
+                    Os.A s link ->
                         a [ href link ] [ pre [ class "stdout" ] [ text s ] ]
 
-                    Os.Img ( cssClass, imgSrc, Nothing ) ->
+                    Os.Img cssClass imgSrc Nothing ->
                         img [ class cssClass, src imgSrc ] []
 
-                    Os.Img ( cssClass, imgSrc, Just ( author, link ) ) ->
+                    Os.Img cssClass imgSrc (Just ( author, link )) ->
                         div []
                             [ img [ class cssClass, src imgSrc ] []
                             , div []
