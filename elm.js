@@ -7944,7 +7944,10 @@ var author$project$Main$view = function (model) {
 		elm$core$List$cons,
 		A2(
 			elm$html$Html$div,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('interactive-area')
+				]),
 			_List_fromArray(
 				[
 					author$project$Main$renderPrompt(

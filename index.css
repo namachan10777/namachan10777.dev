@@ -8,37 +8,10 @@ body {
 	height: 100%;
 	margin: 0;
 	background-color: #01171a;
-	font-size: 3vh;
 	font-family: 'Fira Mono';
 	color: #ddd;
 }
 
-.complete {
-	font-weight: bolder;
-	color: #fff;
-}
-
-.yet {
-	color: #666;
-}
-
-.error {
-	color: #ff5e5e;
-}
-
-.arrow {
-	color: #ff2c29;
-	margin-right: 1vw;
-}
-
-.stdout {
-	margin: 0;
-	white-space: pre-wrap;
-}
-
-.dir {
-	color: #d48517;
-}
 
 #root {
 	height: 100%;
@@ -68,4 +41,35 @@ footer {
 	font-size: inherit;
 	font-family: inherit;
 	color: inherit;
+}
+
+.stdout {
+	word-wrap: break-word;
+	word-break: normal;
+	white-space: pre;
+	white-space: pre-wrap;
+}
+
+@media screen and (min-aspect-ratio: 2/3) {
+	body {
+		font-size: 3vh;
+	}
+
+	.stdout {
+		font-size: 3vh;
+	}
+}
+
+@media screen and (max-aspect-ratio: 2/3) {
+	body {
+		font-size: 3vw;
+	}
+	.stdout {
+		font-size: 3vw;
+	}
+
+	.interactive-area {
+		display: flex;
+		flex-direction: column;
+	}
 }
