@@ -1,6 +1,7 @@
 name: Test
 
-on: [push]
+on: [push, pull_request]
+  
 
 jobs:
   test:
@@ -10,8 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: test
+      if: github.ref != 'master'
       run: |
         npm install
         npm run test
     - name: build
+      if: github.ref != 'master'
       run: npm run dev
