@@ -163,40 +163,53 @@ outputEncode output =
                 ]
 
 
-cmdResultEncode : Os.CmdResult -> Encode.Value
+cmdResultEncode : Os.CmdResult -> Maybe Encode.Value
 cmdResultEncode cmdResult =
     case cmdResult of
         Os.Stdout outputs ->
-            Encode.object
-                [ ( "type", Encode.string "stdout" )
-                , ( "outputs", Encode.list outputEncode outputs )
-                ]
+            Just
+                (Encode.object
+                    [ ( "type", Encode.string "stdout" )
+                    , ( "outputs", Encode.list outputEncode outputs )
+                    ]
+                )
 
         Os.NoCmd ->
-            Encode.object
-                [ ( "type", Encode.string "nocmd" )
-                ]
+            Just
+                (Encode.object
+                    [ ( "type", Encode.string "nocmd" )
+                    ]
+                )
 
         Os.Clear ->
-            Encode.object
-                [ ( "type", Encode.string "clear" )
-                ]
+            Just
+                (Encode.object
+                    [ ( "type", Encode.string "clear" )
+                    ]
+                )
+
+        Os.Reset ->
+            Nothing
 
 
-histEncode : Hist -> Encode.Value
+histEncode : Hist -> Maybe Encode.Value
 histEncode hist =
     case hist of
         ( dir, cmd, result ) ->
-            Encode.object
-                [ ( "dir", Encode.string dir )
-                , ( "cmd", Encode.string cmd )
-                , ( "result", cmdResultEncode result )
-                ]
+            cmdResultEncode result
+                |> Maybe.map
+                    (\encodedResult ->
+                        Encode.object
+                            [ ( "dir", Encode.string dir )
+                            , ( "cmd", Encode.string cmd )
+                            , ( "result", encodedResult )
+                            ]
+                    )
 
 
 histsEncode : List Hist -> Encode.Value
 histsEncode hists =
-    Encode.list histEncode hists
+    hists |> List.map histEncode |> List.filterMap identity |> Encode.list identity
 
 
 fsEncode : Fs.Fs -> Encode.Value

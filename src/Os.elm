@@ -114,6 +114,7 @@ type CmdResult
     = Stdout (List Output)
     | NoCmd
     | Clear
+    | Reset
 
 
 execEcho : System -> List String -> ( CmdResult, System )
@@ -461,36 +462,40 @@ execClear system args =
 
 exec : System -> String -> List String -> ( CmdResult, System )
 exec system path args =
-    (case resolveExe system path of
-        Succes (Fs.File _ "echo") _ ->
-            execEcho
+    if path == "reset-system" then
+        ( Reset, initialSystem )
 
-        Succes (Fs.File _ "clear") _ ->
-            execClear
+    else
+        (case resolveExe system path of
+            Succes (Fs.File _ "echo") _ ->
+                execEcho
 
-        Succes (Fs.File _ "cat") _ ->
-            execCat
+            Succes (Fs.File _ "clear") _ ->
+                execClear
 
-        Succes (Fs.File _ "cp") _ ->
-            execCp False
+            Succes (Fs.File _ "cat") _ ->
+                execCat
 
-        Succes (Fs.File _ "mv") _ ->
-            execCp True
+            Succes (Fs.File _ "cp") _ ->
+                execCp False
 
-        Succes (Fs.File _ "rm") _ ->
-            execRm
+            Succes (Fs.File _ "mv") _ ->
+                execCp True
 
-        Succes (Fs.File _ "cd") _ ->
-            execCd
+            Succes (Fs.File _ "rm") _ ->
+                execRm
 
-        Succes (Fs.File _ "ls") _ ->
-            execLs
+            Succes (Fs.File _ "cd") _ ->
+                execCd
 
-        Succes (Fs.File _ "pwd") _ ->
-            execPwd
+            Succes (Fs.File _ "ls") _ ->
+                execLs
 
-        _ ->
-            \_ _ -> ( NoCmd, system )
-    )
-        system
-        args
+            Succes (Fs.File _ "pwd") _ ->
+                execPwd
+
+            _ ->
+                \_ _ -> ( NoCmd, system )
+        )
+            system
+            args

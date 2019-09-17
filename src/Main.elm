@@ -22,6 +22,15 @@ main =
 -- MODEL
 
 
+initialCurrent =
+    ""
+
+
+initialHists =
+    [ ( "/home/namachan", "cat help", Os.exec Os.initialSystem "cat" [ "help" ] |> (\( a, b ) -> a) )
+    ]
+
+
 type alias Model =
     { current : String
     , hists : List Storage.Hist
@@ -38,6 +47,7 @@ type Msg
     | SetCurrentTime Time.Posix
     | Change String
     | LoadStoraged (Result Decode.Error Storage.Storaged)
+    | Reset
 
 
 setSystemTime : Cmd Msg
@@ -48,7 +58,7 @@ setSystemTime =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { current = "cat help"
-      , hists = []
+      , hists = initialHists
       , posix = Time.millisToPosix 0
       , zone = Time.utc
       , system = Os.initialSystem
@@ -132,6 +142,19 @@ update msg model =
                         ]
                     )
 
+                Os.Reset ->
+                    ( { model
+                        | current = initialCurrent
+                        , system = Os.initialSystem
+                        , hists = initialHists
+                      }
+                    , Cmd.batch
+                        [ scrollBottom ()
+                        , focusInput ()
+                        , Storage.storeStoraged Os.initialSystem initialHists
+                        ]
+                    )
+
                 _ ->
                     let
                         newHists =
@@ -169,6 +192,19 @@ update msg model =
 
         LoadStoraged (Err errMsg) ->
             ( model, Cmd.none )
+
+        Reset ->
+            ( { model
+                | current = initialCurrent
+                , system = Os.initialSystem
+                , hists = initialHists
+              }
+            , Cmd.batch
+                [ scrollBottom ()
+                , focusInput ()
+                , Storage.storeStoraged Os.initialSystem initialHists
+                ]
+            )
 
 
 
@@ -245,7 +281,8 @@ renderPowerline model =
             Time.toSecond model.zone model.posix |> String.fromInt |> zeroPadding 2
     in
     footer []
-        [ span [ class "terminal-info" ] [ text "fish- 1:namachan10777*" ]
+        [ button [ class "reset-button", onClick Reset ] [ text "click to reset" ]
+        , span [ class "terminal-info" ] [ text "fish- 1:namachan10777*" ]
         , span [ class "time" ] [ text (month ++ " " ++ day ++ " " ++ year ++ " " ++ hour ++ ":" ++ minute ++ ":" ++ second) ]
         ]
 
