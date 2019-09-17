@@ -12,6 +12,16 @@ body {
 	color: #ddd;
 }
 
+a:link {
+	color: #a8d4ff;
+	text-decoration: underline;
+}
+
+a:visited {
+	color: #88add1;
+	text-decoration: underline;
+}
+
 
 #root {
 	height: 100%;
