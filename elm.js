@@ -6779,7 +6779,7 @@ var author$project$Os$implCp = F6(
 									var _n10 = _n9.a;
 									return _Utils_Tuple2(
 										elm$core$Maybe$Just(
-											author$project$Os$Str(cmdName + (': target ' + (dest + 'is not a directory')))),
+											author$project$Os$Str(cmdName + (': target ' + (dest + ' is not a directory')))),
 										system);
 								} else {
 									var _n15 = _n0.b;
@@ -6959,7 +6959,7 @@ var author$project$Os$execLs = F2(
 						break _n1$2;
 				}
 			}
-			return path + 'is not a directory';
+			return path + ' is not a directory';
 		};
 		if (!paths.b) {
 			return _Utils_Tuple2(
