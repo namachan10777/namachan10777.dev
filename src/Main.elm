@@ -168,10 +168,6 @@ update msg model =
             ( { model | hists = hists, system = system }, focusInput () )
 
         LoadStoraged (Err errMsg) ->
-            let
-                _ =
-                    Debug.log "failed to decode sotraged: " errMsg
-            in
             ( model, Cmd.none )
 
 
