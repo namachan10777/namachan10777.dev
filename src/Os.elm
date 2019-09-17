@@ -44,6 +44,7 @@ initialFs =
                 , Fs.File "skills" "skills"
                 , Fs.File "works" "works"
                 , Fs.File "links" "links"
+                , Fs.File "help" "help"
                 ]
             ]
         ]
@@ -52,7 +53,7 @@ initialFs =
 initialSystem : System
 initialSystem =
     { root = initialFs
-    , current = [ "" ]
+    , current = [ "", "home", "namachan" ]
     }
 
 
@@ -167,6 +168,13 @@ execCat system args =
                                 , A "Amazon Wishlist" "http://amzn.asia/6JUD39R"
                                 , A "My namecard" "https://namachan10777.github.io/namecard.html"
                                 , A "My resume" "https://namachan10777.github.io/resume.html"
+                                ]
+
+                            "help" ->
+                                [ A "non-interactive page" "./noninteractive.xhtml"
+                                , Str "You can use \"cp\", \"mv\", \"cat\", \"ls\", \"cd\" and etc..."
+                                , Str "e.g -> cat icon"
+                                , Str "e.g -> ls /usr/bin"
                                 ]
 
                             _ ->

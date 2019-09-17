@@ -47,7 +47,7 @@ setSystemTime =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { current = ""
+    ( { current = "cat help"
       , hists = []
       , posix = Time.millisToPosix 0
       , zone = Time.utc
@@ -165,7 +165,7 @@ update msg model =
             ( { model | posix = time }, Cmd.none )
 
         LoadStoraged (Ok ( hists, system )) ->
-            ( { model | hists = hists, system = system }, focusInput () )
+            ( { model | hists = hists, system = system, current = "" }, focusInput () )
 
         LoadStoraged (Err errMsg) ->
             ( model, Cmd.none )
