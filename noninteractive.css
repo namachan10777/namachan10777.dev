@@ -1,0 +1,46 @@
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #FBFBFB;
+	margin: 0;
+}
+
+@media screen and (max-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		color: #FFA000;
+		width: 100%;
+		font-size: calc(100vw / 9);
+	}
+}
+@media screen and (min-width: 45vh) {
+	h1 {
+		font-family: 'Roboto Slab', serif;
+		font-size: 5vh;
+		color: #FFA000;
+	}
+}
+
+h2 {
+	font-family: 'Roboto Slab', serif;
+}
+
+section {
+	color: #101010;
+	text-align: center;
+	font-family: 'Roboto Slab', 'Sawarabi Mincho', serif;
+	margin: 1vh;
+}
+
+p {
+	word-break: break-word;
+}
+
+header {
+	width: 100%;
+	text-align: center;
+	color: #EEEEEE;
+	background-color: #303030;
+	margin: 0;
+}
