@@ -5096,13 +5096,14 @@ var author$project$Os$initialFs = A2(
 							A2(author$project$Fs$File, 'belongs', 'belongs'),
 							A2(author$project$Fs$File, 'skills', 'skills'),
 							A2(author$project$Fs$File, 'works', 'works'),
-							A2(author$project$Fs$File, 'links', 'links')
+							A2(author$project$Fs$File, 'links', 'links'),
+							A2(author$project$Fs$File, 'help', 'help')
 						]))
 				]))
 		]));
 var author$project$Os$initialSystem = {
 	current: _List_fromArray(
-		['']),
+		['', 'home', 'namachan']),
 	root: author$project$Os$initialFs
 };
 var elm$json$Json$Encode$null = _Json_encodeNull;
@@ -5116,7 +5117,7 @@ var elm$time$Time$utc = A2(elm$time$Time$Zone, 0, _List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
 		{
-			current: '',
+			current: 'cat help',
 			hists: _List_Nil,
 			posix: elm$time$Time$millisToPosix(0),
 			system: author$project$Os$initialSystem,
@@ -6384,6 +6385,14 @@ var author$project$Os$execCat = F2(
 													A2(author$project$Os$A, 'My namecard', 'https://namachan10777.github.io/namecard.html'),
 													A2(author$project$Os$A, 'My resume', 'https://namachan10777.github.io/resume.html')
 												]);
+										case 'help':
+											return _List_fromArray(
+												[
+													A2(author$project$Os$A, 'non-interactive page', './noninteractive.xhtml'),
+													author$project$Os$Str('You can use \"cp\", \"mv\", \"cat\", \"ls\", \"cd\" and etc...'),
+													author$project$Os$Str('e.g -> cat icon'),
+													author$project$Os$Str('e.g -> ls /usr/bin')
+												]);
 										default:
 											return _List_fromArray(
 												[
@@ -7459,7 +7468,7 @@ var author$project$Main$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{hists: hists, system: system}),
+							{current: '', hists: hists, system: system}),
 						author$project$Main$focusInput(_Utils_Tuple0));
 				} else {
 					var errMsg = msg.a.a;
