@@ -793,197 +793,6 @@ function _Utils_ap(xs, ys)
 
 
 
-// TASKS
-
-function _Scheduler_succeed(value)
-{
-	return {
-		$: 0,
-		a: value
-	};
-}
-
-function _Scheduler_fail(error)
-{
-	return {
-		$: 1,
-		a: error
-	};
-}
-
-function _Scheduler_binding(callback)
-{
-	return {
-		$: 2,
-		b: callback,
-		c: null
-	};
-}
-
-var _Scheduler_andThen = F2(function(callback, task)
-{
-	return {
-		$: 3,
-		b: callback,
-		d: task
-	};
-});
-
-var _Scheduler_onError = F2(function(callback, task)
-{
-	return {
-		$: 4,
-		b: callback,
-		d: task
-	};
-});
-
-function _Scheduler_receive(callback)
-{
-	return {
-		$: 5,
-		b: callback
-	};
-}
-
-
-// PROCESSES
-
-var _Scheduler_guid = 0;
-
-function _Scheduler_rawSpawn(task)
-{
-	var proc = {
-		$: 0,
-		e: _Scheduler_guid++,
-		f: task,
-		g: null,
-		h: []
-	};
-
-	_Scheduler_enqueue(proc);
-
-	return proc;
-}
-
-function _Scheduler_spawn(task)
-{
-	return _Scheduler_binding(function(callback) {
-		callback(_Scheduler_succeed(_Scheduler_rawSpawn(task)));
-	});
-}
-
-function _Scheduler_rawSend(proc, msg)
-{
-	proc.h.push(msg);
-	_Scheduler_enqueue(proc);
-}
-
-var _Scheduler_send = F2(function(proc, msg)
-{
-	return _Scheduler_binding(function(callback) {
-		_Scheduler_rawSend(proc, msg);
-		callback(_Scheduler_succeed(_Utils_Tuple0));
-	});
-});
-
-function _Scheduler_kill(proc)
-{
-	return _Scheduler_binding(function(callback) {
-		var task = proc.f;
-		if (task.$ === 2 && task.c)
-		{
-			task.c();
-		}
-
-		proc.f = null;
-
-		callback(_Scheduler_succeed(_Utils_Tuple0));
-	});
-}
-
-
-/* STEP PROCESSES
-
-type alias Process =
-  { $ : tag
-  , id : unique_id
-  , root : Task
-  , stack : null | { $: SUCCEED | FAIL, a: callback, b: stack }
-  , mailbox : [msg]
-  }
-
-*/
-
-
-var _Scheduler_working = false;
-var _Scheduler_queue = [];
-
-
-function _Scheduler_enqueue(proc)
-{
-	_Scheduler_queue.push(proc);
-	if (_Scheduler_working)
-	{
-		return;
-	}
-	_Scheduler_working = true;
-	while (proc = _Scheduler_queue.shift())
-	{
-		_Scheduler_step(proc);
-	}
-	_Scheduler_working = false;
-}
-
-
-function _Scheduler_step(proc)
-{
-	while (proc.f)
-	{
-		var rootTag = proc.f.$;
-		if (rootTag === 0 || rootTag === 1)
-		{
-			while (proc.g && proc.g.$ !== rootTag)
-			{
-				proc.g = proc.g.i;
-			}
-			if (!proc.g)
-			{
-				return;
-			}
-			proc.f = proc.g.b(proc.f.a);
-			proc.g = proc.g.i;
-		}
-		else if (rootTag === 2)
-		{
-			proc.f.c = proc.f.b(function(newRoot) {
-				proc.f = newRoot;
-				_Scheduler_enqueue(proc);
-			});
-			return;
-		}
-		else if (rootTag === 5)
-		{
-			if (proc.h.length === 0)
-			{
-				return;
-			}
-			proc.f = proc.f.b(proc.h.shift());
-		}
-		else // if (rootTag === 3 || rootTag === 4)
-		{
-			proc.g = {
-				$: rootTag === 3 ? 0 : 1,
-				b: proc.f.b,
-				i: proc.g
-			};
-			proc.f = proc.f.d;
-		}
-	}
-}
-
-
-
 // MATH
 
 var _Basics_add = F2(function(a, b) { return a + b; });
@@ -1041,53 +850,6 @@ function _Basics_not(bool) { return !bool; }
 var _Basics_and = F2(function(a, b) { return a && b; });
 var _Basics_or  = F2(function(a, b) { return a || b; });
 var _Basics_xor = F2(function(a, b) { return a !== b; });
-
-
-
-function _Char_toCode(char)
-{
-	var code = char.charCodeAt(0);
-	if (0xD800 <= code && code <= 0xDBFF)
-	{
-		return (code - 0xD800) * 0x400 + char.charCodeAt(1) - 0xDC00 + 0x10000
-	}
-	return code;
-}
-
-function _Char_fromCode(code)
-{
-	return _Utils_chr(
-		(code < 0 || 0x10FFFF < code)
-			? '\uFFFD'
-			:
-		(code <= 0xFFFF)
-			? String.fromCharCode(code)
-			:
-		(code -= 0x10000,
-			String.fromCharCode(Math.floor(code / 0x400) + 0xD800, code % 0x400 + 0xDC00)
-		)
-	);
-}
-
-function _Char_toUpper(char)
-{
-	return _Utils_chr(char.toUpperCase());
-}
-
-function _Char_toLower(char)
-{
-	return _Utils_chr(char.toLowerCase());
-}
-
-function _Char_toLocaleUpper(char)
-{
-	return _Utils_chr(char.toLocaleUpperCase());
-}
-
-function _Char_toLocaleLower(char)
-{
-	return _Utils_chr(char.toLocaleLowerCase());
-}
 
 
 
@@ -1400,6 +1162,244 @@ function _String_fromList(chars)
 	return _List_toArray(chars).join('');
 }
 
+
+
+
+// TASKS
+
+function _Scheduler_succeed(value)
+{
+	return {
+		$: 0,
+		a: value
+	};
+}
+
+function _Scheduler_fail(error)
+{
+	return {
+		$: 1,
+		a: error
+	};
+}
+
+function _Scheduler_binding(callback)
+{
+	return {
+		$: 2,
+		b: callback,
+		c: null
+	};
+}
+
+var _Scheduler_andThen = F2(function(callback, task)
+{
+	return {
+		$: 3,
+		b: callback,
+		d: task
+	};
+});
+
+var _Scheduler_onError = F2(function(callback, task)
+{
+	return {
+		$: 4,
+		b: callback,
+		d: task
+	};
+});
+
+function _Scheduler_receive(callback)
+{
+	return {
+		$: 5,
+		b: callback
+	};
+}
+
+
+// PROCESSES
+
+var _Scheduler_guid = 0;
+
+function _Scheduler_rawSpawn(task)
+{
+	var proc = {
+		$: 0,
+		e: _Scheduler_guid++,
+		f: task,
+		g: null,
+		h: []
+	};
+
+	_Scheduler_enqueue(proc);
+
+	return proc;
+}
+
+function _Scheduler_spawn(task)
+{
+	return _Scheduler_binding(function(callback) {
+		callback(_Scheduler_succeed(_Scheduler_rawSpawn(task)));
+	});
+}
+
+function _Scheduler_rawSend(proc, msg)
+{
+	proc.h.push(msg);
+	_Scheduler_enqueue(proc);
+}
+
+var _Scheduler_send = F2(function(proc, msg)
+{
+	return _Scheduler_binding(function(callback) {
+		_Scheduler_rawSend(proc, msg);
+		callback(_Scheduler_succeed(_Utils_Tuple0));
+	});
+});
+
+function _Scheduler_kill(proc)
+{
+	return _Scheduler_binding(function(callback) {
+		var task = proc.f;
+		if (task.$ === 2 && task.c)
+		{
+			task.c();
+		}
+
+		proc.f = null;
+
+		callback(_Scheduler_succeed(_Utils_Tuple0));
+	});
+}
+
+
+/* STEP PROCESSES
+
+type alias Process =
+  { $ : tag
+  , id : unique_id
+  , root : Task
+  , stack : null | { $: SUCCEED | FAIL, a: callback, b: stack }
+  , mailbox : [msg]
+  }
+
+*/
+
+
+var _Scheduler_working = false;
+var _Scheduler_queue = [];
+
+
+function _Scheduler_enqueue(proc)
+{
+	_Scheduler_queue.push(proc);
+	if (_Scheduler_working)
+	{
+		return;
+	}
+	_Scheduler_working = true;
+	while (proc = _Scheduler_queue.shift())
+	{
+		_Scheduler_step(proc);
+	}
+	_Scheduler_working = false;
+}
+
+
+function _Scheduler_step(proc)
+{
+	while (proc.f)
+	{
+		var rootTag = proc.f.$;
+		if (rootTag === 0 || rootTag === 1)
+		{
+			while (proc.g && proc.g.$ !== rootTag)
+			{
+				proc.g = proc.g.i;
+			}
+			if (!proc.g)
+			{
+				return;
+			}
+			proc.f = proc.g.b(proc.f.a);
+			proc.g = proc.g.i;
+		}
+		else if (rootTag === 2)
+		{
+			proc.f.c = proc.f.b(function(newRoot) {
+				proc.f = newRoot;
+				_Scheduler_enqueue(proc);
+			});
+			return;
+		}
+		else if (rootTag === 5)
+		{
+			if (proc.h.length === 0)
+			{
+				return;
+			}
+			proc.f = proc.f.b(proc.h.shift());
+		}
+		else // if (rootTag === 3 || rootTag === 4)
+		{
+			proc.g = {
+				$: rootTag === 3 ? 0 : 1,
+				b: proc.f.b,
+				i: proc.g
+			};
+			proc.f = proc.f.d;
+		}
+	}
+}
+
+
+
+function _Char_toCode(char)
+{
+	var code = char.charCodeAt(0);
+	if (0xD800 <= code && code <= 0xDBFF)
+	{
+		return (code - 0xD800) * 0x400 + char.charCodeAt(1) - 0xDC00 + 0x10000
+	}
+	return code;
+}
+
+function _Char_fromCode(code)
+{
+	return _Utils_chr(
+		(code < 0 || 0x10FFFF < code)
+			? '\uFFFD'
+			:
+		(code <= 0xFFFF)
+			? String.fromCharCode(code)
+			:
+		(code -= 0x10000,
+			String.fromCharCode(Math.floor(code / 0x400) + 0xD800, code % 0x400 + 0xDC00)
+		)
+	);
+}
+
+function _Char_toUpper(char)
+{
+	return _Utils_chr(char.toUpperCase());
+}
+
+function _Char_toLower(char)
+{
+	return _Utils_chr(char.toLowerCase());
+}
+
+function _Char_toLocaleUpper(char)
+{
+	return _Utils_chr(char.toLocaleUpperCase());
+}
+
+function _Char_toLocaleLower(char)
+{
+	return _Utils_chr(char.toLocaleLowerCase());
+}
 
 
 
@@ -4393,13 +4393,22 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
-var author$project$Main$SetSystemTime = function (a) {
-	return {$: 'SetSystemTime', a: a};
-};
-var elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
+var author$project$Os$NoCmd = {$: 'NoCmd'};
+var author$project$Os$Reset = {$: 'Reset'};
+var author$project$Os$A = F2(
+	function (a, b) {
+		return {$: 'A', a: a, b: b};
 	});
+var author$project$Os$Img = F3(
+	function (a, b, c) {
+		return {$: 'Img', a: a, b: b, c: c};
+	});
+var author$project$Os$Stdout = function (a) {
+	return {$: 'Stdout', a: a};
+};
+var author$project$Os$Str = function (a) {
+	return {$: 'Str', a: a};
+};
 var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -4484,30 +4493,10 @@ var elm$core$Set$toList = function (_n0) {
 	var dict = _n0.a;
 	return elm$core$Dict$keys(dict);
 };
-var elm$core$Task$andThen = _Scheduler_andThen;
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$core$Task$map2 = F3(
-	function (func, taskA, taskB) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return A2(
-					elm$core$Task$andThen,
-					function (b) {
-						return elm$core$Task$succeed(
-							A2(func, a, b));
-					},
-					taskB);
-			},
-			taskA);
-	});
+var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$Basics$add = _Basics_add;
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$List$foldl = F3(
@@ -4587,6 +4576,37 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
+var elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _n0 = f(mx);
+		if (_n0.$ === 'Just') {
+			var x = _n0.a;
+			return A2(elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -4601,6 +4621,1173 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var author$project$Fs$queryPathAbs = F2(
+	function (fs, path) {
+		if (!path.b) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			switch (path.a) {
+				case '.':
+					return elm$core$Maybe$Nothing;
+				case '..':
+					return elm$core$Maybe$Nothing;
+				default:
+					if (!path.b.b) {
+						var name = path.a;
+						if (fs.$ === 'File') {
+							var f = fs;
+							var fname = f.a;
+							return _Utils_eq(name, fname) ? elm$core$Maybe$Just(f) : elm$core$Maybe$Nothing;
+						} else {
+							var d = fs;
+							var dname = d.a;
+							return _Utils_eq(name, dname) ? elm$core$Maybe$Just(d) : elm$core$Maybe$Nothing;
+						}
+					} else {
+						var name = path.a;
+						var tail = path.b;
+						if (fs.$ === 'File') {
+							return elm$core$Maybe$Nothing;
+						} else {
+							var dname = fs.a;
+							var children = fs.b;
+							return _Utils_eq(name, dname) ? elm$core$List$head(
+								A2(
+									elm$core$List$filterMap,
+									elm$core$Basics$identity,
+									A2(
+										elm$core$List$map,
+										function (child) {
+											return A2(author$project$Fs$queryPathAbs, child, tail);
+										},
+										children))) : elm$core$Maybe$Nothing;
+						}
+					}
+			}
+		}
+	});
+var author$project$Os$IsNotDir = F2(
+	function (a, b) {
+		return {$: 'IsNotDir', a: a, b: b};
+	});
+var author$project$Os$NotFound = {$: 'NotFound'};
+var author$project$Os$Succes = F2(
+	function (a, b) {
+		return {$: 'Succes', a: a, b: b};
+	});
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(xs);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var author$project$Path$toAbsolute = F2(
+	function (current, path) {
+		var rev = function (revPath) {
+			rev:
+			while (true) {
+				if (!revPath.b) {
+					return elm$core$Maybe$Just(_List_Nil);
+				} else {
+					switch (revPath.a) {
+						case '.':
+							var tail = revPath.b;
+							var $temp$revPath = tail;
+							revPath = $temp$revPath;
+							continue rev;
+						case '..':
+							var tail = revPath.b;
+							return A2(
+								elm$core$Maybe$andThen,
+								elm$core$List$tail,
+								rev(tail));
+						default:
+							var other = revPath.a;
+							var tail = revPath.b;
+							return A2(
+								elm$core$Maybe$andThen,
+								function (succes) {
+									return elm$core$Maybe$Just(
+										A2(elm$core$List$cons, other, succes));
+								},
+								rev(tail));
+					}
+				}
+			}
+		};
+		return _Utils_eq(
+			elm$core$List$head(path),
+			elm$core$Maybe$Just('')) ? A2(
+			elm$core$Maybe$map,
+			elm$core$List$reverse,
+			rev(
+				elm$core$List$reverse(path))) : A2(
+			elm$core$Maybe$map,
+			elm$core$List$reverse,
+			rev(
+				elm$core$List$reverse(
+					A2(elm$core$List$append, current, path))));
+	});
+var elm$core$Basics$False = {$: 'False'};
+var elm$core$Basics$True = {$: 'True'};
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm$core$Basics$lt = _Utils_lt;
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$core$String$slice = _String_slice;
+var elm$core$String$dropRight = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(elm$core$String$slice, 0, -n, string);
+	});
+var elm$core$String$endsWith = _String_endsWith;
+var elm$core$String$split = F2(
+	function (sep, string) {
+		return _List_fromArray(
+			A2(_String_split, sep, string));
+	});
+var author$project$Os$resolvePath = F2(
+	function (system, path) {
+		var _n0 = A2(elm$core$String$endsWith, '/', path) ? _Utils_Tuple2(
+			true,
+			A2(elm$core$String$dropRight, 1, path)) : _Utils_Tuple2(false, path);
+		var dirExpect = _n0.a;
+		var shrinked = _n0.b;
+		var absPath = A2(
+			elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2(
+				author$project$Path$toAbsolute,
+				system.current,
+				A2(elm$core$String$split, '/', shrinked)));
+		var _n1 = _Utils_Tuple2(
+			dirExpect,
+			A2(author$project$Fs$queryPathAbs, system.root, absPath));
+		if (_n1.b.$ === 'Just') {
+			if (_n1.a && (_n1.b.a.$ === 'File')) {
+				var f = _n1.b.a;
+				return A2(author$project$Os$IsNotDir, f, absPath);
+			} else {
+				var f = _n1.b.a;
+				return A2(author$project$Os$Succes, f, absPath);
+			}
+		} else {
+			var _n2 = _n1.b;
+			return author$project$Os$NotFound;
+		}
+	});
+var elm$core$List$concat = function (lists) {
+	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
+};
+var elm$core$String$append = _String_append;
+var author$project$Os$execCat = F2(
+	function (system, args) {
+		return function (outputs) {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					elm$core$List$concat(outputs)),
+				system);
+		}(
+			A2(
+				elm$core$List$map,
+				function (arg) {
+					var _n0 = A2(author$project$Os$resolvePath, system, arg);
+					_n0$3:
+					while (true) {
+						switch (_n0.$) {
+							case 'Succes':
+								if (_n0.a.$ === 'File') {
+									var _n1 = _n0.a;
+									var fname = _n1.a;
+									var id = _n1.b;
+									var p = _n0.b;
+									switch (id) {
+										case 'name':
+											return _List_fromArray(
+												[
+													author$project$Os$Str('Nakano Masaki<namachan10777@gmail.com\n')
+												]);
+										case 'icon':
+											return _List_fromArray(
+												[
+													A3(
+													author$project$Os$Img,
+													'icon',
+													'./res/icon.jpg',
+													elm$core$Maybe$Just(
+														_Utils_Tuple2('@hsm_hx', 'https://twitter.com/hsm_hx')))
+												]);
+										case 'belongs':
+											return _List_fromArray(
+												[
+													author$project$Os$Str(' school : National Institute of Techonology, Kagawa College.'),
+													author$project$Os$Str('  dept. : Electrical & Computer Engineering'),
+													author$project$Os$Str(' conty. : Japan'),
+													author$project$Os$Str('  pref. : Kagawa'),
+													author$project$Os$Str('  orgs. : Mechanical System Research Club.'),
+													author$project$Os$Str('        : Infomation Techonology Research Club.')
+												]);
+										case 'skills':
+											return _List_fromArray(
+												[
+													author$project$Os$Str(' languages : D, OCaml, Rust, TypeScript, Python, C++, TeX'),
+													author$project$Os$Str('        OS : Arch Linux'),
+													author$project$Os$Str('       CAD : KiCAD, Inventor, OpenSCAD'),
+													author$project$Os$Str('     TOEIC : 765')
+												]);
+										case 'works':
+											return _List_fromArray(
+												[
+													A2(author$project$Os$A, 'namaco', 'https://github.com/namachan10777/namaco'),
+													author$project$Os$Str('Morphlogical analyzer'),
+													A2(author$project$Os$A, 'folivora', 'https://github.com/namachan10777/folivora'),
+													author$project$Os$Str('Ergonomics keyboard'),
+													A2(author$project$Os$A, 'kck', 'https://github.com/namachan10777/kck'),
+													author$project$Os$Str('C compiler')
+												]);
+										case 'links':
+											return _List_fromArray(
+												[
+													A2(author$project$Os$A, 'Twitter', 'https://twitter.com/namachan10777'),
+													A2(author$project$Os$A, 'hatenablog', 'https://namachan10777.hatenablog.com/'),
+													A2(author$project$Os$A, 'GitHub', 'https://github.com/namachan10777'),
+													A2(author$project$Os$A, 'Steam', 'https://steamcommunity.com/id/namachan10777/'),
+													A2(author$project$Os$A, 'Amazon Wishlist', 'http://amzn.asia/6JUD39R'),
+													A2(author$project$Os$A, 'My namecard', 'https://namachan10777.github.io/namecard.html'),
+													A2(author$project$Os$A, 'My resume', 'https://namachan10777.github.io/resume.html')
+												]);
+										case 'help':
+											return _List_fromArray(
+												[
+													A2(author$project$Os$A, 'non-interactive page', './noninteractive.xhtml'),
+													author$project$Os$Str('You can use \"cp\", \"mv\", \"cat\", \"ls\", \"cd\" and etc...'),
+													author$project$Os$Str('e.g -> cat icon'),
+													author$project$Os$Str('e.g -> ls /usr/bin')
+												]);
+										default:
+											return _List_fromArray(
+												[
+													author$project$Os$Str(
+													A2(elm$core$String$append, fname, ' is not a text file\n'))
+												]);
+									}
+								} else {
+									var _n3 = _n0.a;
+									var dname = _n3.a;
+									var p = _n0.b;
+									return _List_fromArray(
+										[
+											author$project$Os$Str(
+											A2(elm$core$String$append, dname, ' is a directory\n'))
+										]);
+								}
+							case 'IsNotDir':
+								if (_n0.a.$ === 'File') {
+									var _n4 = _n0.a;
+									var fname = _n4.a;
+									var id = _n4.b;
+									var p = _n0.b;
+									return _List_fromArray(
+										[
+											author$project$Os$Str(
+											A2(elm$core$String$append, fname, ' is not a directory\n'))
+										]);
+								} else {
+									break _n0$3;
+								}
+							default:
+								break _n0$3;
+						}
+					}
+					return _List_fromArray(
+						[
+							author$project$Os$Str(
+							A2(elm$core$String$append, arg, ' is not found\n'))
+						]);
+				},
+				args));
+	});
+var elm$core$Basics$append = _Utils_append;
+var author$project$Os$execCd = F2(
+	function (system, arg) {
+		var implCd = function (path) {
+			var _n1 = A2(author$project$Os$resolvePath, system, path);
+			_n1$2:
+			while (true) {
+				switch (_n1.$) {
+					case 'Succes':
+						if (_n1.a.$ === 'Dir') {
+							var _n2 = _n1.a;
+							var normalized = _n1.b;
+							return _Utils_Tuple2(
+								author$project$Os$Stdout(_List_Nil),
+								{current: normalized, root: system.root});
+						} else {
+							break _n1$2;
+						}
+					case 'NotFound':
+						return _Utils_Tuple2(
+							author$project$Os$Stdout(
+								_List_fromArray(
+									[
+										author$project$Os$Str(path + ' is not found')
+									])),
+							system);
+					default:
+						break _n1$2;
+				}
+			}
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str(path + ' is not a directory')
+						])),
+				system);
+		};
+		if (!arg.b) {
+			return implCd('/home/namachan/');
+		} else {
+			if (!arg.b.b) {
+				var path = arg.a;
+				return implCd(path);
+			} else {
+				return _Utils_Tuple2(
+					author$project$Os$Stdout(
+						_List_fromArray(
+							[
+								author$project$Os$Str('Too many args for cd')
+							])),
+					system);
+			}
+		}
+	});
+var author$project$Os$Clear = {$: 'Clear'};
+var author$project$Os$execClear = F2(
+	function (system, args) {
+		if (!args.b) {
+			return _Utils_Tuple2(author$project$Os$Clear, system);
+		} else {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str('clear: Expected 0 args, got 1')
+						])),
+				system);
+		}
+	});
+var author$project$Fs$Dir = F2(
+	function (a, b) {
+		return {$: 'Dir', a: a, b: b};
+	});
+var author$project$Fs$File = F2(
+	function (a, b) {
+		return {$: 'File', a: a, b: b};
+	});
+var author$project$Fs$changeName = F2(
+	function (fs, name) {
+		if (fs.$ === 'Dir') {
+			var children = fs.b;
+			return A2(author$project$Fs$Dir, name, children);
+		} else {
+			var id = fs.b;
+			return A2(author$project$Fs$File, name, id);
+		}
+	});
+var author$project$Fs$isDir = function (fs) {
+	if (fs.$ === 'Dir') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var author$project$Fs$fsMap = F2(
+	function (f, root) {
+		var impl = F3(
+			function (g, fs, current) {
+				if (fs.$ === 'File') {
+					return fs;
+				} else {
+					var dname = fs.a;
+					var children = fs.b;
+					return A2(
+						author$project$Fs$Dir,
+						dname,
+						A2(
+							elm$core$List$map,
+							function (child) {
+								return A3(
+									impl,
+									g,
+									child,
+									A2(
+										elm$core$List$append,
+										current,
+										_List_fromArray(
+											[dname])));
+							},
+							A2(
+								g,
+								children,
+								A2(
+									elm$core$List$append,
+									current,
+									_List_fromArray(
+										[dname])))));
+				}
+			});
+		return A3(impl, f, root, _List_Nil);
+	});
+var author$project$Fs$getName = function (fs) {
+	if (fs.$ === 'Dir') {
+		var name = fs.a;
+		return name;
+	} else {
+		var name = fs.a;
+		return name;
+	}
+};
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var author$project$Fs$overwriteFile = F2(
+	function (path, src) {
+		return author$project$Fs$fsMap(
+			F2(
+				function (brothers, current) {
+					return _Utils_eq(path, current) ? A2(
+						elm$core$List$cons,
+						src,
+						A2(
+							elm$core$List$filter,
+							function (boy) {
+								return !_Utils_eq(
+									author$project$Fs$getName(boy),
+									author$project$Fs$getName(src));
+							},
+							brothers)) : brothers;
+				}));
+	});
+var author$project$Fs$removeFile = function (path) {
+	return author$project$Fs$fsMap(
+		F2(
+			function (brothers, current) {
+				return A2(
+					elm$core$List$filter,
+					function (boy) {
+						return !_Utils_eq(
+							path,
+							A2(
+								elm$core$List$append,
+								current,
+								_List_fromArray(
+									[
+										author$project$Fs$getName(boy)
+									])));
+					},
+					brothers);
+			}));
+};
+var elm$core$Basics$le = _Utils_le;
+var elm$core$Basics$sub = _Basics_sub;
+var elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var author$project$Os$dropRight = F2(
+	function (n, l) {
+		return elm$core$List$reverse(
+			A2(
+				elm$core$List$drop,
+				n,
+				elm$core$List$reverse(l)));
+	});
+var elm$core$Basics$and = _Basics_and;
+var elm$core$List$length = function (xs) {
+	return A3(
+		elm$core$List$foldl,
+		F2(
+			function (_n0, i) {
+				return i + 1;
+			}),
+		0,
+		xs);
+};
+var elm$core$List$map2 = _List_map2;
+var author$project$Os$isIncludeAsSubDir = F2(
+	function (src, dest) {
+		return (_Utils_cmp(
+			elm$core$List$length(src),
+			elm$core$List$length(dest)) < 0) && A3(
+			elm$core$List$foldl,
+			elm$core$Basics$and,
+			true,
+			A3(elm$core$List$map2, elm$core$Basics$eq, src, dest));
+	});
+var elm$core$Basics$not = _Basics_not;
+var author$project$Os$implCp = F6(
+	function (deleteAfterCopy, cpDirectory, isSingleArg, system, src, dest) {
+		var updater = F4(
+			function (srcPath, destPath, file, root) {
+				return deleteAfterCopy ? A2(
+					author$project$Fs$removeFile,
+					srcPath,
+					A3(author$project$Fs$overwriteFile, destPath, file, root)) : A3(author$project$Fs$overwriteFile, destPath, file, root);
+			});
+		var cmdName = deleteAfterCopy ? 'mv' : 'cp';
+		var _n0 = _Utils_Tuple3(
+			isSingleArg,
+			A2(author$project$Os$resolvePath, system, src),
+			A2(author$project$Os$resolvePath, system, dest));
+		switch (_n0.b.$) {
+			case 'NotFound':
+				var _n1 = _n0.b;
+				return _Utils_Tuple2(
+					elm$core$Maybe$Just(
+						author$project$Os$Str(cmdName + (': cannot stat ' + (src + ': No such file or directory')))),
+					system);
+			case 'IsNotDir':
+				var _n2 = _n0.b;
+				return _Utils_Tuple2(
+					elm$core$Maybe$Just(
+						author$project$Os$Str(cmdName + (': cannot stat ' + (src + ': Not a directory')))),
+					system);
+			default:
+				switch (_n0.c.$) {
+					case 'IsNotDir':
+						var _n7 = _n0.b;
+						var file = _n7.a;
+						var srcAbs = _n7.b;
+						var _n8 = _n0.c;
+						return _Utils_Tuple2(
+							elm$core$Maybe$Just(
+								author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': Not a directory')))),
+							system);
+					case 'NotFound':
+						if (!_n0.a) {
+							var _n11 = _n0.c;
+							return _Utils_Tuple2(
+								elm$core$Maybe$Just(
+									author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': Not a directory')))),
+								system);
+						} else {
+							var _n18 = _n0.b;
+							var file = _n18.a;
+							var srcAbs = _n18.b;
+							var _n19 = A2(
+								author$project$Path$toAbsolute,
+								system.current,
+								A2(elm$core$String$split, '/', dest));
+							if (_n19.$ === 'Nothing') {
+								return _Utils_Tuple2(
+									elm$core$Maybe$Just(
+										author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': No such a directory')))),
+									system);
+							} else {
+								var destAbs = _n19.a;
+								var name = A2(
+									elm$core$Maybe$withDefault,
+									'',
+									elm$core$List$head(
+										elm$core$List$reverse(destAbs)));
+								return A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs) ? _Utils_Tuple2(
+									elm$core$Maybe$Just(
+										author$project$Os$Str(': cannot move ' + (src + (' to a subdirectory of itself, ' + dest)))),
+									system) : ((author$project$Fs$isDir(file) && (!cpDirectory)) ? _Utils_Tuple2(
+									elm$core$Maybe$Just(
+										author$project$Os$Str(cmdName + (': -r not specified; omitting directory ' + src))),
+									system) : _Utils_Tuple2(
+									elm$core$Maybe$Nothing,
+									_Utils_update(
+										system,
+										{
+											root: A4(
+												updater,
+												srcAbs,
+												A2(author$project$Os$dropRight, 1, destAbs),
+												A2(author$project$Fs$changeName, file, name),
+												system.root)
+										})));
+							}
+						}
+					default:
+						if (_n0.c.a.$ === 'Dir') {
+							var _n12 = _n0.b;
+							var file = _n12.a;
+							var srcAbs = _n12.b;
+							var _n13 = _n0.c;
+							var _n14 = _n13.a;
+							var destAbs = _n13.b;
+							return (deleteAfterCopy && A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs)) ? _Utils_Tuple2(
+								elm$core$Maybe$Just(
+									author$project$Os$Str(cmdName + (': cannot move ' + (src + (' to a subdirectory of itself, ' + dest))))),
+								system) : ((author$project$Fs$isDir(file) && (!cpDirectory)) ? _Utils_Tuple2(
+								elm$core$Maybe$Just(
+									author$project$Os$Str(cmdName + (': -r not specified; omitting directory ' + src))),
+								system) : _Utils_Tuple2(
+								elm$core$Maybe$Nothing,
+								_Utils_update(
+									system,
+									{
+										root: A4(updater, srcAbs, destAbs, file, system.root)
+									})));
+						} else {
+							if (_n0.b.a.$ === 'Dir') {
+								var _n3 = _n0.b;
+								var _n4 = _n3.a;
+								var _n5 = _n0.c;
+								var _n6 = _n5.a;
+								return _Utils_Tuple2(
+									elm$core$Maybe$Just(
+										author$project$Os$Str(cmdName + (': cannot overwrte non-directory ' + (dest + (': with directory' + src))))),
+									system);
+							} else {
+								if (!_n0.a) {
+									var _n9 = _n0.c;
+									var _n10 = _n9.a;
+									return _Utils_Tuple2(
+										elm$core$Maybe$Just(
+											author$project$Os$Str(cmdName + (': target ' + (dest + ' is not a directory')))),
+										system);
+								} else {
+									var _n15 = _n0.b;
+									var file = _n15.a;
+									var srcAbs = _n15.b;
+									var _n16 = _n0.c;
+									var _n17 = _n16.a;
+									var name = _n17.a;
+									var destAbs = _n16.b;
+									return A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs) ? _Utils_Tuple2(
+										elm$core$Maybe$Just(
+											author$project$Os$Str(cmdName + (': cannot move ' + (src + (' to a subdirectory of itself, ' + dest))))),
+										system) : _Utils_Tuple2(
+										elm$core$Maybe$Nothing,
+										_Utils_update(
+											system,
+											{
+												root: A4(
+													updater,
+													srcAbs,
+													A2(author$project$Os$dropRight, 1, destAbs),
+													A2(author$project$Fs$changeName, file, name),
+													system.root)
+											}));
+								}
+							}
+						}
+				}
+		}
+	});
+var elm$core$Basics$or = _Basics_or;
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var author$project$Os$execCp = F3(
+	function (deleteAfterCopy, system, args) {
+		var cpDirectory = deleteAfterCopy || A2(elm$core$List$member, '-r', args);
+		var cmdName = deleteAfterCopy ? 'mv' : 'cp';
+		var cmdArgs = deleteAfterCopy ? args : A2(
+			elm$core$List$filter,
+			function (s) {
+				return s !== '-r';
+			},
+			args);
+		var _n0 = elm$core$List$reverse(cmdArgs);
+		if (!_n0.b) {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str(cmdName + ': missing file operand')
+						])),
+				system);
+		} else {
+			if (!_n0.b.b) {
+				var src = _n0.a;
+				return _Utils_Tuple2(
+					author$project$Os$Stdout(
+						_List_fromArray(
+							[
+								author$project$Os$Str(cmdName + (': missing file destination operand after ' + src))
+							])),
+					system);
+			} else {
+				if (!_n0.b.b.b) {
+					var dest = _n0.a;
+					var _n1 = _n0.b;
+					var src = _n1.a;
+					var _n2 = A6(author$project$Os$implCp, deleteAfterCopy, cpDirectory, true, system, src, dest);
+					var output = _n2.a;
+					var updatedSystem = _n2.b;
+					return _Utils_Tuple2(
+						author$project$Os$Stdout(
+							A2(
+								elm$core$List$filterMap,
+								elm$core$Basics$identity,
+								_List_fromArray(
+									[output]))),
+						updatedSystem);
+				} else {
+					var dest = _n0.a;
+					var srcs = _n0.b;
+					var _n3 = A3(
+						elm$core$List$foldl,
+						F2(
+							function (src, _n4) {
+								var acc = _n4.a;
+								var sys = _n4.b;
+								var _n5 = A6(author$project$Os$implCp, deleteAfterCopy, cpDirectory, false, sys, src, dest);
+								var output = _n5.a;
+								var nextSys = _n5.b;
+								return _Utils_Tuple2(
+									A2(elm$core$List$cons, output, acc),
+									nextSys);
+							}),
+						_Utils_Tuple2(_List_Nil, system),
+						elm$core$List$reverse(srcs));
+					var outputs = _n3.a;
+					var updatedSystem = _n3.b;
+					return _Utils_Tuple2(
+						author$project$Os$Stdout(
+							A2(elm$core$List$filterMap, elm$core$Basics$identity, outputs)),
+						updatedSystem);
+				}
+			}
+		}
+	});
+var elm$core$String$join = F2(
+	function (sep, chunks) {
+		return A2(
+			_String_join,
+			sep,
+			_List_toArray(chunks));
+	});
+var author$project$Os$execEcho = F2(
+	function (system, args) {
+		return _Utils_Tuple2(
+			author$project$Os$Stdout(
+				_List_fromArray(
+					[
+						author$project$Os$Str(
+						A2(elm$core$String$join, ' ', args))
+					])),
+			system);
+	});
+var author$project$Os$execLs = F2(
+	function (system, paths) {
+		var showDirIncludes = function (path) {
+			var _n1 = A2(author$project$Os$resolvePath, system, path);
+			_n1$2:
+			while (true) {
+				switch (_n1.$) {
+					case 'Succes':
+						if (_n1.a.$ === 'Dir') {
+							var _n2 = _n1.a;
+							var children = _n2.b;
+							return A2(
+								elm$core$String$join,
+								' ',
+								A2(
+									elm$core$List$map,
+									function (child) {
+										if (child.$ === 'File') {
+											var name = child.a;
+											return name;
+										} else {
+											var name = child.a;
+											return name;
+										}
+									},
+									children));
+						} else {
+							break _n1$2;
+						}
+					case 'NotFound':
+						return path + ': directory not found';
+					default:
+						break _n1$2;
+				}
+			}
+			return path + ' is not a directory';
+		};
+		if (!paths.b) {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str(
+							showDirIncludes('.'))
+						])),
+				system);
+		} else {
+			if (!paths.b.b) {
+				var path = paths.a;
+				return _Utils_Tuple2(
+					author$project$Os$Stdout(
+						_List_fromArray(
+							[
+								author$project$Os$Str(
+								showDirIncludes(path))
+							])),
+					system);
+			} else {
+				return _Utils_Tuple2(
+					author$project$Os$Stdout(
+						elm$core$List$concat(
+							A2(
+								elm$core$List$map,
+								function (path) {
+									return _List_fromArray(
+										[
+											author$project$Os$Str(path + ':'),
+											author$project$Os$Str(
+											showDirIncludes(path))
+										]);
+								},
+								paths))),
+					system);
+			}
+		}
+	});
+var author$project$Os$execPwd = F2(
+	function (system, args) {
+		if (!args.b) {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str(
+							A2(elm$core$String$join, '/', system.current) + '/')
+						])),
+				system);
+		} else {
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(
+					_List_fromArray(
+						[
+							author$project$Os$Str('pwd: Expected 0 args, got 1')
+						])),
+				system);
+		}
+	});
+var author$project$Os$execRm = F2(
+	function (system, args) {
+		var rmRecurse = A2(elm$core$List$member, '-r', args);
+		var cmdArgs = A2(
+			elm$core$List$filter,
+			function (s) {
+				return s !== '-r';
+			},
+			args);
+		return function (_n7) {
+			var acc = _n7.a;
+			var sys = _n7.b;
+			return _Utils_Tuple2(
+				author$project$Os$Stdout(acc),
+				sys);
+		}(
+			A3(
+				elm$core$List$foldl,
+				F2(
+					function (target, _n0) {
+						var acc = _n0.a;
+						var sys = _n0.b;
+						var _n1 = _Utils_Tuple2(
+							rmRecurse,
+							A2(author$project$Os$resolvePath, sys, target));
+						switch (_n1.b.$) {
+							case 'Succes':
+								if ((!_n1.a) && (_n1.b.a.$ === 'Dir')) {
+									var _n2 = _n1.b;
+									var _n3 = _n2.a;
+									return _Utils_Tuple2(
+										A2(
+											elm$core$List$cons,
+											author$project$Os$Str('rm: cannot remove ' + (target + ': Is not a directory')),
+											acc),
+										sys);
+								} else {
+									var _n4 = _n1.b;
+									var path = _n4.b;
+									return _Utils_Tuple2(
+										acc,
+										_Utils_update(
+											sys,
+											{
+												root: A2(author$project$Fs$removeFile, path, sys.root)
+											}));
+								}
+							case 'IsNotDir':
+								var _n5 = _n1.b;
+								return _Utils_Tuple2(
+									A2(
+										elm$core$List$cons,
+										author$project$Os$Str('rm: cannot remove ' + (target + ': Not a directory')),
+										acc),
+									sys);
+							default:
+								var _n6 = _n1.b;
+								return _Utils_Tuple2(
+									A2(
+										elm$core$List$cons,
+										author$project$Os$Str('rm: cannot remove ' + (target + ': No such file or directory')),
+										acc),
+									sys);
+						}
+					}),
+				_Utils_Tuple2(_List_Nil, system),
+				cmdArgs));
+	});
+var author$project$Os$initialFs = A2(
+	author$project$Fs$Dir,
+	'',
+	_List_fromArray(
+		[
+			A2(
+			author$project$Fs$Dir,
+			'usr',
+			_List_fromArray(
+				[
+					A2(
+					author$project$Fs$Dir,
+					'bin',
+					_List_fromArray(
+						[
+							A2(author$project$Fs$File, 'echo', 'echo'),
+							A2(author$project$Fs$File, 'clear', 'clear'),
+							A2(author$project$Fs$File, 'cat', 'cat'),
+							A2(author$project$Fs$File, 'mv', 'mv'),
+							A2(author$project$Fs$File, 'rm', 'rm'),
+							A2(author$project$Fs$File, 'cp', 'cp'),
+							A2(author$project$Fs$File, 'cd', 'cd'),
+							A2(author$project$Fs$File, 'ls', 'ls'),
+							A2(author$project$Fs$File, 'pwd', 'pwd')
+						]))
+				])),
+			A2(
+			author$project$Fs$Dir,
+			'home',
+			_List_fromArray(
+				[
+					A2(
+					author$project$Fs$Dir,
+					'namachan',
+					_List_fromArray(
+						[
+							A2(author$project$Fs$File, 'icon', 'icon'),
+							A2(author$project$Fs$File, 'name', 'name'),
+							A2(author$project$Fs$File, 'belongs', 'belongs'),
+							A2(author$project$Fs$File, 'skills', 'skills'),
+							A2(author$project$Fs$File, 'works', 'works'),
+							A2(author$project$Fs$File, 'links', 'links'),
+							A2(author$project$Fs$File, 'help', 'help')
+						]))
+				]))
+		]));
+var author$project$Os$initialSystem = {
+	current: _List_fromArray(
+		['', 'home', 'namachan']),
+	root: author$project$Os$initialFs
+};
+var author$project$Os$exePath = '/usr/bin/';
+var elm$core$String$contains = _String_contains;
+var elm$core$String$length = _String_length;
+var elm$core$String$startsWith = _String_startsWith;
+var author$project$Os$resolveExe = F2(
+	function (system, path) {
+		return (A2(elm$core$String$startsWith, '.', path) || A2(elm$core$String$startsWith, '/', path)) ? A2(author$project$Os$resolvePath, system, path) : (((elm$core$String$length(path) > 0) && (!A2(elm$core$String$contains, '/', path))) ? A2(
+			author$project$Os$resolvePath,
+			system,
+			A2(elm$core$String$append, author$project$Os$exePath, path)) : author$project$Os$NotFound);
+	});
+var author$project$Os$exec = F3(
+	function (system, path, args) {
+		return (path === 'reset-system') ? _Utils_Tuple2(author$project$Os$Reset, author$project$Os$initialSystem) : A2(
+			function () {
+				var _n0 = A2(author$project$Os$resolveExe, system, path);
+				_n0$9:
+				while (true) {
+					if ((_n0.$ === 'Succes') && (_n0.a.$ === 'File')) {
+						switch (_n0.a.b) {
+							case 'echo':
+								var _n1 = _n0.a;
+								return author$project$Os$execEcho;
+							case 'clear':
+								var _n2 = _n0.a;
+								return author$project$Os$execClear;
+							case 'cat':
+								var _n3 = _n0.a;
+								return author$project$Os$execCat;
+							case 'cp':
+								var _n4 = _n0.a;
+								return author$project$Os$execCp(false);
+							case 'mv':
+								var _n5 = _n0.a;
+								return author$project$Os$execCp(true);
+							case 'rm':
+								var _n6 = _n0.a;
+								return author$project$Os$execRm;
+							case 'cd':
+								var _n7 = _n0.a;
+								return author$project$Os$execCd;
+							case 'ls':
+								var _n8 = _n0.a;
+								return author$project$Os$execLs;
+							case 'pwd':
+								var _n9 = _n0.a;
+								return author$project$Os$execPwd;
+							default:
+								break _n0$9;
+						}
+					} else {
+						break _n0$9;
+					}
+				}
+				return F2(
+					function (_n10, _n11) {
+						return _Utils_Tuple2(author$project$Os$NoCmd, system);
+					});
+			}(),
+			system,
+			args);
+	});
+var author$project$Main$initialHists = _List_fromArray(
+	[
+		_Utils_Tuple3(
+		'/home/namachan',
+		'cat help',
+		function (_n0) {
+			var a = _n0.a;
+			var b = _n0.b;
+			return a;
+		}(
+			A3(
+				author$project$Os$exec,
+				author$project$Os$initialSystem,
+				'cat',
+				_List_fromArray(
+					['help']))))
+	]);
+var author$project$Main$SetSystemTime = function (a) {
+	return {$: 'SetSystemTime', a: a};
+};
+var elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var elm$core$Task$andThen = _Scheduler_andThen;
+var elm$core$Task$succeed = _Scheduler_succeed;
+var elm$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			elm$core$Task$andThen,
+			function (a) {
+				return A2(
+					elm$core$Task$andThen,
+					function (b) {
+						return elm$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
+	});
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$Task$map = F2(
 	function (func, taskA) {
 		return A2(
@@ -4618,8 +5805,6 @@ var elm$core$Task$sequence = function (tasks) {
 		elm$core$Task$succeed(_List_Nil),
 		tasks);
 };
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -4672,7 +5857,6 @@ var elm$core$Array$compressNodes = F2(
 			}
 		}
 	});
-var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Tuple$first = function (_n0) {
 	var x = _n0.a;
 	return x;
@@ -4699,7 +5883,6 @@ var elm$core$Basics$max = F2(
 		return (_Utils_cmp(x, y) > 0) ? x : y;
 	});
 var elm$core$Basics$mul = _Basics_mul;
-var elm$core$Basics$sub = _Basics_sub;
 var elm$core$Elm$JsArray$length = _JsArray_length;
 var elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
@@ -4725,7 +5908,6 @@ var elm$core$Array$builderToArray = F2(
 		}
 	});
 var elm$core$Basics$idiv = _Basics_idiv;
-var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
@@ -4753,7 +5935,6 @@ var elm$core$Array$initializeHelp = F5(
 			}
 		}
 	});
-var elm$core$Basics$le = _Utils_le;
 var elm$core$Basics$remainderBy = _Basics_remainderBy;
 var elm$core$Array$initialize = F2(
 	function (len, fn) {
@@ -4766,10 +5947,6 @@ var elm$core$Array$initialize = F2(
 			return A5(elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
-var elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4791,9 +5968,6 @@ var elm$json$Json$Decode$Index = F2(
 var elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var elm$core$Basics$and = _Basics_and;
-var elm$core$Basics$append = _Utils_append;
-var elm$core$Basics$or = _Basics_or;
 var elm$core$Char$toCode = _Char_toCode;
 var elm$core$Char$isLower = function (_char) {
 	var code = elm$core$Char$toCode(_char);
@@ -4813,17 +5987,6 @@ var elm$core$Char$isDigit = function (_char) {
 var elm$core$Char$isAlphaNum = function (_char) {
 	return elm$core$Char$isLower(_char) || (elm$core$Char$isUpper(_char) || elm$core$Char$isDigit(_char));
 };
-var elm$core$List$length = function (xs) {
-	return A3(
-		elm$core$List$foldl,
-		F2(
-			function (_n0, i) {
-				return i + 1;
-			}),
-		0,
-		xs);
-};
-var elm$core$List$map2 = _List_map2;
 var elm$core$List$rangeHelp = F3(
 	function (lo, hi, list) {
 		rangeHelp:
@@ -4858,19 +6021,7 @@ var elm$core$List$indexedMap = F2(
 	});
 var elm$core$String$all = _String_all;
 var elm$core$String$fromInt = _String_fromNumber;
-var elm$core$String$join = F2(
-	function (sep, chunks) {
-		return A2(
-			_String_join,
-			sep,
-			_List_toArray(chunks));
-	});
 var elm$core$String$uncons = _String_uncons;
-var elm$core$String$split = F2(
-	function (sep, string) {
-		return _List_fromArray(
-			A2(_String_split, sep, string));
-	});
 var elm$json$Json$Decode$indent = function (str) {
 	return A2(
 		elm$core$String$join,
@@ -5047,65 +6198,6 @@ var author$project$Main$setSystemTime = A2(
 	elm$core$Task$perform,
 	author$project$Main$SetSystemTime,
 	A3(elm$core$Task$map2, elm$core$Tuple$pair, elm$time$Time$here, elm$time$Time$now));
-var author$project$Fs$Dir = F2(
-	function (a, b) {
-		return {$: 'Dir', a: a, b: b};
-	});
-var author$project$Fs$File = F2(
-	function (a, b) {
-		return {$: 'File', a: a, b: b};
-	});
-var author$project$Os$initialFs = A2(
-	author$project$Fs$Dir,
-	'',
-	_List_fromArray(
-		[
-			A2(
-			author$project$Fs$Dir,
-			'usr',
-			_List_fromArray(
-				[
-					A2(
-					author$project$Fs$Dir,
-					'bin',
-					_List_fromArray(
-						[
-							A2(author$project$Fs$File, 'echo', 'echo'),
-							A2(author$project$Fs$File, 'clear', 'clear'),
-							A2(author$project$Fs$File, 'cat', 'cat'),
-							A2(author$project$Fs$File, 'mv', 'mv'),
-							A2(author$project$Fs$File, 'rm', 'rm'),
-							A2(author$project$Fs$File, 'cp', 'cp'),
-							A2(author$project$Fs$File, 'cd', 'cd'),
-							A2(author$project$Fs$File, 'ls', 'ls'),
-							A2(author$project$Fs$File, 'pwd', 'pwd')
-						]))
-				])),
-			A2(
-			author$project$Fs$Dir,
-			'home',
-			_List_fromArray(
-				[
-					A2(
-					author$project$Fs$Dir,
-					'namachan',
-					_List_fromArray(
-						[
-							A2(author$project$Fs$File, 'icon', 'icon'),
-							A2(author$project$Fs$File, 'name', 'name'),
-							A2(author$project$Fs$File, 'belongs', 'belongs'),
-							A2(author$project$Fs$File, 'skills', 'skills'),
-							A2(author$project$Fs$File, 'works', 'works'),
-							A2(author$project$Fs$File, 'links', 'links'),
-							A2(author$project$Fs$File, 'help', 'help')
-						]))
-				]))
-		]));
-var author$project$Os$initialSystem = {
-	current: _List_fromArray(
-		['', 'home', 'namachan']),
-	root: author$project$Os$initialFs
-};
 var elm$json$Json$Encode$null = _Json_encodeNull;
 var author$project$Storage$requestStoraged = _Platform_outgoingPort(
 	'requestStoraged',
@@ -5118,7 +6210,7 @@ var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
 		{
 			current: 'cat help',
-			hists: _List_Nil,
+			hists: author$project$Main$initialHists,
 			posix: elm$time$Time$millisToPosix(0),
 			system: author$project$Os$initialSystem,
 			zone: elm$time$Time$utc
@@ -5169,22 +6261,6 @@ var author$project$Main$keyDecoder = A2(
 	A2(elm$json$Json$Decode$field, 'key', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$value = _Json_decodeValue;
 var author$project$Storage$loadStoragedPort = _Platform_incomingPort('loadStoragedPort', elm$json$Json$Decode$value);
-var author$project$Os$Clear = {$: 'Clear'};
-var author$project$Os$NoCmd = {$: 'NoCmd'};
-var author$project$Os$Stdout = function (a) {
-	return {$: 'Stdout', a: a};
-};
-var author$project$Os$A = F2(
-	function (a, b) {
-		return {$: 'A', a: a, b: b};
-	});
-var author$project$Os$Img = F3(
-	function (a, b, c) {
-		return {$: 'Img', a: a, b: b, c: c};
-	});
-var author$project$Os$Str = function (a) {
-	return {$: 'Str', a: a};
-};
 var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$fail = _Json_fail;
 var elm$json$Json$Decode$map2 = _Json_map2;
@@ -5395,8 +6471,6 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$core$String$length = _String_length;
-var elm$core$String$slice = _String_slice;
 var elm$core$String$dropLeft = F2(
 	function (n, string) {
 		return (n < 1) ? string : A3(
@@ -5405,7 +6479,6 @@ var elm$core$String$dropLeft = F2(
 			elm$core$String$length(string),
 			string);
 	});
-var elm$core$String$startsWith = _String_startsWith;
 var elm$url$Url$Http = {$: 'Http'};
 var elm$url$Url$Https = {$: 'Https'};
 var elm$core$String$indexes = _String_indexes;
@@ -5416,7 +6489,6 @@ var elm$core$String$left = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
-var elm$core$String$contains = _String_contains;
 var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
@@ -5830,24 +6902,6 @@ var elm$browser$Browser$Events$onEffects = F3(
 				elm$core$Task$sequence(
 					A2(elm$core$List$map, elm$core$Process$kill, deadPids))));
 	});
-var elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _n0 = f(mx);
-		if (_n0.$ === 'Just') {
-			var x = _n0.a;
-			return A2(elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var elm$browser$Browser$Events$onSelfMsg = F3(
 	function (router, _n0, state) {
 		var key = _n0.key;
@@ -6107,1046 +7161,11 @@ var author$project$Main$focusInput = _Platform_outgoingPort(
 	function ($) {
 		return elm$json$Json$Encode$null;
 	});
+var author$project$Main$initialCurrent = '';
 var author$project$Main$scrollBottom = _Platform_outgoingPort(
 	'scrollBottom',
 	function ($) {
 		return elm$json$Json$Encode$null;
-	});
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var author$project$Fs$queryPathAbs = F2(
-	function (fs, path) {
-		if (!path.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			switch (path.a) {
-				case '.':
-					return elm$core$Maybe$Nothing;
-				case '..':
-					return elm$core$Maybe$Nothing;
-				default:
-					if (!path.b.b) {
-						var name = path.a;
-						if (fs.$ === 'File') {
-							var f = fs;
-							var fname = f.a;
-							return _Utils_eq(name, fname) ? elm$core$Maybe$Just(f) : elm$core$Maybe$Nothing;
-						} else {
-							var d = fs;
-							var dname = d.a;
-							return _Utils_eq(name, dname) ? elm$core$Maybe$Just(d) : elm$core$Maybe$Nothing;
-						}
-					} else {
-						var name = path.a;
-						var tail = path.b;
-						if (fs.$ === 'File') {
-							return elm$core$Maybe$Nothing;
-						} else {
-							var dname = fs.a;
-							var children = fs.b;
-							return _Utils_eq(name, dname) ? elm$core$List$head(
-								A2(
-									elm$core$List$filterMap,
-									elm$core$Basics$identity,
-									A2(
-										elm$core$List$map,
-										function (child) {
-											return A2(author$project$Fs$queryPathAbs, child, tail);
-										},
-										children))) : elm$core$Maybe$Nothing;
-						}
-					}
-			}
-		}
-	});
-var author$project$Os$IsNotDir = F2(
-	function (a, b) {
-		return {$: 'IsNotDir', a: a, b: b};
-	});
-var author$project$Os$NotFound = {$: 'NotFound'};
-var author$project$Os$Succes = F2(
-	function (a, b) {
-		return {$: 'Succes', a: a, b: b};
-	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(xs);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return elm$core$Maybe$Nothing;
-		}
-	});
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
-		}
-	});
-var author$project$Path$toAbsolute = F2(
-	function (current, path) {
-		var rev = function (revPath) {
-			rev:
-			while (true) {
-				if (!revPath.b) {
-					return elm$core$Maybe$Just(_List_Nil);
-				} else {
-					switch (revPath.a) {
-						case '.':
-							var tail = revPath.b;
-							var $temp$revPath = tail;
-							revPath = $temp$revPath;
-							continue rev;
-						case '..':
-							var tail = revPath.b;
-							return A2(
-								elm$core$Maybe$andThen,
-								elm$core$List$tail,
-								rev(tail));
-						default:
-							var other = revPath.a;
-							var tail = revPath.b;
-							return A2(
-								elm$core$Maybe$andThen,
-								function (succes) {
-									return elm$core$Maybe$Just(
-										A2(elm$core$List$cons, other, succes));
-								},
-								rev(tail));
-					}
-				}
-			}
-		};
-		return _Utils_eq(
-			elm$core$List$head(path),
-			elm$core$Maybe$Just('')) ? A2(
-			elm$core$Maybe$map,
-			elm$core$List$reverse,
-			rev(
-				elm$core$List$reverse(path))) : A2(
-			elm$core$Maybe$map,
-			elm$core$List$reverse,
-			rev(
-				elm$core$List$reverse(
-					A2(elm$core$List$append, current, path))));
-	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var elm$core$String$dropRight = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(elm$core$String$slice, 0, -n, string);
-	});
-var elm$core$String$endsWith = _String_endsWith;
-var author$project$Os$resolvePath = F2(
-	function (system, path) {
-		var _n0 = A2(elm$core$String$endsWith, '/', path) ? _Utils_Tuple2(
-			true,
-			A2(elm$core$String$dropRight, 1, path)) : _Utils_Tuple2(false, path);
-		var dirExpect = _n0.a;
-		var shrinked = _n0.b;
-		var absPath = A2(
-			elm$core$Maybe$withDefault,
-			_List_Nil,
-			A2(
-				author$project$Path$toAbsolute,
-				system.current,
-				A2(elm$core$String$split, '/', shrinked)));
-		var _n1 = _Utils_Tuple2(
-			dirExpect,
-			A2(author$project$Fs$queryPathAbs, system.root, absPath));
-		if (_n1.b.$ === 'Just') {
-			if (_n1.a && (_n1.b.a.$ === 'File')) {
-				var f = _n1.b.a;
-				return A2(author$project$Os$IsNotDir, f, absPath);
-			} else {
-				var f = _n1.b.a;
-				return A2(author$project$Os$Succes, f, absPath);
-			}
-		} else {
-			var _n2 = _n1.b;
-			return author$project$Os$NotFound;
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
-};
-var elm$core$String$append = _String_append;
-var author$project$Os$execCat = F2(
-	function (system, args) {
-		return function (outputs) {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					elm$core$List$concat(outputs)),
-				system);
-		}(
-			A2(
-				elm$core$List$map,
-				function (arg) {
-					var _n0 = A2(author$project$Os$resolvePath, system, arg);
-					_n0$3:
-					while (true) {
-						switch (_n0.$) {
-							case 'Succes':
-								if (_n0.a.$ === 'File') {
-									var _n1 = _n0.a;
-									var fname = _n1.a;
-									var id = _n1.b;
-									var p = _n0.b;
-									switch (id) {
-										case 'name':
-											return _List_fromArray(
-												[
-													author$project$Os$Str('Nakano Masaki<namachan10777@gmail.com\n')
-												]);
-										case 'icon':
-											return _List_fromArray(
-												[
-													A3(
-													author$project$Os$Img,
-													'icon',
-													'./res/icon.jpg',
-													elm$core$Maybe$Just(
-														_Utils_Tuple2('@hsm_hx', 'https://twitter.com/hsm_hx')))
-												]);
-										case 'belongs':
-											return _List_fromArray(
-												[
-													author$project$Os$Str(' school : National Institute of Techonology, Kagawa College.'),
-													author$project$Os$Str('  dept. : Electrical & Computer Engineering'),
-													author$project$Os$Str(' conty. : Japan'),
-													author$project$Os$Str('  pref. : Kagawa'),
-													author$project$Os$Str('  orgs. : Mechanical System Research Club.'),
-													author$project$Os$Str('        : Infomation Techonology Research Club.')
-												]);
-										case 'skills':
-											return _List_fromArray(
-												[
-													author$project$Os$Str(' languages : D, OCaml, Rust, TypeScript, Python, C++, TeX'),
-													author$project$Os$Str('        OS : Arch Linux'),
-													author$project$Os$Str('       CAD : KiCAD, Inventor, OpenSCAD'),
-													author$project$Os$Str('     TOEIC : 765')
-												]);
-										case 'works':
-											return _List_fromArray(
-												[
-													A2(author$project$Os$A, 'namaco', 'https://github.com/namachan10777/namaco'),
-													author$project$Os$Str('Morphlogical analyzer'),
-													A2(author$project$Os$A, 'folivora', 'https://github.com/namachan10777/folivora'),
-													author$project$Os$Str('Ergonomics keyboard'),
-													A2(author$project$Os$A, 'kck', 'https://github.com/namachan10777/kck'),
-													author$project$Os$Str('C compiler')
-												]);
-										case 'links':
-											return _List_fromArray(
-												[
-													A2(author$project$Os$A, 'Twitter', 'https://twitter.com/namachan10777'),
-													A2(author$project$Os$A, 'hatenablog', 'https://namachan10777.hatenablog.com/'),
-													A2(author$project$Os$A, 'GitHub', 'https://github.com/namachan10777'),
-													A2(author$project$Os$A, 'Steam', 'https://steamcommunity.com/id/namachan10777/'),
-													A2(author$project$Os$A, 'Amazon Wishlist', 'http://amzn.asia/6JUD39R'),
-													A2(author$project$Os$A, 'My namecard', 'https://namachan10777.github.io/namecard.html'),
-													A2(author$project$Os$A, 'My resume', 'https://namachan10777.github.io/resume.html')
-												]);
-										case 'help':
-											return _List_fromArray(
-												[
-													A2(author$project$Os$A, 'non-interactive page', './noninteractive.xhtml'),
-													author$project$Os$Str('You can use \"cp\", \"mv\", \"cat\", \"ls\", \"cd\" and etc...'),
-													author$project$Os$Str('e.g -> cat icon'),
-													author$project$Os$Str('e.g -> ls /usr/bin')
-												]);
-										default:
-											return _List_fromArray(
-												[
-													author$project$Os$Str(
-													A2(elm$core$String$append, fname, ' is not a text file\n'))
-												]);
-									}
-								} else {
-									var _n3 = _n0.a;
-									var dname = _n3.a;
-									var p = _n0.b;
-									return _List_fromArray(
-										[
-											author$project$Os$Str(
-											A2(elm$core$String$append, dname, ' is a directory\n'))
-										]);
-								}
-							case 'IsNotDir':
-								if (_n0.a.$ === 'File') {
-									var _n4 = _n0.a;
-									var fname = _n4.a;
-									var id = _n4.b;
-									var p = _n0.b;
-									return _List_fromArray(
-										[
-											author$project$Os$Str(
-											A2(elm$core$String$append, fname, ' is not a directory\n'))
-										]);
-								} else {
-									break _n0$3;
-								}
-							default:
-								break _n0$3;
-						}
-					}
-					return _List_fromArray(
-						[
-							author$project$Os$Str(
-							A2(elm$core$String$append, arg, ' is not found\n'))
-						]);
-				},
-				args));
-	});
-var author$project$Os$execCd = F2(
-	function (system, arg) {
-		var implCd = function (path) {
-			var _n1 = A2(author$project$Os$resolvePath, system, path);
-			_n1$2:
-			while (true) {
-				switch (_n1.$) {
-					case 'Succes':
-						if (_n1.a.$ === 'Dir') {
-							var _n2 = _n1.a;
-							var normalized = _n1.b;
-							return _Utils_Tuple2(
-								author$project$Os$Stdout(_List_Nil),
-								{current: normalized, root: system.root});
-						} else {
-							break _n1$2;
-						}
-					case 'NotFound':
-						return _Utils_Tuple2(
-							author$project$Os$Stdout(
-								_List_fromArray(
-									[
-										author$project$Os$Str(path + ' is not found')
-									])),
-							system);
-					default:
-						break _n1$2;
-				}
-			}
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str(path + ' is not a directory')
-						])),
-				system);
-		};
-		if (!arg.b) {
-			return implCd('/home/namachan/');
-		} else {
-			if (!arg.b.b) {
-				var path = arg.a;
-				return implCd(path);
-			} else {
-				return _Utils_Tuple2(
-					author$project$Os$Stdout(
-						_List_fromArray(
-							[
-								author$project$Os$Str('Too many args for cd')
-							])),
-					system);
-			}
-		}
-	});
-var author$project$Os$execClear = F2(
-	function (system, args) {
-		if (!args.b) {
-			return _Utils_Tuple2(author$project$Os$Clear, system);
-		} else {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str('clear: Expected 0 args, got 1')
-						])),
-				system);
-		}
-	});
-var author$project$Fs$changeName = F2(
-	function (fs, name) {
-		if (fs.$ === 'Dir') {
-			var children = fs.b;
-			return A2(author$project$Fs$Dir, name, children);
-		} else {
-			var id = fs.b;
-			return A2(author$project$Fs$File, name, id);
-		}
-	});
-var author$project$Fs$isDir = function (fs) {
-	if (fs.$ === 'Dir') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var author$project$Fs$fsMap = F2(
-	function (f, root) {
-		var impl = F3(
-			function (g, fs, current) {
-				if (fs.$ === 'File') {
-					return fs;
-				} else {
-					var dname = fs.a;
-					var children = fs.b;
-					return A2(
-						author$project$Fs$Dir,
-						dname,
-						A2(
-							elm$core$List$map,
-							function (child) {
-								return A3(
-									impl,
-									g,
-									child,
-									A2(
-										elm$core$List$append,
-										current,
-										_List_fromArray(
-											[dname])));
-							},
-							A2(
-								g,
-								children,
-								A2(
-									elm$core$List$append,
-									current,
-									_List_fromArray(
-										[dname])))));
-				}
-			});
-		return A3(impl, f, root, _List_Nil);
-	});
-var author$project$Fs$getName = function (fs) {
-	if (fs.$ === 'Dir') {
-		var name = fs.a;
-		return name;
-	} else {
-		var name = fs.a;
-		return name;
-	}
-};
-var elm$core$Basics$neq = _Utils_notEqual;
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var author$project$Fs$overwriteFile = F2(
-	function (path, src) {
-		return author$project$Fs$fsMap(
-			F2(
-				function (brothers, current) {
-					return _Utils_eq(path, current) ? A2(
-						elm$core$List$cons,
-						src,
-						A2(
-							elm$core$List$filter,
-							function (boy) {
-								return !_Utils_eq(
-									author$project$Fs$getName(boy),
-									author$project$Fs$getName(src));
-							},
-							brothers)) : brothers;
-				}));
-	});
-var author$project$Fs$removeFile = function (path) {
-	return author$project$Fs$fsMap(
-		F2(
-			function (brothers, current) {
-				return A2(
-					elm$core$List$filter,
-					function (boy) {
-						return !_Utils_eq(
-							path,
-							A2(
-								elm$core$List$append,
-								current,
-								_List_fromArray(
-									[
-										author$project$Fs$getName(boy)
-									])));
-					},
-					brothers);
-			}));
-};
-var elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
-		}
-	});
-var author$project$Os$dropRight = F2(
-	function (n, l) {
-		return elm$core$List$reverse(
-			A2(
-				elm$core$List$drop,
-				n,
-				elm$core$List$reverse(l)));
-	});
-var author$project$Os$isIncludeAsSubDir = F2(
-	function (src, dest) {
-		return (_Utils_cmp(
-			elm$core$List$length(src),
-			elm$core$List$length(dest)) < 0) && A3(
-			elm$core$List$foldl,
-			elm$core$Basics$and,
-			true,
-			A3(elm$core$List$map2, elm$core$Basics$eq, src, dest));
-	});
-var elm$core$Basics$not = _Basics_not;
-var author$project$Os$implCp = F6(
-	function (deleteAfterCopy, cpDirectory, isSingleArg, system, src, dest) {
-		var updater = F4(
-			function (srcPath, destPath, file, root) {
-				return deleteAfterCopy ? A2(
-					author$project$Fs$removeFile,
-					srcPath,
-					A3(author$project$Fs$overwriteFile, destPath, file, root)) : A3(author$project$Fs$overwriteFile, destPath, file, root);
-			});
-		var cmdName = deleteAfterCopy ? 'mv' : 'cp';
-		var _n0 = _Utils_Tuple3(
-			isSingleArg,
-			A2(author$project$Os$resolvePath, system, src),
-			A2(author$project$Os$resolvePath, system, dest));
-		switch (_n0.b.$) {
-			case 'NotFound':
-				var _n1 = _n0.b;
-				return _Utils_Tuple2(
-					elm$core$Maybe$Just(
-						author$project$Os$Str(cmdName + (': cannot stat ' + (src + ': No such file or directory')))),
-					system);
-			case 'IsNotDir':
-				var _n2 = _n0.b;
-				return _Utils_Tuple2(
-					elm$core$Maybe$Just(
-						author$project$Os$Str(cmdName + (': cannot stat ' + (src + ': Not a directory')))),
-					system);
-			default:
-				switch (_n0.c.$) {
-					case 'IsNotDir':
-						var _n7 = _n0.b;
-						var file = _n7.a;
-						var srcAbs = _n7.b;
-						var _n8 = _n0.c;
-						return _Utils_Tuple2(
-							elm$core$Maybe$Just(
-								author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': Not a directory')))),
-							system);
-					case 'NotFound':
-						if (!_n0.a) {
-							var _n11 = _n0.c;
-							return _Utils_Tuple2(
-								elm$core$Maybe$Just(
-									author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': Not a directory')))),
-								system);
-						} else {
-							var _n18 = _n0.b;
-							var file = _n18.a;
-							var srcAbs = _n18.b;
-							var _n19 = A2(
-								author$project$Path$toAbsolute,
-								system.current,
-								A2(elm$core$String$split, '/', dest));
-							if (_n19.$ === 'Nothing') {
-								return _Utils_Tuple2(
-									elm$core$Maybe$Just(
-										author$project$Os$Str(cmdName + (': failed to acces ' + (dest + ': No such a directory')))),
-									system);
-							} else {
-								var destAbs = _n19.a;
-								var name = A2(
-									elm$core$Maybe$withDefault,
-									'',
-									elm$core$List$head(
-										elm$core$List$reverse(destAbs)));
-								return A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs) ? _Utils_Tuple2(
-									elm$core$Maybe$Just(
-										author$project$Os$Str(': cannot move ' + (src + (' to a subdirectory of itself, ' + dest)))),
-									system) : ((author$project$Fs$isDir(file) && (!cpDirectory)) ? _Utils_Tuple2(
-									elm$core$Maybe$Just(
-										author$project$Os$Str(cmdName + (': -r not specified; omitting directory ' + src))),
-									system) : _Utils_Tuple2(
-									elm$core$Maybe$Nothing,
-									_Utils_update(
-										system,
-										{
-											root: A4(
-												updater,
-												srcAbs,
-												A2(author$project$Os$dropRight, 1, destAbs),
-												A2(author$project$Fs$changeName, file, name),
-												system.root)
-										})));
-							}
-						}
-					default:
-						if (_n0.c.a.$ === 'Dir') {
-							var _n12 = _n0.b;
-							var file = _n12.a;
-							var srcAbs = _n12.b;
-							var _n13 = _n0.c;
-							var _n14 = _n13.a;
-							var destAbs = _n13.b;
-							return (deleteAfterCopy && A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs)) ? _Utils_Tuple2(
-								elm$core$Maybe$Just(
-									author$project$Os$Str(cmdName + (': cannot move ' + (src + (' to a subdirectory of itself, ' + dest))))),
-								system) : ((author$project$Fs$isDir(file) && (!cpDirectory)) ? _Utils_Tuple2(
-								elm$core$Maybe$Just(
-									author$project$Os$Str(cmdName + (': -r not specified; omitting directory ' + src))),
-								system) : _Utils_Tuple2(
-								elm$core$Maybe$Nothing,
-								_Utils_update(
-									system,
-									{
-										root: A4(updater, srcAbs, destAbs, file, system.root)
-									})));
-						} else {
-							if (_n0.b.a.$ === 'Dir') {
-								var _n3 = _n0.b;
-								var _n4 = _n3.a;
-								var _n5 = _n0.c;
-								var _n6 = _n5.a;
-								return _Utils_Tuple2(
-									elm$core$Maybe$Just(
-										author$project$Os$Str(cmdName + (': cannot overwrte non-directory ' + (dest + (': with directory' + src))))),
-									system);
-							} else {
-								if (!_n0.a) {
-									var _n9 = _n0.c;
-									var _n10 = _n9.a;
-									return _Utils_Tuple2(
-										elm$core$Maybe$Just(
-											author$project$Os$Str(cmdName + (': target ' + (dest + ' is not a directory')))),
-										system);
-								} else {
-									var _n15 = _n0.b;
-									var file = _n15.a;
-									var srcAbs = _n15.b;
-									var _n16 = _n0.c;
-									var _n17 = _n16.a;
-									var name = _n17.a;
-									var destAbs = _n16.b;
-									return A2(author$project$Os$isIncludeAsSubDir, srcAbs, destAbs) ? _Utils_Tuple2(
-										elm$core$Maybe$Just(
-											author$project$Os$Str(cmdName + (': cannot move ' + (src + (' to a subdirectory of itself, ' + dest))))),
-										system) : _Utils_Tuple2(
-										elm$core$Maybe$Nothing,
-										_Utils_update(
-											system,
-											{
-												root: A4(
-													updater,
-													srcAbs,
-													A2(author$project$Os$dropRight, 1, destAbs),
-													A2(author$project$Fs$changeName, file, name),
-													system.root)
-											}));
-								}
-							}
-						}
-				}
-		}
-	});
-var elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
-var author$project$Os$execCp = F3(
-	function (deleteAfterCopy, system, args) {
-		var cpDirectory = deleteAfterCopy || A2(elm$core$List$member, '-r', args);
-		var cmdName = deleteAfterCopy ? 'mv' : 'cp';
-		var cmdArgs = deleteAfterCopy ? args : A2(
-			elm$core$List$filter,
-			function (s) {
-				return s !== '-r';
-			},
-			args);
-		var _n0 = elm$core$List$reverse(cmdArgs);
-		if (!_n0.b) {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str(cmdName + ': missing file operand')
-						])),
-				system);
-		} else {
-			if (!_n0.b.b) {
-				var src = _n0.a;
-				return _Utils_Tuple2(
-					author$project$Os$Stdout(
-						_List_fromArray(
-							[
-								author$project$Os$Str(cmdName + (': missing file destination operand after ' + src))
-							])),
-					system);
-			} else {
-				if (!_n0.b.b.b) {
-					var dest = _n0.a;
-					var _n1 = _n0.b;
-					var src = _n1.a;
-					var _n2 = A6(author$project$Os$implCp, deleteAfterCopy, cpDirectory, true, system, src, dest);
-					var output = _n2.a;
-					var updatedSystem = _n2.b;
-					return _Utils_Tuple2(
-						author$project$Os$Stdout(
-							A2(
-								elm$core$List$filterMap,
-								elm$core$Basics$identity,
-								_List_fromArray(
-									[output]))),
-						updatedSystem);
-				} else {
-					var dest = _n0.a;
-					var srcs = _n0.b;
-					var _n3 = A3(
-						elm$core$List$foldl,
-						F2(
-							function (src, _n4) {
-								var acc = _n4.a;
-								var sys = _n4.b;
-								var _n5 = A6(author$project$Os$implCp, deleteAfterCopy, cpDirectory, false, sys, src, dest);
-								var output = _n5.a;
-								var nextSys = _n5.b;
-								return _Utils_Tuple2(
-									A2(elm$core$List$cons, output, acc),
-									nextSys);
-							}),
-						_Utils_Tuple2(_List_Nil, system),
-						elm$core$List$reverse(srcs));
-					var outputs = _n3.a;
-					var updatedSystem = _n3.b;
-					return _Utils_Tuple2(
-						author$project$Os$Stdout(
-							A2(elm$core$List$filterMap, elm$core$Basics$identity, outputs)),
-						updatedSystem);
-				}
-			}
-		}
-	});
-var author$project$Os$execEcho = F2(
-	function (system, args) {
-		return _Utils_Tuple2(
-			author$project$Os$Stdout(
-				_List_fromArray(
-					[
-						author$project$Os$Str(
-						A2(elm$core$String$join, ' ', args))
-					])),
-			system);
-	});
-var author$project$Os$execLs = F2(
-	function (system, paths) {
-		var showDirIncludes = function (path) {
-			var _n1 = A2(author$project$Os$resolvePath, system, path);
-			_n1$2:
-			while (true) {
-				switch (_n1.$) {
-					case 'Succes':
-						if (_n1.a.$ === 'Dir') {
-							var _n2 = _n1.a;
-							var children = _n2.b;
-							return A2(
-								elm$core$String$join,
-								' ',
-								A2(
-									elm$core$List$map,
-									function (child) {
-										if (child.$ === 'File') {
-											var name = child.a;
-											return name;
-										} else {
-											var name = child.a;
-											return name;
-										}
-									},
-									children));
-						} else {
-							break _n1$2;
-						}
-					case 'NotFound':
-						return path + ': directory not found';
-					default:
-						break _n1$2;
-				}
-			}
-			return path + ' is not a directory';
-		};
-		if (!paths.b) {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str(
-							showDirIncludes('.'))
-						])),
-				system);
-		} else {
-			if (!paths.b.b) {
-				var path = paths.a;
-				return _Utils_Tuple2(
-					author$project$Os$Stdout(
-						_List_fromArray(
-							[
-								author$project$Os$Str(
-								showDirIncludes(path))
-							])),
-					system);
-			} else {
-				return _Utils_Tuple2(
-					author$project$Os$Stdout(
-						elm$core$List$concat(
-							A2(
-								elm$core$List$map,
-								function (path) {
-									return _List_fromArray(
-										[
-											author$project$Os$Str(path + ':'),
-											author$project$Os$Str(
-											showDirIncludes(path))
-										]);
-								},
-								paths))),
-					system);
-			}
-		}
-	});
-var author$project$Os$execPwd = F2(
-	function (system, args) {
-		if (!args.b) {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str(
-							A2(elm$core$String$join, '/', system.current) + '/')
-						])),
-				system);
-		} else {
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(
-					_List_fromArray(
-						[
-							author$project$Os$Str('pwd: Expected 0 args, got 1')
-						])),
-				system);
-		}
-	});
-var author$project$Os$execRm = F2(
-	function (system, args) {
-		var rmRecurse = A2(elm$core$List$member, '-r', args);
-		var cmdArgs = A2(
-			elm$core$List$filter,
-			function (s) {
-				return s !== '-r';
-			},
-			args);
-		return function (_n7) {
-			var acc = _n7.a;
-			var sys = _n7.b;
-			return _Utils_Tuple2(
-				author$project$Os$Stdout(acc),
-				sys);
-		}(
-			A3(
-				elm$core$List$foldl,
-				F2(
-					function (target, _n0) {
-						var acc = _n0.a;
-						var sys = _n0.b;
-						var _n1 = _Utils_Tuple2(
-							rmRecurse,
-							A2(author$project$Os$resolvePath, sys, target));
-						switch (_n1.b.$) {
-							case 'Succes':
-								if ((!_n1.a) && (_n1.b.a.$ === 'Dir')) {
-									var _n2 = _n1.b;
-									var _n3 = _n2.a;
-									return _Utils_Tuple2(
-										A2(
-											elm$core$List$cons,
-											author$project$Os$Str('rm: cannot remove ' + (target + ': Is not a directory')),
-											acc),
-										sys);
-								} else {
-									var _n4 = _n1.b;
-									var path = _n4.b;
-									return _Utils_Tuple2(
-										acc,
-										_Utils_update(
-											sys,
-											{
-												root: A2(author$project$Fs$removeFile, path, sys.root)
-											}));
-								}
-							case 'IsNotDir':
-								var _n5 = _n1.b;
-								return _Utils_Tuple2(
-									A2(
-										elm$core$List$cons,
-										author$project$Os$Str('rm: cannot remove ' + (target + ': Not a directory')),
-										acc),
-									sys);
-							default:
-								var _n6 = _n1.b;
-								return _Utils_Tuple2(
-									A2(
-										elm$core$List$cons,
-										author$project$Os$Str('rm: cannot remove ' + (target + ': No such file or directory')),
-										acc),
-									sys);
-						}
-					}),
-				_Utils_Tuple2(_List_Nil, system),
-				cmdArgs));
-	});
-var author$project$Os$exePath = '/usr/bin/';
-var author$project$Os$resolveExe = F2(
-	function (system, path) {
-		return (A2(elm$core$String$startsWith, '.', path) || A2(elm$core$String$startsWith, '/', path)) ? A2(author$project$Os$resolvePath, system, path) : (((elm$core$String$length(path) > 0) && (!A2(elm$core$String$contains, '/', path))) ? A2(
-			author$project$Os$resolvePath,
-			system,
-			A2(elm$core$String$append, author$project$Os$exePath, path)) : author$project$Os$NotFound);
-	});
-var author$project$Os$exec = F3(
-	function (system, path, args) {
-		return A2(
-			function () {
-				var _n0 = A2(author$project$Os$resolveExe, system, path);
-				_n0$9:
-				while (true) {
-					if ((_n0.$ === 'Succes') && (_n0.a.$ === 'File')) {
-						switch (_n0.a.b) {
-							case 'echo':
-								var _n1 = _n0.a;
-								return author$project$Os$execEcho;
-							case 'clear':
-								var _n2 = _n0.a;
-								return author$project$Os$execClear;
-							case 'cat':
-								var _n3 = _n0.a;
-								return author$project$Os$execCat;
-							case 'cp':
-								var _n4 = _n0.a;
-								return author$project$Os$execCp(false);
-							case 'mv':
-								var _n5 = _n0.a;
-								return author$project$Os$execCp(true);
-							case 'rm':
-								var _n6 = _n0.a;
-								return author$project$Os$execRm;
-							case 'cd':
-								var _n7 = _n0.a;
-								return author$project$Os$execCd;
-							case 'ls':
-								var _n8 = _n0.a;
-								return author$project$Os$execLs;
-							case 'pwd':
-								var _n9 = _n0.a;
-								return author$project$Os$execPwd;
-							default:
-								break _n0$9;
-						}
-					} else {
-						break _n0$9;
-					}
-				}
-				return F2(
-					function (_n10, _n11) {
-						return _Utils_Tuple2(author$project$Os$NoCmd, system);
-					});
-			}(),
-			system,
-			args);
 	});
 var elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
@@ -7251,54 +7270,68 @@ var author$project$Storage$cmdResultEncode = function (cmdResult) {
 	switch (cmdResult.$) {
 		case 'Stdout':
 			var outputs = cmdResult.a;
-			return elm$json$Json$Encode$object(
-				_List_fromArray(
-					[
-						_Utils_Tuple2(
-						'type',
-						elm$json$Json$Encode$string('stdout')),
-						_Utils_Tuple2(
-						'outputs',
-						A2(elm$json$Json$Encode$list, author$project$Storage$outputEncode, outputs))
-					]));
+			return elm$core$Maybe$Just(
+				elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'type',
+							elm$json$Json$Encode$string('stdout')),
+							_Utils_Tuple2(
+							'outputs',
+							A2(elm$json$Json$Encode$list, author$project$Storage$outputEncode, outputs))
+						])));
 		case 'NoCmd':
-			return elm$json$Json$Encode$object(
-				_List_fromArray(
-					[
-						_Utils_Tuple2(
-						'type',
-						elm$json$Json$Encode$string('nocmd'))
-					]));
+			return elm$core$Maybe$Just(
+				elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'type',
+							elm$json$Json$Encode$string('nocmd'))
+						])));
+		case 'Clear':
+			return elm$core$Maybe$Just(
+				elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'type',
+							elm$json$Json$Encode$string('clear'))
+						])));
 		default:
-			return elm$json$Json$Encode$object(
-				_List_fromArray(
-					[
-						_Utils_Tuple2(
-						'type',
-						elm$json$Json$Encode$string('clear'))
-					]));
+			return elm$core$Maybe$Nothing;
 	}
 };
 var author$project$Storage$histEncode = function (hist) {
 	var dir = hist.a;
 	var cmd = hist.b;
 	var result = hist.c;
-	return elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'dir',
-				elm$json$Json$Encode$string(dir)),
-				_Utils_Tuple2(
-				'cmd',
-				elm$json$Json$Encode$string(cmd)),
-				_Utils_Tuple2(
-				'result',
-				author$project$Storage$cmdResultEncode(result))
-			]));
+	return A2(
+		elm$core$Maybe$map,
+		function (encodedResult) {
+			return elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'dir',
+						elm$json$Json$Encode$string(dir)),
+						_Utils_Tuple2(
+						'cmd',
+						elm$json$Json$Encode$string(cmd)),
+						_Utils_Tuple2('result', encodedResult)
+					]));
+		},
+		author$project$Storage$cmdResultEncode(result));
 };
 var author$project$Storage$histsEncode = function (hists) {
-	return A2(elm$json$Json$Encode$list, author$project$Storage$histEncode, hists);
+	return A2(
+		elm$json$Json$Encode$list,
+		elm$core$Basics$identity,
+		A2(
+			elm$core$List$filterMap,
+			elm$core$Basics$identity,
+			A2(elm$core$List$map, author$project$Storage$histEncode, hists)));
 };
 var author$project$Storage$fsEncode = function (fs) {
 	if (fs.$ === 'Dir') {
@@ -7391,44 +7424,57 @@ var author$project$Main$update = F2(
 					var _n1 = A3(author$project$Os$exec, model.system, cmd, args);
 					var result = _n1.a;
 					var newSystem = _n1.b;
-					if (result.$ === 'Clear') {
-						var newHists = _List_fromArray(
-							[
+					switch (result.$) {
+						case 'Clear':
+							var newHists = _List_fromArray(
+								[
+									_Utils_Tuple3(
+									A2(elm$core$String$join, '/', model.system.current),
+									model.current,
+									result)
+								]);
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{current: '', hists: newHists, system: newSystem}),
+								elm$core$Platform$Cmd$batch(
+									_List_fromArray(
+										[
+											author$project$Main$scrollBottom(_Utils_Tuple0),
+											author$project$Main$focusInput(_Utils_Tuple0),
+											A2(author$project$Storage$storeStoraged, newSystem, newHists)
+										])));
+						case 'Reset':
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{current: author$project$Main$initialCurrent, hists: author$project$Main$initialHists, system: author$project$Os$initialSystem}),
+								elm$core$Platform$Cmd$batch(
+									_List_fromArray(
+										[
+											author$project$Main$scrollBottom(_Utils_Tuple0),
+											author$project$Main$focusInput(_Utils_Tuple0),
+											A2(author$project$Storage$storeStoraged, author$project$Os$initialSystem, author$project$Main$initialHists)
+										])));
+						default:
+							var newHists = A2(
+								elm$core$List$cons,
 								_Utils_Tuple3(
-								A2(elm$core$String$join, '/', model.system.current),
-								model.current,
-								result)
-							]);
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{current: '', hists: newHists, system: newSystem}),
-							elm$core$Platform$Cmd$batch(
-								_List_fromArray(
-									[
-										author$project$Main$scrollBottom(_Utils_Tuple0),
-										author$project$Main$focusInput(_Utils_Tuple0),
-										A2(author$project$Storage$storeStoraged, newSystem, newHists)
-									])));
-					} else {
-						var newHists = A2(
-							elm$core$List$cons,
-							_Utils_Tuple3(
-								A2(elm$core$String$join, '/', model.system.current),
-								model.current,
-								result),
-							model.hists);
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{current: '', hists: newHists, system: newSystem}),
-							elm$core$Platform$Cmd$batch(
-								_List_fromArray(
-									[
-										author$project$Main$scrollBottom(_Utils_Tuple0),
-										author$project$Main$focusInput(_Utils_Tuple0),
-										A2(author$project$Storage$storeStoraged, newSystem, newHists)
-									])));
+									A2(elm$core$String$join, '/', model.system.current),
+									model.current,
+									result),
+								model.hists);
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{current: '', hists: newHists, system: newSystem}),
+								elm$core$Platform$Cmd$batch(
+									_List_fromArray(
+										[
+											author$project$Main$scrollBottom(_Utils_Tuple0),
+											author$project$Main$focusInput(_Utils_Tuple0),
+											A2(author$project$Storage$storeStoraged, newSystem, newHists)
+										])));
 					}
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -7460,7 +7506,7 @@ var author$project$Main$update = F2(
 						model,
 						{posix: time}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'LoadStoraged':
 				if (msg.a.$ === 'Ok') {
 					var _n4 = msg.a.a;
 					var hists = _n4.a;
@@ -7474,6 +7520,18 @@ var author$project$Main$update = F2(
 					var errMsg = msg.a.a;
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{current: author$project$Main$initialCurrent, hists: author$project$Main$initialHists, system: author$project$Os$initialSystem}),
+					elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								author$project$Main$scrollBottom(_Utils_Tuple0),
+								author$project$Main$focusInput(_Utils_Tuple0),
+								A2(author$project$Storage$storeStoraged, author$project$Os$initialSystem, author$project$Main$initialHists)
+							])));
 		}
 	});
 var author$project$Main$Change = function (a) {
@@ -7662,6 +7720,7 @@ var author$project$Main$renderHists = function (model) {
 		},
 		model.hists);
 };
+var author$project$Main$Reset = {$: 'Reset'};
 var author$project$Main$toEnMonth = function (month) {
 	switch (month.$) {
 		case 'Jan':
@@ -7704,7 +7763,25 @@ var elm$core$String$repeat = F2(
 	function (n, chunk) {
 		return A3(elm$core$String$repeatHelp, n, chunk, '');
 	});
+var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$footer = _VirtualDom_node('footer');
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
 var elm$time$Time$flooredDiv = F2(
 	function (numerator, denominator) {
 		return elm$core$Basics$floor(numerator / denominator);
@@ -7883,6 +7960,17 @@ var author$project$Main$renderPowerline = function (model) {
 		_List_fromArray(
 			[
 				A2(
+				elm$html$Html$button,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('reset-button'),
+						elm$html$Html$Events$onClick(author$project$Main$Reset)
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('click to reset')
+					])),
+				A2(
 				elm$html$Html$span,
 				_List_fromArray(
 					[
@@ -7922,7 +8010,6 @@ var elm$html$Html$Events$alwaysStop = function (x) {
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
