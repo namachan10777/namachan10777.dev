@@ -298,7 +298,7 @@ view : Model -> Html Msg
 view model =
     let
         lists =
-            div []
+            div [ class "interactive-area" ]
                 [ renderPrompt (String.join "/" model.system.current)
                 , input [ class "input", id "input", value model.current, onInput Change, autofocus True ] []
                 ]
