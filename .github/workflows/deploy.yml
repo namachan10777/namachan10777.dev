@@ -1,0 +1,22 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@master
+    - name: build 
+      run: |
+        npm install
+        gulp
+    - name: deploy
+      uses: peaceiris/actions-gh-pages@v2.3.1
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: master
+        PUBLISH_DIR: ./dist

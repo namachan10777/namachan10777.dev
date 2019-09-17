@@ -5,13 +5,16 @@
   "main": "index.js",
   "dependencies": {
     "elm": "^0.19.0-no-deps",
-    "elm-oracle": "^1.1.1",
     "elm-format": "^0.8.2",
-    "elm-test": "^0.19.0-rev6"
+    "elm-oracle": "^1.1.1",
+    "elm-test": "^0.19.0-rev6",
+    "gulp": "^4.0.2",
+    "gulp-elm": "^0.8.2"
   },
   "devDependencies": {},
   "scripts": {
     "dev": "elm make ./src/Main.elm --output=elm.js && elm-format --yes ./src/*.elm ./tests/*.elm",
+    "build": "elm make ./src/Main.elm --optimize --output=elm.js",
     "test": "elm-test && elm-format --yes ./src/*.elm ./tests/*.elm"
   },
   "repository": {
