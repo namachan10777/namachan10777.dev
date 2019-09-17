@@ -3,10 +3,7 @@
 [![](https://github.com/namachan10777/namachan10777.github.io/workflows/test/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
 [![](https://github.com/namachan10777/namachan10777.github.io/workflows/deploy/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
 
-# Licence
-Boost Software Licence
-=======
-# NAMECARD
+## NAMECARD
 ![Imgur](https://i.imgur.com/G5PvC2p.png)
 
 # License & Credit
