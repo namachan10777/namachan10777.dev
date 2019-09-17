@@ -233,7 +233,7 @@ implCp deleteAfterCopy cpDirectory isSingleArg system src dest =
             ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
 
         ( False, _, Succes (Fs.File _ _) _ ) ->
-            ( Just (Str (cmdName ++ ": target " ++ dest ++ "is not a directory")), system )
+            ( Just (Str (cmdName ++ ": target " ++ dest ++ " is not a directory")), system )
 
         ( False, _, NotFound ) ->
             ( Just (Str (cmdName ++ ": failed to acces " ++ dest ++ ": Not a directory")), system )
@@ -415,7 +415,7 @@ execLs system paths =
                     path ++ ": directory not found"
 
                 _ ->
-                    path ++ "is not a directory"
+                    path ++ " is not a directory"
     in
     case paths of
         [] ->
