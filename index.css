@@ -28,16 +28,16 @@ a:visited {
 }
 
 #scroll-area {
-	margin-left: 1vh;
+	margin-left: 2vw;
 	overflow-y: scroll;
-	height: calc(100% - 4vh);
+	height: calc(100% - 3vw);
 	word-wrap: break-word;
 	word-break: break-all;
 }
 
 footer {
 	color: #eee;
-	height: 4vh;
+	height: 3vw;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
@@ -61,29 +61,14 @@ footer {
 	margin: 0;
 }
 
-@media screen and (min-aspect-ratio: 2/3) {
-	body {
-		font-size: 3vh;
-	}
-
-	.stdout {
-		font-size: 3vh;
-	}
+body {
+	font-size: 3vw;
 }
 
-@media screen and (max-aspect-ratio: 2/3) {
-	body {
-		font-size: 3vw;
-	}
-	.stdout {
-		font-size: 3vw;
-	}
-
-	.interactive-area {
-		display: flex;
-		flex-direction: column;
-	}
+.stdout {
+	font-size: 3vw;
 }
+
 
 .reset-button {
 	background: #047787;
