@@ -1,93 +1,18 @@
 @import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
 
-html {
-	height: 100%;
-}
-
 body {
-	height: 100%;
-	margin: 0;
-	background-color: #01171a;
-	font-family: 'Fira Mono';
-	color: #ddd;
+	font-family: 'Fira Mono', monospace;
 }
 
-a:link {
-	color: #a8d4ff;
-	text-decoration: underline;
+.string {
+	color: #8f4f10;
 }
 
-a:visited {
-	color: #88add1;
-	text-decoration: underline;
+#request {
+	font-size: 2vw;
+	margin-right: 5vw;
 }
 
-
-#root {
-	height: 100%;
-}
-
-#scroll-area {
-	margin-left: 1vh;
-	overflow-y: scroll;
-	height: calc(100% - 4vh);
-	word-wrap: break-word;
-	word-break: break-all;
-}
-
-footer {
-	color: #eee;
-	height: 4vh;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	background-color: #0a91ff;
-}
-
-.input {
-	border: none;
-	outline: none;
-	background: none;
-	font-size: inherit;
-	font-family: inherit;
-	color: inherit;
-}
-
-.stdout {
-	word-wrap: break-word;
-	word-break: normal;
-	white-space: pre;
-	white-space: pre-wrap;
-	margin: 0;
-}
-
-@media screen and (min-aspect-ratio: 2/3) {
-	body {
-		font-size: 3vh;
-	}
-
-	.stdout {
-		font-size: 3vh;
-	}
-}
-
-@media screen and (max-aspect-ratio: 2/3) {
-	body {
-		font-size: 3vw;
-	}
-	.stdout {
-		font-size: 3vw;
-	}
-
-	.interactive-area {
-		display: flex;
-		flex-direction: column;
-	}
-}
-
-.reset-button {
-	background: #047787;
-	color: inherit;
-	border:none;
-	box-shadow: 2px 2px 2px rgba(0,0,0,0.29);
+#refuse {
+	font-size: 1.5vw;
 }
