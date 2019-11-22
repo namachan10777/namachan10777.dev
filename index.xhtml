@@ -15,37 +15,12 @@
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet"/>
 		<link href="https://fonts.googleapis.com/css?family=Sawarabi+Mincho" rel="stylesheet"/>
 
-		<script src="elm.js"></script>
 	</head>
 	<body>
-		<div id="root" class="console"></div>
-		<script>
-			const app = Elm.Main.init({ node: document.getElementById("root") });
-			app.ports.scrollBottom.subscribe(data => {
-				const root = document.getElementById("scroll-area");
-				setTimeout(() => {
-					root.scrollTop = root.scrollHeight;
-				}, 10);
-			});
-			app.ports.focusInput.subscribe(data => {
-				setTimeout(() => {
-					const input = document.getElementById("input");
-					input.focus();
-				}, 10);
-			});
-			app.ports.storeStoragedPort.subscribe(data => {
-				console.log("save:", data);
-				localStorage.setItem('env', JSON.stringify(data));
-			});
-			app.ports.requestStoraged.subscribe(() => {
-				try {
-					const storaged = JSON.parse(localStorage.env);
-					console.log(storaged);
-					app.ports.loadStoragedPort.send(JSON.parse(localStorage.env));
-				}
-				catch (e) {
-				}
-			});
-		</script>
+		<div id="root" class="console">
+			<span id="request">Search content, please.</span>
+			<button id="refuse">No!</button>
+		</div>
+		<script src="index.js"></script>
 	</body>
 </html>

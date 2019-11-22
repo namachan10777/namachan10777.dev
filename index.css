@@ -1,78 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Work+Sans|Fira+Mono|Roboto+Condensed&display=swap');
 
-html {
-	height: 100%;
+body{
+	font-family: 'Fira Mono', monospace;
 }
 
-body {
-	height: 100%;
-	margin: 0;
-	background-color: #01171a;
-	font-family: 'Fira Mono';
-	color: #ddd;
-}
-
-a:link {
-	color: #a8d4ff;
-	text-decoration: underline;
-}
-
-a:visited {
-	color: #88add1;
-	text-decoration: underline;
-}
-
-
-#root {
-	height: 100%;
-}
-
-#scroll-area {
-	margin-left: 2vw;
-	overflow-y: scroll;
-	height: calc(100% - 3vw);
-	word-wrap: break-word;
-	word-break: break-all;
-}
-
-footer {
-	color: #eee;
-	height: 3vw;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	background-color: #0a91ff;
-}
-
-.input {
-	border: none;
-	outline: none;
-	background: none;
-	font-size: inherit;
-	font-family: inherit;
-	color: inherit;
-}
-
-.stdout {
-	word-wrap: break-word;
-	word-break: normal;
-	white-space: pre;
-	white-space: pre-wrap;
-	margin: 0;
-}
-
-body {
+#request {
 	font-size: 2vw;
+	margin-right: 5vw;
 }
 
-.stdout {
-	font-size: 2vw;
-}
-
-
-.reset-button {
-	background: #047787;
-	color: inherit;
-	border:none;
-	box-shadow: 2px 2px 2px rgba(0,0,0,0.29);
+#refuse {
+	font-size: 1.5vw;
 }

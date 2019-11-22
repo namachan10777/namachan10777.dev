@@ -1,0 +1,18 @@
+# namachan10777.github.io
+
+[![](https://github.com/namachan10777/namachan10777.github.io/workflows/test/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
+[![](https://github.com/namachan10777/namachan10777.github.io/workflows/deploy/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
+
+## NAMECARD
+![Imgur](https://i.imgur.com/G5PvC2p.png)
+
+# License & Credit
+## Code
+[![BSL-1.0](https://img.shields.io/badge/License-BSL%201.0-blue.svg)](https://opensource.org/licenses/BSL-1.0)
+
+[BSL-License](https://opensource.org/licenses/BSL-1.0)
+## Icon
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+[CC-BY-NC-ND](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+Made by [@hsm_hx](https://github.com/hsm-hx)
