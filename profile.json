@@ -1,0 +1,80 @@
+{
+	"name": {
+		"jp": "中野 将生",
+		"en": "Nakano Masaki"
+	},
+	"home": {
+		"country": "Japan",
+		"pref": "Kagawa",
+		"city": "Takamatsu"
+	},
+	"belongs": {
+		"current": {
+			"type": "kosen",
+			"name": "National Institute of Technology, Kagawa College",
+			"dept": "Electrical and Computer Engineering",
+			"lab": "Kitamura"
+		},
+		"next": {
+			"type": "univ",
+			"name": "University of Tsukuba",
+			"faculty": "School of Informatics",
+			"cource": "College of Information Science"
+		}
+	},
+	"skill": {
+		"formallang": [
+			"Dlang",
+			"OCaml",
+			"Rust",
+			"Python",
+			"JavaScript",
+			"C",
+			"TeX",
+			"SATySFi"
+		],
+		"naturallang": [
+			{
+				"name": "Japanese",
+				"level": "native"
+			},
+			{
+				"name": "English",
+				"level": ["CEFR A2", "TOEIC 765"]
+			}
+		],
+		"tools": [
+			"KiCAD",
+			"Inventor",
+			"OpenSCAD",
+			"JwCAD",
+			"Vim"
+		],
+		"certificates": [
+			"TOEIC L&R 765"
+		]
+	},
+	"works": [
+		"namaco": {
+			"desc": "Morphological analyzer written in Rust",
+			"url": "https://github.com/namachan10777/namaco"
+		},
+		"folivora": {
+			"desc": "Ergonomics keyboard",
+			"url": "https://github.com/namachan10777/namaco"
+		}
+	],
+	"accounts": {
+		"Twitter": "https://twitter.com/namachan10777",
+		"hatenablog": "https://namachan10777.hatenablog.com",
+		"GitHub": "https://github.com/namachan10777",
+		"Steam": "https://steamcommunity.com/id/namachan10777",
+		"Pixiv": "https://www.pixiv.net/member.php?id=16972899"
+	},
+	"hobby": {
+		"languages": ["English", "Chinese"],
+		"travel": ["Camp", "Cycling"]
+	},
+	"email": "namachan10777@gmail.com",
+	"amazon_wishlist": "http://amzn.asia/6JUD39R"
+}
