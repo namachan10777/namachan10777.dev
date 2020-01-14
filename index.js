@@ -168,11 +168,7 @@ const refuseBtn  =  document.getElementById('refuse');
 const requestTxt = document.getElementById('request');
 const root       = document.getElementById('root');
 
-refuseBtn.addEventListener('click', function() {
-  root.removeChild(refuseBtn);
-  root.removeChild(requestTxt);
-  const children = buildPrettyPrint(json);
-  for (let i=0; i < children.length; ++i) {
-    root.appendChild(children[i]);
-  }
-});
+const children = buildPrettyPrint(json);
+for (let i=0; i < children.length; ++i) {
+  root.appendChild(children[i]);
+}
