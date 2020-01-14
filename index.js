@@ -72,7 +72,6 @@ const json = {
 		Pixiv: "https://www.pixiv.net/member.php?id=16972899"
 	},
   other_contents: {
-    resume: "https://namachan10777.github.io/resume/resume.html",
     namecard: "https://namachan10777.github.io/namecard/namecard.html"
   },
 	hobby: {
