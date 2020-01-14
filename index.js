@@ -23,17 +23,20 @@ const json = {
 		}
 	},
 	skill: {
-		formallang: [
-			"Dlang",
-			"OCaml",
-			"Rust",
-			"Python",
-			"JavaScript",
-			"C",
-			"TeX",
-			"SATySFi"
-		],
-		naturallang: [
+		tech: {
+			lang: {
+				often_use: ["Rust", "Python"],
+				sometime: ["D", "OCaml", "SystemVerilog", "C++", "C"]
+			},
+			os: ["Arch Linux", "Ubuntu"],
+			cad: ["KiCAD", "Inventor"],
+			editor: "NeoVim",
+			tools: ["TeX", "Git"],
+			frameworks: ["numpy", "react.js"],
+			mathematics: "average B2",
+			microcontroller: ["STM32"]
+		},
+		language: [
 			{
 				name: "Japanese",
 				level: "native"
@@ -42,13 +45,6 @@ const json = {
 				name: "English",
 				level: ["CEFR A2", "TOEIC 765"]
 			}
-		],
-		tools: [
-			"KiCAD",
-			"Inventor",
-			"OpenSCAD",
-			"JwCAD",
-			"Vim"
 		],
 		certificates: [
 			"TOEIC L&R 765",
