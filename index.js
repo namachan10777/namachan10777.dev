@@ -51,6 +51,10 @@ const json = {
 			"応用情報技術者試験(Applied Information Technology Engineer Examination)"
 		]
 	},
+	academic: {
+		major: "System Frontend/Backend; Audio Signal Processing",
+		papers: [],
+	},
 	personal_works: {
 		namaco: {
 			desc: "Morphological analyzer written in Rust",
