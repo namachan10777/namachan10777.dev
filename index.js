@@ -51,7 +51,8 @@ const json = {
 			"Vim"
 		],
 		certificates: [
-			"TOEIC L&R 765"
+			"TOEIC L&R 765",
+			"応用情報技術者試験(Applied Information Technology Engineer Examination)"
 		]
 	},
 	works: {
