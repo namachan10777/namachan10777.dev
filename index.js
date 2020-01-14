@@ -51,7 +51,7 @@ const json = {
 			"応用情報技術者試験(Applied Information Technology Engineer Examination)"
 		]
 	},
-	works: {
+	personal_works: {
 		namaco: {
 			desc: "Morphological analyzer written in Rust",
 			url: "https://github.com/namachan10777/namaco"
