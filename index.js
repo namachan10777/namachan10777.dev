@@ -1,3 +1,8 @@
+alert(
+  "JavaScript is runnning on this page. Please allow it. \n"
+  + "このWebサイトではJavaScriptを使用しています。許容してください\n"
+  + "https://doocts.com/en/3403.html");
+
 const json = {
 	name: {
 		jp: "中野 将生",
