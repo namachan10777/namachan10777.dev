@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/namachan10777
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://namachan10777.github.io
+  * I am namachan10777 (https://keybase.io/namachan10777) on keybase.
+  * I have a public key ASCA77WGnqzq6CarHz3qAwVWNAWMxlrcFA_xkQyANNBpPgo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120f9ca2e51909e94649caadd7f5914aea10b63f262a19958c609ce825b256604930a",
+      "host": "keybase.io",
+      "kid": "012080efb5869eaceae826ab1f3dea03055634058cc65adc140ff1910c8034d0693e0a",
+      "uid": "fd8e9255ea65140a5b2ba7a292842119",
+      "username": "namachan10777"
+    },
+    "merkle_root": {
+      "ctime": 1583160687,
+      "hash": "d8392133693f4e68db1d43844210b8047934592609e0853980a9ff289e922aece733a7fd3fbf92cdcedbc469e9a79d153511fd48c86f3bccd9a8a0137c21fb4c",
+      "hash_meta": "30991acbb7e2376045d516f90c97394da6c5b3c61dd699d1bde2f1af71d52eb6",
+      "seqno": 14898290
+    },
+    "service": {
+      "entropy": "ufYDcE6lvgP/yBOw2odQ/lgh",
+      "hostname": "namachan10777.github.io",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "5.2.0"
+  },
+  "ctime": 1583160702,
+  "expire_in": 504576000,
+  "prev": "f7674f5d8349659e3501981917fb620809a67da36f5101f6df3b59be9ed3dd27",
+  "seqno": 26,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEggO+1hp6s6ugmqx896gMFVjQFjMZa3BQP8ZEMgDTQaT4Kp3BheWxvYWTESpcCGsQg92dPXYNJZZ41AZgZF/tiCAmmfaNvUQH23ztZvp7T3SfEIGL/VM9+E2hKkL7F8z5/+EiBHgLcEJj6RgpJZof84vTtAgHCo3NpZ8RAwD8TuyW2Q8pRPkVnS1V9IFXhM0bzUIGYX0J8N37lGbvW11NhYVEvkHmNq3F5XXFfDs/h6P888rymRcJ77jAkDqhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIJINmU7M3v16/r+b/FzWebvTXVOag2vwFLZhCLwfi2Q/o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/namachan10777
+
+==================================================================
