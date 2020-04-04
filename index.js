@@ -9,18 +9,10 @@ const json = {
 		city: "Takamatsu"
 	},
 	belongs: {
-		current: {
-			type: "kosen",
-			name: "National Institute of Technology, Kagawa College",
-			dept: "Electrical and Computer Engineering",
-			lab: "Kitamura"
-		},
-		next: {
-			type: "univ",
-			name: "University of Tsukuba",
-			faculty: "School of Informatics",
-			cource: "College of Information Science"
-		}
+		type: "univ",
+		name: "University of Tsukuba",
+		faculty: "School of Informatics",
+		cource: "College of Information Science"
 	},
 	skill: {
 		tech: {
