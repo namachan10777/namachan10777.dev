@@ -36,10 +36,11 @@ RUN mkdir -p /home/satysfi/work && \
 
 FROM ubuntu:latest
 COPY --from=build-env /home/satysfi/.opam/4.08.0/bin/satysfi /usr/bin/
+COPY --from=build-env /usr/local/share/satysfi /usr/local/share/satysfi
 
 RUN apt-get update && \
 	apt-get upgrade -y && \
-	apt-get install -y git
+	apt-get install -y git make
 
 #ENTRYPOINT [ "/home/satysfi/.opam/4.06.0/bin/satysfi" ]
 ENTRYPOINT [ "/bin/bash" ]
