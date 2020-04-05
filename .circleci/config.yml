@@ -16,6 +16,7 @@ jobs:
           command: |
             mkdir dist
             make
+            cp *.xhtml dist
             cp *.html dist
             cp _redirects dist
             cp aboutme.md dist
