@@ -49,3 +49,4 @@ $(DIST)/$(ARTICLE_DIR)/%.xhtml: $(ARTICLE_DIR)/%.saty $(DIST)/$(ARTICLE_DIR) Mak
 
 clean:
 	rm -rf $(DIST)
+	rm *.satysfi-aux
