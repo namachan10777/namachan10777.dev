@@ -10,20 +10,20 @@ props |> List.fold-left (fun sacc (k, v) -> (
 
 
 let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
-let props = Option.from [] propsopt in
-let br = Option.from true bropt in
-let indent = Option.from 2 indentopt in
-let tinfo-inner = tinfo |> deepen-indent indent in
-  `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo-inner else ` `)
-	^ (sf tinfo-inner)
-	^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
-
+  let props = Option.from [] propsopt in
+  let br = Option.from true bropt in
+  let indent = Option.from 2 indentopt in
+  let tinfo-inner = tinfo |> deepen-indent indent in
+    `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo-inner else ` `)
+    ^ (sf tinfo-inner)
+    ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
 
 let document r bt =
   let tinfo = get-initial-text-info () in
     concat [
+      `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
       `<!DOCTYPE html>` ^ (break tinfo);
-      tag tinfo `html` (fun tinfo ->
+      tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`);(`lang`, `ja`)] tinfo `html` (fun tinfo ->
         concat [
           tag tinfo `head` (fun tinfo ->
             tag ?* ?:false tinfo `title` (fun tinfo ->
