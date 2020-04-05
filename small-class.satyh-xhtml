@@ -61,3 +61,39 @@ let-block tinfo +listing item =
 
 let-block tinfo +p it =
   tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+
+let-block tinfo +img ?:alt src =
+  let alt =
+    alt
+    |> Option.map (fun alt -> `alt="` ^ alt ^ `"`)
+    |> Option.from ` `
+  in
+  `<img src="` ^ src ^ `" `# ^ alt ^ `/>`
+
+let-block tinfo +address bt =
+  tag ?* ?:true tinfo `p` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
+
+let-inline tinfo \a href it =
+  tag ?:[(`href`, href)] ?:false tinfo `a` (fun tinfo -> stringify-inline tinfo it)
+
+let-block tinfo +div it =
+  tag ?* ?:true tinfo `div` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+
+let-block tinfo +section heading bt =
+  let st-heading = tag ?* ?:false tinfo `header`
+    (fun tinfo ->
+      tag ?* ?:false tinfo `h2`
+        (fun tinfo -> stringify-inline tinfo heading))
+  in
+  st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+
+let-block tinfo +code ?:title st =
+  let code-quote st = 
+    tag tinfo `pre` (fun _ ->
+      tag tinfo `code` (fun _ -> st))
+  in
+  let title =
+    Option.map code-quote title
+    |> Option.from ` `
+  in
+  title ^ code-quote st
