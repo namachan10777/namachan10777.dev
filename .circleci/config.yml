@@ -25,3 +25,13 @@ jobs:
             git commit -m "auto commit"
             git checkout -b production
             git push origin production -f
+
+workflows:
+  version: 2.1
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
