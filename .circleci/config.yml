@@ -15,14 +15,17 @@ jobs:
           name: Build
           command: |
             mkdir dist
-            cd dist
-            make -C ../
+            make
+            cp *.html dist
+            cp _redirects dist
+            cp aboutme.md dist
+            cp keybase.txt dist
       - run:
           name: Deploy to netlify
           command: |
             git config user.email "namachan10777@gmail.com"
             git config user.name "Nakano Masaki"
-            git add index.xhtml index.css keybase.txt aboutme.md
+            git add dist/*
             git commit -m "auto commit"
             git checkout production
             git merge ${CIRCLE_BRANCH}
