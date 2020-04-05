@@ -1,7 +1,7 @@
 @import: small-class
 
 document (|
-  title = {Example};
+  title = {namachan10777};
   links = [(`stylesheet`, `./index.css`)];
 |) '<
   +section {About} <
