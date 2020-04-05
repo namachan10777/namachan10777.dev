@@ -2,6 +2,9 @@ node_modules
 elm-stuff
 elm.js
 *.satysfi-aux
+*.html
+*.xhtml
+!index.xhtml
 
 # Local Netlify folder
 .netlify
