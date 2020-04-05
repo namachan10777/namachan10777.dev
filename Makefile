@@ -40,10 +40,10 @@ $(DIST)/index.css: index.css Makefile
 $(DIST)/$(ARTICLE_DIR)/article.css: $(ARTICLE_DIR)/article.css $(DIST)/$(ARTICLE_DIR) Makefile
 	cp $< $@
 
-$(ENTRY_TARGET): $(ENTRY_SRC) Makefile
+$(ENTRY_TARGET): $(ENTRY_SRC) small-class.satyh-xhtml Makefile
 	satysfi -b --text-mode xhtml $< -o $@
 
-$(DIST)/$(ARTICLE_DIR)/%.xhtml: $(ARTICLE_DIR)/%.saty $(DIST)/$(ARTICLE_DIR) Makefile
+$(DIST)/$(ARTICLE_DIR)/%.xhtml: $(ARTICLE_DIR)/%.saty small-class.satyh-xhtml $(DIST)/$(ARTICLE_DIR) Makefile
 	mkdir -p $(DIST)/$(ARTICLE_DIR)
 	satysfi -b --text-mode xhtml $< -o $@
 
