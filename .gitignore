@@ -6,5 +6,7 @@ elm.js
 *.xhtml
 !index.xhtml
 
+dist/*
+
 # Local Netlify folder
 .netlify
