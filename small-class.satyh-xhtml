@@ -24,16 +24,23 @@ let document r bt =
       `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
       `<!DOCTYPE html>` ^ (break tinfo);
       tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`);(`lang`, `ja`)] tinfo `html` (fun tinfo ->
-        concat [
-          tag tinfo `head` (fun tinfo ->
-            tag ?* ?:false tinfo `title` (fun tinfo ->
-              stringify-inline tinfo r#title
-            )
-          );
-          tag tinfo `body` (fun tinfo ->
-            stringify-block tinfo bt
-          );
-        ]
+        concat
+          [
+            tag tinfo `head` (fun tinfo -> (
+              let links = List.map (fun (rel, href) ->
+                `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo)) r#links
+              in
+              concat (
+                (tag ?* ?:false tinfo `title` (fun tinfo ->
+                  stringify-inline tinfo r#title
+                ) ^ (break tinfo))
+                :: links
+              )
+            )) ^ (break tinfo);
+            tag tinfo `body` (fun tinfo ->
+              stringify-block tinfo bt
+            );
+          ]
       );
     ]
 
@@ -62,13 +69,18 @@ let-block tinfo +listing item =
 let-block tinfo +p it =
   tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
-let-block tinfo +img ?:alt src =
+let-block tinfo +img ?:alt ?:id src =
   let alt =
     alt
     |> Option.map (fun alt -> `alt="` ^ alt ^ `"`)
     |> Option.from ` `
   in
-  `<img src="` ^ src ^ `" `# ^ alt ^ `/>`
+  let id =
+   id 
+    |> Option.map (fun id -> `id="` ^ id ^ `"`)
+    |> Option.from ` `
+  in
+  `<img src="` ^ src ^ `" `# ^ alt ^ #` `# ^ id ^ `/>` ^ (break tinfo)
 
 let-block tinfo +address bt =
   tag ?* ?:true tinfo `p` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
