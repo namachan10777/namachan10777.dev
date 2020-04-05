@@ -1,0 +1,10 @@
+@import: small-class
+
+document (|
+  title = {Example};
+|) '<
+  +p{
+    My quiz above the kiwi juice
+    needs priceless fixing.
+  }
+>

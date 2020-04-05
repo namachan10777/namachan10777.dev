@@ -12,6 +12,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Build
+          command: |
+            mkdir dist
+            cd dist
+            make -C ../
+      - run:
           name: Deploy to netlify
           command: |
             git config user.email "namachan10777@gmail.com"
