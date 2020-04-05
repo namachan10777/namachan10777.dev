@@ -1,0 +1,37 @@
+FROM ubuntu:latest
+
+
+RUN apt-get update && \
+	apt-get install -y software-properties-common && \
+	add-apt-repository ppa:avsm/ppa && \
+	apt-get update && \
+	apt-get upgrade -y  && \
+	apt-get install -y bzip2 gcc git m4 make unzip wget curl ruby opam
+
+RUN useradd -m satysfi
+USER satysfi
+
+RUN opam init --comp=4.08.0 --disable-sandboxing && \
+	eval $(opam config env) && \
+	opam repository add satysfi-external https://github.com/gfngfn/satysfi-external-repo.git && \
+	opam update
+
+WORKDIR /home/satysfi
+RUN git clone https://github.com/gfngfn/SATySFi.git
+WORKDIR /home/satysfi/SATySFi
+RUN opam pin add -y satysfi . && \
+	opam install satysfi
+
+RUN sed -i -e 's/oscdl/ipafont/g' ./download-fonts.sh && \
+	sed -i -e 's/IPAexfont00201/IPAexfont00401/g' ./download-fonts.sh && \
+	./download-fonts.sh
+
+USER root
+RUN ./install-libs.sh
+
+USER satysfi
+RUN mkdir -p /home/satysfi/work && \
+	echo "eval $(opam config env)" >> ~/.bashrc
+
+#ENTRYPOINT [ "/home/satysfi/.opam/4.06.0/bin/satysfi" ]
+ENTRYPOINT [ "/bin/bash" ]
