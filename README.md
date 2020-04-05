@@ -1,10 +1,7 @@
-# namachan10777.github.io
+# namachan10777.dev
 
-[![](https://github.com/namachan10777/namachan10777.github.io/workflows/test/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
-[![](https://github.com/namachan10777/namachan10777.github.io/workflows/deploy/badge.svg)](https://github.com/namachan10777/namachan10777.github.io/actions)
-
-## NAMECARD
-![Imgur](https://i.imgur.com/G5PvC2p.png)
+[![CircleCI](https://circleci.com/gh/namachan10777/namachan10777.dev.svg?style=svg)](https://circleci.com/gh/namachan10777/namachan10777.dev)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d7d5a281-4def-427b-bc63-9087b9bbf4c9/deploy-status)](https://app.netlify.com/sites/namachan10777/deploys)
 
 # License & Credit
 ## Code
