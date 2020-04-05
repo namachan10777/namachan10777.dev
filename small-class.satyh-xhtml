@@ -37,5 +37,27 @@ let document r bt =
       );
     ]
 
+let-rec listing-item tinfo depth (Item(parent, children)) =
+  let str-parent = tag ?* ?:false tinfo `li` (fun tinfo ->
+    stringify-inline tinfo parent)
+  in
+  if List.length children > 0
+  then
+    concat
+      [str-parent ^ (break tinfo);
+      tag tinfo `ul` (fun tinfo -> 
+        concat (List.map (listing-item tinfo (depth + 1)) children));
+      (break tinfo);]
+  else
+    str-parent ^ (break tinfo)
+
+let listing tinfo (Item(_,itmzlst)) =
+  tag tinfo `ul` (fun tinfo ->
+    List.map (listing-item tinfo 0) itmzlst
+    |> concat)
+
+let-block tinfo +listing item =
+  listing tinfo item
+
 let-block tinfo +p it =
-  tag tinfo `p` (fun tinfo -> stringify-inline tinfo it)
+  tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
