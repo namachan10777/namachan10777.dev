@@ -27,6 +27,5 @@ jobs:
             git config user.name "Nakano Masaki"
             git add dist/* -f
             git commit -m "auto commit"
-            git checkout production
-            git merge ${CIRCLE_BRANCH}
-            git push origin production
+            git checkout -b production
+            git push origin production -f
