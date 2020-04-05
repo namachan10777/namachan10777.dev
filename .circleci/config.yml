@@ -29,4 +29,4 @@ jobs:
             git commit -m "auto commit"
             git checkout production
             git merge ${CIRCLE_BRANCH}
-            git push production
+            git push origin production
