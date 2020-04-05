@@ -2,7 +2,6 @@
 version: 2.1
 executors:
   default:
-    working_directory: ~/
     docker:
       - image: namachan10777/namachan10777.dev:latest
 
@@ -11,6 +10,7 @@ jobs:
     executor:
       name: default
     steps:
+      - checkout
       - run:
           name: Deploy to netlify
           command: |
