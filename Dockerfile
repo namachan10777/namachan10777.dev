@@ -32,14 +32,14 @@ RUN ./install-libs.sh
 USER satysfi
 RUN mkdir -p /home/satysfi/work && \
 	echo "eval $(opam config env)" >> ~/.bashrc
+	
 
 FROM ubuntu:latest
 COPY --from=build-env /home/satysfi/.opam/4.08.0/bin/satysfi /usr/bin/
-RUN apt update && \
-	apt install -y git npm && \
-	rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g netlify-cli
+RUN apt-get update && \
+	apt-get upgrade -y && \
+	apt-get install -y git
 
 #ENTRYPOINT [ "/home/satysfi/.opam/4.06.0/bin/satysfi" ]
 ENTRYPOINT [ "/bin/bash" ]
