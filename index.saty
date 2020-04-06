@@ -59,6 +59,11 @@ document (|
       }
     >
   >
+  +section {Articles} <
+    +listing {
+      * \a(`./articles/blog-with-satysfi.xhtml`) { ブログをSATySFiで書くことにした }
+    }
+  >
   +section {PGP public key} <
     +code (```
     pub   rsa2048 2018-11-17 [SC] [expires: 2020-11-16]

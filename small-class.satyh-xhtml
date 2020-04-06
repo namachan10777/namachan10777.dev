@@ -124,6 +124,9 @@ let-block tinfo +subsection heading bt =
   in
   st-heading ^ (break tinfo) ^ stringify-block tinfo bt
 
+let-inline tinfo \code s =
+  tag ?* ?:false tinfo `span` (fun _ -> html-quote s)
+
 let-block tinfo +code ?:title st =
   let code-quote st = 
     tag tinfo `pre` (fun _ ->
