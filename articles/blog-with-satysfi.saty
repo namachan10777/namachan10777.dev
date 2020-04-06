@@ -1,0 +1,133 @@
+@import: ../small-class
+@require: base/string
+
+document (|
+  title = {ブログをSATySFiで書くことにした};
+  links = [(`stylesheet`, `./article.css`)];
+|) '<
+  +p{
+    今まで\a(`https://namachan10777.hatenablog.com`){hatenablog}を使っていたが、
+    フルスクラッチで作り直したい病に掛かったので移行した。
+    最初は\a(`https://github.com/gfngfn/SATySFi`){SATySFi}を使うつもりは無かったが、
+    MarkdownやreSTのようにプレーンテキストとしての可読性を求めるものはあまり気が進まず、
+    かと言ってHTMLを手書きしたくも無かったので結局SATySFiを使うことにした。
+    どうせ静的にHTMLに変換するのだから、構文が冗長で静的に型が付くような処理系の方が嬉しい。
+  }
+  +p{
+    この記事含めこのWebサイトは全て、標準のhtml-baseを元に、
+    通常のクラスファイルに近いような使い勝手に改造したクラスファイルを用いて書かれている。
+    SATySFiでは.satyファイル一つにつき1つのファイルを出力するため、
+    簡単な記事には便利だが、記事間のリンクは少し工夫する必要がありそうだ。
+  }
+  +section {CI/CD} <
+    +p{
+      \a(`https://circleci.com/gh/namachan10777/namachan10777.dev`){CircleCI}でSATySFiによりコンパイルし、
+      \a(`https://github.com/namachan10777/namachan10777.dev/tree/production`){GitHub}にpushすることで\a(`https://netlify.com`){Netlify}にデプロイしている。
+      CircleCIで使うDockerイメージは\a(`https://hub.docker.com/repository/docker/namachan10777/namachan10777.dev`){dockerhub}でホストしている。
+    }
+    +subsection {CircleCI}<
+      +p{
+        以下にCircleCIの設定を示す。
+        高速化のため開発環境はDockerで固めているが、
+        SATySFiのビルドはそもそも高速なのでキャッシュはしていない。
+        \a(`https://github.com/netlify/cli`) {netlify-cli}を使ってデプロイしたかったが、
+        npmを入れるとdockerのイメージサイズが膨らむ上、そもそも10分経ってもデプロイが終わらなかったので、
+        GitHubのリポジトリにproductionブランチを切り、そこにpush -fすることでデプロイするようにした。
+        あまりいい方法には思えないのでnetlify-cliを使えるようにしたい。
+      }
+      +code(```
+      # Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+      version: 2.1
+      executors:
+        default:
+          docker:
+            - image: namachan10777/namachan10777.dev:latest
+
+      jobs:
+        build:
+          executor:
+            name: default
+          steps:
+            - checkout
+            - run:
+                name: Build
+                command: |
+                  mkdir dist
+                  make
+            - run:
+                name: Deploy to netlify
+                command: |
+                  git config user.email "namachan10777@gmail.com"
+                  git config user.name "Nakano Masaki"
+                  git add dist/* -f
+                  git commit -m "auto commit"
+                  git checkout -b production
+                  git push origin production -f
+      workflows:
+        version: 2.1
+        build_and_deploy:
+          jobs:
+            - build:
+                filters:
+                  branches:
+                    only:
+                      - master
+      ```);
+    >
+    +section {Docker} <
+      +p{
+        マルチステージビルドを用いて軽量化を図っている。
+        ただ、gitを入れる必要があること、SATySFiがglibcに依存していることから、
+        ubuntuの上にgitとsatysfiを詰め込んだので結局200MB以上のサイズのイメージになってしまった。
+      }
+      +code(```
+      FROM ubuntu:latest AS build-env
+
+      RUN apt-get update && \
+        apt-get install -y software-properties-common && \
+        add-apt-repository ppa:avsm/ppa && \
+        apt-get update && \
+        apt-get upgrade -y  && \
+        apt-get install -y bzip2 gcc git m4 make unzip wget curl ruby opam
+
+      RUN useradd -m satysfi
+      USER satysfi
+
+      RUN opam init --comp=4.08.0 --disable-sandboxing && \
+        eval $(opam config env) && \
+        opam repository add satysfi-external https://github.com/gfngfn/satysfi-external-repo.git && \
+        opam update
+
+      WORKDIR /home/satysfi
+      RUN git clone https://github.com/gfngfn/SATySFi.git
+      WORKDIR /home/satysfi/SATySFi
+      RUN opam pin add -y satysfi . && \
+        opam install satysfi
+
+      RUN sed -i -e 's/oscdl/ipafont/g' ./download-fonts.sh && \
+        sed -i -e 's/IPAexfont00201/IPAexfont00401/g' ./download-fonts.sh && \
+        ./download-fonts.sh
+
+      USER root
+      RUN ./install-libs.sh
+
+
+      USER satysfi
+      RUN mkdir -p /home/satysfi/work && \
+        echo "eval $(opam config env)" >> ~/.bashrc
+        
+
+      FROM ubuntu:latest
+      COPY --from=build-env /home/satysfi/.opam/4.08.0/bin/satysfi /usr/bin/
+      COPY --from=build-env /usr/local/share/satysfi /usr/local/share/satysfi
+
+      RUN apt-get update && \
+        apt-get upgrade -y && \
+        apt-get install -y git make
+
+      #ENTRYPOINT [ "/home/satysfi/.opam/4.06.0/bin/satysfi" ]
+      ENTRYPOINT [ "/bin/bash" ]
+      ```);
+    >
+  >
+>
