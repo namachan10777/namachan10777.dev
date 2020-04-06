@@ -123,7 +123,7 @@ end = struct
     `<img src="` ^ src ^ `" `# ^ alt ^ #` `# ^ id ^ `/>` ^ (break tinfo)
 
   let-block tinfo +address bt =
-    tag ?* ?:true tinfo `p` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
+    tag ?* ?:true tinfo `address` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
 
   let-inline tinfo \a href it =
     tag ?:[(`href`, href)] ?:false tinfo `a` (fun tinfo -> stringify-inline tinfo it)
