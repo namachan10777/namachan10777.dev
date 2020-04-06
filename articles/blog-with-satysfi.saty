@@ -1,5 +1,4 @@
 @import: ../jsblog
-@require: base/string
 
 document (|
   title = {ブログをSATySFiで書くことにした};
