@@ -8,6 +8,23 @@ props |> List.fold-left (fun sacc (k, v) -> (
   sacc ^ #` `# ^ k ^ `="` ^ v ^ `"`
 )) ` `
 
+let-rec join sep l = (match l with
+  | x :: [] -> x :: []
+  | x :: xs -> x :: sep :: join sep xs
+  | [] -> [])
+
+
+let replace from to target =
+  let splitter = regexp-of-string from in
+  let splited = split-on-regexp splitter target
+    |> List.map (fun (_, s) -> s)
+  in
+  join to splited
+  |> concat
+
+let html-quote s =
+  s
+  |> replace `&` `&amp;`
 
 let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
   let props = Option.from [] propsopt in
@@ -116,4 +133,4 @@ let-block tinfo +code ?:title st =
     Option.map code-quote title
     |> Option.from ` `
   in
-  title ^ code-quote st
+  title ^ code-quote (st |> html-quote)
