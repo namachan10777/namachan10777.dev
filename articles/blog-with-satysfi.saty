@@ -1,4 +1,4 @@
-@import: ../small-class
+@import: ../jsblog
 @require: base/string
 
 document (|

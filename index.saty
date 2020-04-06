@@ -1,4 +1,4 @@
-@import: small-class
+@import: jsblog
 
 document (|
   title = {namachan10777};
