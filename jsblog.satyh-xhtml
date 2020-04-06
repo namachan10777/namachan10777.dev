@@ -1,141 +1,172 @@
 @require: list
 @require: option
 
-let concat = List.fold-left (^) ` `
+module JsBlog : sig
+  val top-document : 'a -> block-text -> string
+    constraint 'a :: (|
+      title : inline-text;
+    |)
 
-let make-props props =
-props |> List.fold-left (fun sacc (k, v) -> (
-  sacc ^ #` `# ^ k ^ `="` ^ v ^ `"`
-)) ` `
+   val article-document : 'a -> block-text -> string
+    constraint 'a :: (|
+      title : inline-text;
+    |)
 
-let-rec join sep l = (match l with
-  | x :: [] -> x :: []
-  | x :: xs -> x :: sep :: join sep xs
-  | [] -> [])
+  direct +listing    : [itemize]                  block-cmd
+  direct +address    : [block-text]               block-cmd
+  direct +p          : [inline-text]              block-cmd
+  direct +img        : [string?; string?; string] block-cmd
+  direct +section    : [inline-text; block-text]  block-cmd
+  direct +subsection : [inline-text; block-text]  block-cmd
+  direct +code       : [string?;string]           block-cmd
+  direct \code       : [string]                   inline-cmd
+  direct \a          : [string; inline-text]      inline-cmd
+end = struct
+  let concat = List.fold-left (^) ` `
+
+  let make-props props =
+  props |> List.fold-left (fun sacc (k, v) -> (
+    sacc ^ #` `# ^ k ^ `="` ^ v ^ `"`
+  )) ` `
+
+  let-rec join sep l = (match l with
+    | x :: [] -> x :: []
+    | x :: xs -> x :: sep :: join sep xs
+    | [] -> [])
 
 
-let replace from to target =
-  let splitter = regexp-of-string from in
-  let splited = split-on-regexp splitter target
-    |> List.map (fun (_, s) -> s)
-  in
-  join to splited
-  |> concat
+  let replace from to target =
+    let splitter = regexp-of-string from in
+    let splited = split-on-regexp splitter target
+      |> List.map (fun (_, s) -> s)
+    in
+    join to splited
+    |> concat
 
-let html-quote s =
-  s
-  |> replace `&` `&amp;`
-  |> replace `<` `&lt;`
-  |> replace `>` `&gt;`
+  let html-quote s =
+    s
+    |> replace `&` `&amp;`
+    |> replace `<` `&lt;`
+    |> replace `>` `&gt;`
 
-let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
-  let props = Option.from [] propsopt in
-  let br = Option.from true bropt in
-  let indent = Option.from 2 indentopt in
-  let tinfo-inner = tinfo |> deepen-indent indent in
-    `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo-inner else ` `)
-    ^ (sf tinfo-inner)
-    ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
+  let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
+    let props = Option.from [] propsopt in
+    let br = Option.from true bropt in
+    let indent = Option.from 2 indentopt in
+    let tinfo-inner = tinfo |> deepen-indent indent in
+      `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo-inner else ` `)
+      ^ (sf tinfo-inner)
+      ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
 
-let document r bt =
-  let tinfo = get-initial-text-info () in
-    concat [
-      `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
-      `<!DOCTYPE html>` ^ (break tinfo);
-      tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`);(`lang`, `ja`)] tinfo `html` (fun tinfo ->
-        concat
-          [
-            tag tinfo `head` (fun tinfo -> (
-              let links = List.map (fun (rel, href) ->
-                `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo)) r#links
-              in
-              concat (
-                (tag ?* ?:false tinfo `title` (fun tinfo ->
-                  stringify-inline tinfo r#title
-                ) ^ (break tinfo))
-                :: links
-              )
-            )) ^ (break tinfo);
-            tag tinfo `body` (fun tinfo ->
-              stringify-block tinfo bt
-            );
-          ]
-      );
-    ]
+  let document r bt =
+    let tinfo = get-initial-text-info () in
+      concat [
+        `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
+        `<!DOCTYPE html>` ^ (break tinfo);
+        tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`);(`lang`, `ja`)] tinfo `html` (fun tinfo ->
+          concat
+            [
+              tag tinfo `head` (fun tinfo -> (
+                let links = List.map (fun (rel, href) ->
+                  `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo)) r#links
+                in
+                concat (
+                  (tag ?* ?:false tinfo `title` (fun tinfo ->
+                    stringify-inline tinfo r#title
+                  ) ^ (break tinfo))
+                  :: links
+                )
+              )) ^ (break tinfo);
+              tag tinfo `body` (fun tinfo ->
+                stringify-block tinfo bt
+              );
+            ]
+        );
+      ]
 
-let-rec listing-item tinfo depth (Item(parent, children)) =
-  let str-parent = tag ?* ?:false tinfo `li` (fun tinfo ->
-    stringify-inline tinfo parent)
-  in
-  if List.length children > 0
-  then
-    concat
-      [str-parent ^ (break tinfo);
-      tag tinfo `ul` (fun tinfo -> 
-        concat (List.map (listing-item tinfo (depth + 1)) children));
-      (break tinfo);]
-  else
-    str-parent ^ (break tinfo)
+  let top-document r bt =
+    document (|
+      links = [(`stylesheet`, `index.css`)];
+      title = r#title;
+    |) bt
 
-let listing tinfo (Item(_,itmzlst)) =
-  tag tinfo `ul` (fun tinfo ->
-    List.map (listing-item tinfo 0) itmzlst
-    |> concat)
+  let article-document r bt =
+    document (|
+      links = [(`stylesheet`, `index.css`)];
+      title = r#title;
+    |) bt
 
-let-block tinfo +listing item =
-  listing tinfo item
+  let-rec listing-item tinfo depth (Item(parent, children)) =
+    let str-parent = tag ?* ?:false tinfo `li` (fun tinfo ->
+      stringify-inline tinfo parent)
+    in
+    if List.length children > 0
+    then
+      concat
+        [str-parent ^ (break tinfo);
+        tag tinfo `ul` (fun tinfo -> 
+          concat (List.map (listing-item tinfo (depth + 1)) children));
+        (break tinfo);]
+    else
+      str-parent ^ (break tinfo)
 
-let-block tinfo +p it =
-  tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+  let listing tinfo (Item(_,itmzlst)) =
+    tag tinfo `ul` (fun tinfo ->
+      List.map (listing-item tinfo 0) itmzlst
+      |> concat)
 
-let-block tinfo +img ?:alt ?:id src =
-  let alt =
-    alt
-    |> Option.map (fun alt -> `alt="` ^ alt ^ `"`)
-    |> Option.from ` `
-  in
-  let id =
-   id 
-    |> Option.map (fun id -> `id="` ^ id ^ `"`)
-    |> Option.from ` `
-  in
-  `<img src="` ^ src ^ `" `# ^ alt ^ #` `# ^ id ^ `/>` ^ (break tinfo)
+  let-block tinfo +listing item =
+    listing tinfo item
 
-let-block tinfo +address bt =
-  tag ?* ?:true tinfo `p` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
+  let-block tinfo +p it =
+    tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
-let-inline tinfo \a href it =
-  tag ?:[(`href`, href)] ?:false tinfo `a` (fun tinfo -> stringify-inline tinfo it)
+  let-block tinfo +img ?:alt ?:id src =
+    let alt =
+      alt
+      |> Option.map (fun alt -> `alt="` ^ alt ^ `"`)
+      |> Option.from ` `
+    in
+    let id =
+     id 
+      |> Option.map (fun id -> `id="` ^ id ^ `"`)
+      |> Option.from ` `
+    in
+    `<img src="` ^ src ^ `" `# ^ alt ^ #` `# ^ id ^ `/>` ^ (break tinfo)
 
-let-block tinfo +div it =
-  tag ?* ?:true tinfo `div` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+  let-block tinfo +address bt =
+    tag ?* ?:true tinfo `p` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
 
-let-block tinfo +section heading bt =
-  let st-heading = tag ?* ?:false tinfo `header`
-    (fun tinfo ->
-      tag ?* ?:false tinfo `h2`
-        (fun tinfo -> stringify-inline tinfo heading))
-  in
-  st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+  let-inline tinfo \a href it =
+    tag ?:[(`href`, href)] ?:false tinfo `a` (fun tinfo -> stringify-inline tinfo it)
 
-let-block tinfo +subsection heading bt =
-  let st-heading = tag ?* ?:false tinfo `header`
-    (fun tinfo ->
-      tag ?* ?:false tinfo `h3`
-        (fun tinfo -> stringify-inline tinfo heading))
-  in
-  st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+  let-block tinfo +section heading bt =
+    let st-heading = tag ?* ?:false tinfo `header`
+      (fun tinfo ->
+        tag ?* ?:false tinfo `h2`
+          (fun tinfo -> stringify-inline tinfo heading))
+    in
+    st-heading ^ (break tinfo) ^ stringify-block tinfo bt
 
-let-inline tinfo \code s =
-  tag ?* ?:false tinfo `span` (fun _ -> html-quote s)
+  let-block tinfo +subsection heading bt =
+    let st-heading = tag ?* ?:false tinfo `header`
+      (fun tinfo ->
+        tag ?* ?:false tinfo `h3`
+          (fun tinfo -> stringify-inline tinfo heading))
+    in
+    st-heading ^ (break tinfo) ^ stringify-block tinfo bt
 
-let-block tinfo +code ?:title st =
-  let code-quote st = 
-    tag tinfo `pre` (fun _ ->
-      tag tinfo `code` (fun _ -> st))
-  in
-  let title =
-    Option.map code-quote title
-    |> Option.from ` `
-  in
-  title ^ code-quote (st |> html-quote)
+  let-inline tinfo \code s =
+    tag ?* ?:false tinfo `span` (fun _ -> html-quote s)
+
+  let-block tinfo +code ?:title st =
+    let code-quote st = 
+      tag tinfo `pre` (fun _ ->
+        tag tinfo `code` (fun _ -> st))
+    in
+    let title =
+      Option.map code-quote title
+      |> Option.from ` `
+    in
+    title ^ code-quote (st |> html-quote)
+end

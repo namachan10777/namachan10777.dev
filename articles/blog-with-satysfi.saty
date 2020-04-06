@@ -1,6 +1,6 @@
 @import: ../jsblog
 
-document (|
+JsBlog.article-document (|
   title = {ブログをSATySFiで書くことにした};
   links = [(`stylesheet`, `./article.css`)];
 |) '<

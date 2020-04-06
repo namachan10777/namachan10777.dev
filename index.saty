@@ -1,13 +1,13 @@
 @import: jsblog
 
-document (|
+JsBlog.top-document (|
   title = {namachan10777};
   links = [(`stylesheet`, `./index.css`)];
 |) '<
   +section {About} <
     +img ?:(`My icon on the Internet`) ?:(`icon`) (`./res/icon.jpg`);
-    +div { Nakano Masaki }
-    +div { B3, college of computer and information science, University of Tsukuba }
+    +p { Nakano Masaki }
+    +p { B3, college of computer and information science, University of Tsukuba }
     +address <
       +listing {
         * \a (`mailto:namachan10777@gmail.com`) { namachan10777\@gmail.com }
