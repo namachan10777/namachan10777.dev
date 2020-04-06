@@ -99,6 +99,14 @@ let-block tinfo +section heading bt =
   in
   st-heading ^ (break tinfo) ^ stringify-block tinfo bt
 
+let-block tinfo +subsection heading bt =
+  let st-heading = tag ?* ?:false tinfo `header`
+    (fun tinfo ->
+      tag ?* ?:false tinfo `h3`
+        (fun tinfo -> stringify-inline tinfo heading))
+  in
+  st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+
 let-block tinfo +code ?:title st =
   let code-quote st = 
     tag tinfo `pre` (fun _ ->
