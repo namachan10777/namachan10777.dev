@@ -2,7 +2,6 @@
 
 JsBlog.article-document (|
   title = {ブログをSATySFiで書くことにした};
-  links = [(`stylesheet`, `./article.css`)];
 |) '<
   +p{
     今まで\a(`https://namachan10777.hatenablog.com`){hatenablog}を使っていたが、

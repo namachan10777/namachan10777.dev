@@ -2,7 +2,6 @@
 
 JsBlog.top-document (|
   title = {namachan10777};
-  links = [(`stylesheet`, `./index.css`)];
 |) '<
   +section {About} <
     +img ?:(`My icon on the Internet`) ?:(`icon`) (`./res/icon.jpg`);
