@@ -84,18 +84,6 @@ end = struct
         );
       ]
 
-  let top-document r bt =
-    document (|
-      links = [(`stylesheet`, `index.css`)];
-      title = r#title;
-    |) bt
-
-  let article-document r bt =
-    document (|
-      links = [(`stylesheet`, `index.css`)];
-      title = r#title;
-    |) bt
-
   let-rec listing-item tinfo depth (Item(parent, children)) =
     let str-parent = tag ?* ?:false tinfo `li` (fun tinfo ->
       stringify-inline tinfo parent)
@@ -169,4 +157,25 @@ end = struct
       |> Option.from ` `
     in
     title ^ code-quote (st |> html-quote)
+
+
+  let top-document r bt =
+    document (|
+      links = [(`stylesheet`, `index.css`)];
+      title = r#title;
+    |) bt
+
+  let article-document r bt =
+    document (|
+      links = [(`stylesheet`, `index.css`)];
+      title = r#title;
+    |) '<
+      +p{
+        \a (`../index.xhtml`) {topへ}
+      }
+      #bt;
+      +p{
+        \a (`../index.xhtml`) {topへ}
+      }
+    >
 end
