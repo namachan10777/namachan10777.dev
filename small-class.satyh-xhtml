@@ -25,6 +25,8 @@ let replace from to target =
 let html-quote s =
   s
   |> replace `&` `&amp;`
+  |> replace `<` `&lt;`
+  |> replace `>` `&gt;`
 
 let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
   let props = Option.from [] propsopt in
