@@ -49,13 +49,11 @@ end = struct
     |> replace `<` `&lt;`
     |> replace `>` `&gt;`
 
-  let tag ?:propsopt ?:bropt ?:indentopt tinfo s sf =
+  let tag ?:propsopt ?:bropt tinfo s sf =
     let props = Option.from [] propsopt in
     let br = Option.from true bropt in
-    let indent = Option.from 2 indentopt in
-    let tinfo-inner = tinfo |> deepen-indent indent in
-      `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo-inner else ` `)
-      ^ (sf tinfo-inner)
+      `<` ^ s ^ (make-props props) ^ `>` ^ (if br then break tinfo else ` `)
+      ^ (sf tinfo)
       ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
 
   let document r bt =
@@ -99,14 +97,14 @@ end = struct
     then
       concat
         [str-parent ^ (break tinfo);
-        tag tinfo `ul` (fun tinfo -> 
+        tag ?* ?:false tinfo `ul` (fun tinfo -> 
           concat (List.map (listing-item tinfo (depth + 1)) children));
         (break tinfo);]
     else
       str-parent ^ (break tinfo)
 
   let listing tinfo (Item(_,itmzlst)) =
-    tag tinfo `ul` (fun tinfo ->
+    tag ?* ?:false tinfo `ul` (fun tinfo ->
       List.map (listing-item tinfo 0) itmzlst
       |> concat)
 
@@ -114,7 +112,7 @@ end = struct
     listing tinfo item
 
   let-block tinfo +p it =
-    tag ?* ?:true tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+    tag ?* ?:false tinfo `p` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
   let-block tinfo +img ?:alt ?:id src =
     let alt =
@@ -130,7 +128,7 @@ end = struct
     `<img src="` ^ src ^ `" `# ^ alt ^ #` `# ^ id ^ `/>` ^ (break tinfo)
 
   let-block tinfo +address bt =
-    tag ?* ?:true tinfo `address` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
+    tag ?* ?:false tinfo `address` (fun tinfo -> stringify-block tinfo bt) ^ (break tinfo)
 
   let-inline tinfo \a href it =
     tag ?:[(`href`, href)] ?:false tinfo `a` (fun tinfo -> stringify-inline tinfo it)
@@ -141,7 +139,7 @@ end = struct
         tag ?:[(`class`, `heading`)] ?:false tinfo `h2`
           (fun tinfo -> stringify-inline tinfo heading))
     in
-    tag ?* ?:true tinfo `section`
+    tag ?* ?:false tinfo `section`
       (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-block tinfo +subsection heading bt =
@@ -150,16 +148,21 @@ end = struct
         tag ?:[(`class`, `heading`)] ?:false tinfo `h3`
           (fun tinfo -> stringify-inline tinfo heading))
     in
-    tag ?* ?:true tinfo `section`
+    tag ?* ?:false tinfo `section`
       (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-inline tinfo \code s =
     tag ?:[(`class`, `code`)] ?:false tinfo `span` (fun _ -> html-quote s)
 
+  let remove-heading-break-line s =
+    (match string-explode s with
+    | 10 :: xs -> string-unexplode xs
+    | _ -> s)
+
   let-block tinfo +code ?:title st =
     let code-quote st = 
-      tag ?:[(`class`, `code-block`)] tinfo `pre` (fun _ ->
-        tag ?:[(`class`, `code`)] tinfo `code` (fun _ -> st))
+      tag ?:[(`class`, `code-block`)] ?:false tinfo `pre` (fun _ ->
+        tag ?:[(`class`, `code`)] ?:false tinfo `code` (fun _ -> remove-heading-break-line st))
     in
     let title =
       Option.map code-quote title
@@ -175,10 +178,11 @@ end = struct
     |) bt
 
   let-block tinfo +header it =
-    tag ?* ?:true tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+    tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
   let-block tinfo +footer it =
-    tag ?* ?:true tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+    tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+
 
   let article-document r bt =
     document (|
