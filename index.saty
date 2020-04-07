@@ -32,7 +32,7 @@ JsBlog.top-document (|
     }
   >
   +section {Skills} <
-    +section {Programming languages} <
+    +subsection {Programming languages} <
       +listing {
         * D
         * Python
@@ -44,13 +44,13 @@ JsBlog.top-document (|
         * LaTeX
       }
     >
-    +section {Natural languages} <
+    +subsection {Natural languages} <
       +listing {
         * English (CEFR A2)
         * Japanese (Native)
       }
     >
-    +section { Interests } <
+    +subsection { Interests } <
       +listing {
         * Embeded system
         * Digital circuit
