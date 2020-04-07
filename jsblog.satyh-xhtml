@@ -67,8 +67,14 @@ end = struct
           concat
             [
               tag tinfo `head` (fun tinfo -> (
+                let font-links = [
+                  (`stylesheet`, `https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap`);
+                  (`stylesheet`, `https://fonts.googleapis.com/css2?family=Fira+Mono&amp;display=swap`);
+                ]
+                in
                 let links = List.map (fun (rel, href) ->
-                  `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo)) r#links
+                  `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo))
+                    (List.append r#links font-links)
                 in
                 concat (
                   (tag ?* ?:false tinfo `title` (fun tinfo ->
@@ -132,7 +138,7 @@ end = struct
   let-block tinfo +section heading bt =
     let st-heading = tag ?* ?:false tinfo `header`
       (fun tinfo ->
-        tag ?* ?:false tinfo `h2`
+        tag ?:[(`class`, `heading`)] ?:false tinfo `h2`
           (fun tinfo -> stringify-inline tinfo heading))
     in
     tag ?* ?:true tinfo `section`
@@ -141,19 +147,19 @@ end = struct
   let-block tinfo +subsection heading bt =
     let st-heading = tag ?* ?:false tinfo `header`
       (fun tinfo ->
-        tag ?* ?:false tinfo `h3`
+        tag ?:[(`class`, `heading`)] ?:false tinfo `h3`
           (fun tinfo -> stringify-inline tinfo heading))
     in
     tag ?* ?:true tinfo `section`
       (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-inline tinfo \code s =
-    tag ?* ?:false tinfo `span` (fun _ -> html-quote s)
+    tag ?:[(`class`, `code`)] ?:false tinfo `span` (fun _ -> html-quote s)
 
   let-block tinfo +code ?:title st =
     let code-quote st = 
-      tag tinfo `pre` (fun _ ->
-        tag tinfo `code` (fun _ -> st))
+      tag ?:[(`class`, `code-block`)] tinfo `pre` (fun _ ->
+        tag ?:[(`class`, `code`)] tinfo `code` (fun _ -> st))
     in
     let title =
       Option.map code-quote title
