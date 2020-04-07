@@ -56,7 +56,7 @@ end = struct
       ^ (sf tinfo)
       ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
 
-  let document r bt =
+  let document r f =
     let tinfo = get-initial-text-info () in
       concat [
         `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
@@ -83,7 +83,7 @@ end = struct
               )) ^ (break tinfo);
               tag tinfo `body` (fun tinfo ->
                 tag ?:[(`id`, `root`)] tinfo `div` (fun tinfo ->
-                stringify-block tinfo bt
+                f tinfo
               ));
             ]
         );
@@ -175,7 +175,7 @@ end = struct
     document (|
       links = [(`stylesheet`, `index.css`)];
       title = r#title;
-    |) bt
+    |) (fun tinfo -> stringify-block tinfo bt)
 
   let-block tinfo +header it =
     tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
@@ -183,18 +183,22 @@ end = struct
   let-block tinfo +footer it =
     tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
-
   let article-document r bt =
     document (|
       links = [(`stylesheet`, `../index.css`)];
       title = r#title;
-    |) '<
-      +header {
-        \a (`../index.xhtml`) {topへ}
-      }
-      #bt;
-      +footer {
-        \a (`../index.xhtml`) {topへ}
-      }
-    >
+    |) (fun tinfo -> (
+      let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
+        concat
+          [stringify-inline tinfo {\a (`../index.xhtml`) {topへ}};
+          tag ?* ?:false tinfo `h1` (fun tinfo -> stringify-inline tinfo r#title);]
+      )
+      in
+      heading ^
+      (stringify-block tinfo '<
+        #bt;
+        +footer {
+          \a (`../index.xhtml`) {topへ}
+        }
+      >)))
 end
