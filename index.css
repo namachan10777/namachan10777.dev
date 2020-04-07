@@ -3,3 +3,21 @@
 	width: max(10vw, 15vh);
 	height: max(10vw, 15vh);
 }
+
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+@media screen and (orientation: portrait) {
+	#root {
+		width: 90%;
+	}
+}
+
+@media screen and (orientation: landscape) {
+	#root {
+		width: 55%;
+	}
+}

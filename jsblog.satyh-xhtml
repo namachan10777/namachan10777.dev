@@ -78,8 +78,9 @@ end = struct
                 )
               )) ^ (break tinfo);
               tag tinfo `body` (fun tinfo ->
+                tag ?:[(`id`, `root`)] tinfo `div` (fun tinfo ->
                 stringify-block tinfo bt
-              );
+              ));
             ]
         );
       ]
