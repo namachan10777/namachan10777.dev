@@ -134,7 +134,8 @@ end = struct
         tag ?* ?:false tinfo `h2`
           (fun tinfo -> stringify-inline tinfo heading))
     in
-    st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+    tag ?* ?:true tinfo `section`
+      (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-block tinfo +subsection heading bt =
     let st-heading = tag ?* ?:false tinfo `header`
@@ -142,7 +143,8 @@ end = struct
         tag ?* ?:false tinfo `h3`
           (fun tinfo -> stringify-inline tinfo heading))
     in
-    st-heading ^ (break tinfo) ^ stringify-block tinfo bt
+    tag ?* ?:true tinfo `section`
+      (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-inline tinfo \code s =
     tag ?* ?:false tinfo `span` (fun _ -> html-quote s)
