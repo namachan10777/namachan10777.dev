@@ -175,7 +175,7 @@ end = struct
 
   let article-document r bt =
     document (|
-      links = [(`stylesheet`, `index.css`)];
+      links = [(`stylesheet`, `../index.css`)];
       title = r#title;
     |) '<
       +header {
