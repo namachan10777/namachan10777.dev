@@ -61,6 +61,7 @@ JsBlog.top-document (|
   +section {Articles} <
     +listing {
       * \a(`./articles/blog-with-satysfi.xhtml`) { ブログをSATySFiで書くことにした }
+      * \a(`./articles/change-docker-data-root.xhtml`) { dockerのイメージの格納先を変更する }
     }
   >
   +section {PGP public key} <
