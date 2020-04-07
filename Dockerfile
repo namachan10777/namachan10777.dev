@@ -10,7 +10,7 @@ RUN apt-get update && \
 RUN useradd -m satysfi
 USER satysfi
 
-RUN opam init --comp=4.08.0 --disable-sandboxing && \
+RUN opam init --comp=4.10.0 --disable-sandboxing && \
 	eval $(opam config env) && \
 	opam repository add satysfi-external https://github.com/gfngfn/satysfi-external-repo.git && \
 	opam update
