@@ -165,16 +165,22 @@ end = struct
       title = r#title;
     |) bt
 
+  let-block tinfo +header it =
+    tag ?* ?:true tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+
+  let-block tinfo +footer it =
+    tag ?* ?:true tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
+
   let article-document r bt =
     document (|
       links = [(`stylesheet`, `index.css`)];
       title = r#title;
     |) '<
-      +p{
+      +header {
         \a (`../index.xhtml`) {topへ}
       }
       #bt;
-      +p{
+      +footer {
         \a (`../index.xhtml`) {topへ}
       }
     >
