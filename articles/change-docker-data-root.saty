@@ -10,7 +10,7 @@ JsBlog.article-document(|
     これではパッケージマネージャがdocker.serviceを更新する度にリセットされてしまいます。
   }
   +section {解決策} <
-    +code(```
+    +code ?:(`shell`) (```
     systemctl stop docker.service
     mkdir -p /opt/docker/
     rm -R /var/lib/docker/
