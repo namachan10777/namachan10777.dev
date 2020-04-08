@@ -11,12 +11,16 @@ RESOURCE_DIR := res
 RESOURCE_SRCS := $(wildcard $(RESOURCE_DIR)/*)
 RESOURCE_TARGETS := $(addprefix $(DIST)/,$(RESOURCE_SRCS))
 
+THIRDPARTY_DIR := 3rdparty
+THIRDPARTY_SRCS := $(wildcard $(THIRDPARTY_DIR)/*)
+THIRDPARTY_TARGETS := $(addprefix $(DIST)/,$(THIRDPARTY_SRCS))
+
 ENTRY_SRC := index.saty
 ENTRY_TARGET := $(DIST)/index.xhtml
 
 .PHONY: all clean 
 
-all: $(ARTICLES) $(RESOURCE_TARGETS) $(SPECIAL_TARGETS) $(ENTRY_TARGET) $(DIST)/$(ARTICLE_DIR)/article.css $(DIST)/index.css Makefile
+all: $(ARTICLES) $(RESOURCE_TARGETS) $(THIRDPARTY_TARGETS) $(SPECIAL_TARGETS) $(ENTRY_TARGET) $(DIST)/$(ARTICLE_DIR)/article.css $(DIST)/index.css Makefile
 
 $(DIST)/$(ARTICLE_DIR):
 	mkdir -p $(DIST)/$(ARTICLE_DIR)
@@ -30,8 +34,12 @@ $(DIST)/%: $(SPECIAL_DIR)/% Makefile
 $(DIST)/%: $(SPECIAL_DIR)/% Makefile
 	cp $< $@
 
-$(DIST)/$(RESOURCE_DIR)/%: $(RESOURCE_DIR)/% $(DIST)/$(RESOURCE_DIR) Makefile
+$(DIST)/$(RESOURCE_DIR)/%: $(RESOURCE_DIR)/% Makefile
 	mkdir -p $(DIST)/res
+	cp $< $@
+
+$(DIST)/$(THIRDPARTY_DIR)/%: $(THIRDPARTY_DIR)/% Makefile
+	mkdir -p $(DIST)/3rdparty
 	cp $< $@
 
 $(DIST)/index.css: index.css Makefile

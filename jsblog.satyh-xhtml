@@ -18,7 +18,7 @@ module JsBlog : sig
   direct +img        : [string?; string?; string] block-cmd
   direct +section    : [inline-text; block-text]  block-cmd
   direct +subsection : [inline-text; block-text]  block-cmd
-  direct +code       : [string?;string]           block-cmd
+  direct +code       : [string?;string?;string]           block-cmd
   direct \code       : [string]                   inline-cmd
   direct \a          : [string; inline-text]      inline-cmd
 end = struct
@@ -56,37 +56,33 @@ end = struct
       ^ (sf tinfo)
       ^ (if br then break tinfo else ` `) ^ `</ ` ^ s ^ `>`
 
+  let stag ?:propsopt ?:bropt tinfo s =
+    let props = Option.from [] propsopt in
+    let br = Option.from true bropt in
+    `<` ^ s ^ (make-props props) ^ #` />` ^ (if br then break tinfo else ` `)
+
+  let gen-link rel href =
+    `<link ` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />`
+
   let document r f =
     let tinfo = get-initial-text-info () in
       concat [
         `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
         `<!DOCTYPE html>` ^ (break tinfo);
-        tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`);(`lang`, `ja`)] tinfo `html` (fun tinfo ->
-          concat
-            [
-              tag tinfo `head` (fun tinfo -> (
-                let font-links = [
-                  (`stylesheet`, `https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap`);
-                  (`stylesheet`, `https://fonts.googleapis.com/css2?family=Fira+Mono&amp;display=swap`);
-                ]
-                in
-                let links = List.map (fun (rel, href) ->
-                  `<link` ^ (make-props [(`rel`, rel); (`href`, href)]) ^ #` />` ^ (break tinfo))
-                    (List.append r#links font-links)
-                in
-                concat (
-                  (tag ?* ?:false tinfo `title` (fun tinfo ->
-                    stringify-inline tinfo r#title
-                  ) ^ (break tinfo))
-                  :: links
-                )
-              )) ^ (break tinfo);
+        tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
+          concat [
+              tag tinfo `head` (fun tinfo ->
+                tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
+                (r#links
+                |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)
+                |> concat) ^
+                (r#scripts
+                |> List.map (fun (src) -> tag ?:[(`src`, src); (`type`, `text/javascript`)] ?:false tinfo `script` (fun _ -> ` `))
+                |> concat)
+              ) ^ (break tinfo);
               tag tinfo `body` (fun tinfo ->
-                tag ?:[(`id`, `root`)] tinfo `div` (fun tinfo ->
-                f tinfo
-              ));
-            ]
-        );
+                tag ?:[(`id`, `root`)] tinfo `div` (fun tinfo -> f tinfo));
+            ])
       ]
 
   let-rec listing-item tinfo depth (Item(parent, children)) =
@@ -159,10 +155,11 @@ end = struct
     | 10 :: xs -> string-unexplode xs
     | _ -> s)
 
-  let-block tinfo +code ?:title st =
+  let-block tinfo +code ?:language ?:title st =
+    let lang = Option.from ` ` language in
     let code-quote st = 
       tag ?:[(`class`, `code-block`)] ?:false tinfo `pre` (fun _ ->
-        tag ?:[(`class`, `code`)] ?:false tinfo `code` (fun _ -> remove-heading-break-line st))
+        tag ?:[(`class`, `code `# ^ `language-` ^ lang)] ?:false tinfo `code` (fun _ -> remove-heading-break-line st))
     in
     let title =
       Option.map code-quote title
@@ -170,22 +167,45 @@ end = struct
     in
     title ^ code-quote (st |> html-quote)
 
-
-  let top-document r bt =
-    document (|
-      links = [(`stylesheet`, `index.css`)];
-      title = r#title;
-    |) (fun tinfo -> stringify-block tinfo bt)
-
   let-block tinfo +header it =
     tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
   let-block tinfo +footer it =
     tag ?* ?:false tinfo `header` (fun tinfo -> stringify-inline tinfo it) ^ (break tinfo)
 
+  let index-links = [
+    (`stylesheet`, `https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap`);
+    (`stylesheet`, `https://fonts.googleapis.com/css2?family=Fira+Mono&amp;display=swap`);
+    (`stylesheet`, `3rdparty/prism.css`);
+    (`stylesheet`, `index.css`);
+  ]
+
+  let article-links = [
+    (`stylesheet`, `https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap`);
+    (`stylesheet`, `https://fonts.googleapis.com/css2?family=Fira+Mono&amp;display=swap`);
+    (`stylesheet`, `../3rdparty/prism.css`);
+    (`stylesheet`, `../index.css`);
+  ]
+
+  let index-scripts = [
+    (`3rdparty/prism.js`);
+  ]
+
+  let article-scripts = [
+    (`../3rdparty/prism.js`);
+  ]
+
+  let top-document r bt =
+    document (|
+      links = index-links;
+      scripts = index-scripts;
+      title = r#title;
+    |) (fun tinfo -> stringify-block tinfo bt)
+
   let article-document r bt =
     document (|
-      links = [(`stylesheet`, `../index.css`)];
+      links = article-links;
+      scripts = article-scripts;
       title = r#title;
     |) (fun tinfo -> (
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
