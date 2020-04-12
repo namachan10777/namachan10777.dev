@@ -1,0 +1,3 @@
+text = { "{" ~ (raw_string | escape)* ~ "}" }
+raw_string = { !("\\" | "}") ~ ANY }
+escape = { ("\\}" | "\\\\") }
