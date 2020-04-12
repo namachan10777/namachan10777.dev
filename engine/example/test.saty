@@ -1,3 +1,4 @@
 {
   \foo{ hoge } foo \fuga{t}
+  \\dummy{dummy\}
 }
