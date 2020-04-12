@@ -1,1 +1,3 @@
-{ hoge }
+{
+  \foo{ hoge } foo \fuga{t}
+}

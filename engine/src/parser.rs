@@ -5,11 +5,9 @@ use pest::iterators::Pair;
 #[grammar = "grammar.pest"]
 struct SrcParser;
 
-pub type Command = (String, Vec<Value>);
-
 #[derive(Debug, PartialEq)]
 pub enum TextElem {
-    Command(Command),
+    Command(String, Vec<Value>),
     Plain(String),
 }
 
@@ -21,11 +19,25 @@ pub enum Value {
     Str(String),
 }
 
+fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
+    match pair.as_rule() {
+        Rule::plain => {
+            TextElem::Plain(pair.as_str().to_owned())
+        },
+        Rule::command => {
+            let mut inner = pair.into_inner();
+            TextElem::Command(
+                inner.next().unwrap().as_str().to_owned(),
+                inner.map(|arg| parse_value(arg)).collect())
+        },
+        _ => unreachable!()
+    }
+}
+
 fn parse_value(pair: Pair<Rule>) -> Value {
     match pair.as_rule() {
         Rule::text => {
-            let s = pair.as_str();
-            Value::Text(vec![TextElem::Plain(s[1..s.len()-1].to_owned())])
+            Value::Text(pair.into_inner().map(|elem| parse_text_elem(elem)).collect())
         },
         _ => unreachable!()
     }
@@ -42,5 +54,5 @@ mod test_parser {
 }
 
 pub fn parse(s: &str) -> Value {
-    Value::Str("".to_owned())
+    parse_value(SrcParser::parse(Rule::text, s).unwrap().next().unwrap())
 }

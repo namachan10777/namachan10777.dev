@@ -1,3 +1,9 @@
-text = { "{" ~ (raw_string | escape)* ~ "}" }
-raw_string = { !("\\" | "}") ~ ANY }
-escape = { ("\\}" | "\\\\") }
+plain = @{ (raw_string | escape)+ }
+raw_string = @{ !("\\" | "}") ~ ANY }
+escape = @{ ("\\}" | "\\\\") }
+
+text = { "{" ~ (command | plain)* ~ "}" }
+
+symbol = @{ ASCII_ALPHANUMERIC+ }
+
+command = { "\\" ~ symbol ~ text }
