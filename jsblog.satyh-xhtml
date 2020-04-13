@@ -77,7 +77,7 @@ end = struct
                 `<meta name="twitter:site" content="namachan10777" />` ^ (break tinfo) ^
                 `<meta name="twitter:title" content="namachan10777" />` ^ (break tinfo) ^
                 `<meta name="twitter:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
-                `<meta name="twitter:image" content="./res/icon.jpg">` ^ (break tinfo) ^
+                `<meta name="twitter:image" content="./res/icon.jpg"/>` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
                 (r#links
                 |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)
