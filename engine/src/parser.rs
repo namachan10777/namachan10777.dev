@@ -28,7 +28,7 @@ fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
         Rule::command => {
             let mut inner = pair.into_inner();
             TextElem::Command(
-                inner.next().unwrap().as_str().to_owned(),
+                inner.next().unwrap().into_inner().next().unwrap().as_str().to_owned(),
                 inner.map(|arg| parse_value(arg)).collect())
         },
         _ => unreachable!()

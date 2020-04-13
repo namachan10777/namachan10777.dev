@@ -11,4 +11,5 @@ text = ${ "{" ~ (command | plain)* ~ "}" }
 
 symbol = @{ ASCII_ALPHANUMERIC+ }
 
-command = { "\\" ~ symbol ~ (block_string | inline_string | text)* ~ ";" }
+command_name = ${ "\\" ~ symbol }
+command = { command_name ~ (block_string | inline_string | text)* ~ ";" }
