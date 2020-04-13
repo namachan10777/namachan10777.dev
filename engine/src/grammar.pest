@@ -1,9 +1,14 @@
-plain = @{ (raw_string | escape)+ }
-raw_string = @{ !("\\" | "}") ~ ANY }
-escape = @{ ("\\}" | "\\\\") }
+inline_string = @{ "`" ~ raw_inline_string ~ "`" }
+raw_inline_string = @{ ("\\\\" | "\\`" | !"`" ~ ANY)* }
 
-text = { "{" ~ (command | plain)* ~ "}" }
+block_string = @{ "```" ~ raw_block_string ~ "```" }
+raw_block_string = @{ ("\\\\" | "\\`" | !"```" ~ ANY)* }
+
+plain = @{ (raw_text | escape)+ }
+raw_text = @{ !("\\" | "}") ~ ANY }
+escape = @{ ("\\}" | "\\\\") }
+text = ${ "{" ~ (command | plain)* ~ "}" }
 
 symbol = @{ ASCII_ALPHANUMERIC+ }
 
-command = { "\\" ~ symbol ~ text }
+command = { "\\" ~ symbol ~ (block_string | inline_string | text)* ~ ";" }

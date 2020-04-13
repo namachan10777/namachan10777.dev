@@ -16,7 +16,8 @@ pub enum Value {
     Text(Vec<TextElem>),
     Int(i64),
     Float(f64),
-    Str(String),
+    InlineStr(String),
+    BlockStr(String),
 }
 
 fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
@@ -39,6 +40,14 @@ fn parse_value(pair: Pair<Rule>) -> Value {
         Rule::text => {
             Value::Text(pair.into_inner().map(|elem| parse_text_elem(elem)).collect())
         },
+        Rule::inline_string => {
+            let s = pair.as_str();
+            Value::InlineStr(s[1..s.len()-1].to_owned())
+        },
+        Rule::block_string => {
+            let s = pair.as_str();
+            Value::BlockStr(s[3..s.len()-3].to_owned())
+        },
         _ => unreachable!()
     }
 }
@@ -50,6 +59,22 @@ mod test_parser {
     fn test_text() {
         assert_eq!(parse_value(SrcParser::parse(Rule::text, "{hoge}").unwrap().next().unwrap()),
             Value::Text(vec![TextElem::Plain("hoge".to_owned())]));
+    }
+
+    #[test]
+    fn test_strings() {
+        assert_eq!(parse_value(SrcParser::parse(Rule::inline_string, "`hoge`").unwrap().next().unwrap()),
+            Value::InlineStr("hoge".to_owned()));
+        assert_eq!(parse_value(SrcParser::parse(Rule::block_string, "```hoge```").unwrap().next().unwrap()),
+            Value::BlockStr("hoge".to_owned()));
+    }
+
+    #[test]
+    fn test_command() {
+        assert_eq!(parse_text_elem(SrcParser::parse(Rule::command, "\\abc;").unwrap().next().unwrap()),
+            TextElem::Command("abc".to_owned(), vec![]));
+        assert_eq!(parse_text_elem(SrcParser::parse(Rule::command, "\\abc{def};").unwrap().next().unwrap()),
+            TextElem::Command("abc".to_owned(), vec![Value::Text(vec![TextElem::Plain("def".to_owned())])]));
     }
 }
 
