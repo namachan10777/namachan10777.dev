@@ -215,7 +215,7 @@ end = struct
     |) (fun tinfo -> (
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
         concat
-          [tag ?* ?:false tinfo `h1` (fun tinfo -> `namachan10777`);]
+          [tag ?* ?:false tinfo `h1` (fun tinfo -> stringify-inline tinfo r#title);]
       )
       in
       heading ^

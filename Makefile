@@ -18,9 +18,12 @@ THIRDPARTY_TARGETS := $(addprefix $(DIST)/,$(THIRDPARTY_SRCS))
 ENTRY_SRC := index.saty
 ENTRY_TARGET := $(DIST)/index.html
 
+NOTFOUND_SRC := 404.saty
+NOTFOUND_TARGET := $(DIST)/404.html
+
 .PHONY: all clean 
 
-all: $(ARTICLES) $(RESOURCE_TARGETS) $(THIRDPARTY_TARGETS) $(SPECIAL_TARGETS) $(ENTRY_TARGET) $(DIST)/$(ARTICLE_DIR)/article.css $(DIST)/index.css Makefile
+all: $(ARTICLES) $(RESOURCE_TARGETS) $(THIRDPARTY_TARGETS) $(SPECIAL_TARGETS) $(ENTRY_TARGET) $(NOTFOUND_TARGET) $(DIST)/$(ARTICLE_DIR)/article.css $(DIST)/index.css Makefile
 
 $(DIST)/$(ARTICLE_DIR):
 	mkdir -p $(DIST)/$(ARTICLE_DIR)
@@ -49,6 +52,9 @@ $(DIST)/$(ARTICLE_DIR)/article.css: $(ARTICLE_DIR)/article.css $(DIST)/$(ARTICLE
 	cp $< $@
 
 $(ENTRY_TARGET): $(ENTRY_SRC) jsblog.satyh-html Makefile
+	satysfi -b --text-mode html $< -o $@
+
+$(NOTFOUND_TARGET): $(NOTFOUND_SRC) jsblog.satyh-html Makefile
 	satysfi -b --text-mode html $< -o $@
 
 $(DIST)/$(ARTICLE_DIR)/%.html: $(ARTICLE_DIR)/%.saty jsblog.satyh-html $(DIST)/$(ARTICLE_DIR) Makefile
