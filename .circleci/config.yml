@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Deploy to netlify
           command: |
-            zip namachan10777.zip dist/*
+            zip -r namachan10777.zip dist/*
             curl -XPOST \
               -H 'Content-Type: application/zip' \
               -H 'Authorization: Bearer '$NETLIFY_TOKEN \
