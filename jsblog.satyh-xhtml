@@ -77,9 +77,9 @@ end = struct
                 `<meta name="twitter:card" content="summary" />` ^ (break tinfo) ^
                 `<meta name="twitter:site" content="@namachan10777" />` ^ (break tinfo) ^
                 `<meta name="twitter:creator" content="@namachan10777" />` ^ (break tinfo) ^
-                `<meta name="og:title" content="namachan10777" />` ^ (break tinfo) ^
-                `<meta name="og:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
-                `<meta property="og:type" />` ^ (break tinfo) ^
+                `<meta property="og:title" content="namachan10777" />` ^ (break tinfo) ^
+                `<meta property="og:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
+                `<meta property="og:type" content="article" />` ^ (break tinfo) ^
                 `<meta property="og:image" content="https://namachan10777.dev/res/icon.jpg"/>` ^ (break tinfo) ^
                 `<meta property="og:url" content="https://namachan10777.dev/`^ r#id ^ `.xhtml"/>` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
