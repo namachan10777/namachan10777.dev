@@ -10,6 +10,7 @@ module JsBlog : sig
    val article-document : 'a -> block-text -> string
     constraint 'a :: (|
       title : inline-text;
+      date : inline-text;
     |)
 
   direct +listing    : [itemize]                  block-cmd
@@ -211,6 +212,7 @@ end = struct
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
         concat
           [stringify-inline tinfo {\a (`../index.xhtml`) {topへ}};
+          tag ?* ?:false tinfo `div` (fun tinfo -> stringify-inline tinfo r#date);
           tag ?* ?:false tinfo `h1` (fun tinfo -> stringify-inline tinfo r#title);]
       )
       in
