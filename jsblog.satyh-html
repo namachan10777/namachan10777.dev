@@ -71,7 +71,7 @@ end = struct
       concat [
         `<?xml version="1.0" encoding="UTF-8"?>` ^ (break tinfo);
         `<!DOCTYPE html>` ^ (break tinfo);
-        tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
+        tag ?:[(`xmlns`, `http://www.w3.org/1999/html`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
           concat [
               tag tinfo `head` (fun tinfo ->
                 `<meta name="twitter:card" content="summary" />` ^ (break tinfo) ^
@@ -81,7 +81,7 @@ end = struct
                 `<meta property="og:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
                 `<meta property="og:type" content="article" />` ^ (break tinfo) ^
                 `<meta property="og:image" content="https://namachan10777.dev/res/icon.jpg"/>` ^ (break tinfo) ^
-                `<meta property="og:url" content="https://namachan10777.dev/`^ r#id ^ `.xhtml"/>` ^ (break tinfo) ^
+                `<meta property="og:url" content="https://namachan10777.dev/`^ r#id ^ `.html"/>` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
                 (r#links
                 |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)
@@ -230,7 +230,7 @@ end = struct
     |) (fun tinfo -> (
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
         concat
-          [stringify-inline tinfo {\a (`../index.xhtml`) {topへ}};
+          [stringify-inline tinfo {\a (`../index.html`) {topへ}};
           tag ?* ?:false tinfo `div` (fun tinfo -> stringify-inline tinfo r#date);
           tag ?* ?:false tinfo `h1` (fun tinfo -> stringify-inline tinfo r#title);]
       )
@@ -239,7 +239,7 @@ end = struct
       (stringify-block tinfo '<
         #bt;
         +footer {
-          \a (`../index.xhtml`) {topへ}
+          \a (`../index.html`) {topへ}
         }
       >)))
 end

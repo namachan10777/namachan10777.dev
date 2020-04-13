@@ -1,7 +1,7 @@
 DIST := dist
 ARTICLE_DIR := articles
 ARTICLE_SRCS := $(wildcard $(ARTICLE_DIR)/*.saty)
-ARTICLES := $(addprefix $(DIST)/,$(patsubst %.saty,%.xhtml,$(ARTICLE_SRCS)))
+ARTICLES := $(addprefix $(DIST)/,$(patsubst %.saty,%.html,$(ARTICLE_SRCS)))
 
 SPECIAL_DIR := specials
 SPECIAL_SRCS := $(wildcard $(SPECIAL_DIR)/*)
@@ -16,7 +16,7 @@ THIRDPARTY_SRCS := $(wildcard $(THIRDPARTY_DIR)/*)
 THIRDPARTY_TARGETS := $(addprefix $(DIST)/,$(THIRDPARTY_SRCS))
 
 ENTRY_SRC := index.saty
-ENTRY_TARGET := $(DIST)/index.xhtml
+ENTRY_TARGET := $(DIST)/index.html
 
 .PHONY: all clean 
 
@@ -48,12 +48,12 @@ $(DIST)/index.css: index.css Makefile
 $(DIST)/$(ARTICLE_DIR)/article.css: $(ARTICLE_DIR)/article.css $(DIST)/$(ARTICLE_DIR) Makefile
 	cp $< $@
 
-$(ENTRY_TARGET): $(ENTRY_SRC) jsblog.satyh-xhtml Makefile
-	satysfi -b --text-mode xhtml $< -o $@
+$(ENTRY_TARGET): $(ENTRY_SRC) jsblog.satyh-html Makefile
+	satysfi -b --text-mode html $< -o $@
 
-$(DIST)/$(ARTICLE_DIR)/%.xhtml: $(ARTICLE_DIR)/%.saty jsblog.satyh-xhtml $(DIST)/$(ARTICLE_DIR) Makefile
+$(DIST)/$(ARTICLE_DIR)/%.html: $(ARTICLE_DIR)/%.saty jsblog.satyh-html $(DIST)/$(ARTICLE_DIR) Makefile
 	mkdir -p $(DIST)/$(ARTICLE_DIR)
-	satysfi -b --text-mode xhtml $< -o $@
+	satysfi -b --text-mode html $< -o $@
 
 clean:
 	rm -rf $(DIST)

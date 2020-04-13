@@ -60,8 +60,8 @@ JsBlog.top-document (|
   >
   +section {Articles} <
     +listing {
-      * \a(`./articles/blog-with-satysfi.xhtml`) { ブログをSATySFiで書くことにした }
-      * \a(`./articles/change-docker-data-root.xhtml`) { dockerのイメージの格納先を変更する }
+      * \a(`./articles/blog-with-satysfi.html`) { ブログをSATySFiで書くことにした }
+      * \a(`./articles/change-docker-data-root.html`) { dockerのイメージの格納先を変更する }
     }
   >
   +section {PGP public key} <
