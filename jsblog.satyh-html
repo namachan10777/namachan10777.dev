@@ -74,6 +74,7 @@ end = struct
         tag ?:[(`xmlns`, `http://www.w3.org/1999/html`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
           concat [
               tag tinfo `head` (fun tinfo ->
+                `<link rel="icon" type="image/jpeg" href="./res/icon.jpg">` ^ (break tinfo) ^
                 `<meta name="twitter:card" content="summary" />` ^ (break tinfo) ^
                 `<meta name="twitter:site" content="@namachan10777" />` ^ (break tinfo) ^
                 `<meta name="twitter:creator" content="@namachan10777" />` ^ (break tinfo) ^
