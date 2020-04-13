@@ -202,7 +202,15 @@ end = struct
       links = index-links;
       scripts = index-scripts;
       title = r#title;
-    |) (fun tinfo -> stringify-block tinfo bt)
+    |) (fun tinfo -> (
+      let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
+        concat
+          [tag ?* ?:false tinfo `h1` (fun tinfo -> `namachan10777`);]
+      )
+      in
+      heading ^
+       stringify-block tinfo bt
+    ))
 
   let article-document r bt =
     document (|
