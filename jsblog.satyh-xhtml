@@ -73,6 +73,7 @@ end = struct
         tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
           concat [
               tag tinfo `head` (fun tinfo ->
+                `<meta name="twitter:card" content="summary"></meta>` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
                 (r#links
                 |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)
