@@ -19,12 +19,12 @@ jobs:
       - run:
           name: Deploy to netlify
           command: |
-            git config user.email "namachan10777@gmail.com"
-            git config user.name "Nakano Masaki"
-            git add dist/* -f
-            git commit -m "auto commit"
-            git checkout -b production
-            git push origin production -f
+            zip namachan10777.zip dist/*
+            curl -XPOST \
+              -H 'Content-Type: application/zip' \
+              -H 'Authorization: Bearer '$NETLIFY_TOKEN \
+              --data-binary @namachan10777.zip \
+              https://api.netlify.com/api/v1/sites/namachan10777.netlify.com/deploys
 
 workflows:
   version: 2.1
