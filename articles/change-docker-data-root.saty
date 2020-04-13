@@ -2,6 +2,7 @@
 JsBlog.article-document(|
   title = {Dockerイメージの格納先を変更する};
   date = {2019/7/32};
+  id = `change-docker-data-root`;
 |) '<
   +p{
     夏ですね。響け！ユーフォニアムの事を考えて熱波をやり過ごしていますが人間限界があります。

@@ -3,6 +3,7 @@
 JsBlog.article-document (|
   title = {ブログをSATySFiで書くことにした};
   date = {2020/04/xx};
+  id = `blog-with-satysfi`;
 |) '<
   +p{
     今まで\a(`https://namachan10777.hatenablog.com`){hatenablog}を使っていたが、

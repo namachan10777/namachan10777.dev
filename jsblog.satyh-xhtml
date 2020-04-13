@@ -11,6 +11,7 @@ module JsBlog : sig
     constraint 'a :: (|
       title : inline-text;
       date : inline-text;
+      id : string;
     |)
 
   direct +listing    : [itemize]                  block-cmd
@@ -80,7 +81,7 @@ end = struct
                 `<meta name="og:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
                 `<meta property="og:type" />` ^ (break tinfo) ^
                 `<meta property="og:image" content="./res/icon.jpg"/>` ^ (break tinfo) ^
-                `<meta property="og:site_name" content="namachan10777" />` ^ (break tinfo) ^
+                `<meta property="og:url" content="https://namachan10777.dev/`^ r#id ^ `.xhtml"/>` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
                 (r#links
                 |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)
@@ -209,6 +210,7 @@ end = struct
       links = index-links;
       scripts = index-scripts;
       title = r#title;
+      id = `index`;
     |) (fun tinfo -> (
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
         concat
@@ -224,6 +226,7 @@ end = struct
       links = article-links;
       scripts = article-scripts;
       title = r#title;
+      id = r#id;
     |) (fun tinfo -> (
       let heading = tag ?* ?:false tinfo `header` (fun tinfo ->
         concat
