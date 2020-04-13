@@ -73,7 +73,11 @@ end = struct
         tag ?:[(`xmlns`, `http://www.w3.org/1999/xhtml`); (`lang`, `ja`)] tinfo `html` (fun tinfo ->
           concat [
               tag tinfo `head` (fun tinfo ->
-                `<meta name="twitter:card" content="summary"></meta>` ^ (break tinfo) ^
+                `<meta name="twitter:card" content="summary" />` ^ (break tinfo) ^
+                `<meta name="twitter:site" content="namachan10777" />` ^ (break tinfo) ^
+                `<meta name="twitter:title" content="namachan10777" />` ^ (break tinfo) ^
+                `<meta name="twitter:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
+                `<meta name="twitter:image" content="./res/icon.jpg">` ^ (break tinfo) ^
                 tag tinfo `title` (fun tinfo -> stringify-inline tinfo r#title) ^
                 (r#links
                 |> List.map (fun (rel, href) -> stag ?:[(`rel`, rel); (`href`, href)] ?:true tinfo `link`)

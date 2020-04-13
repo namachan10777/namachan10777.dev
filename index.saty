@@ -1,7 +1,7 @@
 @import: jsblog
 
 JsBlog.top-document (|
-  title = {namachan10777};
+  title = {profile};
 |) '<
   +section {About} <
     +img ?:(`My icon on the Internet`) ?:(`icon`) (`./res/icon.jpg`);
