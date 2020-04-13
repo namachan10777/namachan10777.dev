@@ -74,8 +74,8 @@ end = struct
           concat [
               tag tinfo `head` (fun tinfo ->
                 `<meta name="twitter:card" content="summary" />` ^ (break tinfo) ^
-                `<meta name="twitter:site" content="namachan10777" />` ^ (break tinfo) ^
-                `<meta name="twitter:creator" content="namachan10777" />` ^ (break tinfo) ^
+                `<meta name="twitter:site" content="@namachan10777" />` ^ (break tinfo) ^
+                `<meta name="twitter:creator" content="@namachan10777" />` ^ (break tinfo) ^
                 `<meta name="og:title" content="namachan10777" />` ^ (break tinfo) ^
                 `<meta name="og:description" content="`^ (stringify-inline tinfo r#title) ^`"/>` ^ (break tinfo) ^
                 `<meta property="og:type" />` ^ (break tinfo) ^
