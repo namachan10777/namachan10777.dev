@@ -6,10 +6,10 @@ JsBlog.article-document(|
 |) '<
   +p{
     夏ですね。響け！ユーフォニアムの事を考えて熱波をやり過ごしていますが人間限界があります。
-    Dockerに/varを圧縮され気がついたらもう200 MiBしか残っていない、そんな経験はありませんか。
+    Dockerに\code(`/var`);を圧縮され気がついたらもう\code(`200 MiB`);しか残っていない、そんな経験はありませんか。
     僕は/varを/とは別で切ってraiserfs載せているので頻繁に起きます。
-    docker.serviceを触って格納先を/以下の/opt/dockerに変更する方法がありますが、
-    これではパッケージマネージャがdocker.serviceを更新する度にリセットされてしまいます。
+    docker.serviceを触って格納先を\code(`/`);以下の\code(`/opt/docker`);に変更する方法がありますが、
+    これではパッケージマネージャが\code(`docker.service`);を更新する度にリセットされてしまいます。
   }
   +section {解決策} <
     +code ?:(`shell`) (```

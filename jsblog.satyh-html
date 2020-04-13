@@ -158,7 +158,7 @@ end = struct
       (fun tinfo -> st-heading ^ (break tinfo) ^ stringify-block tinfo bt)
 
   let-inline tinfo \code s =
-    tag ?:[(`class`, `code`)] ?:false tinfo `span` (fun _ -> html-quote s)
+    tag ?:[(`class`, `code code-inline`)] ?:false tinfo `span` (fun _ -> html-quote s)
 
   let remove-heading-break-line s =
     (match string-explode s with

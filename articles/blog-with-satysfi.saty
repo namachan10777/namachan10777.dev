@@ -16,7 +16,7 @@ JsBlog.article-document (|
   +p{
     この記事含めこのWebサイトは全て、標準のhtml-baseを元に、
     通常のクラスファイルに近いような使い勝手に改造したクラスファイルを用いて書かれている。
-    SATySFiでは.satyファイル一つにつき1つのファイルを出力するため、
+    SATySFiでは\code(`.saty`);ファイル一つにつき1つのファイルを出力するため、
     簡単な記事には便利だが、記事間のリンクは少し工夫する必要がありそうだ。
   }
   +section {CI/CD} <
@@ -74,7 +74,7 @@ JsBlog.article-document (|
     +section {Docker} <
       +p{
         マルチステージビルドを用いて軽量化を図っている。
-        ただ、gitを入れる必要があること、SATySFiがglibcに依存していることから、
+        ただ、gitを入れる必要があること、SATySFiが\code(`glibc`);に依存していることから、
         ubuntuの上にgitとsatysfiを詰め込んだので結局200MB以上のサイズのイメージになってしまった。
       }
       +code ?:(`docker`) ?:(`Dockerfile`) (```
