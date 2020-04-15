@@ -12,6 +12,11 @@ body {
 	font-weight: 400;
 }
 
+p {
+	line-height: 150%;
+	color: #202020;
+}
+
 .heading {
 	font-weight: 500;
 }
