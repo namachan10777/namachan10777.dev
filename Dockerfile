@@ -5,7 +5,7 @@ RUN apt-get update && \
 	add-apt-repository ppa:avsm/ppa && \
 	apt-get update && \
 	apt-get upgrade -y  && \
-	apt-get install -y bzip2 gcc git m4 make unzip wget curl ruby opam
+	apt-get install -y bzip2 gcc git m4 make unzip wget curl ruby opam cargo rsync
 
 RUN useradd -m satysfi
 USER satysfi
@@ -28,18 +28,30 @@ RUN sed -i -e 's/oscdl/ipafont/g' ./download-fonts.sh && \
 USER root
 RUN ./install-libs.sh
 
+WORKDIR /
+RUN git clone https://github.com/namachan10777/magicpak
+WORKDIR /magicpak
+RUN git checkout fix-cc-flag-order && \
+	cargo build --release && \
+	cp target/release/magicpak /usr/local/bin
 
-USER satysfi
-RUN mkdir -p /home/satysfi/work && \
-	echo "eval $(opam config env)" >> ~/.bashrc
-	
+RUN cp /home/satysfi/.opam/4.10.0/bin/satysfi /usr/local/bin/satysfi
 
-FROM ubuntu:latest
-COPY --from=build-env /home/satysfi/.opam/4.10.0/bin/satysfi /usr/bin/
-COPY --from=build-env /usr/local/share/satysfi /usr/local/share/satysfi
+WORKDIR /
+RUN magicpak /usr/bin/curl bundle-curl && \
+    magicpak /bin/bash bundle-bash && \
+    magicpak /usr/local/bin/satysfi bundle-satysfi && \
+    magicpak /usr/bin/make bundle-make && \
+    magicpak /usr/bin/zip bundle-zip
 
-RUN apt-get update && \
-	apt-get upgrade -y && \
-	apt-get install -y make zip curl
+RUN mkdir bundle && \
+    rsync -a bundle-curl/ bundle && \
+    rsync -a bundle-satysfi/ bundle && \
+    rsync -a bundle-bash/ bundle && \
+    rsync -a bundle-make/ bundle && \
+    rsync -a bundle-zip/ bundle
+
+FROM scratch
+COPY --from=build-env /bundle /.
 
 ENTRYPOINT [ "/bin/bash" ]
