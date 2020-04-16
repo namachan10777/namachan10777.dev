@@ -42,14 +42,16 @@ RUN magicpak /usr/bin/curl bundle-curl && \
     magicpak /bin/sh bundle-sh && \
     magicpak /usr/local/bin/satysfi bundle-satysfi && \
     magicpak /usr/bin/make bundle-make && \
-    magicpak /usr/bin/zip bundle-zip
+    magicpak /usr/bin/zip bundle-zip && \
+    magicpak /bin/mkdir bundle-mkdir
 
 RUN mkdir bundle && \
     rsync -a bundle-curl/ bundle && \
     rsync -a bundle-satysfi/ bundle && \
     rsync -a bundle-sh/ bundle && \
     rsync -a bundle-make/ bundle && \
-    rsync -a bundle-zip/ bundle
+    rsync -a bundle-zip/ bundle && \
+    rsync -a bundle-mkdir/ bundle
 
 FROM scratch
 COPY --from=build-env /bundle /.
