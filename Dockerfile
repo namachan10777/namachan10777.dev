@@ -53,7 +53,9 @@ RUN mkdir bundle && \
     rsync -a bundle-sh/ bundle && \
     rsync -a bundle-make/ bundle && \
     rsync -a bundle-zip/ bundle && \
-    rsync -a bundle-mkdir/ bundle
+    rsync -a bundle-mkdir/ bundle && \
+    mkdir -p bundle/usr/local/share/satysfi/dist && \
+    rsync -a /usr/local/share/satysfi/dist/ bundle/usr/local/share/satysfi/dist
 
 FROM scratch
 COPY --from=build-env /bundle /.
