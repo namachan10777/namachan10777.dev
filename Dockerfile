@@ -28,36 +28,10 @@ RUN sed -i -e 's/oscdl/ipafont/g' ./download-fonts.sh && \
 USER root
 RUN ./install-libs.sh
 
-WORKDIR /
-RUN git clone https://github.com/namachan10777/magicpak
-WORKDIR /magicpak
-RUN git checkout fix-cc-flag-order && \
-	cargo build --release && \
-	cp target/release/magicpak /usr/local/bin
-
-RUN cp /home/satysfi/.opam/4.10.0/bin/satysfi /usr/local/bin/satysfi
-
-WORKDIR /
-RUN magicpak /usr/bin/curl bundle-curl && \
-    magicpak /bin/bash bundle-bash && \
-    magicpak /bin/sh bundle-sh && \
-    magicpak /usr/local/bin/satysfi bundle-satysfi && \
-    magicpak /usr/bin/make bundle-make && \
-    magicpak /usr/bin/zip bundle-zip && \
-    magicpak /bin/mkdir bundle-mkdir
-
-RUN mkdir bundle && \
-    rsync -a bundle-curl/ bundle && \
-    rsync -a bundle-satysfi/ bundle && \
-    rsync -a bundle-bash/ bundle && \
-    rsync -a bundle-sh/ bundle && \
-    rsync -a bundle-make/ bundle && \
-    rsync -a bundle-zip/ bundle && \
-    rsync -a bundle-mkdir/ bundle && \
-    mkdir -p bundle/usr/local/share/satysfi/dist && \
-    rsync -a /usr/local/share/satysfi/dist/ bundle/usr/local/share/satysfi/dist
-
-FROM scratch
-COPY --from=build-env /bundle /.
+FROM ubuntu:18.04
+RUN apt-get update && \
+	apt-get install -y curl make zip
+COPY --from=build-env /home/satysfi/.opam/4.10.0/bin/satysfi /usr/local/bin/satysfi
+COPY --from=build-env /usr/local/share/satysfi /usr/local/share/satysfi
 
 ENTRYPOINT [ "/bin/bash" ]
