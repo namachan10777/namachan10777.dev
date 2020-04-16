@@ -39,7 +39,7 @@ RUN cp /home/satysfi/.opam/4.10.0/bin/satysfi /usr/local/bin/satysfi
 
 WORKDIR /
 RUN magicpak /usr/bin/curl bundle-curl && \
-    magicpak /bin/bash bundle-bash && \
+    magicpak /bin/sh bundle-sh && \
     magicpak /usr/local/bin/satysfi bundle-satysfi && \
     magicpak /usr/bin/make bundle-make && \
     magicpak /usr/bin/zip bundle-zip
@@ -47,11 +47,11 @@ RUN magicpak /usr/bin/curl bundle-curl && \
 RUN mkdir bundle && \
     rsync -a bundle-curl/ bundle && \
     rsync -a bundle-satysfi/ bundle && \
-    rsync -a bundle-bash/ bundle && \
+    rsync -a bundle-sh/ bundle && \
     rsync -a bundle-make/ bundle && \
     rsync -a bundle-zip/ bundle
 
 FROM scratch
 COPY --from=build-env /bundle /.
 
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/bin/sh" ]
