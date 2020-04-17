@@ -65,6 +65,30 @@ JsBlog.top-document (|
     }
   >
   +section {PGP public key} <
+    +code(```
+    pub   ed25519 2020-04-16 [SC] [expires: 2022-03-30]
+          127C2BA3F6E65B5651B27FE6752E914B56647F33
+    uid           [ultimate] Masaki Nakano <s2013553@s.tsukuba.ac.jp>
+    sub   cv25519 2020-04-16 [E] [expires: 2022-03-30]
+    ```);
+    +code(```
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+    mDMEXpjMOBYJKwYBBAHaRw8BAQdAqLi8fyFQOqO5Cb+lSFyMfxJdXophcq5XD7kO
+    4Dab9pq0KE1hc2FraSBOYWthbm8gPHMyMDEzNTUzQHMudHN1a3ViYS5hYy5qcD6I
+    lgQTFggAPhYhBBJ8K6P25ltWUbJ/5nUukUtWZH8zBQJemMw4AhsDBQkDq/2ABQsJ
+    CAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEHUukUtWZH8zi+oBANhoS7ZzhJIqAC1B
+    oKKYC/g6f82Y3n2wH/bHsfE2pT5TAP9gk8jQP6zDAsMp0txWHSNEgtwN5Cr8LSUd
+    XMPcNIqICLg4BF6YzDgSCisGAQQBl1UBBQEBB0BSxWUYix1avdw29rctk09I7LoU
+    tpsRX7ntZgJQPGHzdQMBCAeIfgQYFggAJhYhBBJ8K6P25ltWUbJ/5nUukUtWZH8z
+    BQJemMw4AhsMBQkDq/2AAAoJEHUukUtWZH8zEvUBAOJHTHPwaoQ3mhcs71Eb6wGm
+    o51zP195pyuFnE76AGThAP0XEnqns9NvvzhaTXPjNwT6wOuaItUb4lOrEPpEcu0O
+    Dw==
+    =P4jh
+    -----END PGP PUBLIC KEY BLOCK-----
+    ```);
+  >
+  +section {PGP public key (private)} <
     +code (```
     pub   rsa2048 2018-11-17 [SC] [expires: 2020-11-16]
           83ABEC5E55193AB4C461C59DB18528827F450293
