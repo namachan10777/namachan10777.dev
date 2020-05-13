@@ -1,6 +1,4 @@
 extern crate engine;
-use clap;
-use std::io::BufRead;
 use std::fs;
 
 fn main() {
