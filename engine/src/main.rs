@@ -11,5 +11,5 @@ fn main() {
         .get_matches();
 
     let s = fs::read_to_string(app.value_of("ROOT").unwrap()).unwrap();
-    println!("{:?}", engine::parser::parse(&s));
+    println!("{:?}", engine::frontend::parse(&s));
 }
