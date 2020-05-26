@@ -1,0 +1,13 @@
+\index{namachan10777}{
+	\section{About}{
+		\img `My icon on the Internet``icon``./res/icon.jpg`;
+		\p { Masaki Nakano };
+		\p { B3, college of computer and information science, University of Tsukuba };
+	};
+	\address {
+		\ul{
+			\a `mailto:namachan10777@gmail.com` {namachan10777@gmail.com};
+			\a `tel:+818039281077` { (080) 3928-1077 };
+		};
+	};
+};

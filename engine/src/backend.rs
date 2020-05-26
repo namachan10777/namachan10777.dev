@@ -19,7 +19,7 @@ impl XML {
             ver: ver.to_owned(),
             encoding: encoding.to_owned(),
             dtd: dtd.to_owned(),
-            body
+            body,
         }
     }
 }
