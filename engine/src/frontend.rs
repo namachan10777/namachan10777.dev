@@ -56,6 +56,26 @@ fn parse_value(pair: Pair<Rule>) -> Value {
             let s = pair.as_str();
             Value::BlockStr(s[3..s.len() - 3].to_owned())
         }
+        Rule::floating => {
+            let f = pair.as_str().parse().unwrap();
+            Value::Float(f)
+        }
+        Rule::digint => {
+            let i = pair.as_str().parse().unwrap();
+            Value::Int(i)
+        }
+        Rule::hexint => {
+            let s = &pair.as_str()[2..];
+            Value::Int(i64::from_str_radix(s, 16).unwrap())
+        }
+        Rule::octint => {
+            let s = &pair.as_str()[2..];
+            Value::Int(i64::from_str_radix(s, 8).unwrap())
+        }
+        Rule::binint => {
+            let s = &pair.as_str()[2..];
+            Value::Int(i64::from_str_radix(s, 2).unwrap())
+        }
         _ => unreachable!(),
     }
 }
@@ -95,6 +115,50 @@ mod test_parser {
                     .unwrap()
             ),
             Value::BlockStr("hoge".to_owned())
+        );
+    }
+
+    #[test]
+    fn test_floating() {
+        assert_eq!(
+            parse_value(
+                SrcParser::parse(Rule::floating, "+.14")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Value::Float(0.14)
+        );
+        assert_eq!(
+            parse_value(
+                SrcParser::parse(Rule::floating, "-3.14e0")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Value::Float(-3.14)
+        );
+    }
+
+    #[test]
+    fn test_integer() {
+        assert_eq!(
+            parse_value(
+                SrcParser::parse(Rule::digint, "334")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Value::Int(334)
+        );
+        assert_eq!(
+            parse_value(
+                SrcParser::parse(Rule::hexint, "0xFF")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Value::Int(255)
         );
     }
 
