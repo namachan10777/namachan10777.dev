@@ -121,9 +121,32 @@ mod test_parser {
                 vec![Value::Text(vec![TextElem::Plain("def".to_owned())])]
             )
         );
+        assert_eq!(
+            parse_value(
+                SrcParser::parse(Rule::text, "{\\abc `def` `ghi`;}")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Value::Text(vec![TextElem::Command(
+                "abc".to_owned(),
+                vec![
+                    Value::InlineStr("def".to_owned()),
+                    Value::InlineStr("ghi".to_owned()),
+                ]
+            )])
+        );
     }
 }
 
-pub fn parse(s: &str) -> Value {
-    parse_value(SrcParser::parse(Rule::text, s).unwrap().next().unwrap())
+pub fn parse(s: &str) -> TextElem {
+    parse_text_elem(
+        SrcParser::parse(Rule::main, s)
+            .unwrap()
+            .next()
+            .unwrap()
+            .into_inner()
+            .next()
+            .unwrap(),
+    )
 }

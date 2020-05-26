@@ -1,3 +1,5 @@
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
 inline_string = @{ "`" ~ raw_inline_string ~ "`" }
 raw_inline_string = @{ ("\\\\" | "\\`" | !"`" ~ ANY)* }
 
@@ -12,4 +14,6 @@ text = ${ "{" ~ (command | plain)* ~ "}" }
 symbol = @{ ASCII_ALPHANUMERIC+ }
 
 command_name = ${ "\\" ~ symbol }
-command = { command_name ~ (block_string | inline_string | text)* ~ ";" }
+command = !{ command_name ~ (block_string | inline_string | text)* ~ ";" }
+
+main = { SOI ~ command ~ EOI }
