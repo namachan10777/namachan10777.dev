@@ -34,7 +34,7 @@ fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
                     .unwrap()
                     .as_str()
                     .to_owned(),
-                inner.map(|arg| parse_value(arg)).collect(),
+                inner.map(parse_value).collect(),
             )
         }
         _ => unreachable!(),
@@ -45,7 +45,7 @@ fn parse_value(pair: Pair<Rule>) -> Value {
     match pair.as_rule() {
         Rule::text => Value::Text(
             pair.into_inner()
-                .map(|elem| parse_text_elem(elem))
+                .map(parse_text_elem)
                 .collect(),
         ),
         Rule::inline_string => {
