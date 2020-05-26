@@ -1,16 +1,27 @@
 use std::fmt;
 
-enum XMLElem {
+pub enum XMLElem {
     Single(String, Vec<(String, String)>),
     WithElem(String, Vec<(String, String)>, Vec<XMLElem>),
     Text(String),
 }
 
-struct XML {
+pub struct XML {
     ver: String,
     encoding: String,
     dtd: String,
     body: XMLElem,
+}
+
+impl XML {
+    pub fn new(ver: &str, encoding: &str, dtd: &str, body: XMLElem) -> Self {
+        XML {
+            ver: ver.to_owned(),
+            encoding: encoding.to_owned(),
+            dtd: dtd.to_owned(),
+            body
+        }
+    }
 }
 
 impl fmt::Display for XMLElem {

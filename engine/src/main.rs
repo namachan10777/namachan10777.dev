@@ -7,5 +7,7 @@ fn main() {
         .get_matches();
 
     let s = fs::read_to_string(app.value_of("ROOT").unwrap()).unwrap();
-    println!("{:?}", engine::frontend::parse(&s));
+	let ast = engine::frontend::parse(&s);
+	let xml = engine::conv(ast);
+    println!("{}", xml);
 }
