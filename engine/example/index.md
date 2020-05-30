@@ -10,10 +10,11 @@ Masaki Nakano
 
 B3, College of computer and information science, University of Tsukuba.
 
-##[address] Address
+==[address]
  * [namachan10777@gmail.com](mailto:namachan10777@gmail.com)
+==
 
-##[nav] Navigation
+## Navigation
  * [Keybase](https://keybase.io/namachan10777)
  * [GitHub](https://github.com/namachan10777)
  * [Twitter](https://twitter.com/namachan10777)

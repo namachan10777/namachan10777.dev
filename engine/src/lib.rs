@@ -54,6 +54,22 @@ fn block(ctx: Context, b: Block) -> XMLElem {
             inner.append(&mut body);
             XMLElem::WithElem("section".to_owned(), vec![], inner)
         }
+        Block::ExtBlock(attr, inner) => {
+            let inner = inner
+                .into_iter()
+                .map(|b| {
+                    block(
+                        ctx.clone(), b
+                    )
+                })
+                .collect::<Vec<XMLElem>>();
+            match attr.as_str() {
+                "address" => {
+                    XMLElem::WithElem("address".to_owned(), vec![], inner)
+                },
+                _ => unimplemented!(),
+            }
+        }
         Block::P(inner) => XMLElem::WithElem(
             "p".to_owned(),
             vec![],

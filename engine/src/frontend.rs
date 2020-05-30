@@ -20,6 +20,7 @@ pub enum ListItem {
 #[derive(Debug, PartialEq)]
 pub enum Block {
     Section(String, Vec<Block>),
+    ExtBlock(String, Vec<Block>),
     P(Vec<Inline>),
     Ul(Vec<ListItem>),
     Code(String, String),
@@ -59,6 +60,12 @@ fn parse_block(p: Pair<Rule>) -> Block {
                     .fold(String::new(), |acc, s| acc + s + "\n"),
             )
         }
+        Rule::extblock => {
+            let mut inner = p.into_inner();
+            let attr = inner.next().unwrap().as_str().to_owned();
+            let children = inner.map(parse_block).collect::<Vec<Block>>();
+            Block::ExtBlock(attr, children)
+        }
         _ => unreachable!(),
     }
 }
@@ -66,6 +73,16 @@ fn parse_block(p: Pair<Rule>) -> Block {
 #[cfg(test)]
 mod test {
     use super::*;
+    #[test]
+    fn ext() {
+        let src = ["==[address]", "hoge", "=="]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(SrcParser::parse(Rule::extblock, src.as_str()).unwrap().next().unwrap()),
+            Block::ExtBlock("address".to_owned(), vec![Block::P(vec![Inline::Text("hoge".to_owned())])])
+        );
+    }
     #[test]
     fn block() {
         let src1 = "# h1";
