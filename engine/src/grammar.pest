@@ -49,4 +49,4 @@ h6 = {
 	"######" ~ paragraph ~ (emptyline* ~(codeblock | paragraph))*
 }
 
-main = { SOI ~ h1+ ~ EOI }
+main = { SOI ~ h1 ~ endline? ~ EOI }
