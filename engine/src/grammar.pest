@@ -18,35 +18,37 @@ codeblock = {
 paragraphline = @{
 	!"#" ~ line
 }
-paragraph = {
-	paragraphline ~ (endline ~ !(emptyline | codeblockbegin | "#") ~ paragraphline)*
+paragraph = @{
+	WHITESPACE* ~ paragraphline ~ (endline ~ !(emptyline | codeblockbegin | WHITESPACE* ~ "#") ~ paragraphline)*
 }
 
-h1 = {
-	"#" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | h2 | paragraph))*
+blockext = !{ "[" ~ ASCII_ALPHANUMERIC+ ~ "]" }
+
+h1 = ${
+	"#" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | h2 | paragraph))*
 }
 
 h2 = {
-	"##" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | paragraph))*
+	"##" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | paragraph))*
 }
 
 h3 = {
-	"###" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | paragraph))*
+	"###" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | paragraph))*
 }
 
 
 h4 = {
-	"####" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 |  paragraph))*
+	"####" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 |  paragraph))*
 }
 
 
 h5 = {
-	"#####" ~ paragraph ~ (emptyline* ~(codeblock | h6 | paragraph))*
+	"#####" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | h6 | paragraph))*
 }
 
 
 h6 = {
-	"######" ~ paragraph ~ (emptyline* ~(codeblock | paragraph))*
+	"######" ~ blockext? ~ paragraph ~ (emptyline* ~(codeblock | paragraph))*
 }
 
 main = { SOI ~ h1 ~ endline? ~ EOI }

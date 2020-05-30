@@ -91,11 +91,11 @@ mod test {
         .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src1).unwrap().next().unwrap()),
-            Block::Section("h1".to_owned(), vec![])
+            Block::Section(" h1".to_owned(), vec![])
         );
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src2).unwrap().next().unwrap()),
-            Block::Section("h1\nh1".to_owned(), vec![])
+            Block::Section(" h1\nh1".to_owned(), vec![])
         );
         assert_eq!(
             parse_block(
@@ -105,7 +105,7 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                "h1\nh1".to_owned(),
+                " h1\nh1".to_owned(),
                 vec![Block::P(vec![Inline::Text("hoge".to_owned())])]
             )
         );
@@ -117,7 +117,7 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                "h1".to_owned(),
+                " h1".to_owned(),
                 vec![
                     Block::Code("text".to_owned(), "echo \"foo\"\n".to_owned()),
                     Block::P(vec![Inline::Text("hoge".to_owned())])
