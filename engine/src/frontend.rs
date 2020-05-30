@@ -200,5 +200,5 @@ pub fn parse(s: &str) -> Block {
         .unwrap()
         .into_inner()
         .collect::<Vec<Pair<Rule>>>();
-    parse_block(toplevels[toplevels.len() - 1].clone())
+    parse_block(toplevels[toplevels.len() - 2].clone())
 }
