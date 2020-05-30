@@ -2,10 +2,28 @@ WHITESPACE = _{ " " | "\t" }
 
 endline = _{ "\n" | "\r\n" | "\r" }
 line = @{ (!endline ~ ANY)+ }
-emptyline = @{ endline }
+emptyline = _{ endline }
 
-paragraph = { line ~ (endline ~ line)* }
+lang = ${ (!endline ~ !WHITESPACE ~ ANY)+ }
+codeblockbegin = @{ "```" ~ WHITESPACE* ~ lang? ~ WHITESPACE* }
+codeblockend = @{ "```" }
+codeblockescape = @{"\\```" ~ (!endline ~ ANY)*}
 
-h1 = @{ "#" ~ WHITESPACE* ~ paragraph }
+codeblock = {
+	codeblockbegin ~ endline
+	~ ((codeblockescape | !codeblockend ~ line) ~ endline)*
+	~ codeblockend
+}
+
+paragraphline = {
+	line
+}
+paragraph = {
+	paragraphline ~ (endline ~ !(emptyline | codeblockbegin) ~ paragraphline)*
+}
+
+h1 = {
+	"#" ~ paragraph ~ (emptyline* ~ (codeblock | paragraph))*
+}
 
 main = { SOI ~ h1+ ~ EOI }
