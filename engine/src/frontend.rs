@@ -57,7 +57,7 @@ fn parse_block(p: Pair<Rule>) -> Block {
                 lang,
                 src[..src.len() - 1]
                     .into_iter()
-                    .fold(String::new(), |acc, s| acc + s + "\n"),
+                    .fold(String::new(), |acc, s| acc + s),
             )
         }
         Rule::extblock => {
@@ -74,13 +74,36 @@ fn parse_block(p: Pair<Rule>) -> Block {
 mod test {
     use super::*;
     #[test]
+    fn codeblock() {
+        let src = ["```bash", "hoge", "", "goo", "noo", "```"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::codeblock, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Code("bash".to_owned(), "hoge\n\ngoo\nnoo\n".to_owned()),
+        );
+    }
+    #[test]
     fn ext() {
         let src = ["==[address]", "hoge", "=="]
             .iter()
             .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
         assert_eq!(
-            parse_block(SrcParser::parse(Rule::extblock, src.as_str()).unwrap().next().unwrap()),
-            Block::ExtBlock("address".to_owned(), vec![Block::P(vec![Inline::Text("hoge".to_owned())])])
+            parse_block(
+                SrcParser::parse(Rule::extblock, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::ExtBlock(
+                "address".to_owned(),
+                vec![Block::P(vec![Inline::Text("hoge".to_owned())])]
+            )
         );
     }
     #[test]
@@ -91,9 +114,10 @@ mod test {
         let src3 = ["# h1\n", "h1\n", "\n", "\n", "hoge\n"]
             .iter()
             .fold("".to_owned(), |acc, x| acc + x.clone());
-        let src4 = ["# h1\n", "```\n", "echo \"foo\"\n", "```", "hoge\n"]
+        let src4 = ["# h1", "```", "echo \"foo\"", "```", "hoge"]
             .iter()
-            .fold("".to_owned(), |acc, x| acc + x.clone());
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        println!("{}", src4);
         let src5 = [
             "#h1",
             "##h2",
@@ -170,13 +194,11 @@ mod test {
 }
 
 pub fn parse(s: &str) -> Block {
-    parse_block(
-        SrcParser::parse(Rule::main, s)
-            .unwrap()
-            .next()
-            .unwrap()
-            .into_inner()
-            .next()
-            .unwrap(),
-    )
+    let toplevels = SrcParser::parse(Rule::main, s)
+        .unwrap()
+        .next()
+        .unwrap()
+        .into_inner()
+        .collect::<Vec<Pair<Rule>>>();
+    parse_block(toplevels[toplevels.len() - 1].clone())
 }

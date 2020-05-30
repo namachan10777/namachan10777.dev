@@ -1,17 +1,20 @@
 WHITESPACE = _{ " " | "\t" }
 
+
 endline = _{ "\n" | "\r\n" | "\r" }
+el = {"\n" | "\r\n" | "\r" }
 line = @{ (!endline ~ ANY)+ }
-emptyline = _{ endline }
+emptyline = _{ WHITESPACE* ~ endline }
+attribute = ${":" ~ ASCII_ALPHANUMERIC+ ~ WHITESPACE+ ~ line ~ endline}
 
 lang = ${ (!endline ~ !WHITESPACE ~ ANY)+ }
 codeblockbegin = @{ "```" ~ WHITESPACE* ~ lang? ~ WHITESPACE* }
-codeblockend = @{ "```" }
+codeblockend = @{ "```" ~ WHITESPACE* }
 codeblockescape = @{"\\```" ~ (!endline ~ ANY)*}
 
 codeblock = {
 	codeblockbegin ~ endline
-	~ ((codeblockescape | !codeblockend ~ line) ~ endline)*
+	~ (((codeblockescape | (!codeblockend ~ line)) ~ el) | (WHITESPACE* ~ el))*
 	~ codeblockend
 }
 
@@ -61,4 +64,4 @@ h6 = {
 	"######" ~ paragraph ~ (emptyline* ~(codeblock | extblock  | paragraph))*
 }
 
-main = { SOI ~ h1 ~ endline? ~ EOI }
+main = { SOI ~ (attribute | emptyline)* ~ "::" ~ "\n" ~ emptyline* ~ h1 ~ endline? ~ EOI }
