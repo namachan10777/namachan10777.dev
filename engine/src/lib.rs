@@ -75,7 +75,10 @@ fn html(bs: Vec<XMLElem>) -> backend::XML {
         XMLElem::WithElem(
             "html".to_owned(),
             vec![
-                ("xmlns".to_owned(), "http://www.w3.org/1999/xhtml".to_owned()),
+                (
+                    "xmlns".to_owned(),
+                    "http://www.w3.org/1999/xhtml".to_owned(),
+                ),
                 ("lang".to_owned(), "ja".to_owned()),
             ],
             bs,
