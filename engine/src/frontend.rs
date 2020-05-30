@@ -26,13 +26,19 @@ pub enum Block {
 }
 
 fn parse_block(p: Pair<Rule>) -> Block {
+    let heading_common = |p: Pair<Rule>| {
+        let mut inner = p.into_inner();
+        let title = inner.next().unwrap().as_str().to_owned();
+        let children = inner.map(parse_block).collect::<Vec<Block>>();
+        Block::Section(title, children)
+    };
     match p.as_rule() {
-        Rule::h1 => {
-            let mut inner = p.into_inner();
-            let title = inner.next().unwrap().as_str().to_owned();
-            let children = inner.map(parse_block).collect::<Vec<Block>>();
-            Block::Section(title, children)
-        }
+        Rule::h1 => heading_common(p),
+        Rule::h2 => heading_common(p),
+        Rule::h3 => heading_common(p),
+        Rule::h4 => heading_common(p),
+        Rule::h5 => heading_common(p),
+        Rule::h6 => heading_common(p),
         Rule::paragraph => Block::P(vec![Inline::Text(p.as_str().to_owned())]),
         Rule::codeblock => {
             let mut inner = p.into_inner();
@@ -71,6 +77,18 @@ mod test {
         let src4 = ["# h1\n", "```\n", "echo \"foo\"\n", "```", "hoge\n"]
             .iter()
             .fold("".to_owned(), |acc, x| acc + x.clone());
+        let src5 = [
+            "#h1",
+            "##h2",
+            "",
+            "h2 content",
+            "###h3",
+            "##h2",
+            "###h3",
+            "##h2",
+        ]
+        .iter()
+        .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src1).unwrap().next().unwrap()),
             Block::Section("h1".to_owned(), vec![])
@@ -103,6 +121,31 @@ mod test {
                 vec![
                     Block::Code("text".to_owned(), "echo \"foo\"\n".to_owned()),
                     Block::P(vec![Inline::Text("hoge".to_owned())])
+                ]
+            )
+        );
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::h1, src5.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Section(
+                "h1".to_owned(),
+                vec![
+                    Block::Section(
+                        "h2".to_owned(),
+                        vec![
+                            Block::P(vec![Inline::Text("h2 content".to_owned())]),
+                            Block::Section("h3".to_owned(), vec![])
+                        ]
+                    ),
+                    Block::Section(
+                        "h2".to_owned(),
+                        vec![Block::Section("h3".to_owned(), vec![])]
+                    ),
+                    Block::Section("h2".to_owned(), vec![])
                 ]
             )
         );

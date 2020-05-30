@@ -15,15 +15,38 @@ codeblock = {
 	~ codeblockend
 }
 
-paragraphline = {
-	line
+paragraphline = @{
+	!"#" ~ line
 }
 paragraph = {
-	paragraphline ~ (endline ~ !(emptyline | codeblockbegin) ~ paragraphline)*
+	paragraphline ~ (endline ~ !(emptyline | codeblockbegin | "#") ~ paragraphline)*
 }
 
 h1 = {
-	"#" ~ paragraph ~ (emptyline* ~ (codeblock | paragraph))*
+	"#" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | h2 | paragraph))*
+}
+
+h2 = {
+	"##" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | h3 | paragraph))*
+}
+
+h3 = {
+	"###" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 | h4 | paragraph))*
+}
+
+
+h4 = {
+	"####" ~ paragraph ~ (emptyline* ~(codeblock | h6 | h5 |  paragraph))*
+}
+
+
+h5 = {
+	"#####" ~ paragraph ~ (emptyline* ~(codeblock | h6 | paragraph))*
+}
+
+
+h6 = {
+	"######" ~ paragraph ~ (emptyline* ~(codeblock | paragraph))*
 }
 
 main = { SOI ~ h1+ ~ EOI }
