@@ -28,14 +28,17 @@ pub enum Block {
 }
 
 fn parse_list(mut ps: Pairs<Rule>) -> Vec<ListItem> {
-    ps.map(|p| match p.as_rule() {
-        Rule::dummyline => ListItem::Dummy,
-        Rule::ul1 => ListItem::Nest(parse_list(p.into_inner())),
-        Rule::ul2 => ListItem::Nest(parse_list(p.into_inner())),
-        Rule::ul3 => ListItem::Nest(parse_list(p.into_inner())),
-        block => ListItem::Block(parse_block(p)),
-    })
-    .collect::<Vec<ListItem>>()
+    ps.map(|p|
+        p.into_inner().map(|p| 
+            match p.as_rule() {
+            Rule::dummyline => ListItem::Dummy,
+            Rule::ul1 => ListItem::Nest(parse_list(p.into_inner())),
+            Rule::ul2 => ListItem::Nest(parse_list(p.into_inner())),
+            Rule::ul3 => ListItem::Nest(parse_list(p.into_inner())),
+            block => ListItem::Block(parse_block(p)),
+        }).collect::<Vec<ListItem>>()
+    )
+    .fold(vec![], |mut acc, mut v| { acc.append(&mut v); acc} )
 }
 
 fn parse_block(p: Pair<Rule>) -> Block {
@@ -63,7 +66,7 @@ fn parse_block(p: Pair<Rule>) -> Block {
                 .unwrap()
                 .into_inner()
                 .next()
-                .map(|p| p.as_str().to_owned())
+                .map(|p| p.as_str().trim_end().to_owned())
                 .unwrap_or("text".to_owned());
             let src = inner
                 .map(|p| p.as_str().to_owned())
@@ -81,7 +84,9 @@ fn parse_block(p: Pair<Rule>) -> Block {
             let children = inner.map(parse_block).collect::<Vec<Block>>();
             Block::ExtBlock(attr, children)
         }
-        _ => unreachable!(),
+        b => {
+            unreachable!();
+        }
     }
 }
 
@@ -104,6 +109,24 @@ mod test {
         );
     }
     #[test]
+    fn paragraph() {
+        let src = ["hoge"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+
+        let src = ["hoge", "fuga"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::paragraph, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::P(vec![Inline::Text("hoge\nfuga\n".to_owned())]));
+    }
+    #[test]
     fn ext() {
         let src = ["==[address]", "hoge", "=="]
             .iter()
@@ -117,7 +140,7 @@ mod test {
             ),
             Block::ExtBlock(
                 "address".to_owned(),
-                vec![Block::P(vec![Inline::Text("hoge".to_owned())])]
+                vec![Block::P(vec![Inline::Text("hoge\n".to_owned())])]
             )
         );
     }
@@ -139,21 +162,18 @@ mod test {
                     .unwrap()
             ),
             Block::Ul(vec![
-                ListItem::Block(Block::P(vec![Inline::Text("li1".to_owned())])),
+                ListItem::Block(Block::P(vec![Inline::Text(" li1\n".to_owned())])),
+                ListItem::Block(Block::P(vec![Inline::Text(" li1\n".to_owned())])),
                 ListItem::Nest(vec![
-                    ListItem::Block(Block::P(vec![Inline::Text("li1".to_owned())])),
-                    ListItem::Nest(vec![
-                        ListItem::Block(Block::P(vec![Inline::Text("li2".to_owned())])),
-                        ListItem::Nest(vec![
-                            ListItem::Block(Block::P(vec![Inline::Text("li2".to_owned())])),
-                            ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
-                                "li3".to_owned()
-                            )]))]),
-                            ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
-                                "li2".to_owned()
-                            )]))])
-                        ])
-                    ])
+                    ListItem::Block(Block::P(vec![Inline::Text(" li2\n".to_owned())])),
+                    ListItem::Block(Block::P(vec![Inline::Text(" li2\n".to_owned())])),
+                    ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
+                            " li3\n".to_owned()
+                        )]))
+                    ]),
+                    ListItem::Block(Block::P(vec![Inline::Text(
+                        " li2\n".to_owned()
+                    )]))
                 ])
             ])
         );
@@ -167,23 +187,23 @@ mod test {
             Block::ExtBlock(
                 "address".to_owned(),
                 vec![Block::Ul(vec![ListItem::Block(Block::P(vec![
-                    Inline::Text("l1".to_owned())
+                    Inline::Text("l1\n".to_owned())
                 ]))])]
             )
         );
     }
     #[test]
     fn block() {
-        let src1 = "# h1";
-        let src2 = "# h1\nh1";
+        let src1 = "# h1\n";
+        let src2 = "# h1\nh1\n";
 
-        let src3 = ["# h1\n", "h1\n", "\n", "\n", "hoge\n"]
+        let src3 = ["# h1", "h1", "", "", "hoge"]
             .iter()
-            .fold("".to_owned(), |acc, x| acc + x.clone());
+            .fold("".to_owned(), |acc, x| acc + x + "\n");
         let src4 = ["# h1", "```", "echo \"foo\"", "```", "hoge"]
             .iter()
             .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
-        println!("{}", src4);
+        println!("{}", src2);
         let src5 = [
             "#h1",
             "##h2",
@@ -198,11 +218,11 @@ mod test {
         .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src1).unwrap().next().unwrap()),
-            Block::Section(" h1".to_owned(), vec![])
+            Block::Section(" h1\n".to_owned(), vec![])
         );
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src2).unwrap().next().unwrap()),
-            Block::Section(" h1\nh1".to_owned(), vec![])
+            Block::Section(" h1\nh1\n".to_owned(), vec![])
         );
         assert_eq!(
             parse_block(
@@ -212,8 +232,8 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                " h1\nh1".to_owned(),
-                vec![Block::P(vec![Inline::Text("hoge".to_owned())])]
+                " h1\nh1\n".to_owned(),
+                vec![Block::P(vec![Inline::Text("hoge\n".to_owned())])]
             )
         );
         assert_eq!(
@@ -224,10 +244,10 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                " h1".to_owned(),
+                " h1\n".to_owned(),
                 vec![
                     Block::Code("text".to_owned(), "echo \"foo\"\n".to_owned()),
-                    Block::P(vec![Inline::Text("hoge".to_owned())])
+                    Block::P(vec![Inline::Text("hoge\n".to_owned())])
                 ]
             )
         );
@@ -239,20 +259,20 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                "h1".to_owned(),
+                "h1\n".to_owned(),
                 vec![
                     Block::Section(
-                        "h2".to_owned(),
+                        "h2\n".to_owned(),
                         vec![
-                            Block::P(vec![Inline::Text("h2 content".to_owned())]),
-                            Block::Section("h3".to_owned(), vec![])
+                            Block::P(vec![Inline::Text("h2 content\n".to_owned())]),
+                            Block::Section("h3\n".to_owned(), vec![])
                         ]
                     ),
                     Block::Section(
-                        "h2".to_owned(),
-                        vec![Block::Section("h3".to_owned(), vec![])]
+                        "h2\n".to_owned(),
+                        vec![Block::Section("h3\n".to_owned(), vec![])]
                     ),
-                    Block::Section("h2".to_owned(), vec![])
+                    Block::Section("h2\n".to_owned(), vec![])
                 ]
             )
         );
@@ -265,6 +285,4 @@ pub fn parse(s: &str) -> Block {
         .next()
         .unwrap()
         .into_inner()
-        .collect::<Vec<Pair<Rule>>>();
-    parse_block(toplevels[toplevels.len() - 2].clone())
-}
+        .collect::<Vec<Pair<Rule>>>(); parse_block(toplevels[1].clone()) }

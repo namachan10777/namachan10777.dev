@@ -1,83 +1,96 @@
 WHITESPACE = _{ " " | "\t" }
 
 
-endline = _{ "\n" | "\r\n" | "\r" }
-el = {"\n" | "\r\n" | "\r" }
-line = @{ (!endline ~ ANY)+ }
-emptyline = _{ WHITESPACE* ~ endline }
-attribute = ${":" ~ ASCII_ALPHANUMERIC+ ~ WHITESPACE+ ~ line ~ endline}
+el = _{ "\n" | "\r\n" | "\r"}
+visibleel = { "\n" | "\r\n" | "\r"}
+line = @{ (!el ~ ANY)+ ~ el }
+emptyline = _{ WHITESPACE* ~ el }
+dummyline = @{ WHITESPACE* ~ el }
+attribute = ${":" ~ ASCII_ALPHANUMERIC+ ~ WHITESPACE+ ~ line}
+lang = @{ (!el ~ !WHITESPACE ~ ANY)+ ~ el }
+codeblockbegin = { "```" ~ WHITESPACE* ~ (emptyline | lang?) }
+codeblockend = { "```" ~ WHITESPACE* ~ el }
+escape = _{ "\\" }
+codeblockescape = @{escape ~ "\\"* ~ "```" ~ WHITESPACE* ~ line }
+headingescape = @{escape ~ "\\"* ~ "#" ~ line}
+listescape = @{escape ~ "\\"* ~ "*" ~ line}
 
-lang = ${ (!endline ~ !WHITESPACE ~ ANY)+ }
-codeblockbegin = @{ "```" ~ WHITESPACE* ~ lang? ~ WHITESPACE* }
-codeblockend = @{ "```" ~ WHITESPACE* }
-codeblockescape = @{"\\```" ~ (!endline ~ ANY)*}
-
-codeblock = {
-	codeblockbegin ~ endline
-	~ (((codeblockescape | (!codeblockend ~ line)) ~ el) | (WHITESPACE* ~ el))*
+codeblock = ${
+	codeblockbegin
+	~ (!codeblockend ~ (codeblockescape | line | dummyline))*
 	~ codeblockend
 }
 
 special_start = {
-	emptyline | codeblockbegin | WHITESPACE* ~ "#" | "==" | WHITESPACE* ~ "*"
+	codeblockbegin | WHITESPACE* ~ "#" | "==" | WHITESPACE* ~ "*"
 }
 
-paragraphline = @{
-	!special_start ~ line
+paragraphline = ${
+	WHITESPACE* ~ !special_start ~ (codeblockescape | headingescape | listescape)? ~ line
 }
-paragraph = @{
-	WHITESPACE* ~ paragraphline ~ (endline ~ paragraphline)*
+
+paragraph = ${
+	paragraphline+
 }
 
 extsymbol = @{ ASCII_ALPHANUMERIC+ }
 
-extblock = ${
-	"==[" ~ extsymbol ~ "]" ~ WHITESPACE* ~ endline
-	~ ((emptyline | codeblock | ul3 | ul2 | ul1 | paragraph) ~ endline)*
+extblock = {
+	"==[" ~ extsymbol ~ "]" ~ WHITESPACE* ~ el
+	~ (emptyline | codeblock | ul3 | ul2 | ul1 | paragraph)*
 	~ "=="
 }
 
 h1 = ${
-	"#" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1 | h6 | h5 | h4 | h3 | h2 | paragraph))*
+	WHITESPACE* ~ "#" ~ paragraph ~  (emptyline | codeblock | extblock | h6 | h5 | h4 | h3 | h2 | paragraph)*
 }
 
-h2 = {
-	"##" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | h3 | paragraph))*
+h2 = ${
+	WHITESPACE* ~ "##" ~ paragraph ~ (emptyline | codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | h3 | paragraph)*
 }
 
-h3 = {
-	"###" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | paragraph))*
+h3 = ${
+	WHITESPACE* ~ "###" ~ paragraph ~ (emptyline | codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | paragraph)*
 }
 
-
-h4 = {
-	"####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | ul3 | ul2 | ul1 | h6 | h5 |  paragraph))*
+h4 = ${
+	WHITESPACE* ~ "####" ~ paragraph ~ (emptyline | codeblock  | extblock | ul3 | ul2 | ul1 | h6 | h5 |  paragraph)*
 }
 
-
-h5 = {
-	"#####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | ul3 | ul2 | ul1 | h6 | paragraph))*
+h5 = ${
+	WHITESPACE* ~ "#####" ~ paragraph ~ (emptyline | codeblock  | extblock | ul3 | ul2 | ul1 | h6 | paragraph)*
 }
 
-
-h6 = {
-	"######" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1 | paragraph))*
+h6 = ${
+	WHITESPACE* ~ "######" ~ paragraph ~ (emptyline | codeblock | extblock | ul3 | ul2 | ul1 | paragraph)*
 }
 
-dummyline = {
-	WHITESPACE* ~ endline
+ul1 = ${
+	li1+
 }
 
-ul1 = {
-	WHITESPACE* ~ "*" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3 | ul2 | ul1))*
+ul2 = ${
+	li2+
 }
 
-ul2 = {
-	WHITESPACE* ~ "**" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3 | ul2))*
+ul3 = ${
+	li3+
 }
 
-ul3 = {
-	WHITESPACE* ~ "***" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3))*
+li1 = ${
+	WHITESPACE* ~ "*" ~ (dummyline | paragraph) ~ (ul3 | ul2)*
 }
 
-main = { SOI ~ (attribute | emptyline)* ~ "::" ~ "\n" ~ emptyline* ~ h1 ~ endline? ~ EOI }
+li2 = ${
+	WHITESPACE* ~ "**" ~ (dummyline | paragraph) ~ (ul3)*
+}
+
+li3 = ${
+	WHITESPACE* ~ "***" ~ (dummyline | paragraph)
+}
+
+attributes = {
+	(attribute | emptyline)* ~ "::" ~ el
+}
+
+main = { SOI ~ attributes ~ emptyline* ~ h1 ~ el? }
