@@ -1,3 +1,11 @@
 WHITESPACE = _{ " " | "\t" }
 
-main = { SOI ~ EOI }
+endline = _{ "\n" | "\r\n" | "\r" }
+line = @{ (!endline ~ ANY)+ }
+emptyline = @{ endline }
+
+paragraph = { line ~ (endline ~ line)* }
+
+h1 = @{ "#" ~ WHITESPACE* ~ paragraph }
+
+main = { SOI ~ h1+ ~ EOI }
