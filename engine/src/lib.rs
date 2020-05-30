@@ -21,7 +21,7 @@ impl Default for Context {
 
 fn inline(_ctx: Context, i: Inline) -> XMLElem {
     match i {
-        Inline::Text(txt) => XMLElem::Text(txt.to_owned()),
+        Inline::Text(txt) => XMLElem::Text(txt.replace("&", "&amp;").to_owned()),
         Inline::Code(_) => unimplemented!(),
     }
 }
