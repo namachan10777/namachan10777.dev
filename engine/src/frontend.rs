@@ -27,18 +27,22 @@ pub enum Block {
     Code(String, String),
 }
 
-fn parse_list(mut ps: Pairs<Rule>) -> Vec<ListItem> {
-    ps.map(|p|
-        p.into_inner().map(|p| 
-            match p.as_rule() {
-            Rule::dummyline => ListItem::Dummy,
-            Rule::ul1 => ListItem::Nest(parse_list(p.into_inner())),
-            Rule::ul2 => ListItem::Nest(parse_list(p.into_inner())),
-            Rule::ul3 => ListItem::Nest(parse_list(p.into_inner())),
-            block => ListItem::Block(parse_block(p)),
-        }).collect::<Vec<ListItem>>()
-    )
-    .fold(vec![], |mut acc, mut v| { acc.append(&mut v); acc} )
+fn parse_list(ps: Pairs<Rule>) -> Vec<ListItem> {
+    ps.map(|p| {
+        p.into_inner()
+            .map(|p| match p.as_rule() {
+                Rule::dummyline => ListItem::Dummy,
+                Rule::ul1 => ListItem::Nest(parse_list(p.into_inner())),
+                Rule::ul2 => ListItem::Nest(parse_list(p.into_inner())),
+                Rule::ul3 => ListItem::Nest(parse_list(p.into_inner())),
+                _ => ListItem::Block(parse_block(p)),
+            })
+            .collect::<Vec<ListItem>>()
+    })
+    .fold(vec![], |mut acc, mut v| {
+        acc.append(&mut v);
+        acc
+    })
 }
 
 fn parse_block(p: Pair<Rule>) -> Block {
@@ -67,14 +71,14 @@ fn parse_block(p: Pair<Rule>) -> Block {
                 .into_inner()
                 .next()
                 .map(|p| p.as_str().trim_end().to_owned())
-                .unwrap_or("text".to_owned());
+                .unwrap_or_else(|| "text".to_owned());
             let src = inner
                 .map(|p| p.as_str().to_owned())
                 .collect::<Vec<String>>();
             Block::Code(
                 lang,
                 src[..src.len() - 1]
-                    .into_iter()
+                    .iter()
                     .fold(String::new(), |acc, s| acc + s),
             )
         }
@@ -84,9 +88,7 @@ fn parse_block(p: Pair<Rule>) -> Block {
             let children = inner.map(parse_block).collect::<Vec<Block>>();
             Block::ExtBlock(attr, children)
         }
-        b => {
-            unreachable!();
-        }
+        _ => unreachable!(),
     }
 }
 
@@ -124,7 +126,8 @@ mod test {
                     .next()
                     .unwrap()
             ),
-            Block::P(vec![Inline::Text("hoge\nfuga\n".to_owned())]));
+            Block::P(vec![Inline::Text("hoge\nfuga\n".to_owned())])
+        );
     }
     #[test]
     fn ext() {
@@ -168,12 +171,9 @@ mod test {
                     ListItem::Block(Block::P(vec![Inline::Text(" li2\n".to_owned())])),
                     ListItem::Block(Block::P(vec![Inline::Text(" li2\n".to_owned())])),
                     ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
-                            " li3\n".to_owned()
-                        )]))
-                    ]),
-                    ListItem::Block(Block::P(vec![Inline::Text(
-                        " li2\n".to_owned()
-                    )]))
+                        " li3\n".to_owned()
+                    )]))]),
+                    ListItem::Block(Block::P(vec![Inline::Text(" li2\n".to_owned())]))
                 ])
             ])
         );
@@ -285,4 +285,6 @@ pub fn parse(s: &str) -> Block {
         .next()
         .unwrap()
         .into_inner()
-        .collect::<Vec<Pair<Rule>>>(); parse_block(toplevels[1].clone()) }
+        .collect::<Vec<Pair<Rule>>>();
+    parse_block(toplevels[1].clone())
+}

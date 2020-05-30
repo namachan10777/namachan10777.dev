@@ -21,17 +21,19 @@ impl Default for Context {
 
 fn inline(_ctx: Context, i: Inline) -> XMLElem {
     match i {
-        Inline::Text(txt) => XMLElem::Text(txt.replace("&", "&amp;").to_owned()),
+        Inline::Text(txt) => XMLElem::Text(txt.replace("&", "&amp;")),
         Inline::Code(_) => unimplemented!(),
     }
 }
 
 fn list(ctx: Context, li: Vec<ListItem>) -> Vec<XMLElem> {
-    li.into_iter().map(|l| match l {
-        ListItem::Block(b) => block(ctx.clone(), b),
-        ListItem::Nest(li) => XMLElem::WithElem("ul".to_owned(), vec![], list(ctx.clone(), li)),
-        ListItem::Dummy => XMLElem::Text(String::new()),
-    }).collect::<Vec<XMLElem>>()
+    li.into_iter()
+        .map(|l| match l {
+            ListItem::Block(b) => block(ctx.clone(), b),
+            ListItem::Nest(li) => XMLElem::WithElem("ul".to_owned(), vec![], list(ctx.clone(), li)),
+            ListItem::Dummy => XMLElem::Text(String::new()),
+        })
+        .collect::<Vec<XMLElem>>()
 }
 
 fn block(ctx: Context, b: Block) -> XMLElem {
@@ -43,7 +45,6 @@ fn block(ctx: Context, b: Block) -> XMLElem {
                     block(
                         Context {
                             level: ctx.level + 1,
-                            ..ctx
                         },
                         b,
                     )
@@ -80,16 +81,14 @@ fn block(ctx: Context, b: Block) -> XMLElem {
                 .map(|i| inline(ctx.clone(), i))
                 .collect::<Vec<XMLElem>>(),
         ),
-        Block::Ul(li) => {
-            XMLElem::WithElem("ul".to_owned(), vec![], list(ctx, li))
-        }
+        Block::Ul(li) => XMLElem::WithElem("ul".to_owned(), vec![], list(ctx, li)),
         Block::Code(_lang, src) => XMLElem::WithElem(
             "code".to_owned(),
             vec![],
             vec![XMLElem::WithElem(
                 "pre".to_owned(),
                 vec![],
-                vec![XMLElem::Text(src.to_owned())],
+                vec![XMLElem::Text(src)],
             )],
         ),
     }
