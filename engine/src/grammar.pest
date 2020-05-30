@@ -19,7 +19,7 @@ codeblock = {
 }
 
 special_start = {
-	emptyline | codeblockbegin | WHITESPACE* ~ "#" | "=="
+	emptyline | codeblockbegin | WHITESPACE* ~ "#" | "==" | WHITESPACE* ~ "*"
 }
 
 paragraphline = @{
@@ -33,35 +33,51 @@ extsymbol = @{ ASCII_ALPHANUMERIC+ }
 
 extblock = ${
 	"==[" ~ extsymbol ~ "]" ~ WHITESPACE* ~ endline
-	~ ((emptyline | codeblock | paragraph) ~ endline)*
+	~ ((emptyline | codeblock | ul3 | ul2 | ul1 | paragraph) ~ endline)*
 	~ "=="
 }
 
 h1 = ${
-	"#" ~ paragraph ~ (emptyline* ~(codeblock | extblock | h6 | h5 | h4 | h3 | h2 | paragraph))*
+	"#" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1 | h6 | h5 | h4 | h3 | h2 | paragraph))*
 }
 
 h2 = {
-	"##" ~ paragraph ~ (emptyline* ~(codeblock | extblock  | h6 | h5 | h4 | h3 | paragraph))*
+	"##" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | h3 | paragraph))*
 }
 
 h3 = {
-	"###" ~ paragraph ~ (emptyline* ~(codeblock | extblock  | h6 | h5 | h4 | paragraph))*
+	"###" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1  | h6 | h5 | h4 | paragraph))*
 }
 
 
 h4 = {
-	"####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | h6 | h5 |  paragraph))*
+	"####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | ul3 | ul2 | ul1 | h6 | h5 |  paragraph))*
 }
 
 
 h5 = {
-	"#####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | h6 | paragraph))*
+	"#####" ~ paragraph ~ (emptyline* ~(codeblock  | extblock | ul3 | ul2 | ul1 | h6 | paragraph))*
 }
 
 
 h6 = {
-	"######" ~ paragraph ~ (emptyline* ~(codeblock | extblock  | paragraph))*
+	"######" ~ paragraph ~ (emptyline* ~(codeblock | extblock | ul3 | ul2 | ul1 | paragraph))*
+}
+
+dummyline = {
+	WHITESPACE* ~ endline
+}
+
+ul1 = {
+	WHITESPACE* ~ "*" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3 | ul2 | ul1))*
+}
+
+ul2 = {
+	WHITESPACE* ~ "**" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3 | ul2))*
+}
+
+ul3 = {
+	WHITESPACE* ~ "***" ~ (codeblock | extblock | paragraph | dummyline) ~ (endline ~ (ul3))*
 }
 
 main = { SOI ~ (attribute | emptyline)* ~ "::" ~ "\n" ~ emptyline* ~ h1 ~ endline? ~ EOI }

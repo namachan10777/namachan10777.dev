@@ -1,4 +1,4 @@
-use pest::iterators::Pair;
+use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 
 #[grammar = "grammar.pest"]
@@ -13,7 +13,8 @@ pub enum Inline {
 
 #[derive(Debug, PartialEq)]
 pub enum ListItem {
-    Inline(Inline),
+    Block(Block),
+    Dummy,
     Nest(Vec<ListItem>),
 }
 
@@ -24,6 +25,17 @@ pub enum Block {
     P(Vec<Inline>),
     Ul(Vec<ListItem>),
     Code(String, String),
+}
+
+fn parse_list(mut ps: Pairs<Rule>) -> Vec<ListItem> {
+    ps.map(|p| match p.as_rule() {
+        Rule::dummyline => ListItem::Dummy,
+        Rule::ul1 => ListItem::Nest(parse_list(p.into_inner())),
+        Rule::ul2 => ListItem::Nest(parse_list(p.into_inner())),
+        Rule::ul3 => ListItem::Nest(parse_list(p.into_inner())),
+        block => ListItem::Block(parse_block(p)),
+    })
+    .collect::<Vec<ListItem>>()
 }
 
 fn parse_block(p: Pair<Rule>) -> Block {
@@ -40,6 +52,9 @@ fn parse_block(p: Pair<Rule>) -> Block {
         Rule::h4 => heading_common(p),
         Rule::h5 => heading_common(p),
         Rule::h6 => heading_common(p),
+        Rule::ul1 => Block::Ul(parse_list(p.into_inner())),
+        Rule::ul2 => Block::Ul(parse_list(p.into_inner())),
+        Rule::ul3 => Block::Ul(parse_list(p.into_inner())),
         Rule::paragraph => Block::P(vec![Inline::Text(p.as_str().to_owned())]),
         Rule::codeblock => {
             let mut inner = p.into_inner();
@@ -103,6 +118,57 @@ mod test {
             Block::ExtBlock(
                 "address".to_owned(),
                 vec![Block::P(vec![Inline::Text("hoge".to_owned())])]
+            )
+        );
+    }
+    #[test]
+    fn list() {
+        let src = [
+            " * li1", " * li1", " ** li2", " ** li2", " *** li3", " ** li2",
+        ]
+        .iter()
+        .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        let src2 = ["==[address]", "*l1", "=="]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::ul1, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Ul(vec![
+                ListItem::Block(Block::P(vec![Inline::Text("li1".to_owned())])),
+                ListItem::Nest(vec![
+                    ListItem::Block(Block::P(vec![Inline::Text("li1".to_owned())])),
+                    ListItem::Nest(vec![
+                        ListItem::Block(Block::P(vec![Inline::Text("li2".to_owned())])),
+                        ListItem::Nest(vec![
+                            ListItem::Block(Block::P(vec![Inline::Text("li2".to_owned())])),
+                            ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
+                                "li3".to_owned()
+                            )]))]),
+                            ListItem::Nest(vec![ListItem::Block(Block::P(vec![Inline::Text(
+                                "li2".to_owned()
+                            )]))])
+                        ])
+                    ])
+                ])
+            ])
+        );
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::extblock, src2.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::ExtBlock(
+                "address".to_owned(),
+                vec![Block::Ul(vec![ListItem::Block(Block::P(vec![
+                    Inline::Text("l1".to_owned())
+                ]))])]
             )
         );
     }
