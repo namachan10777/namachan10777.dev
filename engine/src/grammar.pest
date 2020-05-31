@@ -21,7 +21,7 @@ codeblockbegin = { "```" ~ WHITESPACE* ~ (emptyline | lang?) }
 codeblockend = { "```" ~ WHITESPACE* ~ el }
 escape = _{ "\\" }
 
-escaped_codeblok = @{escape ~ "\\"* ~ "```" }
+escaped_codeblock = @{escape ~ "\\"* ~ "```" }
 escaped_heading = @{escape ~ "\\"* ~ "#"+ }
 escaped_li = @{escape ~ "\\"* ~ "*"+ }
 
@@ -51,7 +51,7 @@ inline_escapes = @{
 }
 
 block_escapes = @{
-	escaped_codeblok
+	escaped_codeblock
 	| escaped_heading
 	| escaped_li
 }
@@ -85,9 +85,13 @@ link = ${
 	"[" ~ linktext ~ "](" ~ url ~ ")"
 }
 
+codeline = @{
+	(!el ~ ANY)*
+}
+
 codeblock = ${
 	codeblockbegin
-	~ (!codeblockend ~ (escaped_codeblok ~ line | line | dummyline))*
+	~ (!codeblockend ~ (white* ~ escaped_codeblock ~ codeline | codeline) ~ visibleel)*
 	~ codeblockend
 }
 

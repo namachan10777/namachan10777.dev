@@ -34,6 +34,16 @@ fn inline(ctx: Context, i: Inline) -> XMLElem {
             "img".to_owned(),
             vec![("alt".to_owned(), alttxt), ("src".to_owned(), src)],
         ),
+        Inline::Ext(extname, extinner) => {
+            match extname.as_str() {
+                "link" => {
+                    XMLElem::WithElem("a".to_owned(), vec![
+                        ("href".to_owned(), "dummy".to_owned())
+                    ], vec![XMLElem::Text(extinner)])
+                },
+                _ => unreachable!(),
+            }
+        },
         _ => unimplemented!(),
     }
 }
