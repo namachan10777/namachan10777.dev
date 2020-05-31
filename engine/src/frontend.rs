@@ -20,11 +20,34 @@ pub enum ListItem {
 
 #[derive(Debug, PartialEq)]
 pub enum Block {
-    Section(String, Vec<Block>),
+    Section(Vec<Inline>, Vec<Block>),
     ExtBlock(String, Vec<Block>),
     P(Vec<Inline>),
     Ul(Vec<ListItem>),
     Code(String, String),
+}
+
+fn parse_inlines(ps: Pairs<Rule>) -> Vec<Inline> {
+    let mut s = String::new();
+    for p in ps {
+        match p.as_rule() {
+            Rule::block_escapes => s.push_str(&p.as_str()[1..]),
+            Rule::white => s.push_str(&p.as_str()),
+            Rule::inline_escapes => s.push_str(&p.as_str()[1..]),
+            Rule::plain => s.push_str(&p.as_str()),
+            Rule::visibleel => s.push_str(&p.as_str()),
+            _ => unreachable!(),
+        }
+    }
+    vec![Inline::Text(s)]
+}
+
+fn parse_paragraphlines(ps: Pairs<Rule>) -> Vec<Inline> {
+    ps.map(|p| parse_inlines(p.into_inner()))
+        .fold(vec![], |mut acc, mut v| {
+            acc.append(&mut v);
+            acc
+        })
 }
 
 fn parse_list(ps: Pairs<Rule>) -> Vec<ListItem> {
@@ -48,7 +71,7 @@ fn parse_list(ps: Pairs<Rule>) -> Vec<ListItem> {
 fn parse_block(p: Pair<Rule>) -> Block {
     let heading_common = |p: Pair<Rule>| {
         let mut inner = p.into_inner();
-        let title = inner.next().unwrap().as_str().to_owned();
+        let title = parse_paragraphlines(inner.next().unwrap().into_inner());
         let children = inner.map(parse_block).collect::<Vec<Block>>();
         Block::Section(title, children)
     };
@@ -62,7 +85,7 @@ fn parse_block(p: Pair<Rule>) -> Block {
         Rule::ul1 => Block::Ul(parse_list(p.into_inner())),
         Rule::ul2 => Block::Ul(parse_list(p.into_inner())),
         Rule::ul3 => Block::Ul(parse_list(p.into_inner())),
-        Rule::paragraph => Block::P(vec![Inline::Text(p.as_str().to_owned())]),
+        Rule::paragraph => Block::P(parse_paragraphlines(p.into_inner())),
         Rule::codeblock => {
             let mut inner = p.into_inner();
             let heading = inner.next();
@@ -96,6 +119,27 @@ fn parse_block(p: Pair<Rule>) -> Block {
 mod test {
     use super::*;
     #[test]
+    fn escape() {
+        let src = ["#h1", "\\\\```", "```", "hoge", "```"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::h1, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Section(
+                vec![
+                    Inline::Text("h1\n".to_owned()),
+                    Inline::Text("\\```\n".to_owned())
+                ],
+                vec![Block::Code("text".to_owned(), "hoge\n".to_owned())]
+            )
+        );
+    }
+    #[test]
     fn codeblock() {
         let src = ["```bash", "hoge", "", "goo", "noo", "```"]
             .iter()
@@ -126,7 +170,10 @@ mod test {
                     .next()
                     .unwrap()
             ),
-            Block::P(vec![Inline::Text("hoge\nfuga\n".to_owned())])
+            Block::P(vec![
+                Inline::Text("hoge\n".to_owned()),
+                Inline::Text("fuga\n".to_owned())
+            ])
         );
     }
     #[test]
@@ -218,11 +265,17 @@ mod test {
         .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src1).unwrap().next().unwrap()),
-            Block::Section(" h1\n".to_owned(), vec![])
+            Block::Section(vec![Inline::Text(" h1\n".to_owned())], vec![])
         );
         assert_eq!(
             parse_block(SrcParser::parse(Rule::h1, src2).unwrap().next().unwrap()),
-            Block::Section(" h1\nh1\n".to_owned(), vec![])
+            Block::Section(
+                vec![
+                    Inline::Text(" h1\n".to_owned()),
+                    Inline::Text("h1\n".to_owned())
+                ],
+                vec![]
+            )
         );
         assert_eq!(
             parse_block(
@@ -232,7 +285,10 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                " h1\nh1\n".to_owned(),
+                vec![
+                    Inline::Text(" h1\n".to_owned()),
+                    Inline::Text("h1\n".to_owned())
+                ],
                 vec![Block::P(vec![Inline::Text("hoge\n".to_owned())])]
             )
         );
@@ -244,7 +300,7 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                " h1\n".to_owned(),
+                vec![Inline::Text(" h1\n".to_owned())],
                 vec![
                     Block::Code("text".to_owned(), "echo \"foo\"\n".to_owned()),
                     Block::P(vec![Inline::Text("hoge\n".to_owned())])
@@ -259,20 +315,23 @@ mod test {
                     .unwrap()
             ),
             Block::Section(
-                "h1\n".to_owned(),
+                vec![Inline::Text("h1\n".to_owned())],
                 vec![
                     Block::Section(
-                        "h2\n".to_owned(),
+                        vec![Inline::Text("h2\n".to_owned())],
                         vec![
                             Block::P(vec![Inline::Text("h2 content\n".to_owned())]),
-                            Block::Section("h3\n".to_owned(), vec![])
+                            Block::Section(vec![Inline::Text("h3\n".to_owned())], vec![])
                         ]
                     ),
                     Block::Section(
-                        "h2\n".to_owned(),
-                        vec![Block::Section("h3\n".to_owned(), vec![])]
+                        vec![Inline::Text("h2\n".to_owned())],
+                        vec![Block::Section(
+                            vec![Inline::Text("h3\n".to_owned())],
+                            vec![]
+                        )]
                     ),
-                    Block::Section("h2\n".to_owned(), vec![])
+                    Block::Section(vec![Inline::Text("h2\n".to_owned())], vec![])
                 ]
             )
         );

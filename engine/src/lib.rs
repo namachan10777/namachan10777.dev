@@ -29,9 +29,19 @@ fn inline(_ctx: Context, i: Inline) -> XMLElem {
 fn list(ctx: Context, li: Vec<ListItem>) -> Vec<XMLElem> {
     li.into_iter()
         .map(|l| match l {
-            ListItem::Block(b) => block(ctx.clone(), b),
-            ListItem::Nest(li) => XMLElem::WithElem("ul".to_owned(), vec![], list(ctx.clone(), li)),
-            ListItem::Dummy => XMLElem::Text(String::new()),
+            ListItem::Block(b) => {
+                XMLElem::WithElem("li".to_owned(), vec![], vec![block(ctx.clone(), b)])
+            }
+            ListItem::Nest(li) => XMLElem::WithElem(
+                "li".to_owned(),
+                vec![],
+                vec![XMLElem::WithElem(
+                    "ul".to_owned(),
+                    vec![],
+                    list(ctx.clone(), li),
+                )],
+            ),
+            ListItem::Dummy => XMLElem::WithElem("li".to_owned(), vec![], vec![]),
         })
         .collect::<Vec<XMLElem>>()
 }
@@ -50,13 +60,16 @@ fn block(ctx: Context, b: Block) -> XMLElem {
                     )
                 })
                 .collect::<Vec<XMLElem>>();
+            let heading = heading.into_iter();
             let header = XMLElem::WithElem(
                 "header".to_owned(),
                 vec![],
                 vec![XMLElem::WithElem(
                     format!("h{}", ctx.level),
                     vec![],
-                    vec![XMLElem::Text(heading)],
+                    heading
+                        .map(|i| inline(ctx.clone(), i))
+                        .collect::<Vec<XMLElem>>(),
                 )],
             );
             let mut inner = vec![header];

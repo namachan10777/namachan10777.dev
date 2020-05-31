@@ -1,9 +1,18 @@
 WHITESPACE = _{ " " | "\t" }
+white = { " " | "\t" }
 
 
 el = _{ "\n" | "\r\n" | "\r"}
 visibleel = { "\n" | "\r\n" | "\r"}
-line = @{ (!el ~ ANY)+ ~ el }
+plain = @{
+	(!el ~ !inline_escapes ~ ANY)+
+}
+line = ${
+	(
+		white* ~ block_escapes ~ (!el ~ (inline_escapes | plain))*
+		| (!el ~ (inline_escapes | plain))+
+	) ~ visibleel
+	}
 emptyline = _{ WHITESPACE* ~ el }
 dummyline = @{ WHITESPACE* ~ el }
 attribute = ${":" ~ ASCII_ALPHANUMERIC+ ~ WHITESPACE+ ~ line}
@@ -11,26 +20,66 @@ lang = @{ (!el ~ !WHITESPACE ~ ANY)+ ~ el }
 codeblockbegin = { "```" ~ WHITESPACE* ~ (emptyline | lang?) }
 codeblockend = { "```" ~ WHITESPACE* ~ el }
 escape = _{ "\\" }
-codeblockescape = @{escape ~ "\\"* ~ "```" ~ WHITESPACE* ~ line }
-headingescape = @{escape ~ "\\"* ~ "#" ~ line}
-listescape = @{escape ~ "\\"* ~ "*" ~ line}
+
+escaped_codeblok = @{escape ~ "\\"* ~ "```" }
+escaped_heading = @{escape ~ "\\"* ~ "#"+ }
+escaped_li = @{escape ~ "\\"* ~ "*"+ }
+
+escaped_sqbra_begin = @{ escape ~ "\\"* ~ "[" }
+escaped_sqbra_end = @{ escape ~ "\\"* ~ "]" }
+escaped_ex = @{ escape ~ "\\"* ~ "!" }
+
+url = @{
+	(!")" ~ ANY)*
+}
+
+inline_escapes = @{
+	escaped_sqbra_begin
+	| escaped_sqbra_end
+}
+
+
+block_escapes = @{
+	escaped_codeblok
+	| escaped_heading
+	| escaped_li
+}
+
+inlinetext = @{
+	(
+		!"]" ~ 
+		!el ~
+		( inline_escapes
+		| imglink
+		| link
+		)
+	)+
+}
+
+imglink = ${
+	"![" ~ inlinetext ~ "](" ~ url ~ ")"
+}
+
+link = ${
+	"[" ~ inlinetext ~ "](" ~ url ~ ")"
+}
 
 codeblock = ${
 	codeblockbegin
-	~ (!codeblockend ~ (codeblockescape | line | dummyline))*
+	~ (!codeblockend ~ (escaped_codeblok ~ line | line | dummyline))*
 	~ codeblockend
 }
 
-special_start = {
-	codeblockbegin | WHITESPACE* ~ "#" | "==" | WHITESPACE* ~ "*"
+block_start = @{
+	"```" | "#" | "==" | "*"
 }
 
-paragraphline = ${
-	WHITESPACE* ~ !special_start ~ (codeblockescape | headingescape | listescape)? ~ line
+inline_start = @{
+	"![" | "[" | "`"
 }
 
 paragraph = ${
-	paragraphline+
+	(!(WHITESPACE* ~ block_start) ~ line)+
 }
 
 extsymbol = @{ ASCII_ALPHANUMERIC+ }
