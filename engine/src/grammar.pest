@@ -5,12 +5,12 @@ white = { " " | "\t" }
 el = _{ "\n" | "\r\n" | "\r"}
 visibleel = { "\n" | "\r\n" | "\r"}
 plain = @{
-	(!el ~ !inline_escapes ~ ANY)+
+	(!el ~ !inline_escapes ~ !"]" ~ !"[" ~ !"$" ~ ANY)+
 }
 line = ${
 	(
-		white* ~ block_escapes ~ (!el ~ (inline_escapes | plain))*
-		| (!el ~ (inline_escapes | plain))+
+		white* ~ block_escapes ~ inlinetext?
+		| inlinetext
 	) ~ visibleel
 	}
 emptyline = _{ WHITESPACE* ~ el }
@@ -28,6 +28,17 @@ escaped_li = @{escape ~ "\\"* ~ "*"+ }
 escaped_sqbra_begin = @{ escape ~ "\\"* ~ "[" }
 escaped_sqbra_end = @{ escape ~ "\\"* ~ "]" }
 escaped_ex = @{ escape ~ "\\"* ~ "!" }
+escaped_ext = @{ escape ~ "\\"* ~ "$" }
+
+extname = @{
+	ASCII_ALPHANUMERIC+
+}
+extinner = @{
+	(!"]" ~ ANY)*
+}
+inline_ext = ${
+	"$" ~ extname ~ "[" ~ extinner ~ "]"
+}
 
 url = @{
 	(!")" ~ ANY)*
@@ -36,8 +47,8 @@ url = @{
 inline_escapes = @{
 	escaped_sqbra_begin
 	| escaped_sqbra_end
+	| escaped_ext
 }
-
 
 block_escapes = @{
 	escaped_codeblok
@@ -45,23 +56,33 @@ block_escapes = @{
 	| escaped_li
 }
 
-inlinetext = @{
+inlinetext = ${
 	(
 		!"]" ~ 
 		!el ~
 		( inline_escapes
-		| imglink
+		| img
 		| link
+		| inline_ext
+		| plain
 		)
 	)+
 }
 
-imglink = ${
-	"![" ~ inlinetext ~ "](" ~ url ~ ")"
+alttxt = @{
+	(!"]" ~ ANY)*
+}
+
+img = ${
+	"![" ~ alttxt ~ "](" ~ url ~ ")"
+}
+
+linktext = ${
+	inlinetext*
 }
 
 link = ${
-	"[" ~ inlinetext ~ "](" ~ url ~ ")"
+	"[" ~ linktext ~ "](" ~ url ~ ")"
 }
 
 codeblock = ${
@@ -142,4 +163,4 @@ attributes = {
 	(attribute | emptyline)* ~ "::" ~ el
 }
 
-main = { SOI ~ attributes ~ emptyline* ~ h1 ~ el? }
+main = { SOI ~ attributes ~ emptyline* ~ h1 ~ el? ~ EOI }

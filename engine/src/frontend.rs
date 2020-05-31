@@ -9,6 +9,9 @@ struct SrcParser;
 pub enum Inline {
     Text(String),
     Code(String),
+    Link(Vec<Inline>, String),
+    Img(String, String),
+    Ext(String, String),
 }
 
 #[derive(Debug, PartialEq)]
@@ -29,17 +32,57 @@ pub enum Block {
 
 fn parse_inlines(ps: Pairs<Rule>) -> Vec<Inline> {
     let mut s = String::new();
+    let mut inlines = Vec::new();
     for p in ps {
         match p.as_rule() {
             Rule::block_escapes => s.push_str(&p.as_str()[1..]),
-            Rule::white => s.push_str(&p.as_str()),
-            Rule::inline_escapes => s.push_str(&p.as_str()[1..]),
-            Rule::plain => s.push_str(&p.as_str()),
             Rule::visibleel => s.push_str(&p.as_str()),
-            _ => unreachable!(),
+            Rule::inlinetext => p.into_inner().for_each(|p| match p.as_rule() {
+                Rule::white => s.push_str(&p.as_str()),
+                Rule::inline_escapes => s.push_str(&p.as_str()[1..]),
+                Rule::plain => s.push_str(&p.as_str()),
+                Rule::link => {
+                    let mut inner = p.into_inner();
+                    let txt = parse_inlines(inner.next().unwrap().into_inner());
+                    let url = inner.next().unwrap().as_str().to_owned();
+                    if !s.is_empty() {
+                        inlines.push(Inline::Text(s.clone()));
+                        s.clear();
+                    }
+                    inlines.push(Inline::Link(txt, url));
+                }
+                Rule::img => {
+                    let mut inner = p.into_inner();
+                    let txt = inner.next().unwrap().as_str().to_owned();
+                    let url = inner.next().unwrap().as_str().to_owned();
+                    if !s.is_empty() {
+                        inlines.push(Inline::Text(s.clone()));
+                        s.clear();
+                    }
+                    inlines.push(Inline::Img(txt, url));
+                }
+                Rule::inline_ext => {
+                    let mut inner = p.into_inner();
+                    let extname = inner.next().unwrap().as_str().to_owned();
+                    let extinner = inner.next().unwrap().as_str().to_owned();
+                    if !s.is_empty() {
+                        inlines.push(Inline::Text(s.clone()));
+                        s.clear();
+                    }
+                    inlines.push(Inline::Ext(extname, extinner));
+                }
+                _ => unimplemented!(),
+            }),
+            r => {
+                println!("{:?}", r);
+                unreachable!()
+            }
         }
     }
-    vec![Inline::Text(s)]
+    if !s.is_empty() {
+        inlines.push(Inline::Text(s));
+    }
+    inlines
 }
 
 fn parse_paragraphlines(ps: Pairs<Rule>) -> Vec<Inline> {
@@ -119,6 +162,25 @@ fn parse_block(p: Pair<Rule>) -> Block {
 mod test {
     use super::*;
     #[test]
+    fn link() {
+        let src = "[![img](./img.jpg)](https://example.com)\n";
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::paragraph, src)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::P(vec![
+                Inline::Link(
+                    vec![Inline::Img("img".to_owned(), "./img.jpg".to_owned())],
+                    "https://example.com".to_owned()
+                ),
+                Inline::Text("\n".to_owned()),
+            ])
+        );
+    }
+    #[test]
     fn escape() {
         let src = ["#h1", "\\\\```", "```", "hoge", "```"]
             .iter()
@@ -156,10 +218,6 @@ mod test {
     }
     #[test]
     fn paragraph() {
-        let src = ["hoge"]
-            .iter()
-            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
-
         let src = ["hoge", "fuga"]
             .iter()
             .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
@@ -192,6 +250,24 @@ mod test {
                 "address".to_owned(),
                 vec![Block::P(vec![Inline::Text("hoge\n".to_owned())])]
             )
+        );
+    }
+    #[test]
+    fn inline_ext() {
+        let src = ["$link[hoge]"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::paragraph, src.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::P(vec![
+                Inline::Ext("link".to_owned(), "hoge".to_owned()),
+                Inline::Text("\n".to_owned()),
+            ])
         );
     }
     #[test]
@@ -237,6 +313,38 @@ mod test {
                     Inline::Text("l1\n".to_owned())
                 ]))])]
             )
+        );
+        let src3 = [" * [fu](fa)"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::ul1, src3.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Ul(vec![ListItem::Block(Block::P(vec![
+                Inline::Text(" ".to_owned()),
+                Inline::Link(vec![Inline::Text("fu".to_owned())], "fa".to_owned()),
+                Inline::Text("\n".to_owned()),
+            ]))])
+        );
+        let src3 = [" * $link[hoge]"]
+            .iter()
+            .fold("".to_owned(), |acc, x| acc + x.clone() + "\n");
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::ul1, src3.as_str())
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::Ul(vec![ListItem::Block(Block::P(vec![
+                Inline::Text(" ".to_owned()),
+                Inline::Ext("link".to_owned(), "hoge".to_owned()),
+                Inline::Text("\n".to_owned()),
+            ]))])
         );
     }
     #[test]

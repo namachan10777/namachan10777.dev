@@ -1,7 +1,7 @@
 :date 20200530
 ::
 
-#[index] namachan10777
+# namachan10777
 ## About
 
 ![icon](./res/icon.jpg)

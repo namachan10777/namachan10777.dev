@@ -19,10 +19,22 @@ impl Default for Context {
     }
 }
 
-fn inline(_ctx: Context, i: Inline) -> XMLElem {
+fn inline(ctx: Context, i: Inline) -> XMLElem {
     match i {
         Inline::Text(txt) => XMLElem::Text(txt.replace("&", "&amp;")),
         Inline::Code(_) => unimplemented!(),
+        Inline::Link(txt, url) => XMLElem::WithElem(
+            "a".to_owned(),
+            vec![("href".to_owned(), url)],
+            txt.into_iter()
+                .map(|p| inline(ctx.clone(), p))
+                .collect::<Vec<XMLElem>>(),
+        ),
+        Inline::Img(alttxt, src) => XMLElem::Single(
+            "img".to_owned(),
+            vec![("alt".to_owned(), alttxt), ("src".to_owned(), src)],
+        ),
+        _ => unimplemented!(),
     }
 }
 
