@@ -13,7 +13,6 @@ use frontend::{Block, Inline, ListItem};
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    pub root: String,
     pub article: String,
 }
 
