@@ -1,21 +1,25 @@
 extern crate engine;
-extern crate serde_json;
 extern crate regex;
+extern crate serde_json;
 use std::fs;
 use std::path;
 
 fn main() {
     let app = clap::App::new("blog engine")
-        .arg(clap::Arg::with_name("CONFIG")
-             .required(true)
-             .short("c")
-             .takes_value(true)
-             .long("config"))
-        .arg(clap::Arg::with_name("DEST")
-             .required(true)
-             .short("d")
-             .takes_value(true)
-             .long("dest"))
+        .arg(
+            clap::Arg::with_name("CONFIG")
+                .required(true)
+                .short("c")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(
+            clap::Arg::with_name("DEST")
+                .required(true)
+                .short("d")
+                .takes_value(true)
+                .long("dest"),
+        )
         .get_matches();
     let cfg_path = path::Path::new(app.value_of("CONFIG").unwrap());
     let cfg_str = fs::read_to_string(cfg_path).unwrap();
@@ -28,8 +32,7 @@ fn main() {
             let src = fs::read_to_string(&entry_path).unwrap();
             let ast = engine::parser::parse(src.as_str());
             println!("article: {:#?}", ast);
-        }
-        else if cfg_path != entry_path {
+        } else if cfg_path != entry_path {
             println!("other: {:?}", pathstr);
         }
     }
