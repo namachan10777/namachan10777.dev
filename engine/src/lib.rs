@@ -12,7 +12,7 @@ pub mod paths;
 
 use std::path;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Inline {
     Text(String),
     Code(String),
@@ -21,14 +21,14 @@ pub enum Inline {
     Ext(String, String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ListItem {
     Block(Block),
     Dummy,
     Nest(Vec<ListItem>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Block {
     Section(Vec<Inline>, Vec<Block>),
     ExtBlock(String, Vec<Block>),
@@ -42,7 +42,8 @@ pub struct Config {
     pub article: String,
 }
 
-pub struct ArticleSource<'a> {
-    body: Vec<Block>,
-    path: &'a path::Path,
+#[derive(Debug)]
+pub struct ArticleSource {
+    pub body: Vec<Block>,
+    pub path: path::PathBuf,
 }

@@ -167,4 +167,8 @@ attributes = {
 	(attribute | emptyline)* ~ "::" ~ el
 }
 
-main = { SOI ~ attributes ~ emptyline* ~ h1 ~ el? ~ EOI }
+top_block = {
+	h6 | h5 | h4 | h3 | h2 | h1 | li3 | li2 | li1 | extblock| codeblock | paragraph
+}
+
+main = { SOI ~ attributes ~ emptyline* ~ top_block+ ~ el? ~ EOI }

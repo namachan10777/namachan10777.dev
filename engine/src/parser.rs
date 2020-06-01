@@ -130,7 +130,10 @@ fn parse_block(p: Pair<Rule>) -> Block {
             let children = inner.map(parse_block).collect::<Vec<Block>>();
             Block::ExtBlock(attr, children)
         }
-        _ => unreachable!(),
+        x => {
+            println!("{:?}", x);
+            unreachable!()
+        }
     }
 }
 
@@ -422,12 +425,21 @@ mod test {
     }
 }
 
-pub fn parse(s: &str) -> Block {
-    let toplevels = SrcParser::parse(Rule::main, s)
+pub fn parse(s: &str) -> Vec<Block> {
+    let mut inner = SrcParser::parse(Rule::main, s)
         .unwrap()
         .next()
         .unwrap()
-        .into_inner()
-        .collect::<Vec<Pair<Rule>>>();
-    parse_block(toplevels[1].clone())
+        .into_inner();
+    let _attribute = inner.next().unwrap();
+    inner.map(|p| match p.as_rule() {
+        Rule::top_block => {
+            Some(parse_block(p.into_inner().next().unwrap()))
+        },
+        _ => {
+            None
+        },
+    })
+    .filter_map(|p| p)
+    .collect::<Vec<Block>>()
 }

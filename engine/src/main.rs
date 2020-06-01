@@ -25,15 +25,21 @@ fn main() {
     let cfg_str = fs::read_to_string(cfg_path).unwrap();
     let cfg = serde_json::from_str::<engine::Config>(cfg_str.as_str()).unwrap();
     let article_re = regex::Regex::new(cfg.article.as_str()).unwrap();
+    let mut articles = Vec::new();
     for entry in fs::read_dir(cfg_path.parent().unwrap()).unwrap() {
         let entry_path = entry.unwrap().path();
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
             let src = fs::read_to_string(&entry_path).unwrap();
             let ast = engine::parser::parse(src.as_str());
-            println!("article: {:#?}", ast);
+            //println!("article: {:#?}", ast);
+            articles.push(engine::ArticleSource {
+                path: entry_path,
+                body: ast,
+            });
         } else if cfg_path != entry_path {
             println!("other: {:?}", pathstr);
         }
     }
+    engine::paths::resolve_link::f(articles);
 }
