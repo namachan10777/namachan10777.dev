@@ -8,6 +8,7 @@ extern crate serde;
 pub mod ast2xml;
 pub mod codegen;
 pub mod parser;
+pub mod paths;
 
 use std::path;
 
@@ -41,7 +42,7 @@ pub struct Config {
     pub article: String,
 }
 
-struct ArticleSource {
+pub struct ArticleSource<'a> {
     body: Vec<Block>,
-    path: path::Path,
+    path: &'a path::Path,
 }
