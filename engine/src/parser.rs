@@ -432,14 +432,11 @@ pub fn parse(s: &str) -> Vec<Block> {
         .unwrap()
         .into_inner();
     let _attribute = inner.next().unwrap();
-    inner.map(|p| match p.as_rule() {
-        Rule::top_block => {
-            Some(parse_block(p.into_inner().next().unwrap()))
-        },
-        _ => {
-            None
-        },
-    })
-    .filter_map(|p| p)
-    .collect::<Vec<Block>>()
+    inner
+        .map(|p| match p.as_rule() {
+            Rule::top_block => Some(parse_block(p.into_inner().next().unwrap())),
+            _ => None,
+        })
+        .filter_map(|p| p)
+        .collect::<Vec<Block>>()
 }
