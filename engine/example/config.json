@@ -1,0 +1,4 @@
+{
+	"root": "index\\.md",
+	"article": ".+\\.md"
+}

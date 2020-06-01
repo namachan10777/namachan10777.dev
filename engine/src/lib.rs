@@ -1,12 +1,21 @@
 extern crate pest;
 #[macro_use]
 extern crate pest_derive;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
 
 pub mod backend;
 pub mod frontend;
 
 use backend::XMLElem;
 use frontend::{Block, Inline, ListItem};
+
+#[derive(Deserialize, Debug)]
+pub struct Config {
+    pub root: String,
+    pub article: String,
+}
 
 #[derive(Clone)]
 struct Context {
