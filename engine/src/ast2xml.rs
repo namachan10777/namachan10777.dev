@@ -1,5 +1,5 @@
 use super::codegen::{XMLElem, XML};
-use super::parser::{Block, Inline, ListItem};
+use super::{Block, Inline, ListItem};
 
 #[derive(Clone)]
 struct Context {

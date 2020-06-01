@@ -11,12 +11,37 @@ pub mod parser;
 
 use std::path;
 
+#[derive(Debug, PartialEq)]
+pub enum Inline {
+    Text(String),
+    Code(String),
+    Link(Vec<Inline>, String),
+    Img(String, String),
+    Ext(String, String),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ListItem {
+    Block(Block),
+    Dummy,
+    Nest(Vec<ListItem>),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Block {
+    Section(Vec<Inline>, Vec<Block>),
+    ExtBlock(String, Vec<Block>),
+    P(Vec<Inline>),
+    Ul(Vec<ListItem>),
+    Code(String, String),
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub article: String,
 }
 
 struct ArticleSource {
-    body: Vec<parser::Block>,
+    body: Vec<Block>,
     path: path::Path,
 }

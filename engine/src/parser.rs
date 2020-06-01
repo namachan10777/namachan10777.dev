@@ -1,34 +1,10 @@
+use super::{Block, Inline, ListItem};
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 
 #[grammar = "grammar.pest"]
 #[derive(Parser)]
 struct SrcParser;
-
-#[derive(Debug, PartialEq)]
-pub enum Inline {
-    Text(String),
-    Code(String),
-    Link(Vec<Inline>, String),
-    Img(String, String),
-    Ext(String, String),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum ListItem {
-    Block(Block),
-    Dummy,
-    Nest(Vec<ListItem>),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Block {
-    Section(Vec<Inline>, Vec<Block>),
-    ExtBlock(String, Vec<Block>),
-    P(Vec<Inline>),
-    Ul(Vec<ListItem>),
-    Code(String, String),
-}
 
 fn parse_inlines(ps: Pairs<Rule>) -> Vec<Inline> {
     let mut s = String::new();
