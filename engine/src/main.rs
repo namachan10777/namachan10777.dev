@@ -26,7 +26,7 @@ fn main() {
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
             let src = fs::read_to_string(&entry_path).unwrap();
-            let ast = engine::frontend::parse(src.as_str());
+            let ast = engine::parser::parse(src.as_str());
             println!("article: {:#?}", ast);
         }
         else if cfg_path != entry_path {

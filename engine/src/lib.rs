@@ -5,11 +5,11 @@ extern crate pest_derive;
 extern crate serde_derive;
 extern crate serde;
 
-pub mod backend;
-pub mod frontend;
+pub mod parser;
+pub mod codegen;
 
-use backend::XMLElem;
-use frontend::{Block, Inline, ListItem};
+use codegen::XMLElem;
+use parser::{Block, Inline, ListItem};
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -134,8 +134,8 @@ fn block(ctx: Context, b: Block) -> XMLElem {
     }
 }
 
-fn html(bs: Vec<XMLElem>) -> backend::XML {
-    backend::XML::new(
+fn html(bs: Vec<XMLElem>) -> codegen::XML {
+    codegen::XML::new(
         "1.0",
         "UTF-8",
         "html",
@@ -153,7 +153,7 @@ fn html(bs: Vec<XMLElem>) -> backend::XML {
     )
 }
 
-pub fn conv(b: Block) -> backend::XML {
+pub fn conv(b: Block) -> codegen::XML {
     html(vec![
         XMLElem::WithElem("head".to_owned(), vec![], vec![]),
         XMLElem::WithElem(
