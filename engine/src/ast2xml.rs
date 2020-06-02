@@ -119,7 +119,7 @@ fn block(ctx: Context, b: Block) -> XMLElem {
     }
 }
 
-fn html(bs: Vec<XMLElem>) -> XML {
+pub fn html(bs: Vec<XMLElem>) -> XML {
     XML::new(
         "1.0",
         "UTF-8",
@@ -138,13 +138,13 @@ fn html(bs: Vec<XMLElem>) -> XML {
     )
 }
 
-pub fn conv(b: Block) -> XML {
+pub fn conv(bs: Vec<Block>) -> XML {
     html(vec![
         XMLElem::WithElem("head".to_owned(), vec![], vec![]),
         XMLElem::WithElem(
             "body".to_owned(),
             vec![],
-            vec![block(Default::default(), b)],
+            bs.into_iter().map(|b| block(Default::default(), b)).collect(),
         ),
     ])
 }

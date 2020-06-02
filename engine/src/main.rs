@@ -1,8 +1,12 @@
 extern crate engine;
 extern crate regex;
 extern crate serde_json;
+extern crate zip;
 use std::fs;
 use std::path;
+use std::io::Write;
+use std::io;
+use std::fmt;
 
 fn main() {
     let app = clap::App::new("blog engine")
@@ -25,14 +29,17 @@ fn main() {
     let cfg_str = fs::read_to_string(cfg_path).unwrap();
     let cfg = serde_json::from_str::<engine::Config>(cfg_str.as_str()).unwrap();
     let article_re = regex::Regex::new(cfg.article.as_str()).unwrap();
+    let mut zipfile = zip::ZipWriter::new(fs::File::create(app.value_of("DEST").unwrap()).unwrap());
     let mut articles = Vec::new();
+    let options = zip::write::FileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated)
+        .unix_permissions(0o755);
     for entry in fs::read_dir(cfg_path.parent().unwrap()).unwrap() {
         let entry_path = entry.unwrap().path();
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
             let src = fs::read_to_string(&entry_path).unwrap();
             let ast = engine::parser::parse(src.as_str());
-            //println!("article: {:#?}", ast);
             articles.push(engine::ArticleSource {
                 path: entry_path,
                 body: ast,
@@ -41,5 +48,11 @@ fn main() {
             println!("other: {:?}", pathstr);
         }
     }
-    engine::paths::resolve_link::f(articles);
+    for article in engine::paths::resolve_link::f(articles) {
+        zipfile.start_file_from_path(&article.path, options).unwrap();
+        let mut buf = String::new();
+        fmt::write(&mut buf, format_args!("{}", engine::ast2xml::conv(article.body)));
+        zipfile.write_all(&buf.as_bytes());
+    }
+    zipfile.finish().unwrap();
 }
