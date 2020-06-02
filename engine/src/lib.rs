@@ -51,7 +51,7 @@ pub struct ArticleSource {
 
 #[derive(Debug)]
 pub struct Articles {
-    pub hash: HashMap<path::PathBuf, Vec<Inline>>,
+    pub hash: HashMap<String, Vec<Inline>>,
     articles: Vec<ArticleSource>,
 }
 
@@ -92,7 +92,7 @@ impl Articles {
 #[derive(Clone)]
 struct Context<'a> {
     level: usize,
-    hash: &'a HashMap<path::PathBuf, Vec<Inline>>,
+    hash: &'a HashMap<String, Vec<Inline>>,
 }
 
 fn inline(ctx: Context, i: Inline) -> XMLElem {
@@ -113,8 +113,8 @@ fn inline(ctx: Context, i: Inline) -> XMLElem {
         Inline::Ext(extname, extinner) => match extname.as_str() {
             "link" => XMLElem::WithElem(
                 "a".to_owned(),
-                vec![("href".to_owned(), "dummy".to_owned())],
-                vec![XMLElem::Text(extinner)],
+                vec![("href".to_owned(), extinner.clone())],
+                ctx.hash.get(extinner.as_str()).unwrap().iter().map(|i| inline(ctx.clone(), i.clone())).collect(),
             ),
             _ => unreachable!(),
         },
