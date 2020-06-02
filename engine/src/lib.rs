@@ -58,7 +58,11 @@ pub struct Articles<'a> {
 
 impl<'a> Articles<'a> {
     pub fn into_xmls(self) -> Vec<(path::PathBuf, codegen::XML)> {
-        let Self { hash, articles, rootpath } = self;
+        let Self {
+            hash,
+            articles,
+            rootpath,
+        } = self;
         articles
             .into_iter()
             .map(|article| {
@@ -119,21 +123,25 @@ fn inline(ctx: Context, i: Inline) -> XMLElem {
                 let mut backwards = String::new();
                 loop {
                     if base == ctx.rootpath {
-                        break
+                        break;
                     }
                     if let Some(next) = base.parent() {
                         base = next;
-                        backwards = backwards + "../";
-                    }
-                    else {
-                        break
+                        backwards += "../";
+                    } else {
+                        break;
                     }
                 }
                 XMLElem::WithElem(
-                "a".to_owned(),
-                vec![("href".to_owned(), backwards + &extinner)],
-                ctx.hash.get(extinner.as_str()).unwrap().iter().map(|i| inline(ctx.clone(), i.clone())).collect(),
-            )
+                    "a".to_owned(),
+                    vec![("href".to_owned(), backwards + &extinner)],
+                    ctx.hash
+                        .get(extinner.as_str())
+                        .unwrap()
+                        .iter()
+                        .map(|i| inline(ctx.clone(), i.clone()))
+                        .collect(),
+                )
             }
             _ => unreachable!(),
         },

@@ -14,7 +14,14 @@ fn read_header(article: &ArticleSource) -> Option<Vec<Inline>> {
 pub fn f<'a>(articles: Vec<ArticleSource>, rootpath: &'a path::Path) -> Articles {
     let mut hash = HashMap::new();
     for article in &articles {
-        hash.insert(article.path.to_str().unwrap().to_owned(), read_header(&article).unwrap());
+        hash.insert(
+            article.path.to_str().unwrap().to_owned(),
+            read_header(&article).unwrap(),
+        );
     }
-    Articles { articles, hash, rootpath }
+    Articles {
+        articles,
+        hash,
+        rootpath,
+    }
 }
