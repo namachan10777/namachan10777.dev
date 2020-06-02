@@ -1,46 +1,16 @@
-FROM ubuntu:latest AS build-env
+FROM rust:1.43 AS build-env
 
-RUN apt-get update && \
-	apt-get install -y software-properties-common && \
-	add-apt-repository ppa:avsm/ppa && \
-	apt-get update && \
-	apt-get upgrade -y  && \
-	apt-get install -y bzip2 gcc git m4 make unzip wget curl ruby opam
+ADD ./engine ./engine
+RUN	rustup target add x86_64-unknown-linux-musl
+RUN	apt-get update && \
+	apt-get install -y musl-tools
+WORKDIR	engine
+RUN	cargo build --release --target=x86_64-unknown-linux-musl
 
-RUN useradd -m satysfi
-USER satysfi
+FROM alpine:latest
+RUN apk add git curl
 
-RUN opam init --comp=4.10.0 --disable-sandboxing && \
-	eval $(opam config env) && \
-	opam repository add satysfi-external https://github.com/gfngfn/satysfi-external-repo.git && \
-	opam update
-
-WORKDIR /home/satysfi
-RUN git clone https://github.com/gfngfn/SATySFi.git
-WORKDIR /home/satysfi/SATySFi
-RUN opam pin add -y satysfi . && \
-	opam install satysfi
-
-RUN sed -i -e 's/oscdl/ipafont/g' ./download-fonts.sh && \
-	sed -i -e 's/IPAexfont00201/IPAexfont00401/g' ./download-fonts.sh && \
-	./download-fonts.sh
-
-USER root
-RUN ./install-libs.sh
-
-
-USER satysfi
-RUN mkdir -p /home/satysfi/work && \
-	echo "eval $(opam config env)" >> ~/.bashrc
-	
-
-FROM ubuntu:latest
-COPY --from=build-env /home/satysfi/.opam/4.08.0/bin/satysfi /usr/bin/
-COPY --from=build-env /usr/local/share/satysfi /usr/local/share/satysfi
-
-RUN apt-get update && \
-	apt-get upgrade -y && \
-	apt-get install -y git make
+COPY --from=build-env engine/target/x86_64-unknown-linux-musl/release/engine /usr/local/bin/engine
 
 #ENTRYPOINT [ "/home/satysfi/.opam/4.06.0/bin/satysfi" ]
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/bin/sh" ]
