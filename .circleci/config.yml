@@ -14,16 +14,15 @@ jobs:
       - run:
           name: Build
           command: |
-            mkdir dist
-            make
+            /usr/local/bin/engine -c public/config.json -d public.zip
+
       - run:
           name: Deploy to netlify
           command: |
-            zip -r namachan10777.zip dist/*
             curl -XPOST \
               -H 'Content-Type: application/zip' \
               -H 'Authorization: Bearer '$NETLIFY_TOKEN \
-              --data-binary @namachan10777.zip \
+              --data-binary @public.zip \
               https://api.netlify.com/api/v1/sites/namachan10777.netlify.com/deploys
 
 workflows:
