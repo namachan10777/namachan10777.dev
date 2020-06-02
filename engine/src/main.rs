@@ -2,11 +2,10 @@ extern crate engine;
 extern crate regex;
 extern crate serde_json;
 extern crate zip;
-use std::fs;
-use std::path;
-use std::io::Write;
-use std::io;
 use std::fmt;
+use std::fs;
+use std::io::Write;
+use std::path;
 
 fn main() {
     let app = clap::App::new("blog engine")
@@ -49,10 +48,15 @@ fn main() {
         }
     }
     for article in engine::paths::resolve_link::f(articles) {
-        zipfile.start_file_from_path(&article.path, options).unwrap();
+        zipfile
+            .start_file_from_path(&article.path, options)
+            .unwrap();
         let mut buf = String::new();
-        fmt::write(&mut buf, format_args!("{}", engine::ast2xml::conv(article.body)));
-        zipfile.write_all(&buf.as_bytes());
+        fmt::write(
+            &mut buf,
+            format_args!("{}", engine::ast2xml::conv(article.body)),
+        ).unwrap();
+        zipfile.write_all(&buf.as_bytes()).unwrap();
     }
     zipfile.finish().unwrap();
 }

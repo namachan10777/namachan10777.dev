@@ -144,7 +144,9 @@ pub fn conv(bs: Vec<Block>) -> XML {
         XMLElem::WithElem(
             "body".to_owned(),
             vec![],
-            bs.into_iter().map(|b| block(Default::default(), b)).collect(),
+            bs.into_iter()
+                .map(|b| block(Default::default(), b))
+                .collect(),
         ),
     ])
 }
