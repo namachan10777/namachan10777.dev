@@ -47,6 +47,21 @@ fn parse_inlines(ps: Pairs<Rule>) -> Vec<Inline> {
                     }
                     inlines.push(Inline::Ext(extname, extinner));
                 }
+                Rule::inline_code => {
+                    if !s.is_empty() {
+                        inlines.push(Inline::Text(s.clone()));
+                        s.clear();
+                    }
+                    inlines.push(Inline::Code(
+                        p.into_inner()
+                            .map(|e| match e.as_rule() {
+                                Rule::inline_code_elem => &e.as_str(),
+                                Rule::escaped_code => &e.as_str()[1..],
+                                _ => unreachable!(),
+                            })
+                            .fold(String::new(), |acc, s| acc + s),
+                    ));
+                }
                 _ => unimplemented!(),
             }),
             r => {
@@ -140,6 +155,22 @@ fn parse_block(p: Pair<Rule>) -> Block {
 #[cfg(test)]
 mod test {
     use super::*;
+    #[test]
+    fn inline_code() {
+        let src = "`hoge`\n";
+        assert_eq!(
+            parse_block(
+                SrcParser::parse(Rule::paragraph, src)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+            ),
+            Block::P(vec![
+                Inline::Code("hoge".to_owned()),
+                Inline::Text("\n".to_owned()),
+            ])
+        );
+    }
     #[test]
     fn link() {
         let src = "[![img](./img.jpg)](https://example.com)\n";

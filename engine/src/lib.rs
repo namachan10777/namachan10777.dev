@@ -105,7 +105,7 @@ struct Context<'a> {
 fn inline(ctx: Context, i: Inline) -> XMLElem {
     match i {
         Inline::Text(txt) => XMLElem::Text(txt.replace("&", "&amp;")),
-        Inline::Code(_) => unimplemented!(),
+        Inline::Code(s) => XMLElem::WithElem("code".to_owned(), vec![], vec![XMLElem::Text(s)]),
         Inline::Link(txt, url) => XMLElem::WithElem(
             "a".to_owned(),
             vec![("href".to_owned(), url)],

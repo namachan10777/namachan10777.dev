@@ -5,7 +5,7 @@ white = { " " | "\t" }
 el = _{ "\n" | "\r\n" | "\r"}
 visibleel = { "\n" | "\r\n" | "\r"}
 plain = @{
-	(!el ~ !inline_escapes ~ !"]" ~ !"[" ~ !"$" ~ ANY)+
+	(!el ~ !inline_escapes ~ !"]" ~ !"[" ~ !"$" ~ !"`" ~ ANY)+
 }
 line = ${
 	(
@@ -29,6 +29,7 @@ escaped_sqbra_begin = @{ escape ~ "\\"* ~ "[" }
 escaped_sqbra_end = @{ escape ~ "\\"* ~ "]" }
 escaped_ex = @{ escape ~ "\\"* ~ "!" }
 escaped_ext = @{ escape ~ "\\"* ~ "$" }
+escaped_code = @{ escape ~ "\\"* ~ "`" }
 
 extname = @{
 	ASCII_ALPHANUMERIC+
@@ -56,11 +57,20 @@ block_escapes = @{
 	| escaped_li
 }
 
+inline_code_elem = @{
+	(!escaped_code ~ !"`" ~ ANY)+
+}
+
+inline_code = ${
+	"`" ~ (escaped_code | inline_code_elem)* ~ "`"
+}
+
 inlinetext = ${
 	(
 		!"]" ~ 
 		!el ~
 		( inline_escapes
+		| inline_code
 		| img
 		| link
 		| inline_ext
