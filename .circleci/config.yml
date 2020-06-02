@@ -14,17 +14,16 @@ jobs:
       - run:
           name: Build
           command: |
-            mkdir dist
-            make
+            ./usr/local/bin/engine -c public/config.json -d public.zip
+
       - run:
           name: Deploy to netlify
           command: |
-            git config user.email "namachan10777@gmail.com"
-            git config user.name "Nakano Masaki"
-            git add dist/* -f
-            git commit -m "auto commit"
-            git checkout -b production
-            git push origin production -f
+            curl -XPOST \
+              -H 'Content-Type: application/zip' \
+              -H 'Authorization: Bearer '$NETLIFY_TOKEN \
+              --data-binary @public.zip \
+              https://api.netlify.com/api/v1/sites/namachan10777.netlify.com/deploys
 
 workflows:
   version: 2.1
