@@ -4,7 +4,7 @@ extern crate serde_json;
 extern crate zip;
 use std::fmt;
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path;
 
 fn main() {
@@ -33,10 +33,12 @@ fn main() {
     let options = zip::write::FileOptions::default()
         .compression_method(zip::CompressionMethod::Deflated)
         .unix_permissions(0o755);
+    let mut miscs = Vec::new();
     for entry in fs::read_dir(cfg_path.parent().unwrap()).unwrap() {
         let entry_path = entry.unwrap().path();
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
+            println!("article: {:?}", entry_path);
             let target_name = pathstr.trim_end_matches(".md").to_owned() + ".xhtml";
             let src = fs::read_to_string(&entry_path).unwrap();
             let ast = engine::parser::parse(src.as_str());
@@ -45,7 +47,8 @@ fn main() {
                 body: ast,
             });
         } else if cfg_path != entry_path {
-            println!("other: {:?}", pathstr);
+            println!("misc: {:?}", entry_path);
+            miscs.push(entry_path);
         }
     }
     let article = engine::analysis::f(articles, &cfg_path.parent().unwrap());
@@ -55,6 +58,13 @@ fn main() {
         let mut buf = String::new();
         fmt::write(&mut buf, format_args!("{}", xml)).unwrap();
         zipfile.write_all(&buf.as_bytes()).unwrap();
+    }
+    for misc_path in miscs {
+        zipfile.start_file_from_path(&misc_path, options).unwrap();
+        let mut buf = Vec::new();
+        let mut f = fs::File::open(misc_path).unwrap();
+        f.read_to_end(&mut buf).unwrap();
+        zipfile.write_all(&buf).unwrap();
     }
     zipfile.finish().unwrap();
 }
