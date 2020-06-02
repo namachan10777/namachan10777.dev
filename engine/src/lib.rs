@@ -121,8 +121,13 @@ fn inline(ctx: Context, i: Inline) -> XMLElem {
                     if base == ctx.rootpath {
                         break
                     }
-                    backwards = backwards + "../";
-                    base = base.parent().unwrap();
+                    if let Some(next) = base.parent() {
+                        base = next;
+                        backwards = backwards + "../";
+                    }
+                    else {
+                        break
+                    }
                 }
                 XMLElem::WithElem(
                 "a".to_owned(),
