@@ -50,14 +50,15 @@ pub struct ArticleSource {
 }
 
 #[derive(Debug)]
-pub struct Articles {
+pub struct Articles<'a> {
     pub hash: HashMap<String, Vec<Inline>>,
     articles: Vec<ArticleSource>,
+    rootpath: &'a path::Path,
 }
 
-impl Articles {
+impl<'a> Articles<'a> {
     pub fn into_xmls(self) -> Vec<(path::PathBuf, codegen::XML)> {
-        let Self { hash, articles } = self;
+        let Self { hash, articles, rootpath } = self;
         articles
             .into_iter()
             .map(|article| {
@@ -76,6 +77,7 @@ impl Articles {
                                         Context {
                                             level: 1,
                                             hash: &hash,
+                                            rootpath,
                                         },
                                         b,
                                     )
@@ -92,6 +94,7 @@ impl Articles {
 #[derive(Clone)]
 struct Context<'a> {
     level: usize,
+    rootpath: &'a path::Path,
     hash: &'a HashMap<String, Vec<Inline>>,
 }
 
@@ -111,11 +114,22 @@ fn inline(ctx: Context, i: Inline) -> XMLElem {
             vec![("alt".to_owned(), alttxt), ("src".to_owned(), src)],
         ),
         Inline::Ext(extname, extinner) => match extname.as_str() {
-            "link" => XMLElem::WithElem(
+            "link" => {
+                let mut base = path::Path::new(&extinner);
+                let mut backwards = String::new();
+                loop {
+                    if base == ctx.rootpath {
+                        break
+                    }
+                    backwards = backwards + "../";
+                    base = base.parent().unwrap();
+                }
+                XMLElem::WithElem(
                 "a".to_owned(),
-                vec![("href".to_owned(), extinner.clone())],
+                vec![("href".to_owned(), backwards + &extinner)],
                 ctx.hash.get(extinner.as_str()).unwrap().iter().map(|i| inline(ctx.clone(), i.clone())).collect(),
-            ),
+            )
+            }
             _ => unreachable!(),
         },
     }

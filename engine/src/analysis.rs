@@ -1,5 +1,6 @@
 use super::{ArticleSource, Articles, Block, Inline};
 use std::collections::HashMap;
+use std::path;
 
 fn read_header(article: &ArticleSource) -> Option<Vec<Inline>> {
     for elem in &article.body {
@@ -10,10 +11,10 @@ fn read_header(article: &ArticleSource) -> Option<Vec<Inline>> {
     None
 }
 
-pub fn f(articles: Vec<ArticleSource>) -> Articles {
+pub fn f<'a>(articles: Vec<ArticleSource>, rootpath: &'a path::Path) -> Articles {
     let mut hash = HashMap::new();
     for article in &articles {
         hash.insert(article.path.to_str().unwrap().to_owned(), read_header(&article).unwrap());
     }
-    Articles { articles, hash }
+    Articles { articles, hash, rootpath }
 }
