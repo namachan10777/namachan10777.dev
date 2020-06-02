@@ -47,15 +47,11 @@ fn main() {
             println!("other: {:?}", pathstr);
         }
     }
-    for article in engine::paths::resolve_link::f(articles) {
-        zipfile
-            .start_file_from_path(&article.path, options)
-            .unwrap();
+    let article = engine::analysis::f(articles);
+    for (path, xml) in article.into_xmls() {
+        zipfile.start_file_from_path(&path, options).unwrap();
         let mut buf = String::new();
-        fmt::write(
-            &mut buf,
-            format_args!("{}", engine::ast2xml::conv(article.body)),
-        ).unwrap();
+        fmt::write(&mut buf, format_args!("{}", xml)).unwrap();
         zipfile.write_all(&buf.as_bytes()).unwrap();
     }
     zipfile.finish().unwrap();
