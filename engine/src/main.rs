@@ -6,6 +6,21 @@ use std::fmt;
 use std::fs;
 use std::io::{Read, Write};
 use std::path;
+use std::fs::DirEntry;
+
+fn enumerate_files(path: &path::Path) -> Vec<path::PathBuf> {
+    let mut entires = Vec::new();
+    for entry in fs::read_dir(path).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_file() {
+            entires.push(path.to_owned());
+        }
+        else {
+            entires.append(&mut enumerate_files(&path));
+        }
+    }
+    entires
+}
 
 fn main() {
     let app = clap::App::new("blog engine")
@@ -34,8 +49,7 @@ fn main() {
         .compression_method(zip::CompressionMethod::Deflated)
         .unix_permissions(0o755);
     let mut miscs = Vec::new();
-    for entry in fs::read_dir(cfg_path.parent().unwrap()).unwrap() {
-        let entry_path = entry.unwrap().path();
+    for entry_path in enumerate_files(cfg_path.parent().unwrap()) {
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
             println!("article: {:?}", entry_path);
