@@ -6,6 +6,7 @@ use std::fmt;
 use std::fs;
 use std::io::{Read, Write};
 use std::path;
+use std::ffi::OsStr;
 
 fn enumerate_files(path: &path::Path) -> Vec<path::PathBuf> {
     let mut entires = Vec::new();
@@ -40,6 +41,7 @@ fn main() {
     let cfg_path = path::Path::new(app.value_of("CONFIG").unwrap());
     let cfg_str = fs::read_to_string(cfg_path).unwrap();
     let cfg = serde_json::from_str::<engine::Config>(cfg_str.as_str()).unwrap();
+    let root = cfg_path.parent().unwrap();
     let article_re = regex::Regex::new(cfg.article.as_str()).unwrap();
     let mut zipfile = zip::ZipWriter::new(fs::File::create(app.value_of("DEST").unwrap()).unwrap());
     let mut articles = Vec::new();
@@ -51,31 +53,35 @@ fn main() {
         let pathstr = entry_path.to_str().unwrap();
         if article_re.is_match(pathstr) {
             println!("article: {:?}", entry_path);
-            let target_name = pathstr.trim_end_matches(".md").to_owned() + ".xhtml";
+            let cnt =  entry_path.iter().zip(&mut root.iter()).count();
+            let relpath = entry_path.iter().collect::<Vec<&OsStr>>()[cnt..].iter().map(|s| s.to_str().unwrap()).collect::<Vec<&str>>().join("/");
             let src = fs::read_to_string(&entry_path).unwrap();
             let ast = engine::parser::parse(entry_path.to_str().unwrap().to_owned(), src.as_str());
             articles.push(engine::ArticleSource {
-                path: path::Path::new(&target_name).to_owned(),
+                path: entry_path.canonicalize().unwrap().to_owned(),
                 body: ast.unwrap(),
+                relpath,
             });
         } else if cfg_path != entry_path {
-            println!("misc: {:?}", entry_path);
-            miscs.push(entry_path);
+            let cnt =  entry_path.iter().zip(&mut root.iter()).count();
+            let relpath = entry_path.iter().collect::<Vec<&OsStr>>()[cnt..].iter().map(|s| s.to_str().unwrap()).collect::<Vec<&str>>().join("/");
+            let mut buf = Vec::new();
+            let mut f = fs::File::open(entry_path).unwrap();
+            f.read_to_end(&mut buf).unwrap();
+            miscs.push((buf, relpath));
         }
     }
-    let article = engine::analysis::f(articles, &cfg_path.parent().unwrap());
+    let rootpath = cfg_path.parent().unwrap().canonicalize().unwrap();
+    let article = engine::analysis::f(articles, &rootpath);
     println!("{:?}", article.hash);
     for (path, xml) in article.into_xmls().unwrap() {
-        zipfile.start_file_from_path(&path, options).unwrap();
+        zipfile.start_file_from_path(&path::Path::new(&path).with_extension("xhtml"), options).unwrap();
         let mut buf = String::new();
         fmt::write(&mut buf, format_args!("{}", xml)).unwrap();
         zipfile.write_all(&buf.as_bytes()).unwrap();
     }
-    for misc_path in miscs {
-        zipfile.start_file_from_path(&misc_path, options).unwrap();
-        let mut buf = Vec::new();
-        let mut f = fs::File::open(misc_path).unwrap();
-        f.read_to_end(&mut buf).unwrap();
+    for (buf, relpath) in miscs {
+        zipfile.start_file_from_path(path::Path::new(&relpath), options).unwrap();
         zipfile.write_all(&buf).unwrap();
     }
     zipfile.finish().unwrap();

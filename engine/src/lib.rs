@@ -17,6 +17,7 @@ use std::path;
 pub enum Error {
     UnresolvedInlineExt(String),
     UnresolvedBlockExt(String),
+    UnresolvedLink(String),
 }
 
 type CResult<T> = Result<T, Error>;
@@ -55,6 +56,7 @@ pub struct Config {
 pub struct ArticleSource {
     pub body: Vec<Block>,
     pub path: path::PathBuf,
+    pub relpath: String,
 }
 
 #[derive(Debug)]
@@ -65,7 +67,7 @@ pub struct Articles<'a> {
 }
 
 impl<'a> Articles<'a> {
-    pub fn into_xmls(self) -> CResult<Vec<(path::PathBuf, codegen::XML)>> {
+    pub fn into_xmls(self) -> CResult<Vec<(String, codegen::XML)>> {
         let Self {
             hash,
             articles,
@@ -75,7 +77,7 @@ impl<'a> Articles<'a> {
         articles
             .into_iter()
             .map(|article| {
-                let path = article.path.clone();
+                let relpath = article.relpath.clone();
                 article
                     .body
                     .into_iter()
@@ -91,7 +93,7 @@ impl<'a> Articles<'a> {
                     })
                     .collect::<CResult<Vec<XMLElem>>>()
                     .map(|body| (
-                        path,
+                        relpath,
                         html(vec![
                             XMLElem::WithElem("head".to_owned(), vec![], vec![]),
                             XMLElem::WithElem(
@@ -102,7 +104,7 @@ impl<'a> Articles<'a> {
                         ]),
                     ))
             })
-            .collect::<CResult<Vec<(path::PathBuf, codegen::XML)>>>()
+            .collect::<CResult<Vec<(String, codegen::XML)>>>()
     }
 }
 
@@ -132,23 +134,12 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
             "link" => {
                 let mut base = path::Path::new(&extinner);
                 let mut backwards = String::new();
-                loop {
-                    if base == ctx.rootpath {
-                        break;
-                    }
-                    if let Some(next) = base.parent() {
-                        base = next;
-                        backwards += "../";
-                    } else {
-                        break;
-                    }
-                }
                 Ok(XMLElem::WithElem(
                     "a".to_owned(),
-                    vec![("href".to_owned(), backwards + &extinner)],
+                    vec![("href".to_owned(), extinner.trim_end_matches(".md").to_owned() + ".xhtml")],
                     ctx.hash
                         .get(extinner.as_str())
-                        .unwrap()
+                        .ok_or(Error::UnresolvedLink(extinner))?
                         .iter()
                         .map(|i| inline(ctx.clone(), i.clone()))
                         .collect::<CResult<Vec<XMLElem>>>()?,

@@ -1,6 +1,7 @@
 use super::{ArticleSource, Articles, Block, Inline};
 use std::collections::HashMap;
 use std::path;
+use std::ffi::{OsStr};
 
 fn read_header(article: &ArticleSource) -> Option<Vec<Inline>> {
     for elem in &article.body {
@@ -15,7 +16,7 @@ pub fn f<'a>(articles: Vec<ArticleSource>, rootpath: &'a path::Path) -> Articles
     let mut hash = HashMap::new();
     for article in &articles {
         hash.insert(
-            article.path.to_str().unwrap().to_owned(),
+            article.relpath.clone(),
             read_header(&article).unwrap(),
         );
     }
