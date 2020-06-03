@@ -1,6 +1,21 @@
 use super::{Block, Inline, ListItem};
+use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
+
+#[derive(Debug)]
+pub struct Pos {
+    line: usize,
+    col: usize,
+}
+
+#[derive(Debug)]
+pub enum Erorr {
+    At(String, Pos),
+    Span(String, Pos, Pos),
+}
+
+pub type PResult<T> = Result<T, Erorr>;
 
 #[grammar = "grammar.pest"]
 #[derive(Parser)]
@@ -456,18 +471,31 @@ mod test {
     }
 }
 
-pub fn parse(s: &str) -> Vec<Block> {
+pub fn parse(filename: String, s: &str) -> PResult<Vec<Block>> {
     let mut inner = SrcParser::parse(Rule::main, s)
-        .unwrap()
+        .map_err(|e| match e.line_col {
+            LineColLocation::Pos((col, line)) => Erorr::At(filename, Pos { col, line }),
+            LineColLocation::Span((col1, line1), (col2, line2)) => Erorr::Span(
+                filename,
+                Pos {
+                    col: col1,
+                    line: line1,
+                },
+                Pos {
+                    col: col2,
+                    line: line2,
+                },
+            ),
+        })?
         .next()
         .unwrap()
         .into_inner();
     let _attribute = inner.next().unwrap();
-    inner
+    Ok(inner
         .map(|p| match p.as_rule() {
             Rule::top_block => Some(parse_block(p.into_inner().next().unwrap())),
             _ => None,
         })
         .filter_map(|p| p)
-        .collect::<Vec<Block>>()
+        .collect::<Vec<Block>>())
 }

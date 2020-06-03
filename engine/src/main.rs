@@ -4,9 +4,9 @@ extern crate serde_json;
 extern crate zip;
 use std::fmt;
 use std::fs;
+use std::fs::DirEntry;
 use std::io::{Read, Write};
 use std::path;
-use std::fs::DirEntry;
 
 fn enumerate_files(path: &path::Path) -> Vec<path::PathBuf> {
     let mut entires = Vec::new();
@@ -14,8 +14,7 @@ fn enumerate_files(path: &path::Path) -> Vec<path::PathBuf> {
         let path = entry.unwrap().path();
         if path.is_file() {
             entires.push(path.to_owned());
-        }
-        else {
+        } else {
             entires.append(&mut enumerate_files(&path));
         }
     }
@@ -55,10 +54,10 @@ fn main() {
             println!("article: {:?}", entry_path);
             let target_name = pathstr.trim_end_matches(".md").to_owned() + ".xhtml";
             let src = fs::read_to_string(&entry_path).unwrap();
-            let ast = engine::parser::parse(src.as_str());
+            let ast = engine::parser::parse(entry_path.to_str().unwrap().to_owned(), src.as_str());
             articles.push(engine::ArticleSource {
                 path: path::Path::new(&target_name).to_owned(),
-                body: ast,
+                body: ast.unwrap(),
             });
         } else if cfg_path != entry_path {
             println!("misc: {:?}", entry_path);
