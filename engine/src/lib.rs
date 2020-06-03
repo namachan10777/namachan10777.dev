@@ -92,17 +92,15 @@ impl<'a> Articles<'a> {
                         )
                     })
                     .collect::<CResult<Vec<XMLElem>>>()
-                    .map(|body| (
-                        relpath,
-                        html(vec![
-                            XMLElem::WithElem("head".to_owned(), vec![], vec![]),
-                            XMLElem::WithElem(
-                                "body".to_owned(),
-                                vec![],
-                                body
-                            ),
-                        ]),
-                    ))
+                    .map(|body| {
+                        (
+                            relpath,
+                            html(vec![
+                                XMLElem::WithElem("head".to_owned(), vec![], vec![]),
+                                XMLElem::WithElem("body".to_owned(), vec![], body),
+                            ]),
+                        )
+                    })
             })
             .collect::<CResult<Vec<(String, codegen::XML)>>>()
     }
@@ -118,7 +116,11 @@ struct Context<'a> {
 fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
     match i {
         Inline::Text(txt) => Ok(XMLElem::Text(txt.replace("&", "&amp;"))),
-        Inline::Code(s) => Ok(XMLElem::WithElem("code".to_owned(), vec![], vec![XMLElem::Text(s)])),
+        Inline::Code(s) => Ok(XMLElem::WithElem(
+            "code".to_owned(),
+            vec![],
+            vec![XMLElem::Text(s)],
+        )),
         Inline::Link(txt, url) => Ok(XMLElem::WithElem(
             "a".to_owned(),
             vec![("href".to_owned(), url)],
@@ -131,21 +133,20 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
             vec![("alt".to_owned(), alttxt), ("src".to_owned(), src)],
         )),
         Inline::Ext(extname, extinner) => match extname.as_str() {
-            "link" => {
-                let mut base = path::Path::new(&extinner);
-                let mut backwards = String::new();
-                Ok(XMLElem::WithElem(
-                    "a".to_owned(),
-                    vec![("href".to_owned(), extinner.trim_end_matches(".md").to_owned() + ".xhtml")],
-                    ctx.hash
-                        .get(extinner.as_str())
-                        .ok_or(Error::UnresolvedLink(extinner))?
-                        .iter()
-                        .map(|i| inline(ctx.clone(), i.clone()))
-                        .collect::<CResult<Vec<XMLElem>>>()?,
-                ))
-            }
-            _ => Err(Error::UnresolvedInlineExt(extname))
+            "link" => Ok(XMLElem::WithElem(
+                "a".to_owned(),
+                vec![(
+                    "href".to_owned(),
+                    extinner.trim_end_matches(".rs").to_owned() + ".xhtml",
+                )],
+                ctx.hash
+                    .get(extinner.as_str())
+                    .ok_or(Error::UnresolvedLink(extinner))?
+                    .iter()
+                    .map(|i| inline(ctx.clone(), i.clone()))
+                    .collect::<CResult<Vec<XMLElem>>>()?,
+            )),
+            _ => Err(Error::UnresolvedInlineExt(extname)),
         },
     }
 }
@@ -153,9 +154,11 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
 fn list<'a>(ctx: Context<'a>, li: Vec<ListItem>) -> CResult<Vec<XMLElem>> {
     li.into_iter()
         .map(|l| match l {
-            ListItem::Block(b) => {
-                Ok(XMLElem::WithElem("li".to_owned(), vec![], vec![block(ctx.clone(), b)?]))
-            }
+            ListItem::Block(b) => Ok(XMLElem::WithElem(
+                "li".to_owned(),
+                vec![],
+                vec![block(ctx.clone(), b)?],
+            )),
             ListItem::Nest(li) => Ok(XMLElem::WithElem(
                 "li".to_owned(),
                 vec![],
@@ -175,7 +178,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
         Block::Section(heading, inner) => {
             let mut body = inner
                 .into_iter()
-                .map(|b| 
+                .map(|b| {
                     block(
                         Context {
                             level: ctx.level + 1,
@@ -183,7 +186,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                         },
                         b,
                     )
-                )
+                })
                 .collect::<CResult<Vec<XMLElem>>>()?;
             let heading = heading.into_iter();
             let header = XMLElem::WithElem(
