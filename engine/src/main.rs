@@ -65,7 +65,7 @@ fn main() {
     }
     let article = engine::analysis::f(articles, &cfg_path.parent().unwrap());
     println!("{:?}", article.hash);
-    for (path, xml) in article.into_xmls() {
+    for (path, xml) in article.into_xmls().unwrap() {
         zipfile.start_file_from_path(&path, options).unwrap();
         let mut buf = String::new();
         fmt::write(&mut buf, format_args!("{}", xml)).unwrap();
