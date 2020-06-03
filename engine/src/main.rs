@@ -4,7 +4,6 @@ extern crate serde_json;
 extern crate zip;
 use std::fmt;
 use std::fs;
-use std::fs::DirEntry;
 use std::io::{Read, Write};
 use std::path;
 
