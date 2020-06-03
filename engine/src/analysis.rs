@@ -11,7 +11,11 @@ fn read_header(article: &ArticleSource) -> Option<Vec<Inline>> {
     None
 }
 
-pub fn f<'a>(articles: Vec<ArticleSource>, rootpath: &'a path::Path) -> Articles {
+pub fn f<'a>(
+    articles: Vec<ArticleSource>,
+    rootpath: &'a path::Path,
+    syntax_set: syntect::parsing::SyntaxSet,
+) -> Articles {
     let mut hash = HashMap::new();
     for article in &articles {
         hash.insert(article.relpath.clone(), read_header(&article).unwrap());
@@ -20,5 +24,6 @@ pub fn f<'a>(articles: Vec<ArticleSource>, rootpath: &'a path::Path) -> Articles
         articles,
         hash,
         rootpath,
+        syntax_set,
     }
 }

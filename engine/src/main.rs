@@ -1,6 +1,7 @@
 extern crate engine;
 extern crate regex;
 extern crate serde_json;
+extern crate syntect;
 extern crate zip;
 use std::ffi::OsStr;
 use std::fmt;
@@ -38,6 +39,7 @@ fn main() {
                 .long("dest"),
         )
         .get_matches();
+    let syntax_set = syntect::parsing::SyntaxSet::load_defaults_newlines();
     let cfg_path = path::Path::new(app.value_of("CONFIG").unwrap());
     let cfg_str = fs::read_to_string(cfg_path).unwrap();
     let cfg = serde_json::from_str::<engine::Config>(cfg_str.as_str()).unwrap();
@@ -80,7 +82,7 @@ fn main() {
         }
     }
     let rootpath = cfg_path.parent().unwrap().canonicalize().unwrap();
-    let article = engine::analysis::f(articles, &rootpath);
+    let article = engine::analysis::f(articles, &rootpath, syntax_set);
     println!("{:?}", article.hash);
     for (path, xml) in article.into_xmls().unwrap() {
         zipfile

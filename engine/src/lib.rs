@@ -4,6 +4,7 @@ extern crate pest_derive;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+extern crate syntect;
 
 pub mod analysis;
 pub mod codegen;
@@ -12,6 +13,8 @@ pub mod parser;
 use codegen::{XMLElem, XML};
 use std::collections::HashMap;
 use std::path;
+use syntect::html::{ClassStyle, ClassedHTMLGenerator};
+use syntect::parsing::SyntaxSet;
 
 #[derive(Debug)]
 pub enum Error {
@@ -64,6 +67,7 @@ pub struct Articles<'a> {
     pub hash: HashMap<String, Vec<Inline>>,
     articles: Vec<ArticleSource>,
     rootpath: &'a path::Path,
+    syntax_set: SyntaxSet,
 }
 
 impl<'a> Articles<'a> {
@@ -72,6 +76,7 @@ impl<'a> Articles<'a> {
             hash,
             articles,
             rootpath,
+            syntax_set,
         } = self;
 
         articles
@@ -87,6 +92,7 @@ impl<'a> Articles<'a> {
                                 level: 1,
                                 hash: &hash,
                                 rootpath,
+                                syntax_set: &syntax_set,
                             },
                             b,
                         )
@@ -111,6 +117,7 @@ struct Context<'a> {
     level: usize,
     rootpath: &'a path::Path,
     hash: &'a HashMap<String, Vec<Inline>>,
+    syntax_set: &'a SyntaxSet,
 }
 
 fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
@@ -223,15 +230,31 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                 .collect::<CResult<Vec<XMLElem>>>()?,
         )),
         Block::Ul(li) => Ok(XMLElem::WithElem("ul".to_owned(), vec![], list(ctx, li)?)),
-        Block::Code(_lang, src) => Ok(XMLElem::WithElem(
-            "code".to_owned(),
-            vec![],
-            vec![XMLElem::WithElem(
-                "pre".to_owned(),
+        Block::Code(lang, src) => {
+            let styled_src = if (lang != "text") {
+                let syntax = ctx.syntax_set.find_syntax_by_extension(&lang).unwrap();
+                let mut html_generator = ClassedHTMLGenerator::new(
+                    &syntax,
+                    ctx.syntax_set,
+                );
+                for line in src.lines() {
+                    html_generator.parse_html_for_line(&line);
+                }
+                html_generator.finalize()
+            }
+            else {
+                src
+            };
+            Ok(XMLElem::WithElem(
+                "code".to_owned(),
                 vec![],
-                vec![XMLElem::Text(src)],
-            )],
-        )),
+                vec![XMLElem::WithElem(
+                    "pre".to_owned(),
+                    vec![],
+                    vec![XMLElem::Text(styled_src)],
+                )],
+            ))
+        }
     }
 }
 
