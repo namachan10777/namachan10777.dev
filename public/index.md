@@ -28,7 +28,7 @@ B3, College of computer and information science, University of Tsukuba.
  * 応用情報技術者試験 (Applied Information Technology Engineer Examination)
 
 ## Articles
- * $link[public/change-docker-data-root.xhtml]
+ * $link[change-docker-data-root.md]
 
 ## PGP public key
 ```
