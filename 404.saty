@@ -1,6 +1,0 @@
-@import: jsblog
-
-JsBlog.top-document (|
-  title = {404 Not found};
-|) '<
->
