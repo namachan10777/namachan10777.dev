@@ -137,7 +137,7 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
                 "a".to_owned(),
                 vec![(
                     "href".to_owned(),
-                    extinner.trim_end_matches(".rs").to_owned() + ".xhtml",
+                    extinner.trim_end_matches(".md").to_owned() + ".xhtml",
                 )],
                 ctx.hash
                     .get(extinner.as_str())
