@@ -120,6 +120,13 @@ impl<'a> Articles<'a> {
                                         XMLElem::Single(
                                             "link".to_owned(),
                                             vec![
+                                                ("href".to_owned(), "res/favicon.ico".to_owned()),
+                                                ("rel".to_owned(), "shortcut icon".to_owned()),
+                                            ],
+                                        ),
+                                        XMLElem::Single(
+                                            "link".to_owned(),
+                                            vec![
                                                 ("href".to_owned(), "./index.css".to_owned()),
                                                 ("rel".to_owned(), "stylesheet".to_owned()),
                                                 ("type".to_owned(), "text/css".to_owned()),
