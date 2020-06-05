@@ -266,10 +266,10 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                 src
             };
             Ok(XMLElem::WithElem(
-                "code".to_owned(),
+                "pre".to_owned(),
                 vec![],
                 vec![XMLElem::WithElem(
-                    "pre".to_owned(),
+                    "code".to_owned(),
                     vec![],
                     vec![XMLElem::Text(styled_src)],
                 )],
