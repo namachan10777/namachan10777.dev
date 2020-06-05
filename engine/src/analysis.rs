@@ -22,7 +22,10 @@ pub fn f<'a>(
 ) -> Result<Articles, Error> {
     let mut hash = HashMap::new();
     for article in &articles {
-        hash.insert(article.relpath.clone(), read_header(&article).ok_or_else(|| Error::H1Notfound(article.relpath.clone()))?);
+        hash.insert(
+            article.relpath.clone(),
+            read_header(&article).ok_or_else(|| Error::H1Notfound(article.relpath.clone()))?,
+        );
     }
     Ok(Articles {
         articles,

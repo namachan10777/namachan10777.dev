@@ -66,7 +66,7 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
     }
     let rootpath = cfg_path.parent().unwrap().canonicalize().unwrap();
     let article = engine::analysis::f(articles, &rootpath, syntax_set).map_err(|e| match e {
-        engine::analysis::Error::H1Notfound(relpath) => format!("h1 not found from {}", relpath)
+        engine::analysis::Error::H1Notfound(relpath) => format!("h1 not found from {}", relpath),
     })?;
     println!("{:?}", article.hash);
     for (path, xml) in article.into_xmls().map_err(|e| match e {
@@ -74,6 +74,7 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
         engine::Error::UnresolvedBlockExt(ext) => format!("unresolved block extension {}", ext),
         engine::Error::UnresolvedInlineExt(ext) => format!("unresolved inline extension {}", ext),
     })? {
+        println!("{:?}", &path::Path::new(&path).with_extension("xhtml"));
         zipfile
             .start_file_from_path(&path::Path::new(&path).with_extension("xhtml"), options)
             .unwrap();
@@ -87,6 +88,13 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
             .unwrap();
         zipfile.write_all(&buf).unwrap();
     }
+    let ts = syntect::highlighting::ThemeSet::load_defaults();
+    let light_theme = &ts.themes["Solarized (light)"];
+    let css_light = syntect::html::css_for_theme(light_theme);
+    zipfile
+        .start_file_from_path(path::Path::new("syntect-highlight.css"), options)
+        .unwrap();
+    zipfile.write_all(&css_light.as_bytes()).unwrap();
     zipfile.finish().unwrap();
     Ok(())
 }

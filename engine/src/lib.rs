@@ -13,7 +13,7 @@ pub mod parser;
 use codegen::{XMLElem, XML};
 use std::collections::HashMap;
 use std::path;
-use syntect::html::{ClassStyle, ClassedHTMLGenerator};
+use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
 
 #[derive(Debug)]
@@ -102,7 +102,31 @@ impl<'a> Articles<'a> {
                         (
                             relpath,
                             html(vec![
-                                XMLElem::WithElem("head".to_owned(), vec![], vec![]),
+                                XMLElem::WithElem(
+                                    "head".to_owned(),
+                                    vec![],
+                                    vec![
+                                        XMLElem::Single(
+                                            "link".to_owned(),
+                                            vec![
+                                                (
+                                                    "href".to_owned(),
+                                                    "./syntect-highlight.css".to_owned(),
+                                                ),
+                                                ("rel".to_owned(), "stylesheet".to_owned()),
+                                                ("type".to_owned(), "text/css".to_owned()),
+                                            ],
+                                        ),
+                                        XMLElem::Single(
+                                            "link".to_owned(),
+                                            vec![
+                                                ("href".to_owned(), "./index.css".to_owned()),
+                                                ("rel".to_owned(), "stylesheet".to_owned()),
+                                                ("type".to_owned(), "text/css".to_owned()),
+                                            ],
+                                        ),
+                                    ],
+                                ),
                                 XMLElem::WithElem("body".to_owned(), vec![], body),
                             ]),
                         )
@@ -233,16 +257,12 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
         Block::Code(lang, src) => {
             let styled_src = if lang != "text" {
                 let syntax = ctx.syntax_set.find_syntax_by_extension(&lang).unwrap();
-                let mut html_generator = ClassedHTMLGenerator::new(
-                    &syntax,
-                    ctx.syntax_set,
-                );
+                let mut html_generator = ClassedHTMLGenerator::new(&syntax, ctx.syntax_set);
                 for line in src.lines() {
                     html_generator.parse_html_for_line(&line);
                 }
                 html_generator.finalize()
-            }
-            else {
+            } else {
                 src
             };
             Ok(XMLElem::WithElem(
