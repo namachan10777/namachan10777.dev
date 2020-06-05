@@ -27,6 +27,7 @@ B3, College of computer and information science, University of Tsukuba.
 
 ## Articles
  * $link[change-docker-data-root.md]
+ * $link[email-reminder.md]
 
 ## PGP public key
 ```
