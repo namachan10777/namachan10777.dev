@@ -63,7 +63,9 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
         }
     }
     let rootpath = cfg_path.parent().unwrap().canonicalize().unwrap();
-    let article = engine::analysis::f(articles, &rootpath);
+    let article = engine::analysis::f(articles, &rootpath).map_err(|e| match e {
+        engine::analysis::Error::H1Notfound(relpath) => format!("h1 not found from {}", relpath)
+    })?;
     println!("{:?}", article.hash);
     for (path, xml) in article.into_xmls().map_err(|e| match e {
         engine::Error::UnresolvedLink(link) => format!("unresolved link {}", link),
