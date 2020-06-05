@@ -51,6 +51,22 @@ pub enum Block {
     Code(String, String),
 }
 
+impl Inline {
+    fn interpret_str(&self) -> String {
+        match self {
+            Inline::Code(s) => s.clone(),
+            Inline::Ext(_, _) => String::new(),
+            Inline::Img(_, alt) => format!("[{}]", alt),
+            Inline::Link(surface, _) => surface
+                .iter()
+                .map(|i| i.interpret_str())
+                .collect::<Vec<String>>()
+                .join(""),
+            Inline::Text(txt) => txt.clone(),
+        }
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub article: String,
@@ -101,12 +117,27 @@ impl<'a> Articles<'a> {
                     .collect::<CResult<Vec<XMLElem>>>()
                     .map(|body| {
                         (
-                            relpath,
+                            relpath.clone(),
                             html(vec![
                                  xml!(head [] [
                                     xml!(link [href="./syntect-highlight.css", rel="stylesheet", type="text/css"]),
                                     xml!(link [href="./index.css", rel="stylesheet", type="text/css"]),
-                                    xml!(link [href="./res/favicon.ico", type="shortcut icon"])
+                                    xml!(link [href="./res/favicon.ico", type="shortcut icon"]),
+                                    xml!(meta [name="twitter:card", content="summary"]),
+                                    xml!(meta [name="twitter:site", content="@namachan10777"]),
+                                    xml!(meta [name="twitter:creator", content="@namachan10777"]),
+                                    xml!(meta [property="og:title", content="namachan10777"]),
+                                    xml!(meta [
+                                         property="og:description",
+                                         content=hash
+                                            .get(&relpath)
+                                            .unwrap_or(&vec![])
+                                            .iter()
+                                            .map(|i| i.interpret_str())
+                                            .collect::<Vec<String>>()
+                                            .join("")]),
+                                    xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
+                                    xml!(meta [property="og:url", content="https://namachan10777.dev"])
                                  ]),
                                  xml!(body [] body),
                             ]),
@@ -225,9 +256,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
             } else {
                 src
             };
-            Ok(xml!(pre [class="code"] [
-                xml!(code [] [xml!(styled_src)])
-            ]))
+            Ok(xml!(pre[class = "code"][xml!(code [] [xml!(styled_src)])]))
         }
     }
 }
@@ -237,6 +266,6 @@ pub fn html(bs: Vec<XMLElem>) -> XML {
         "1.0",
         "UTF-8",
         "html",
-        xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] bs)
+        xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] bs),
     )
 }
