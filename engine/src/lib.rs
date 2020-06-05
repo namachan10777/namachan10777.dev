@@ -137,7 +137,7 @@ impl<'a> Articles<'a> {
                                             .collect::<Vec<String>>()
                                             .join("")]),
                                     xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
-                                    xml!(meta [property="og:url", content="https://namachan10777.dev"])
+                                    xml!(meta [property="og:url", content="https://namachan10777.dev/".to_owned() + &relpath])
                                  ]),
                                  xml!(body [] body),
                             ]),
