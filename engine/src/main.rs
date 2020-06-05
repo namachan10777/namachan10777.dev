@@ -89,12 +89,12 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
         zipfile.write_all(&buf).unwrap();
     }
     let ts = syntect::highlighting::ThemeSet::load_defaults();
-    let light_theme = &ts.themes["Solarized (light)"];
-    let css_light = syntect::html::css_for_theme(light_theme);
+    let dark_theme = &ts.themes["Solarized (dark)"];
+    let css_dark = syntect::html::css_for_theme(dark_theme);
     zipfile
         .start_file_from_path(path::Path::new("syntect-highlight.css"), options)
         .unwrap();
-    zipfile.write_all(&css_light.as_bytes()).unwrap();
+    zipfile.write_all(&css_dark.as_bytes()).unwrap();
     zipfile.finish().unwrap();
     Ok(())
 }
