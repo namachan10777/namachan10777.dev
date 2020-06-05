@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap');
 
 code {
-	font-family: 'Inconsolata', monospace;
+	font-family: 'Fira Mono', monospace;
 }
 
 .inline-code {
