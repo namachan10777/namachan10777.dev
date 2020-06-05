@@ -1,5 +1,43 @@
 use std::fmt;
 
+macro_rules! xml {
+    ($tag:ident [ $( $prop:ident=$value:expr ),* ]) => {
+        XMLElem::Single(format!("{}", stringify!($tag)), vec![
+            $(
+                (format!("{}", stringify!($prop)), $value.to_owned()),
+            )*
+        ])
+    };
+    ($tag:ident [ $( $prop:ident=$value:expr ),* ] [ $( $inner:expr ),* ]) => {
+        XMLElem::WithElem(format!("{}", stringify!($tag)), vec![
+            $(
+                (format!("{}", stringify!($prop)), $value.to_owned()),
+            )*
+        ],
+        vec![
+            $(
+                $inner,
+            )*
+        ]
+        )
+    };
+    ($tag:ident [$( $prop:ident=$value:expr ),*] $inner:expr) => {
+        XMLElem::WithElem(format!("{}", stringify!($tag)), vec![
+            $(
+                (format!("{}", stringify!($prop)), $value.to_owned()),
+            )*
+        ],
+        $inner
+        )
+    };
+    ($txt:expr) => {
+        XMLElem::Text($txt)
+    };
+    ($txt:expr) => {
+        XMLElem::Text($txt.to_owned())
+    }
+}
+
 pub enum XMLElem {
     Single(String, Vec<(String, String)>),
     WithElem(String, Vec<(String, String)>, Vec<XMLElem>),

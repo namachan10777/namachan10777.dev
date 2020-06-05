@@ -7,6 +7,7 @@ extern crate serde;
 extern crate syntect;
 
 pub mod analysis;
+#[macro_use]
 pub mod codegen;
 pub mod parser;
 
@@ -102,39 +103,12 @@ impl<'a> Articles<'a> {
                         (
                             relpath,
                             html(vec![
-                                XMLElem::WithElem(
-                                    "head".to_owned(),
-                                    vec![],
-                                    vec![
-                                        XMLElem::Single(
-                                            "link".to_owned(),
-                                            vec![
-                                                (
-                                                    "href".to_owned(),
-                                                    "./syntect-highlight.css".to_owned(),
-                                                ),
-                                                ("rel".to_owned(), "stylesheet".to_owned()),
-                                                ("type".to_owned(), "text/css".to_owned()),
-                                            ],
-                                        ),
-                                        XMLElem::Single(
-                                            "link".to_owned(),
-                                            vec![
-                                                ("href".to_owned(), "res/favicon.ico".to_owned()),
-                                                ("rel".to_owned(), "shortcut icon".to_owned()),
-                                            ],
-                                        ),
-                                        XMLElem::Single(
-                                            "link".to_owned(),
-                                            vec![
-                                                ("href".to_owned(), "./index.css".to_owned()),
-                                                ("rel".to_owned(), "stylesheet".to_owned()),
-                                                ("type".to_owned(), "text/css".to_owned()),
-                                            ],
-                                        ),
-                                    ],
-                                ),
-                                XMLElem::WithElem("body".to_owned(), vec![], body),
+                                 xml!(head [] [
+                                    xml!(link [href="./syntect-highlight.css", rel="stylesheet", type="text/css"]),
+                                    xml!(link [href="./index.css", rel="stylesheet", type="text/css"]),
+                                    xml!(link [href="./res/favicon.ico", type="shortcut icon"])
+                                 ]),
+                                 xml!(body [] body),
                             ]),
                         )
                     })
@@ -153,45 +127,28 @@ struct Context<'a> {
 
 fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
     match i {
-        Inline::Text(txt) => Ok(XMLElem::Text(txt.replace("&", "&amp;"))),
-        Inline::Code(s) => Ok(XMLElem::WithElem(
-            "code".to_owned(),
-            vec![("class".to_owned(), "inline-code".to_owned())],
-            vec![XMLElem::Text(s)],
-        )),
-        Inline::Link(txt, url) => Ok(XMLElem::WithElem(
-            "a".to_owned(),
-            vec![("href".to_owned(), url)],
+        Inline::Text(txt) => Ok(xml!(txt.replace("&", "&amp;"))),
+        Inline::Code(s) => Ok(xml!(code[class = "inline-code"][xml!(s)])),
+        Inline::Link(txt, url) => Ok(xml!(
+            a
+            [href=url]
             txt.into_iter()
                 .map(|p| inline(ctx.clone(), p))
-                .collect::<CResult<Vec<XMLElem>>>()?,
+                .collect::<CResult<Vec<XMLElem>>>()?
         )),
-        Inline::Img(alttxt, src) => Ok(XMLElem::Single(
-            "img".to_owned(),
-            vec![("alt".to_owned(), alttxt), ("src".to_owned(), src)],
-        )),
+        Inline::Img(alttxt, src) => Ok(xml!(img [alt=alttxt, src=src])),
         Inline::Ext(extname, extinner) => match extname.as_str() {
-            "link" => Ok(XMLElem::WithElem(
-                "a".to_owned(),
-                vec![(
-                    "href".to_owned(),
-                    extinner.trim_end_matches(".md").to_owned() + ".xhtml",
-                )],
+            "link" => Ok(xml!(
+                a
+                [href = extinner.trim_end_matches(".md").to_owned() + ".xhtml"]
                 ctx.hash
                     .get(extinner.as_str())
                     .ok_or(Error::UnresolvedLink(extinner))?
                     .iter()
                     .map(|i| inline(ctx.clone(), i.clone()))
-                    .collect::<CResult<Vec<XMLElem>>>()?,
+                    .collect::<CResult<Vec<XMLElem>>>()?
             )),
-            "icon" => Ok(XMLElem::Single(
-                "img".to_owned(),
-                vec![
-                    ("src".to_owned(), extinner),
-                    ("alt".to_owned(), "my icon".to_owned()),
-                    ("class".to_owned(), "icon".to_owned()),
-                ],
-            )),
+            "icon" => Ok(xml!(img [ src="extinner", alt="my icon", class="icon" ])),
             _ => Err(Error::UnresolvedInlineExt(extname)),
         },
     }
@@ -200,21 +157,9 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
 fn list<'a>(ctx: Context<'a>, li: Vec<ListItem>) -> CResult<Vec<XMLElem>> {
     li.into_iter()
         .map(|l| match l {
-            ListItem::Block(b) => Ok(XMLElem::WithElem(
-                "li".to_owned(),
-                vec![],
-                vec![block(ctx.clone(), b)?],
-            )),
-            ListItem::Nest(li) => Ok(XMLElem::WithElem(
-                "li".to_owned(),
-                vec![],
-                vec![XMLElem::WithElem(
-                    "ul".to_owned(),
-                    vec![],
-                    list(ctx.clone(), li)?,
-                )],
-            )),
-            ListItem::Dummy => Ok(XMLElem::WithElem("li".to_owned(), vec![], vec![])),
+            ListItem::Block(b) => Ok(xml!(li [] [block(ctx.clone(), b)?])),
+            ListItem::Nest(li) => Ok(xml!(li [] [xml!(ul [] list(ctx.clone(), li)?)])),
+            ListItem::Dummy => Ok(xml!(li [] [])),
         })
         .collect::<CResult<Vec<XMLElem>>>()
 }
@@ -248,7 +193,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
             );
             let mut inner = vec![header];
             inner.append(&mut body);
-            Ok(XMLElem::WithElem("section".to_owned(), vec![], inner))
+            Ok(xml!(section [] inner))
         }
         Block::ExtBlock(attr, inner) => {
             let inner = inner
@@ -256,19 +201,19 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                 .map(|b| block(ctx.clone(), b))
                 .collect::<CResult<Vec<XMLElem>>>()?;
             match attr.as_str() {
-                "address" => Ok(XMLElem::WithElem("address".to_owned(), vec![], inner)),
+                "address" => Ok(xml!(address [] inner)),
                 _ => Err(Error::UnresolvedBlockExt(attr)),
             }
         }
-        Block::P(inner) => Ok(XMLElem::WithElem(
-            "p".to_owned(),
-            vec![],
+        Block::P(inner) => Ok(xml!(
+            p
+            []
             inner
                 .into_iter()
                 .map(|i| inline(ctx.clone(), i))
-                .collect::<CResult<Vec<XMLElem>>>()?,
+                .collect::<CResult<Vec<XMLElem>>>()?
         )),
-        Block::Ul(li) => Ok(XMLElem::WithElem("ul".to_owned(), vec![], list(ctx, li)?)),
+        Block::Ul(li) => Ok(xml!(ul [] list(ctx, li)?)),
         Block::Code(lang, src) => {
             let styled_src = if lang != "text" {
                 let syntax = ctx.syntax_set.find_syntax_by_extension(&lang).unwrap();
@@ -280,15 +225,9 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
             } else {
                 src
             };
-            Ok(XMLElem::WithElem(
-                "pre".to_owned(),
-                vec![("class".to_owned(), "code".to_owned())],
-                vec![XMLElem::WithElem(
-                    "code".to_owned(),
-                    vec![],
-                    vec![XMLElem::Text(styled_src)],
-                )],
-            ))
+            Ok(xml!(pre [class="code"] [
+                xml!(code [] [xml!(styled_src)])
+            ]))
         }
     }
 }
@@ -298,16 +237,6 @@ pub fn html(bs: Vec<XMLElem>) -> XML {
         "1.0",
         "UTF-8",
         "html",
-        XMLElem::WithElem(
-            "html".to_owned(),
-            vec![
-                (
-                    "xmlns".to_owned(),
-                    "http://www.w3.org/1999/xhtml".to_owned(),
-                ),
-                ("lang".to_owned(), "ja".to_owned()),
-            ],
-            bs,
-        ),
+        xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] bs)
     )
 }
