@@ -179,7 +179,7 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
                     .map(|i| inline(ctx.clone(), i.clone()))
                     .collect::<CResult<Vec<XMLElem>>>()?
             )),
-            "icon" => Ok(xml!(img [ src="extinner", alt="my icon", class="icon" ])),
+            "icon" => Ok(xml!(img [ src=extinner, alt="my icon", class="icon" ])),
             _ => Err(Error::UnresolvedInlineExt(extname)),
         },
     }
