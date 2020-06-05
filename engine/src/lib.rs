@@ -156,9 +156,15 @@ struct Context<'a> {
     syntax_set: &'a SyntaxSet,
 }
 
+fn escape_txt(s: &str) -> String {
+    s.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+}
+
 fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
     match i {
-        Inline::Text(txt) => Ok(xml!(txt.replace("&", "&amp;"))),
+        Inline::Text(txt) => Ok(xml!(escape_txt(&txt))),
         Inline::Code(s) => Ok(xml!(code[class = "inline-code"][xml!(s)])),
         Inline::Link(txt, url) => Ok(xml!(
             a
