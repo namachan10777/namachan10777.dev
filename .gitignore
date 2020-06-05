@@ -8,5 +8,7 @@ elm.js
 
 dist/*
 
+*.zip
+
 # Local Netlify folder
 .netlify
