@@ -184,6 +184,14 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
                     .map(|i| inline(ctx.clone(), i.clone()))
                     .collect::<CResult<Vec<XMLElem>>>()?,
             )),
+            "icon" => Ok(XMLElem::Single(
+                "img".to_owned(),
+                vec![
+                    ("src".to_owned(), extinner),
+                    ("alt".to_owned(), "my icon".to_owned()),
+                    ("class".to_owned(), "icon".to_owned()),
+                ],
+            )),
             _ => Err(Error::UnresolvedInlineExt(extname)),
         },
     }

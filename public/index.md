@@ -4,7 +4,7 @@
 # namachan10777
 ## About
 
-![icon](./res/icon.jpg)
+$icon[./res/icon.jpg]
 
 B3, College of computer and information science, University of Tsukuba.
 
