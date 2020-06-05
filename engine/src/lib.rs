@@ -149,7 +149,7 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
         Inline::Text(txt) => Ok(XMLElem::Text(txt.replace("&", "&amp;"))),
         Inline::Code(s) => Ok(XMLElem::WithElem(
             "code".to_owned(),
-            vec![],
+            vec![("class".to_owned(), "inline-code".to_owned())],
             vec![XMLElem::Text(s)],
         )),
         Inline::Link(txt, url) => Ok(XMLElem::WithElem(
@@ -267,7 +267,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
             };
             Ok(XMLElem::WithElem(
                 "pre".to_owned(),
-                vec![],
+                vec![("class".to_owned(), "code".to_owned())],
                 vec![XMLElem::WithElem(
                     "code".to_owned(),
                     vec![],
