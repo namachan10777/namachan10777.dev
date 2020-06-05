@@ -144,7 +144,7 @@ fn inline(ctx: Context, i: Inline) -> CResult<XMLElem> {
                 "a".to_owned(),
                 vec![(
                     "href".to_owned(),
-                    extinner.trim_end_matches(".rs").to_owned() + ".xhtml",
+                    extinner.trim_end_matches(".md").to_owned() + ".xhtml",
                 )],
                 ctx.hash
                     .get(extinner.as_str())
@@ -231,7 +231,7 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
         )),
         Block::Ul(li) => Ok(XMLElem::WithElem("ul".to_owned(), vec![], list(ctx, li)?)),
         Block::Code(lang, src) => {
-            let styled_src = if (lang != "text") {
+            let styled_src = if lang != "text" {
                 let syntax = ctx.syntax_set.find_syntax_by_extension(&lang).unwrap();
                 let mut html_generator = ClassedHTMLGenerator::new(
                     &syntax,
