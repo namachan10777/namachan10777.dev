@@ -126,8 +126,7 @@ impl<'a> Articles<'a> {
                     .into_iter()
                     .map(|b| block(context.clone(), b))
                     .collect::<CResult<Vec<XMLElem>>>()
-                    .and_then(|mut body| {
-                        body.push(gen_footer(context.clone())?);
+                    .and_then(|body| {
                         Ok((relpath.clone(),
                             html(vec![
                                  xml!(head [] [
@@ -154,7 +153,7 @@ impl<'a> Articles<'a> {
                                          content="https://namachan10777.dev/".to_owned() + relpath.trim_end_matches("md") + "xhtml"
                                     ])
                                  ]),
-                                 xml!(body [] [xml!(div [id="root"] body)]),
+                                 xml!(body [] body),
                             ]),
                         ))
                     })
@@ -275,21 +274,34 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                     )
                 })
                 .collect::<CResult<Vec<XMLElem>>>()?;
-            let heading = heading.into_iter();
-            let header = XMLElem::WithElem(
-                "header".to_owned(),
-                vec![],
-                vec![XMLElem::WithElem(
-                    format!("h{}", ctx.level),
-                    vec![],
-                    heading
-                        .map(|i| inline(ctx.clone(), i))
-                        .collect::<CResult<Vec<XMLElem>>>()?,
-                )],
-            );
-            let mut inner = vec![header];
-            inner.append(&mut body);
-            Ok(xml!(section [] inner))
+            let heading = heading
+                .into_iter()
+                .map(|i| inline(ctx.clone(), i))
+                .collect::<CResult<Vec<XMLElem>>>()?;
+            if ctx.level == 1 {
+                let header = if ctx.relpath == "index.md" {
+                    xml!(header [] [xml!(h1 [] heading)])
+                } else {
+                    xml!(header [] [xml!(h1 [] heading), xml!(a [href="index.xhtml"] [xml!("topへ".to_owned())])])
+                };
+                let mut inner = vec![header];
+                inner.append(&mut body);
+                inner.push(gen_footer(ctx)?);
+                Ok(xml!(div [id="root"] inner))
+            } else {
+                let header = xml!(
+                    header
+                    []
+                    [XMLElem::WithElem(
+                        format!("h{}", ctx.level),
+                        vec![],
+                        heading
+                    )]
+                );
+                let mut inner = vec![header];
+                inner.append(&mut body);
+                Ok(xml!(section [] inner))
+            }
         }
         Block::ExtBlock(attr, inner) => {
             let inner = inner
