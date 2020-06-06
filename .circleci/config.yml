@@ -6,15 +6,33 @@ executors:
       - image: namachan10777/namachan10777.dev:latest
 
 jobs:
+  test:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - run:
+          name: Test engine
+          command: |
+            cd engine
+            cargo test
+            cargo clippy -- -D warnings
+            cargo fmt -- --check
   build:
     executor:
       name: default
     steps:
       - checkout
       - run:
-          name: Build
+          name: Build engine
           command: |
-            /usr/local/bin/engine -c public/config.json -d public.zip
+            cd engine
+            cargo build --release
+
+      - run:
+          name: Build pages
+          command: |
+            ./engine/target/release/engine -c ./public/config.json -d public.zip
 
       - run:
           name: Deploy to netlify
@@ -27,6 +45,9 @@ jobs:
 
 workflows:
   version: 2.1
+  test:
+    jobs:
+      - test
   build_and_deploy:
     jobs:
       - build:
