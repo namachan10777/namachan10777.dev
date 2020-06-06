@@ -150,7 +150,7 @@ impl<'a> Articles<'a> {
                                     xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
                                     xml!(meta [property="og:url", content="https://namachan10777.dev/".to_owned() + &relpath.trim_end_matches("md") + "xhtml"])
                                  ]),
-                                 xml!(body [] body),
+                                 xml!(body [] [xml!(div [id="root"] body)]),
                             ]),
                         ))
                     })

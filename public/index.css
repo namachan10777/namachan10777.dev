@@ -23,3 +23,20 @@ code {
 .prev-article {
 	float: left;
 }
+
+body {
+	display: flex;
+	justify-content: center;
+}
+
+@media(orientation: landscape) {
+	#root {
+		width: 55%;
+	}
+}
+
+@media(orientation: portrait) {
+	#root {
+		width: 90%;
+	}
+}
