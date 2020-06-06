@@ -11,6 +11,10 @@ jobs:
       name: default
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v0-test-{{ checksum "engine/Cargo.lock" }}
+            - v0-test-
       - run:
           name: Test engine
           command: |
@@ -18,22 +22,50 @@ jobs:
             cargo test
             cargo clippy -- -D warnings
             cargo fmt -- --check
-  build:
+      - save_cache:
+          key: v0-test-{{ checksum "engine/Cargo.lock" }}
+          paths:
+            - engine/target
+
+  build_engine:
     executor:
       name: default
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v0-build-{{ checksum "engine/Cargo.lock" }}
+            - v0-build-
       - run:
           name: Build engine
           command: |
             cd engine
             cargo build --release
+      - run:
+          name: save
+          command: |
+            mkdir -p workspace
+            cp engine/target/release/engine workspace/engine
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - engine
+      - save_cache:
+          key: v0-build-{{ checksum "engine/Cargo.lock" }}
+          paths:
+            - engine/target
 
+  build:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Build pages
           command: |
-            ./engine/target/release/engine -c ./public/config.json -d public.zip
-
+            /tmp/workspace/engine -c ./public/config.json -d public.zip
       - run:
           name: Deploy to netlify
           command: |
@@ -50,7 +82,10 @@ workflows:
       - test
   build_and_deploy:
     jobs:
+      - build_engine
       - build:
+          requires:
+            - build_engine
           filters:
             branches:
               only:
