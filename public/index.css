@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap');
 
+pre {
+	padding: 0.3%;
+	border-radius: 1%;
+}
+
 code {
 	font-family: 'Fira Mono', monospace;
 }
@@ -25,7 +30,9 @@ code {
 }
 
 p{
-	line-height: 140%;
+	color: #202020;
+	font-size: large;
+	line-height: 170%;
 }
 
 body {
