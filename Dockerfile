@@ -4,6 +4,6 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y curl git
 
-RUN rustup component add clippy-preview
+RUN rustup component add clippy-preview rustfmt
 
 ENTRYPOINT ["/bin/sh"]
