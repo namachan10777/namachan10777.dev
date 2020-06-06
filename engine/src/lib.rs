@@ -112,27 +112,23 @@ impl<'a> Articles<'a> {
             .into_iter()
             .map(|article| {
                 let relpath = article.relpath.clone();
+                let context = Context {
+                        level: 1,
+                        hash: &hash,
+                        rootpath,
+                        syntax_set: &syntax_set,
+                        previous: &previous,
+                        next: &next,
+                        relpath: &relpath,
+                    };
                 article
                     .body
                     .into_iter()
-                    .map(|b| {
-                        block(
-                            Context {
-                                level: 1,
-                                hash: &hash,
-                                rootpath,
-                                syntax_set: &syntax_set,
-                                previous: &previous,
-                                next: &next,
-                                relpath: &relpath,
-                            },
-                            b,
-                        )
-                    })
+                    .map(|b| block(context.clone(), b))
                     .collect::<CResult<Vec<XMLElem>>>()
-                    .map(|body| {
-                        (
-                            relpath.clone(),
+                    .and_then(|mut body| {
+                        body.push(gen_footer(context.clone())?);
+                        Ok((relpath.clone(),
                             html(vec![
                                  xml!(head [] [
                                     xml!(link [href="./syntect-highlight.css", rel="stylesheet", type="text/css"]),
@@ -156,11 +152,45 @@ impl<'a> Articles<'a> {
                                  ]),
                                  xml!(body [] body),
                             ]),
-                        )
+                        ))
                     })
             })
             .collect::<CResult<Vec<(String, codegen::XML)>>>()
     }
+}
+
+fn gen_footer(ctx: Context) -> CResult<XMLElem> {
+    let mut inner = Vec::new();
+    let prev = ctx
+        .previous
+        .get(ctx.relpath)
+        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
+        .map(|(title, relpath)| {
+            inlines(ctx.clone(), title.clone())
+                .map(|inlines|
+                     xml!(span [class="prev-article"] [
+                        xml!("&lt;&lt;".to_owned()),
+                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
+        });
+    if let Some(prev) = prev {
+        inner.push(prev?);
+    }
+    let next = ctx
+        .next
+        .get(ctx.relpath)
+        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
+        .map(|(title, relpath)| {
+            inlines(ctx.clone(), title.clone())
+                .map(|inlines|
+                     xml!(span [class="next-article"] [
+                        xml!("&gt;&gt;".to_owned()),
+                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
+        });
+
+    if let Some(next) = next {
+        inner.push(next?);
+    }
+    Ok(xml!(footer [class="article-footer"] inner))
 }
 
 #[derive(Clone)]
@@ -264,40 +294,6 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                 .collect::<CResult<Vec<XMLElem>>>()?;
             match attr.as_str() {
                 "address" => Ok(xml!(address [] inner)),
-                "footer" => {
-                    let mut inner = Vec::new();
-                    let prev = ctx
-                        .previous
-                        .get(ctx.relpath)
-                        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
-                        .map(|(title, relpath)| {
-                            inlines(ctx.clone(), title.clone())
-                                .map(|inlines|
-                                     xml!(span [class="prev-article"] [
-                                        xml!("&lt;&lt;".to_owned()),
-                                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
-                        });
-                    if let Some(prev) = prev {
-                        inner.push(prev?);
-                    }
-
-                    let next = ctx
-                        .next
-                        .get(ctx.relpath)
-                        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
-                        .map(|(title, relpath)| {
-                            inlines(ctx.clone(), title.clone())
-                                .map(|inlines|
-                                     xml!(span [class="next-article"] [
-                                        xml!("&gt;&gt;".to_owned()),
-                                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
-                        });
-
-                    if let Some(next) = next {
-                        inner.push(next?);
-                    }
-                    Ok(xml!(footer [class="article-footer"] inner))
-                }
                 _ => Err(Error::UnresolvedBlockExt(attr)),
             }
         }
