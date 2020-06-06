@@ -131,6 +131,7 @@ impl<'a> Articles<'a> {
                         Ok((relpath.clone(),
                             html(vec![
                                  xml!(head [] [
+                                    xml!(link [href="https://fonts.googleapis.com/css?family=Sawarabi+Gothic", rel="stylesheet"]),
                                     xml!(link [href="./syntect-highlight.css", rel="stylesheet", type="text/css"]),
                                     xml!(link [href="./index.css", rel="stylesheet", type="text/css"]),
                                     xml!(link [href="./res/favicon.ico", type="shortcut icon"]),

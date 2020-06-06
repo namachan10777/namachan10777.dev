@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap');
 
 pre {
 	padding: 0.3%;
@@ -30,6 +30,7 @@ code {
 }
 
 p{
+	font-family: 'Noto Sans JP', sans-serif;
 	color: #202020;
 	font-size: large;
 	line-height: 170%;
