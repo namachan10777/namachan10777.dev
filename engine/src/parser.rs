@@ -1,12 +1,12 @@
-use super::{Block, Inline, ListItem};
+use super::{Attribute, Block, Inline, ListItem};
 use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 
 #[derive(Debug)]
 pub struct Pos {
-    line: usize,
-    col: usize,
+    pub line: usize,
+    pub col: usize,
 }
 
 #[derive(Debug)]
@@ -471,7 +471,27 @@ mod test {
     }
 }
 
-pub fn parse(filename: String, s: &str) -> PResult<Vec<Block>> {
+pub fn parse_attribute(pairs: Pairs<Rule>) -> Attribute {
+    let mut attr: Attribute = Default::default();
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::attribute => {
+                let mut inner = pair.into_inner();
+                match inner.next().unwrap().as_str() {
+                    "date" => {
+                        let date = inner.next().unwrap().as_str().trim().parse().unwrap();
+                        attr.date = Some(date);
+                    }
+                    _ => (),
+                }
+            }
+            _ => unreachable!(),
+        }
+    }
+    attr
+}
+
+pub fn parse(filename: String, s: &str) -> PResult<(Attribute, Vec<Block>)> {
     let mut inner = SrcParser::parse(Rule::main, s)
         .map_err(|e| match e.line_col {
             LineColLocation::Pos((col, line)) => Erorr::At(filename, Pos { col, line }),
@@ -490,12 +510,15 @@ pub fn parse(filename: String, s: &str) -> PResult<Vec<Block>> {
         .next()
         .unwrap()
         .into_inner();
-    let _attribute = inner.next().unwrap();
-    Ok(inner
-        .map(|p| match p.as_rule() {
-            Rule::top_block => Some(parse_block(p.into_inner().next().unwrap())),
-            _ => None,
-        })
-        .filter_map(|p| p)
-        .collect::<Vec<Block>>())
+    let attribute = parse_attribute(inner.next().unwrap().into_inner());
+    Ok((
+        attribute,
+        inner
+            .map(|p| match p.as_rule() {
+                Rule::top_block => Some(parse_block(p.into_inner().next().unwrap())),
+                _ => None,
+            })
+            .filter_map(|p| p)
+            .collect::<Vec<Block>>(),
+    ))
 }

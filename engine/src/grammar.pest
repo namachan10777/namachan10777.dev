@@ -15,7 +15,8 @@ line = ${
 	}
 emptyline = _{ WHITESPACE* ~ el }
 dummyline = @{ WHITESPACE* ~ el }
-attribute = ${":" ~ ASCII_ALPHANUMERIC+ ~ WHITESPACE+ ~ line}
+attribute_name = @{ ASCII_ALPHANUMERIC+ }
+attribute = ${":" ~ attribute_name ~ WHITESPACE+ ~ line}
 lang = @{ (!el ~ !WHITESPACE ~ ANY)+ ~ el }
 codeblockbegin = { "```" ~ WHITESPACE* ~ (emptyline | lang?) }
 codeblockend = { "```" ~ WHITESPACE* ~ el }

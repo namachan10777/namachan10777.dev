@@ -67,6 +67,11 @@ impl Inline {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct Attribute {
+    pub date: Option<usize>,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub article: String,
@@ -77,11 +82,14 @@ pub struct ArticleSource {
     pub body: Vec<Block>,
     pub path: path::PathBuf,
     pub relpath: String,
+    pub date: Option<usize>,
 }
 
 #[derive(Debug)]
 pub struct Articles<'a> {
     pub hash: HashMap<String, Vec<Inline>>,
+    previous: HashMap<String, String>,
+    next: HashMap<String, String>,
     articles: Vec<ArticleSource>,
     rootpath: &'a path::Path,
     syntax_set: SyntaxSet,
@@ -94,7 +102,11 @@ impl<'a> Articles<'a> {
             articles,
             rootpath,
             syntax_set,
+            previous,
+            next,
         } = self;
+        println!("{:?}", previous);
+        println!("{:?}", next);
 
         articles
             .into_iter()
@@ -110,6 +122,9 @@ impl<'a> Articles<'a> {
                                 hash: &hash,
                                 rootpath,
                                 syntax_set: &syntax_set,
+                                previous: &previous,
+                                next: &next,
+                                relpath: &relpath,
                             },
                             b,
                         )
@@ -154,6 +169,9 @@ struct Context<'a> {
     rootpath: &'a path::Path,
     hash: &'a HashMap<String, Vec<Inline>>,
     syntax_set: &'a SyntaxSet,
+    previous: &'a HashMap<String, String>,
+    next: &'a HashMap<String, String>,
+    relpath: &'a String,
 }
 
 fn escape_txt(s: &str) -> String {
@@ -201,6 +219,13 @@ fn list<'a>(ctx: Context<'a>, li: Vec<ListItem>) -> CResult<Vec<XMLElem>> {
         .collect::<CResult<Vec<XMLElem>>>()
 }
 
+fn inlines(ctx: Context, inlines: Vec<Inline>) -> CResult<Vec<XMLElem>> {
+    inlines
+        .into_iter()
+        .map(|i| inline(ctx.clone(), i))
+        .collect::<CResult<Vec<XMLElem>>>()
+}
+
 fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
     match b {
         Block::Section(heading, inner) => {
@@ -239,6 +264,40 @@ fn block(ctx: Context, b: Block) -> CResult<XMLElem> {
                 .collect::<CResult<Vec<XMLElem>>>()?;
             match attr.as_str() {
                 "address" => Ok(xml!(address [] inner)),
+                "footer" => {
+                    let mut inner = Vec::new();
+                    let prev = ctx
+                        .previous
+                        .get(ctx.relpath)
+                        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
+                        .map(|(title, relpath)| {
+                            inlines(ctx.clone(), title.clone())
+                                .map(|inlines|
+                                     xml!(span [class="prev-article"] [
+                                        xml!("&lt;&lt;".to_owned()),
+                                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
+                        });
+                    if let Some(prev) = prev {
+                        inner.push(prev?);
+                    }
+
+                    let next = ctx
+                        .next
+                        .get(ctx.relpath)
+                        .and_then(|relpath| ctx.hash.get(relpath).map(|title| (title, relpath)))
+                        .map(|(title, relpath)| {
+                            inlines(ctx.clone(), title.clone())
+                                .map(|inlines|
+                                     xml!(span [class="next-article"] [
+                                        xml!("&gt;&gt;".to_owned()),
+                                        xml!(a [href=relpath.trim_end_matches(".md").to_owned() + ".xhtml"] inlines)]))
+                        });
+
+                    if let Some(next) = next {
+                        inner.push(next?);
+                    }
+                    Ok(xml!(footer [class="article-footer"] inner))
+                }
                 _ => Err(Error::UnresolvedBlockExt(attr)),
             }
         }

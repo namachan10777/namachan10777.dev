@@ -43,11 +43,22 @@ fn process(cfg_path: &path::Path, dest_path: &path::Path) -> Result<(), String> 
                 .join("/");
             let src = fs::read_to_string(&entry_path)
                 .map_err(|e| format!("{}: {:?}", entry_path.display(), e))?;
-            let ast = engine::parser::parse(entry_path.to_str().unwrap().to_owned(), src.as_str());
+            let (attr, ast) =
+                engine::parser::parse(entry_path.to_str().unwrap().to_owned(), src.as_str())
+                    .map_err(|e| match e {
+                        engine::parser::Erorr::At(file, p) => {
+                            format!("Syntax error at {}:{} in {}", p.line, p.col, file)
+                        }
+                        engine::parser::Erorr::Span(file, p1, p2) => format!(
+                            "Syntax error at {}:{} -- {}:{} in {}",
+                            p1.line, p1.col, p2.line, p2.col, file
+                        ),
+                    })?;
             articles.push(engine::ArticleSource {
                 path: entry_path.canonicalize().unwrap().to_owned(),
-                body: ast.unwrap(),
+                body: ast,
                 relpath,
+                date: attr.date,
             });
         } else if cfg_path != entry_path {
             let cnt = entry_path.iter().zip(&mut root.iter()).count();

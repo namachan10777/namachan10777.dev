@@ -11,3 +11,15 @@ code {
 .inline-code {
 	background-color: #EFEFEF;
 }
+
+.article-footer {
+	width: 100%;
+}
+
+.next-article {
+	float: right;
+}
+
+.prev-article {
+	float: left;
+}
