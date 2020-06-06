@@ -477,12 +477,9 @@ pub fn parse_attribute(pairs: Pairs<Rule>) -> Attribute {
         match pair.as_rule() {
             Rule::attribute => {
                 let mut inner = pair.into_inner();
-                match inner.next().unwrap().as_str() {
-                    "date" => {
-                        let date = inner.next().unwrap().as_str().trim().parse().unwrap();
-                        attr.date = Some(date);
-                    }
-                    _ => (),
+                if let "date" = inner.next().unwrap().as_str() {
+                    let date = inner.next().unwrap().as_str().trim().parse().unwrap();
+                    attr.date = Some(date);
                 }
             }
             _ => unreachable!(),
