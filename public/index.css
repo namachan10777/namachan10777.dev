@@ -4,7 +4,6 @@ pre {
 	padding: 0.3%;
 	border-radius: 1%;
 	overflow-x: scroll;
-	font-size: large;
 }
 
 code {
@@ -34,11 +33,11 @@ code {
 p{
 	font-family: 'Noto Sans JP', sans-serif;
 	color: #202020;
-	font-size: large;
 	line-height: 170%;
 }
 
 body {
+	font-size: large;
 	display: flex;
 	justify-content: center;
 }
