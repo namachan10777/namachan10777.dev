@@ -151,7 +151,8 @@ impl<'a> Articles<'a> {
                                     xml!(meta [
                                          property="og:url",
                                          content="https://namachan10777.dev/".to_owned() + relpath.trim_end_matches("md") + "xhtml"
-                                    ])
+                                    ]),
+                                    xml!(title [] inlines(context, hash.get(&relpath).unwrap().to_vec())?)
                                  ]),
                                  xml!(body [] body),
                             ]),
