@@ -133,7 +133,7 @@ impl<'a> Articles<'a> {
                                     xml!(link [href="https://fonts.googleapis.com/css?family=Sawarabi+Gothic", rel="stylesheet"]),
                                     xml!(link [href="./syntect-highlight.css", rel="stylesheet", type="text/css"]),
                                     xml!(link [href="./index.css", rel="stylesheet", type="text/css"]),
-                                    xml!(link [href="./res/favicon.ico", type="shortcut icon"]),
+                                    xml!(link [href="./res/favicon.ico", rel="shortcut icon"]),
                                     xml!(meta [name="twitter:card", content="summary"]),
                                     xml!(meta [name="twitter:site", content="@namachan10777"]),
                                     xml!(meta [name="twitter:creator", content="@namachan10777"]),
