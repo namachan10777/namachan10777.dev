@@ -31,12 +31,12 @@ code {
 }
 
 p{
-	font-family: 'Noto Sans JP', sans-serif;
 	color: #202020;
 	line-height: 170%;
 }
 
 body {
+	font-family: 'Noto Sans JP', sans-serif;
 	font-size: large;
 	display: flex;
 	justify-content: center;
