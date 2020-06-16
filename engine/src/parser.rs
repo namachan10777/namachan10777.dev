@@ -1,6 +1,7 @@
 use super::{Cmd, TextElem, Value};
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
+use std::collections::HashMap;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -16,17 +17,13 @@ fn parse_cmd(pair: Pair<Rule>) -> Cmd {
         Rule::cmd => {
             let mut inner = pair.into_inner();
             let name = &inner.next().unwrap().as_str()[1..];
-            let attrs = inner
-                .next()
-                .unwrap()
-                .into_inner()
-                .map(|p| {
-                    let mut inner = p.into_inner();
-                    let attr = inner.next().unwrap().as_str();
-                    let value = parse_value(inner.next().unwrap().into_inner().next().unwrap());
-                    (attr.to_owned(), value)
-                })
-                .collect::<Vec<_>>();
+            let mut attrs = HashMap::new();
+            inner.next().unwrap().into_inner().for_each(|p| {
+                let mut inner = p.into_inner();
+                let attr = inner.next().unwrap().as_str();
+                let value = parse_value(inner.next().unwrap().into_inner().next().unwrap());
+                attrs.insert(attr.to_owned(), value);
+            });
             let inner = inner.next().unwrap();
             let cmd_inner = match inner.as_rule() {
                 Rule::text => fold_textelem(inner.into_inner()),
@@ -101,6 +98,18 @@ fn parse_value(pair: Pair<Rule>) -> Value {
 #[cfg(test)]
 mod test {
     use super::*;
+    macro_rules! hash {
+        ( $( ($key:expr, $value:expr) ),* ) => {
+            {
+                let mut hash = HashMap::new();
+                $(
+                    hash.insert($key, $value);
+                )*
+                hash
+            }
+        };
+    }
+
     fn parse<T, F>(rule: Rule, s: &str, f: F) -> Result<Option<T>, pest::error::Error<Rule>>
     where
         F: FnOnce(Pair<Rule>) -> T,
@@ -150,7 +159,7 @@ mod test {
             parse(Rule::cmd, "\\cmdname class=\"cls1\";", parse_cmd),
             Ok(Some(Cmd {
                 name: "cmdname".to_owned(),
-                attrs: vec![("class".to_owned(), Value::Str("cls1".to_owned()))],
+                attrs: hash![("class".to_owned(), Value::Str("cls1".to_owned()))],
                 inner: vec![]
             }))
         );
@@ -170,20 +179,20 @@ mod test {
             ),
             Ok(Some(Cmd {
                 name: "cmdname".to_owned(),
-                attrs: vec![("class".to_owned(), Value::Str("cls1".to_owned()))],
+                attrs: hash![("class".to_owned(), Value::Str("cls1".to_owned()))],
                 inner: vec![
                     TextElem::Cmd(Cmd {
                         name: "c1".to_owned(),
-                        attrs: vec![],
+                        attrs: hash![],
                         inner: vec![]
                     }),
                     TextElem::Plain(" ".to_owned()),
                     TextElem::Cmd(Cmd {
                         name: "c2".to_owned(),
-                        attrs: vec![],
+                        attrs: hash![],
                         inner: vec![TextElem::Cmd(Cmd {
                             name: "c3".to_owned(),
-                            attrs: vec![],
+                            attrs: hash![],
                             inner: vec![]
                         })]
                     })
@@ -207,12 +216,12 @@ mod test {
             parse(Rule::text, "{\\cmd {foo\\red {bar}}}", parse_value),
             Ok(Some(Value::Text(vec![TextElem::Cmd(Cmd {
                 name: String::from("cmd"),
-                attrs: vec![],
+                attrs: hash![],
                 inner: vec![
                     TextElem::Plain(String::from("foo")),
                     TextElem::Cmd(Cmd {
                         name: String::from("red"),
-                        attrs: vec![],
+                        attrs: hash![],
                         inner: vec![TextElem::Plain(String::from("bar"))]
                     }),
                 ]
