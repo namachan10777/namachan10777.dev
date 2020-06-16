@@ -5,7 +5,7 @@ cmd_name     = ${ "\\" ~ symbol }
 attribute    =  { symbol ~ "=" ~ value }
 attributes   =  { attribute* }
 end_of_cmd   =  { ";" }
-cmd          =  !{ cmd_name ~ attributes ~ (end_of_cmd | text) }
+cmd          =  !{ cmd_name ~ attributes ~ (end_of_cmd | text | cmds) }
 esc_dq_str   = @{ "\\\"" }
 esc_esc_str  = @{ "\\\\" }
 char_in_str  =  { !"\"" ~ ANY }
@@ -14,6 +14,7 @@ esc_endbrace = @{ "\\}" }
 esc_esc      = @{ "\\\\" }
 char_in_text = @{ ANY }
 text         = ${ "{" ~ (!"}" ~ (esc_esc | esc_endbrace | cmd | char_in_text))* ~ "}" }
+cmds         =  { "[" ~ cmd* ~ "]" }
 int          = @{ ASCII_DIGIT+ }
 float        = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 value        =  { str | text | float | int }

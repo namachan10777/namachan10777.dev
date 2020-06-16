@@ -91,6 +91,7 @@ fn parse_value(pair: Pair<Rule>) -> Value {
             Value::Str(inner.join(""))
         }
         Rule::text => Value::Text(fold_textelem(pair.into_inner())),
+        Rule::cmds => Value::Text(fold_textelem(pair.into_inner())),
         p => unreachable!(),
     }
 }
@@ -231,8 +232,30 @@ mod test {
             })]))),
         );
     }
+    #[test]
+    fn test_cmds() {
+        assert_eq!(
+            parse(Rule::cmds, "[]", parse_value),
+            Ok(Some(Value::Text(vec![]))),
+        );
+        assert_eq!(
+            parse(Rule::cmds, "[\\cmd {foo} \\cmd2; ]", parse_value),
+            Ok(Some(Value::Text(vec![
+                TextElem::Cmd(Cmd {
+                    name: String::from("cmd"),
+                    attrs: hash![],
+                    inner: vec![TextElem::Plain(String::from("foo")),]
+                }),
+                TextElem::Cmd(Cmd {
+                    name: String::from("cmd2"),
+                    attrs: hash![],
+                    inner: vec![]
+                })
+            ]))),
+        );
+    }
 }
 
 pub fn parse(s: &str) -> Cmd {
-        parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap())
+    parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap())
 }
