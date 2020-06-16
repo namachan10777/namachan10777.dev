@@ -90,6 +90,9 @@ fn parse_value(pair: Pair<Rule>) -> Value {
                 .collect::<Vec<_>>();
             Value::Str(inner.join(""))
         }
+        Rule::blockstr => {
+            Value::Str(String::from(&pair.as_str()[4..pair.as_str().len()-4]))
+        }
         Rule::text => Value::Text(fold_textelem(pair.into_inner())),
         Rule::cmds => Value::Text(fold_textelem(pair.into_inner())),
         p => unreachable!(),
@@ -252,6 +255,14 @@ mod test {
                     inner: vec![]
                 })
             ]))),
+        );
+    }
+    #[test]
+    fn blockstr() {
+        let src = vec!["###`", "foo", "hoge \"bar\"", "`###"].join("\n");
+        assert_eq!(
+            parse(Rule::blockstr, src.as_str(), parse_value),
+            Ok(Some(Value::Str("\nfoo\nhoge \"bar\"\n".to_owned()))),
         );
     }
 }
