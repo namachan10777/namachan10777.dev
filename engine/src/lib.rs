@@ -83,7 +83,7 @@ fn execute_index(
     attrs: HashMap<String, Value>,
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
-    let title = get!(attrs, "tite", Text)?;
+    let title = get!(attrs, "title", Text)?;
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
@@ -109,7 +109,8 @@ fn execute_section(
     attrs: HashMap<String, Value>,
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
-    let title = get!(attrs, "tite", Text)?;
+
+    let title = get!(attrs, "title", Text)?;
     let mut header = vec![xml!(header [] [
          xml!(head [] [
              xml!(title []
