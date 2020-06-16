@@ -17,3 +17,5 @@ text         = ${ "{" ~ (!"}" ~ (esc_esc | esc_endbrace | cmd | char_in_text))* 
 int          = @{ ASCII_DIGIT+ }
 float        = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 value        =  { str | text | float | int }
+
+main = { SOI ~ cmd ~ EOI }

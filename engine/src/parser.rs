@@ -232,3 +232,7 @@ mod test {
         );
     }
 }
+
+pub fn parse(s: &str) -> Cmd {
+        parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap())
+}
