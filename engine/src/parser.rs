@@ -99,6 +99,9 @@ fn parse_value(pair: Pair<Rule>) -> Value {
 mod test {
     use super::*;
     macro_rules! hash {
+        ( ) => {
+            HashMap::new()
+        };
         ( $( ($key:expr, $value:expr) ),* ) => {
             {
                 let mut hash = HashMap::new();
