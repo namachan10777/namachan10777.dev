@@ -27,6 +27,7 @@ fn parse_cmd(pair: Pair<Rule>) -> Cmd {
             let inner = inner.next().unwrap();
             let cmd_inner = match inner.as_rule() {
                 Rule::text => fold_textelem(inner.into_inner()),
+                Rule::cmds => fold_textelem(inner.into_inner()),
                 Rule::end_of_cmd => vec![],
                 _ => unreachable!(),
             };
@@ -36,7 +37,8 @@ fn parse_cmd(pair: Pair<Rule>) -> Cmd {
                 inner: cmd_inner,
             }
         }
-        _ => unreachable!(),
+        _ =>
+            unreachable!()
     }
 }
 
@@ -70,7 +72,6 @@ fn fold_textelem(pairs: Pairs<Rule>) -> Vec<TextElem> {
     if text.len() > 0 {
         inner.push(TextElem::Plain(text));
     }
-    println!("{:?}", inner);
     inner
 }
 
@@ -170,14 +171,6 @@ mod test {
                 inner: vec![]
             }))
         );
-        println!(
-            "{:#?}",
-            parse(
-                Rule::cmd,
-                "\\cmdname class=\"cls1\"{\\c1; \\c2 {\\c3;}}",
-                parse_cmd
-            )
-        );
         assert_eq!(
             parse(
                 Rule::cmd,
@@ -268,5 +261,5 @@ mod test {
 }
 
 pub fn parse(s: &str) -> Cmd {
-    parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap())
+    parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap().into_inner().next().unwrap())
 }
