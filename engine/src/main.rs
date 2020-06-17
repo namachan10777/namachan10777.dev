@@ -56,11 +56,16 @@ fn main() {
     }
     let ctx = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));
     for (dest_path, file) in proj {
-        unwrap(zip.start_file_from_path(std::path::Path::new(&dest_path), default_permission), |e| eprintln!("{:?}", e));
+        unwrap(
+            zip.start_file_from_path(std::path::Path::new(&dest_path), default_permission),
+            |e| eprintln!("{:?}", e),
+        );
         match file {
             engine::File::Article(article) => {
                 let xml = unwrap(engine::root(ctx, article.body), |e| eprintln!("{:?}", e));
-                unwrap(zip.write_all(format!("{}", xml).as_bytes()), |e| eprintln!("{:?}", e));
+                unwrap(zip.write_all(format!("{}", xml).as_bytes()), |e| {
+                    eprintln!("{:?}", e)
+                });
             }
             engine::File::Misc(blob) => {
                 unwrap(zip.write_all(&blob), |e| eprintln!("{:?}", e));
