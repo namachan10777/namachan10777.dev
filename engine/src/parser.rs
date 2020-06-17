@@ -1,4 +1,5 @@
 use super::{Cmd, TextElem, Value};
+use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 use std::collections::HashMap;
@@ -8,7 +9,9 @@ use std::collections::HashMap;
 struct TextParser;
 
 #[derive(Debug, PartialEq)]
-enum Error {}
+pub enum Error {
+    SyntaxError(LineColLocation),
+}
 
 fn parse_cmd(pair: Pair<Rule>) -> Cmd {
     match pair.as_rule() {
@@ -255,14 +258,14 @@ mod test {
     }
 }
 
-pub fn parse(s: &str) -> Cmd {
-    parse_cmd(
+pub fn parse(s: &str) -> Result<Cmd, Error> {
+    Ok(parse_cmd(
         TextParser::parse(Rule::main, s)
-            .unwrap()
+            .map_err(|e| Error::SyntaxError(e.line_col))?
             .next()
             .unwrap()
             .into_inner()
             .next()
             .unwrap(),
-    )
+    ))
 }
