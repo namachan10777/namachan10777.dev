@@ -158,7 +158,7 @@ fn execute_section(
             XMLElem::WithElem(format!("h{}", ctx.level), vec![],
                 title
                 .into_iter()
-                .map(|e| process_text_elem(ctx, e))
+                .map(|e| process_text_elem(Context {level: ctx.level+1}, e))
                 .collect::<EResult<Vec<_>>>()?
             )
         ])
