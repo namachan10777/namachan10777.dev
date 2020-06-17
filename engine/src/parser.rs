@@ -8,9 +8,7 @@ use std::collections::HashMap;
 struct TextParser;
 
 #[derive(Debug, PartialEq)]
-enum Error {
-    InternalError(String),
-}
+enum Error {}
 
 fn parse_cmd(pair: Pair<Rule>) -> Cmd {
     match pair.as_rule() {
@@ -37,8 +35,7 @@ fn parse_cmd(pair: Pair<Rule>) -> Cmd {
                 inner: cmd_inner,
             }
         }
-        _ =>
-            unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -61,7 +58,7 @@ fn fold_textelem(pairs: Pairs<Rule>) -> Vec<TextElem> {
                 text.push_str(s.as_str());
             }
             TextElem::Cmd(cmd) => {
-                if text.len() > 0 {
+                if !text.is_empty() {
                     inner.push(TextElem::Plain(text.clone()));
                 }
                 inner.push(TextElem::Cmd(cmd));
@@ -69,7 +66,7 @@ fn fold_textelem(pairs: Pairs<Rule>) -> Vec<TextElem> {
             }
         }
     }
-    if text.len() > 0 {
+    if !text.is_empty() {
         inner.push(TextElem::Plain(text));
     }
     inner
@@ -91,12 +88,10 @@ fn parse_value(pair: Pair<Rule>) -> Value {
                 .collect::<Vec<_>>();
             Value::Str(inner.join(""))
         }
-        Rule::blockstr => {
-            Value::Str(String::from(&pair.as_str()[4..pair.as_str().len()-4]))
-        }
+        Rule::blockstr => Value::Str(String::from(&pair.as_str()[4..pair.as_str().len() - 4])),
         Rule::text => Value::Text(fold_textelem(pair.into_inner())),
         Rule::cmds => Value::Text(fold_textelem(pair.into_inner())),
-        p => unreachable!(),
+        _ => unreachable!(),
     }
 }
 
@@ -261,5 +256,13 @@ mod test {
 }
 
 pub fn parse(s: &str) -> Cmd {
-    parse_cmd(TextParser::parse(Rule::main, s).unwrap().next().unwrap().into_inner().next().unwrap())
+    parse_cmd(
+        TextParser::parse(Rule::main, s)
+            .unwrap()
+            .next()
+            .unwrap()
+            .into_inner()
+            .next()
+            .unwrap(),
+    )
 }

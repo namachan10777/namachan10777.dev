@@ -1,6 +1,6 @@
 \index title={namachan10777} {
 	\section title={About} {
-		\img url="./res/icon.jpg" {icon}
+		\img url="./res/icon.jpg" alt="icon";
 		\p {Masaki Nakano}
 		\p {
 			B3, College of computer and information science, University of Tsukuba.
