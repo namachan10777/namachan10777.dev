@@ -3,8 +3,8 @@ extern crate pest_derive;
 
 #[macro_use]
 pub mod xml;
-pub mod parser;
 pub mod analysis;
+pub mod parser;
 
 use std::collections::HashMap;
 use xml::{XMLElem, XML};
@@ -24,8 +24,13 @@ pub enum Error {
 type EResult<T> = Result<T, Error>;
 
 pub struct Article {
-    fname: String,
-    body: Cmd,
+    pub body: Cmd,
+}
+
+impl Article {
+    pub fn new(body: Cmd) -> Self {
+        Article { body }
+    }
 }
 
 pub enum File {
@@ -61,8 +66,7 @@ pub struct Context {
     level: usize,
 }
 
-pub fn root(cmd: Cmd) -> EResult<XML> {
-    let ctx = Context { level: 1 };
+pub fn root(ctx: Context, cmd: Cmd) -> EResult<XML> {
     Ok(XML::new("1.0", "UTF-8", "html", process_cmd(ctx, cmd)?))
 }
 
