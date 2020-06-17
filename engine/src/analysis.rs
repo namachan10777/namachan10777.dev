@@ -34,5 +34,5 @@ pub fn parse(proj: &Project) -> AResult<Context> {
             File::Misc(_) => (),
         }
     }
-    Ok(Context { level: 0 })
+    Ok(Context { level: 1 })
 }
