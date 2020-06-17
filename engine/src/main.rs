@@ -15,5 +15,5 @@ fn main() {
     let file_name = args.value_of("SOURCE").unwrap();
     let src = fs::read_to_string(file_name).unwrap();
     let ast = engine::parser::parse(src.as_str());
-    println!("{}", engine::root(ast).unwrap());
+    println!("{}", engine::root(ast.unwrap()).unwrap());
 }

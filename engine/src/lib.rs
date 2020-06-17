@@ -109,7 +109,6 @@ fn execute_section(
     attrs: HashMap<String, Value>,
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
-
     let title = get!(attrs, "title", Text)?;
     let mut header = vec![xml!(header [] [
          xml!(head [] [
@@ -123,7 +122,6 @@ fn execute_section(
     ])];
     let ctx_child = Context {
         level: ctx.level + 1,
-        ..ctx
     };
     let mut body = inner
         .into_iter()
