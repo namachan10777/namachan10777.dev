@@ -4,6 +4,7 @@ extern crate pest_derive;
 #[macro_use]
 pub mod xml;
 pub mod parser;
+pub mod analysis;
 
 use std::collections::HashMap;
 use xml::{XMLElem, XML};
@@ -21,6 +22,18 @@ pub enum Error {
 }
 
 type EResult<T> = Result<T, Error>;
+
+pub struct Article {
+    fname: String,
+    body: Cmd,
+}
+
+pub enum File {
+    Article(Article),
+    Misc(Vec<u8>),
+}
+
+pub type Project = HashMap<String, File>;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
@@ -44,7 +57,7 @@ pub enum TextElem {
 }
 
 #[derive(Clone, Copy)]
-struct Context {
+pub struct Context {
     level: usize,
 }
 
