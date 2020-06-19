@@ -18,14 +18,28 @@ where
     }
 }
 
+fn enumerate_entries(dir: &std::path::Path) -> Result<Vec<fs::DirEntry>, String> {
+    let mut entries = Vec::new();
+    for entry in fs::read_dir(dir).map_err(|e| format!("{:?}", e))? {
+        let entry = entry.map_err(|e| format!("{:?}", e))?;
+        let metadata = entry.metadata().map_err(|e| format!("{:?}", e))?;
+        if metadata.is_file() {
+            entries.push(entry);
+        }
+        else {
+            entries.append(&mut enumerate_entries(&entry.path()).map_err(|e| format!("{:?}", e))?);
+        }
+    }
+    Ok(entries)
+}
+
 fn main() {
     let args = App::new("engine")
         .arg(Arg::with_name("SOURCE").required(true).takes_value(true))
         .arg(Arg::with_name("DEST").required(true).takes_value(true))
         .get_matches();
-    let source_path = args.value_of("SOURCE").unwrap();
-    let dest_path = args.value_of("DEST").unwrap();
-    let source = unwrap(fs::read_dir(source_path), |e| eprintln!("{:?}", e));
+    let source_path = std::path::Path::new(args.value_of("SOURCE").unwrap());
+    let dest_path = std::path::Path::new(args.value_of("DEST").unwrap());
     let tml_pat = Regex::new(".*\\.tml").unwrap();
     let mut proj = engine::Project::new();
     let zipfile = unwrap(fs::File::create(dest_path), |e| eprintln!("{:?}", e));
@@ -33,8 +47,7 @@ fn main() {
         .unix_permissions(0o444)
         .compression_method(zip::CompressionMethod::Deflated);
     let mut zip = zip::ZipWriter::new(zipfile);
-    for entry in source {
-        let entry = unwrap(entry, |e| eprintln!("{:?}", e));
+    for entry in unwrap(enumerate_entries(&source_path), |e| eprintln!("{:?}", e)) {
         let path = entry.path();
         let path_str = path.to_str().unwrap();
         if tml_pat.is_match(path_str) {
