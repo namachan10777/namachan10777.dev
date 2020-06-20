@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Build pages
           command: |
-            /tmp/workspace/engine -c ./public/config.json -d public.zip
+            /tmp/workspace/engine ./public/ public.zip
       - run:
           name: Deploy to netlify
           command: |
