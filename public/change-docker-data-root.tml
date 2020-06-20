@@ -12,7 +12,7 @@
     \p{
       これでイメージとか全部消えるので注意。
     }
-    \blockcode lang=sh src=###`
+    \blockcode lang="sh" src=###`
       systemctl stop docker.service
       mkdir -p /opt/docker/
       rm -R /var/lib/docker/
@@ -22,7 +22,7 @@
     \p{
       それで\code{override.conf}を以下のように編集する。
     }
-    \blockcode lang=plain src=###`
+    \blockcode lang="plain" src=###`
       [Service]
       ExecStart=
       ExecStart=/usr/bin/dockerd --data-root /opt/docker
@@ -30,7 +30,7 @@
     \p{
       上記のように書き換えたあと、下のコマンドで更新すれば終わり。
     }
-    \blockcode lang=sh src=###`
+    \blockcode lang="sh" src=###`
       systemd daemon-reload
     `###;
     \p{
