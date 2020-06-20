@@ -248,13 +248,14 @@ fn execute_article(
     } else {
         body_str
     };
+    let body_str = body_str.trim().to_owned() + "……";
     header.push(xml!(title [] title));
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="article"]));
-    header.push(xml!(meta [property="og:description", content=body_str.trim()]));
-    header.push(xml!(meta [name="description", content=body_str.trim()]));
-    header.push(xml!(meta [name="twitter:description", content=body_str.trim()]));
+    header.push(xml!(meta [property="og:description", content=body_str]));
+    header.push(xml!(meta [name="description", content=body_str]));
+    header.push(xml!(meta [name="twitter:description", content=body_str]));
     body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
 
