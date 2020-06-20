@@ -150,7 +150,7 @@ fn header_common(ctx: Context) -> Vec<XMLElem> {
         xml!(meta [name="twitter:domain", content="namachan10777.dev"]),
         xml!(meta [property="og:url", content=&url]),
         xml!(meta [property="og:site_name", content="namachan10777"]),
-        xml!(meta [property="og:image", content="res/icon.jpg"])
+        xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"])
     ]
 }
 
