@@ -251,7 +251,7 @@ fn execute_article(
     header.push(xml!(title [] title));
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
-    header.push(xml!(meta [property="og:type", content="website"]));
+    header.push(xml!(meta [property="og:type", content="article"]));
     header.push(xml!(meta [property="og:description", content=body_str.trim()]));
     header.push(xml!(meta [name="description", content=body_str.trim()]));
     header.push(xml!(meta [name="twitter:description", content=body_str.trim()]));
