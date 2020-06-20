@@ -154,7 +154,10 @@ fn execute_article(
         .into_iter()
         .map(|e| process_text_elem(ctx, e))
         .collect::<EResult<Vec<_>>>()?;
-    let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
+    let mut body = vec![xml!(header [] [
+        xml!(a [href="index.xhtml"] [xml!("戻る".to_owned())]),
+        xml!(h1 [] title.clone())
+    ])];
     let mut footer_inner = Vec::new();
     if let Some((prev_path, prev_title)) = ctx.prevs.get(ctx.path) {
         footer_inner.push(xml!(a
