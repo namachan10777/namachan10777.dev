@@ -64,6 +64,17 @@ impl XML {
     }
 }
 
+impl XMLElem {
+    pub fn extract_string(&self) -> String {
+        match self {
+            XMLElem::Single(_, _) => String::new(),
+            XMLElem::WithElem(_, _, inner) => inner.iter().map(|inner| inner.extract_string()).collect::<Vec<_>>().join(""),
+            XMLElem::Raw(_) => String::new(),
+            XMLElem::Text(s) => s.to_owned()
+        }
+    }
+}
+
 impl fmt::Display for XMLElem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {

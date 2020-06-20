@@ -139,10 +139,18 @@ fn resolve(target: &str, from: &std::path::Path) -> std::path::PathBuf {
 }
 
 fn header_common(ctx: Context) -> Vec<XMLElem> {
+    let url = "https://namachan10777.dev/".to_owned() + ctx.path.to_str().unwrap();
     vec![
         xml!(link [href=resolve("index.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("syntect.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("res/favicon.ico", &ctx.path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
+        xml!(meta [name="twitter:card", content="summary"]),
+        xml!(meta [name="twitter:site", content="@namachan10777"]),
+        xml!(meta [name="twitter:creator", content="@namachan10777"]),
+        xml!(meta [name="twitter:domain", content="namachan10777.dev"]),
+        xml!(meta [property="og:url", content=&url]),
+        xml!(meta [property="og:site_name", content="namachan10777"]),
+        xml!(meta [property="og:image", content="res/icon.png"])
     ]
 }
 
@@ -164,6 +172,10 @@ fn execute_index(
             .collect::<EResult<Vec<_>>>()?,
     );
     let mut header = header_common(ctx);
+    let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
+    header.push(xml!(meta [property="og:title", content=&title_str]));
+    header.push(xml!(meta [property="og:type", content="website"]));
+    header.push(xml!(meta [property="og:descriptioin", content="about me"]));
     header.push(xml!(title [] title));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
@@ -205,12 +217,25 @@ fn execute_article(
         ));
     }
     let mut header = header_common(ctx);
-    header.push(xml!(title [] title));
-    body.append(
-        &mut inner
+    let mut body_xml = inner
             .into_iter()
             .map(|e| process_text_elem(ctx, e))
-            .collect::<EResult<Vec<_>>>()?,
+            .collect::<EResult<Vec<_>>>()?;
+    let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
+    let body_str = body_xml.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
+    let chars = body_str.chars();
+    let body_str = if chars.clone().count() > 100 {
+        chars.take(100).map(|c| c.to_string()).collect::<Vec<_>>().join("")
+    }
+    else {
+        body_str
+    };
+    header.push(xml!(title [] title));
+    header.push(xml!(meta [property="og:title", content=&title_str]));
+    header.push(xml!(meta [property="og:type", content="article"]));
+    header.push(xml!(meta [property="og:descriptioin", content=body_str.trim()]));
+    body.append(
+        &mut body_xml,
     );
     body.push(xml!(footer [] footer_inner));
     Ok(
