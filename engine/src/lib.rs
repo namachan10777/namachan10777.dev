@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate pest_derive;
+extern crate syntect;
 
 #[macro_use]
 pub mod xml;
@@ -7,6 +8,8 @@ pub mod analysis;
 pub mod parser;
 
 use std::collections::HashMap;
+use syntect::parsing::SyntaxSet;
+use syntect::html::ClassedHTMLGenerator;
 use xml::{XMLElem, XML};
 
 #[derive(Debug)]
@@ -67,6 +70,7 @@ pub struct Context<'a> {
     prevs: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     nexts: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     article_list: &'a Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
+    ss: &'a SyntaxSet,
 }
 
 impl<'a> From<&'a analysis::Report> for Context<'a> {
@@ -76,6 +80,7 @@ impl<'a> From<&'a analysis::Report> for Context<'a> {
             prevs: &report.prevs,
             nexts: &report.nexts,
             article_list: &report.article_list,
+            ss: &report.ss,
         }
     }
 }
@@ -274,9 +279,9 @@ fn execute_code(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
 fn execute_blockcode(
     ctx: Context,
     attrs: HashMap<String, Value>,
-    inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
     let src = get!(attrs, "src", Str)?;
+    let lang = get!(attrs, "lang", Str)?;
     let lines = src.split('\n').collect::<Vec<_>>();
     let white = regex::Regex::new(r"^[ \t\r\n]*$").unwrap();
     assert!(!white.is_match("abc"));
@@ -290,13 +295,21 @@ fn execute_blockcode(
         padding_n = padding_n.min(line.chars().take_while(|c| *c == ' ').count());
     }
     println!("cut {}", padding_n);
-    let mut code = String::new();
+    let mut code = Vec::new();
     for line in lines[empty_line_cnt_from_head..lines.len() - empty_line_cnt_from_tail].to_vec() {
-        code.push_str(line.get(padding_n..).unwrap_or_else(|| ""));
-        code.push_str("\n");
+        code.push(line.get(padding_n..).unwrap_or_else(|| ""));
     }
-    println!("{}", code);
-    Ok(xml!(code [] [xml!(pre [] [xml!(code)])]))
+    if let Some(sr) = ctx.ss.find_syntax_by_extension(&lang) {
+        let mut generator = ClassedHTMLGenerator::new(sr, ctx.ss);
+        for line in code {
+            generator.parse_html_for_line(&line);
+        }
+        Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(generator.finalize())])]))
+    }
+    else {
+        eprintln!("language {} is not found!", lang);
+        Ok(xml!(code [] [xml!(pre [] [xml!(code.join(""))])]))
+    }
 }
 
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
@@ -312,7 +325,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "link" => execute_link(ctx, cmd.attrs, cmd.inner),
         "n" => execute_n(ctx, cmd.inner),
         "code" => execute_code(ctx, cmd.inner),
-        "blockcode" => execute_blockcode(ctx, cmd.attrs, cmd.inner),
+        "blockcode" => execute_blockcode(ctx, cmd.attrs),
         _ => Err(Error::ProcessError(format!(
             "invalid root cmd {}",
             cmd.name

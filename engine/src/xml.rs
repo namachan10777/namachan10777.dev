@@ -91,6 +91,9 @@ impl fmt::Display for XMLElem {
                     .replace("<", "&lt;");
                 write!(f, "{}", txt)
             }
+            XMLElem::Raw(raw) => {
+                write!(f, "{}", raw)
+            }
         }
     }
 }

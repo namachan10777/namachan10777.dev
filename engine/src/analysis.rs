@@ -1,6 +1,8 @@
 use super::{Article, Context, File, Project, TextElem, Value};
 
 use std::collections::HashMap;
+use syntect::parsing::SyntaxSet;
+use syntect::html::{ClassedHTMLGenerator, ClassStyle};
 
 #[derive(Debug)]
 pub enum Error {
@@ -11,6 +13,7 @@ pub struct Report {
     pub prevs: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     pub nexts: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     pub article_list: Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
+    pub ss: SyntaxSet,
 }
 
 macro_rules! get {
@@ -54,6 +57,7 @@ fn extract_title_and_date(
 
 pub fn parse(proj: &Project) -> AResult<Report> {
     let mut article_list = Vec::new();
+    let ss = SyntaxSet::load_defaults_newlines();
     for (fname, file) in proj {
         match file {
             File::Article(article) => {
@@ -76,6 +80,7 @@ pub fn parse(proj: &Project) -> AResult<Report> {
         before = Some((path.clone(), title.clone()))
     }
     Ok(Report {
+        ss,
         article_list,
         prevs,
         nexts,
