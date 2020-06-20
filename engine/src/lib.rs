@@ -147,7 +147,6 @@ fn header_common(ctx: Context) -> Vec<XMLElem> {
         xml!(meta [name="twitter:card", content="summary"]),
         xml!(meta [name="twitter:site", content="@namachan10777"]),
         xml!(meta [name="twitter:creator", content="@namachan10777"]),
-        xml!(meta [name="twitter:domain", content="namachan10777.dev"]),
         xml!(meta [property="og:url", content=&url]),
         xml!(meta [property="og:site_name", content="namachan10777"]),
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
@@ -178,6 +177,7 @@ fn execute_index(
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="website"]));
     header.push(xml!(meta [property="og:description", content="about me"]));
+    header.push(xml!(meta [name="description", content="about me"]));
     header.push(xml!(meta [name="twitter:description", content="about me"]));
     header.push(xml!(title [] title));
     Ok(
@@ -238,6 +238,7 @@ fn execute_article(
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="article"]));
     header.push(xml!(meta [property="og:description", content=body_str.trim()]));
+    header.push(xml!(meta [name="description", content=body_str.trim()]));
     header.push(xml!(meta [name="twitter:description", content=body_str.trim()]));
     body.append(
         &mut body_xml,
