@@ -1,4 +1,4 @@
-\article{Dockerイメージの格納先を変更する} date="2020-06-06"{
+\article title={Dockerイメージの格納先を変更する} date="2020-06-06" {
   \p{
     夏ですね。響け！ユーフォニアムの事を考えて熱波をやり過ごしていますが人間限界がある。
     \code{/var}を\code{/}に乗せていれば特に問題はないが、
@@ -8,7 +8,7 @@
     簡単な対処として\code{docker.service}を触って格納先を\code{/}以下の\code{/opt/docker}に変更する方法があるものの、
     これだとパッケージマネージャが\code{docker.service}を更新する度にリセットされてしまう。
   }
-  \section{解決策} {
+  \section title={解決策} {
     \p{
       これでイメージとか全部消えるので注意。
     }
