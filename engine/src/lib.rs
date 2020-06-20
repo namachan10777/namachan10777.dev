@@ -62,8 +62,22 @@ pub enum TextElem {
 }
 
 #[derive(Clone, Copy)]
-pub struct Context {
+pub struct Context<'a> {
     level: usize,
+    prevs: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
+    nexts: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
+    article_list: &'a Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
+}
+
+impl<'a> From<&'a analysis::Report> for Context<'a> {
+    fn from(report: &'a analysis::Report) -> Self {
+        Context {
+            level: 1,
+            prevs: &report.prevs,
+            nexts: &report.nexts,
+            article_list: &report.article_list,
+        }
+    }
 }
 
 pub fn root(ctx: Context, cmd: Cmd) -> EResult<XML> {
@@ -127,6 +141,12 @@ fn execute_article(
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
     let title = get!(attrs, "title", Text)?;
+    let date = get!(attrs, "date", Str)?;
+    let date_pattern = regex::Regex::new(r"^(\d{4})-(\d{2})-(\d{2})$").unwrap();
+    let captured = date_pattern.captures(&date).unwrap();
+    let year = captured.get(0);
+    let month = captured.get(1);
+    let date = captured.get(2);
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
@@ -158,13 +178,14 @@ fn execute_section(
             XMLElem::WithElem(format!("h{}", ctx.level), vec![],
                 title
                 .into_iter()
-                .map(|e| process_text_elem(Context {level: ctx.level+1}, e))
+                .map(|e| process_text_elem(Context {level: ctx.level+1, ..ctx}, e))
                 .collect::<EResult<Vec<_>>>()?
             )
         ])
     ])];
     let ctx_child = Context {
         level: ctx.level + 1,
+        ..ctx
     };
     let mut body = inner
         .into_iter()
@@ -232,8 +253,52 @@ fn execute_n(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
         .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_articles(_ctx: Context) -> EResult<XMLElem> {
-    Ok(xml!(ul [] []))
+fn execute_articles(ctx: Context) -> EResult<XMLElem> {
+    Ok(xml!(ul [] ctx
+        .article_list
+        .iter()
+        .map(|(path, title, _)| {
+            Ok(xml!(li [] [xml!(a
+                [href=path.to_str().unwrap()]
+                title.iter().map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
+            )]))
+        })
+        .collect::<EResult<Vec<_>>>()?
+    ))
+}
+
+fn execute_code(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
+    Ok(xml!(code [] inner.into_iter()
+            .map(|e| process_text_elem(ctx, e))
+            .collect::<EResult<Vec<_>>>()?))
+}
+
+fn execute_blockcode(
+    ctx: Context,
+    attrs: HashMap<String, Value>,
+    inner: Vec<TextElem>,
+) -> EResult<XMLElem> {
+    let src = get!(attrs, "src", Str)?;
+    let lines = src.split('\n').collect::<Vec<_>>();
+    let white = regex::Regex::new(r"^[ \t\r\n]*$").unwrap();
+    assert!(!white.is_match("abc"));
+    let empty_line_cnt_from_head = lines.iter().take_while(|l| white.is_match(l)).count();
+    let empty_line_cnt_from_tail = lines.iter().rev().take_while(|l| white.is_match(l)).count();
+    let mut padding_n = 100000;
+    for line in &lines {
+        if white.is_match(line) {
+            continue;
+        }
+        padding_n = padding_n.min(line.chars().take_while(|c| *c == ' ').count());
+    }
+    println!("cut {}", padding_n);
+    let mut code = String::new();
+    for line in lines[empty_line_cnt_from_head..lines.len() - empty_line_cnt_from_tail].to_vec() {
+        code.push_str(line.get(padding_n..).unwrap_or_else(|| ""));
+        code.push_str("\n");
+    }
+    println!("{}", code);
+    Ok(xml!(code [] [xml!(pre [] [xml!(code)])]))
 }
 
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
@@ -248,6 +313,8 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "ul" => execute_ul(ctx, cmd.inner),
         "link" => execute_link(ctx, cmd.attrs, cmd.inner),
         "n" => execute_n(ctx, cmd.inner),
+        "code" => execute_code(ctx, cmd.inner),
+        "blockcode" => execute_blockcode(ctx, cmd.attrs, cmd.inner),
         _ => Err(Error::ProcessError(format!(
             "invalid root cmd {}",
             cmd.name

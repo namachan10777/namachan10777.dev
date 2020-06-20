@@ -25,8 +25,7 @@ fn enumerate_entries(dir: &std::path::Path) -> Result<Vec<fs::DirEntry>, String>
         let metadata = entry.metadata().map_err(|e| format!("{:?}", e))?;
         if metadata.is_file() {
             entries.push(entry);
-        }
-        else {
+        } else {
             entries.append(&mut enumerate_entries(&entry.path()).map_err(|e| format!("{:?}", e))?);
         }
     }
@@ -51,7 +50,10 @@ fn main() {
         let path = entry.path();
         let path_str = path.to_str().unwrap();
         if tml_pat.is_match(path_str) {
-            let dest_path = path.strip_prefix(source_path).unwrap().with_extension("xhtml");
+            let dest_path = path
+                .strip_prefix(source_path)
+                .unwrap()
+                .with_extension("xhtml");
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
             proj.insert(
                 dest_path,
@@ -68,7 +70,8 @@ fn main() {
             proj.insert(dest_path, engine::File::Misc(src));
         }
     }
-    let ctx = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));
+    let report = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));
+    let ctx = engine::Context::from(&report);
     for (dest_path, file) in proj {
         unwrap(
             zip.start_file_from_path(std::path::Path::new(&dest_path), default_permission),
