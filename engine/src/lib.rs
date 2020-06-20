@@ -224,8 +224,8 @@ fn execute_article(
     let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
     let body_str = body_xml.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
     let chars = body_str.chars();
-    let body_str = if chars.clone().count() > 100 {
-        chars.take(100).map(|c| c.to_string()).collect::<Vec<_>>().join("")
+    let body_str = if chars.clone().count() > 64 {
+        chars.take(64).map(|c| c.to_string()).collect::<Vec<_>>().join("")
     }
     else {
         body_str
