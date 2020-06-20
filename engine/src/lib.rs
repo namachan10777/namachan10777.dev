@@ -182,7 +182,7 @@ fn execute_index(
     header.push(xml!(title [] title));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-             xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
+             xml!(head [prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#"] header),
              xml!(body [] [xml!(div [id="root"] body)])
         ]),
     )
