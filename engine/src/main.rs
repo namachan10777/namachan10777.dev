@@ -71,8 +71,8 @@ fn main() {
         }
     }
     let report = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));
-    let ctx = engine::Context::from(&report);
     for (dest_path, file) in proj {
+        let ctx = engine::Context::new(&report, &dest_path);
         unwrap(
             zip.start_file_from_path(std::path::Path::new(&dest_path), default_permission),
             |e| eprintln!("{:?}", e),

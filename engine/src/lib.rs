@@ -71,16 +71,18 @@ pub struct Context<'a> {
     nexts: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     article_list: &'a Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
     ss: &'a SyntaxSet,
+    path: &'a std::path::Path,
 }
 
-impl<'a> From<&'a analysis::Report> for Context<'a> {
-    fn from(report: &'a analysis::Report) -> Self {
+impl<'a> Context<'a> {
+    pub fn new(report: &'a analysis::Report, path: &'a std::path::Path) -> Self {
         Context {
             level: 1,
             prevs: &report.prevs,
             nexts: &report.nexts,
             article_list: &report.article_list,
             ss: &report.ss,
+            path,
         }
     }
 }
@@ -134,9 +136,10 @@ fn execute_index(
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
+                  xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
                   xml!(title [] title)
              ]),
-             xml!(body [] body)
+             xml!(body [] [xml!(div [id="root"] body)])
         ]),
     )
 }
@@ -147,29 +150,42 @@ fn execute_article(
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
     let title = get!(attrs, "title", Text)?;
-    let date = get!(attrs, "date", Str)?;
-    let date_pattern = regex::Regex::new(r"^(\d{4})-(\d{2})-(\d{2})$").unwrap();
-    let captured = date_pattern.captures(&date).unwrap();
-    let year = captured.get(0);
-    let month = captured.get(1);
-    let date = captured.get(2);
     let title = title
         .into_iter()
         .map(|e| process_text_elem(ctx, e))
         .collect::<EResult<Vec<_>>>()?;
     let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
+    let mut footer_inner = Vec::new();
+    if let Some((prev_path, prev_title)) = ctx.prevs.get(ctx.path) {
+        footer_inner.push(xml!(a
+            [href=prev_path.to_str().unwrap(), class="prev-article"]
+            prev_title
+                .iter()
+                .map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
+        ));
+    }
+    if let Some((next_path, next_title)) = ctx.nexts.get(ctx.path) {
+        footer_inner.push(xml!(a
+            [href=next_path.to_str().unwrap(), class="next-article"]
+            next_title
+                .iter()
+                .map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
+        ));
+    }
     body.append(
         &mut inner
             .into_iter()
             .map(|e| process_text_elem(ctx, e))
             .collect::<EResult<Vec<_>>>()?,
     );
+    body.push(xml!(footer [] footer_inner));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
+                  xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
                   xml!(title [] title)
              ]),
-             xml!(body [] body)
+             xml!(body [] [xml!(div [id="root"] body)])
         ]),
     )
 }

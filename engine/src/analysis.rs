@@ -1,14 +1,12 @@
-use super::{Article, Context, File, Project, TextElem, Value};
+use super::{Article, File, Project, TextElem, Value};
 
 use std::collections::HashMap;
 use syntect::parsing::SyntaxSet;
-use syntect::html::{ClassedHTMLGenerator, ClassStyle};
 
 #[derive(Debug)]
 pub enum Error {
     InvalidFormat(String),
 }
-
 pub struct Report {
     pub prevs: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
     pub nexts: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
