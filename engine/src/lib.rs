@@ -116,6 +116,34 @@ macro_rules! get {
     };
 }
 
+fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {
+    let target_ancestors = target.ancestors();
+    let from_ancestors = from.ancestors();
+    let common = target_ancestors
+        .zip(from_ancestors)
+        .filter(|(a, b)| a == b)
+        .next()
+        .map(|(a, _)| a)
+        .unwrap_or(std::path::Path::new(""));
+    let target_congenital = target.strip_prefix(common).unwrap();
+    let from_congenital = target.strip_prefix(common).unwrap();
+    let climb_count = from_congenital.into_iter().count();
+    let climb_src = "../".repeat(climb_count-1);
+    let climb = std::path::Path::new(&climb_src);
+    climb.join(target_congenital)
+}
+
+fn resolve(target: &str, from: &std::path::Path) -> std::path::PathBuf {
+    resolve_link(&std::path::Path::new(target), from)
+}
+
+fn header_common(ctx: Context) -> Vec<XMLElem> {
+    vec![
+        xml!(link [href=resolve("index.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
+        xml!(link [href=resolve("syntect.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
+    ]
+}
+
 fn execute_index(
     ctx: Context,
     attrs: HashMap<String, Value>,
@@ -133,13 +161,11 @@ fn execute_index(
             .map(|e| process_text_elem(ctx, e))
             .collect::<EResult<Vec<_>>>()?,
     );
+    let mut header = header_common(ctx);
+    header.push(xml!(title [] title));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-             xml!(head [] [
-                  xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
-                  xml!(link [href="syntect.css", rel="stylesheet", type="text/css"]),
-                  xml!(title [] title)
-             ]),
+             xml!(head [] header),
              xml!(body [] [xml!(div [id="root"] body)])
         ]),
     )
@@ -176,6 +202,8 @@ fn execute_article(
                 .map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
+    let mut header = header_common(ctx);
+    header.push(xml!(title [] title));
     body.append(
         &mut inner
             .into_iter()
@@ -185,11 +213,7 @@ fn execute_article(
     body.push(xml!(footer [] footer_inner));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-             xml!(head [] [
-                  xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
-                  xml!(link [href="syntect.css", rel="stylesheet", type="text/css"]),
-                  xml!(title [] title)
-             ]),
+             xml!(head [] header),
              xml!(body [] [xml!(div [id="root"] body)])
         ]),
     )
