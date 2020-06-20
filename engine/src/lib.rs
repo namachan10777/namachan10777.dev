@@ -117,16 +117,17 @@ macro_rules! get {
 }
 
 fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {
-    let target_ancestors = target.ancestors();
-    let from_ancestors = from.ancestors();
+    let target_ancestors = target.ancestors().collect::<Vec<_>>().into_iter().rev();
+    let from_ancestors = from.ancestors().collect::<Vec<_>>().into_iter().rev();
     let common = target_ancestors
         .zip(from_ancestors)
         .filter(|(a, b)| a == b)
+        .rev()
         .next()
         .map(|(a, _)| a)
         .unwrap_or(std::path::Path::new(""));
     let target_congenital = target.strip_prefix(common).unwrap();
-    let from_congenital = target.strip_prefix(common).unwrap();
+    let from_congenital = from.strip_prefix(common).unwrap();
     let climb_count = from_congenital.into_iter().count();
     let climb_src = "../".repeat(climb_count-1);
     let climb = std::path::Path::new(&climb_src);
