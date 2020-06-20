@@ -83,7 +83,13 @@ impl fmt::Display for XMLElem {
                 }
                 write!(f, "</{}>", name)
             }
-            XMLElem::Text(txt) => write!(f, "{}", txt),
+            XMLElem::Text(txt) => {
+                let txt = txt
+                    .replace("&", "&amp;")
+                    .replace("<", "&gt;")
+                    .replace(">", "&lt;");
+                write!(f, "{}", txt)
+            }
         }
     }
 }
