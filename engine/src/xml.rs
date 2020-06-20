@@ -38,6 +38,7 @@ macro_rules! xml {
     }
 }
 
+#[derive(Clone)]
 pub enum XMLElem {
     Single(String, Vec<(String, String)>),
     WithElem(String, Vec<(String, String)>, Vec<XMLElem>),
@@ -91,9 +92,7 @@ impl fmt::Display for XMLElem {
                     .replace("<", "&lt;");
                 write!(f, "{}", txt)
             }
-            XMLElem::Raw(raw) => {
-                write!(f, "{}", raw)
-            }
+            XMLElem::Raw(raw) => write!(f, "{}", raw),
         }
     }
 }

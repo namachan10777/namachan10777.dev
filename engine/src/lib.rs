@@ -306,7 +306,7 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XML
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(generator.finalize())])]))
     } else {
         eprintln!("language {} is not found!", lang);
-        Ok(xml!(code [] [xml!(pre [] [xml!(code.join(""))])]))
+        Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(code.join("\n"))])]))
     }
 }
 
