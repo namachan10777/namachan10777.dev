@@ -174,14 +174,12 @@ fn execute_section(
 ) -> EResult<XMLElem> {
     let title = get!(attrs, "title", Text)?;
     let mut header = vec![xml!(header [] [
-         xml!(head [] [
-            XMLElem::WithElem(format!("h{}", ctx.level), vec![],
-                title
-                .into_iter()
-                .map(|e| process_text_elem(Context {level: ctx.level+1, ..ctx}, e))
-                .collect::<EResult<Vec<_>>>()?
-            )
-        ])
+        XMLElem::WithElem(format!("h{}", ctx.level), vec![],
+            title
+            .into_iter()
+            .map(|e| process_text_elem(Context {level: ctx.level+1, ..ctx}, e))
+            .collect::<EResult<Vec<_>>>()?
+        )
     ])];
     let ctx_child = Context {
         level: ctx.level + 1,
