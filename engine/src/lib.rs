@@ -129,7 +129,7 @@ fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::
     let target_congenital = target.strip_prefix(common).unwrap();
     let from_congenital = from.strip_prefix(common).unwrap();
     let climb_count = from_congenital.iter().count();
-    let climb_src = "../".repeat(climb_count-1);
+    let climb_src = "../".repeat(climb_count - 1);
     let climb = std::path::Path::new(&climb_src);
     climb.join(target_congenital)
 }
@@ -150,7 +150,7 @@ fn header_common(ctx: Context) -> Vec<XMLElem> {
         xml!(meta [property="og:url", content=&url]),
         xml!(meta [property="og:site_name", content="namachan10777"]),
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
-        xml!(meta [name="twitter:image", content="https://namachan10777.dev/res/icon.jpg"])
+        xml!(meta [name="twitter:image", content="https://namachan10777.dev/res/icon.jpg"]),
     ]
 }
 
@@ -172,7 +172,11 @@ fn execute_index(
             .collect::<EResult<Vec<_>>>()?,
     );
     let mut header = header_common(ctx);
-    let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
+    let title_str = title
+        .iter()
+        .map(|xml| xml.extract_string())
+        .collect::<Vec<_>>()
+        .join("");
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="website"]));
@@ -221,16 +225,27 @@ fn execute_article(
     }
     let mut header = header_common(ctx);
     let mut body_xml = inner
-            .into_iter()
-            .map(|e| process_text_elem(ctx, e))
-            .collect::<EResult<Vec<_>>>()?;
-    let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
-    let body_str = body_xml.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
+        .into_iter()
+        .map(|e| process_text_elem(ctx, e))
+        .collect::<EResult<Vec<_>>>()?;
+    let title_str = title
+        .iter()
+        .map(|xml| xml.extract_string())
+        .collect::<Vec<_>>()
+        .join("");
+    let body_str = body_xml
+        .iter()
+        .map(|xml| xml.extract_string())
+        .collect::<Vec<_>>()
+        .join("");
     let chars = body_str.chars();
     let body_str = if chars.clone().count() > 64 {
-        chars.take(64).map(|c| c.to_string()).collect::<Vec<_>>().join("")
-    }
-    else {
+        chars
+            .take(64)
+            .map(|c| c.to_string())
+            .collect::<Vec<_>>()
+            .join("")
+    } else {
         body_str
     };
     header.push(xml!(title [] title));
@@ -240,9 +255,7 @@ fn execute_article(
     header.push(xml!(meta [property="og:description", content=body_str.trim()]));
     header.push(xml!(meta [name="description", content=body_str.trim()]));
     header.push(xml!(meta [name="twitter:description", content=body_str.trim()]));
-    body.append(
-        &mut body_xml,
-    );
+    body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
 
     Ok(
