@@ -51,20 +51,21 @@ fn main() {
         let path = entry.path();
         let path_str = path.to_str().unwrap();
         if tml_pat.is_match(path_str) {
-            let dest_path = path_str.trim_end_matches(".tml").to_owned() + ".xhtml";
-            let src = unwrap(fs::read_to_string(path), |e| eprintln!("{:?}", e));
+            let dest_path = path.strip_prefix(source_path).unwrap().with_extension("xhtml");
+            let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
             proj.insert(
                 dest_path,
                 engine::File::Article(engine::Article::new(unwrap(
                     engine::parser::parse(&src),
-                    |e| eprintln!("{:?}", e),
+                    |e| eprintln!("{:?}: {:?}", path, e),
                 ))),
             );
         } else {
             let mut src = Vec::new();
             let mut f = unwrap(fs::File::open(path.clone()), |e| eprintln!("{:?}", e));
             unwrap(f.read_to_end(&mut src), |e| eprintln!("{:?}", e));
-            proj.insert(path_str.to_owned(), engine::File::Misc(src));
+            let dest_path = path.strip_prefix(source_path).unwrap().to_owned();
+            proj.insert(dest_path, engine::File::Misc(src));
         }
     }
     let ctx = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));

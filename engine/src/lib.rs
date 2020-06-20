@@ -38,7 +38,7 @@ pub enum File {
     Misc(Vec<u8>),
 }
 
-pub type Project = HashMap<String, File>;
+pub type Project = HashMap<std::path::PathBuf, File>;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
