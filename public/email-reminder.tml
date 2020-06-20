@@ -14,7 +14,7 @@
     結局平文から解読できてしまう訳で、何かしらのキーリングアプリケーションと連携させる必要がある気がする。
     多分そのうち実装する。   
   }
-  \blockcode lang=rs src=###`
+  \blockcode lang="rs" src=###`
   extern crate encoding_rs;
   extern crate imap;
   extern crate mailparse;
@@ -97,6 +97,6 @@
           }
       }
   }
-  `###
+  `###;
 }
 
