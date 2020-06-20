@@ -42,6 +42,7 @@ pub enum XMLElem {
     Single(String, Vec<(String, String)>),
     WithElem(String, Vec<(String, String)>, Vec<XMLElem>),
     Text(String),
+    Raw(String),
 }
 
 pub struct XML {
@@ -86,8 +87,8 @@ impl fmt::Display for XMLElem {
             XMLElem::Text(txt) => {
                 let txt = txt
                     .replace("&", "&amp;")
-                    .replace("<", "&gt;")
-                    .replace(">", "&lt;");
+                    .replace(">", "&gt;")
+                    .replace("<", "&lt;");
                 write!(f, "{}", txt)
             }
         }
