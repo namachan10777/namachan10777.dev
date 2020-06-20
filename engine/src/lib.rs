@@ -8,8 +8,8 @@ pub mod analysis;
 pub mod parser;
 
 use std::collections::HashMap;
-use syntect::parsing::SyntaxSet;
 use syntect::html::ClassedHTMLGenerator;
+use syntect::parsing::SyntaxSet;
 use xml::{XMLElem, XML};
 
 #[derive(Debug)]
@@ -120,22 +120,23 @@ fn execute_index(
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
     let title = get!(attrs, "title", Text)?;
+    let title = title
+        .into_iter()
+        .map(|e| process_text_elem(ctx, e))
+        .collect::<EResult<Vec<_>>>()?;
+    let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
+    body.append(
+        &mut inner
+            .into_iter()
+            .map(|e| process_text_elem(ctx, e))
+            .collect::<EResult<Vec<_>>>()?,
+    );
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
-                  xml!(title []
-                       title
-                       .into_iter()
-                       .map(|e| process_text_elem(ctx, e))
-                       .collect::<EResult<Vec<_>>>()?
-                  )
+                  xml!(title [] title)
              ]),
-             xml!(body []
-                       inner
-                       .into_iter()
-                       .map(|e| process_text_elem(ctx, e))
-                       .collect::<EResult<Vec<_>>>()?
-             )
+             xml!(body [] body)
         ]),
     )
 }
@@ -152,22 +153,23 @@ fn execute_article(
     let year = captured.get(0);
     let month = captured.get(1);
     let date = captured.get(2);
+    let title = title
+        .into_iter()
+        .map(|e| process_text_elem(ctx, e))
+        .collect::<EResult<Vec<_>>>()?;
+    let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
+    body.append(
+        &mut inner
+            .into_iter()
+            .map(|e| process_text_elem(ctx, e))
+            .collect::<EResult<Vec<_>>>()?,
+    );
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
-                  xml!(title []
-                       title
-                       .into_iter()
-                       .map(|e| process_text_elem(ctx, e))
-                       .collect::<EResult<Vec<_>>>()?
-                  )
+                  xml!(title [] title)
              ]),
-             xml!(body []
-                       inner
-                       .into_iter()
-                       .map(|e| process_text_elem(ctx, e))
-                       .collect::<EResult<Vec<_>>>()?
-             )
+             xml!(body [] body)
         ]),
     )
 }
@@ -276,10 +278,7 @@ fn execute_code(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
             .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_blockcode(
-    ctx: Context,
-    attrs: HashMap<String, Value>,
-) -> EResult<XMLElem> {
+fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem> {
     let src = get!(attrs, "src", Str)?;
     let lang = get!(attrs, "lang", Str)?;
     let lines = src.split('\n').collect::<Vec<_>>();
@@ -305,8 +304,7 @@ fn execute_blockcode(
             generator.parse_html_for_line(&line);
         }
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(generator.finalize())])]))
-    }
-    else {
+    } else {
         eprintln!("language {} is not found!", lang);
         Ok(xml!(code [] [xml!(pre [] [xml!(code.join(""))])]))
     }
