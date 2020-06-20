@@ -137,6 +137,7 @@ fn execute_index(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
                   xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
+                  xml!(link [href="syntect.css", rel="stylesheet", type="text/css"]),
                   xml!(title [] title)
              ]),
              xml!(body [] [xml!(div [id="root"] body)])
@@ -186,6 +187,7 @@ fn execute_article(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [] [
                   xml!(link [href="index.css", rel="stylesheet", type="text/css"]),
+                  xml!(link [href="syntect.css", rel="stylesheet", type="text/css"]),
                   xml!(title [] title)
              ]),
              xml!(body [] [xml!(div [id="root"] body)])

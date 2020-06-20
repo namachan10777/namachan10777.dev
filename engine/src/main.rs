@@ -89,5 +89,15 @@ fn main() {
             }
         }
     }
+    unwrap(
+        zip.start_file_from_path(std::path::Path::new("syntect.css"), default_permission),
+        |e| eprintln!("{:?}", e),
+    );
+    let theme_set = syntect::highlighting::ThemeSet::load_defaults();
+    let light_theme = &theme_set.themes["Solarized (light)"];
+    let css_light = syntect::html::css_for_theme(light_theme);
+    unwrap(zip.write_all(css_light.as_bytes()), |e| {
+        eprintln!("{:?}", e)
+    });
     unwrap(zip.finish(), |e| eprintln!("{:?}", e));
 }
