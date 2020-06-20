@@ -53,7 +53,7 @@ fn main() {
             let dest_path = path
                 .strip_prefix(source_path)
                 .unwrap()
-                .with_extension("xhtml");
+                .with_extension("html");
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
             proj.insert(
                 dest_path,

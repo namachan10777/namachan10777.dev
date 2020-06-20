@@ -203,7 +203,7 @@ fn execute_article(
         .map(|e| process_text_elem(ctx, e))
         .collect::<EResult<Vec<_>>>()?;
     let mut body = vec![xml!(header [] [
-        xml!(a [href="index.xhtml"] [xml!("戻る".to_owned())]),
+        xml!(a [href="index.html"] [xml!("戻る".to_owned())]),
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
