@@ -175,7 +175,7 @@ fn execute_index(
     let title_str = title.iter().map(|xml| xml.extract_string()).collect::<Vec<_>>().join("");
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="website"]));
-    header.push(xml!(meta [property="og:descriptioin", content="about me"]));
+    header.push(xml!(meta [property="og:description", content="about me"]));
     header.push(xml!(title [] title));
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
@@ -233,7 +233,7 @@ fn execute_article(
     header.push(xml!(title [] title));
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="article"]));
-    header.push(xml!(meta [property="og:descriptioin", content=body_str.trim()]));
+    header.push(xml!(meta [property="og:description", content=body_str.trim()]));
     body.append(
         &mut body_xml,
     );
