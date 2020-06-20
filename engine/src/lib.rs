@@ -307,7 +307,7 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XML
     assert!(!white.is_match("abc"));
     let empty_line_cnt_from_head = lines.iter().take_while(|l| white.is_match(l)).count();
     let empty_line_cnt_from_tail = lines.iter().rev().take_while(|l| white.is_match(l)).count();
-    let mut padding_n = 100000;
+    let mut padding_n = 100_000;
     for line in &lines {
         if white.is_match(line) {
             continue;
