@@ -321,6 +321,12 @@ fn execute_p(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
     )
 }
 
+fn execute_line(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
+    Ok(
+        xml!(span [] inner.into_iter().map(|e| process_text_elem(ctx, e)).collect::<EResult<Vec<_>>>()?),
+    )
+}
+
 fn execute_address(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
     Ok(
         xml!(address [] inner.into_iter().map(|e| process_text_elem(ctx, e)).collect::<EResult<Vec<_>>>()?),
@@ -459,6 +465,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "ul" => execute_ul(ctx, cmd.inner),
         "link" => execute_link(ctx, cmd.attrs, cmd.inner),
         "n" => execute_n(ctx, cmd.inner),
+        "line" => execute_line(ctx, cmd.inner),
         "code" => execute_code(ctx, cmd.inner),
         "blockcode" => execute_blockcode(ctx, cmd.attrs),
         "iframe" => execute_iframe(ctx, cmd.attrs),
