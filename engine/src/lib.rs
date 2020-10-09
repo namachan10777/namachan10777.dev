@@ -347,7 +347,7 @@ fn execute_ul(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
             )),
         })
         .collect::<EResult<Vec<_>>>()?;
-    Ok(xml!(address [] inner))
+    Ok(xml!(ul [] inner))
 }
 
 fn execute_link(
