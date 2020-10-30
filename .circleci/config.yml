@@ -13,8 +13,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v0-test-{{ checksum "engine/Cargo.lock" }}
-            - v0-test-
+            - v2-test-{{ checksum "engine/Cargo.lock" }}
       - run:
           name: Test engine
           command: |
@@ -23,8 +22,9 @@ jobs:
             cargo clippy -- -D warnings
             cargo fmt -- --check
       - save_cache:
-          key: v0-test-{{ checksum "engine/Cargo.lock" }}
+          key: v2-test-{{ checksum "engine/Cargo.lock" }}
           paths:
+            - /usr/local/cargo/registry
             - engine/target
 
   build_engine:
@@ -34,8 +34,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v0-build-{{ checksum "engine/Cargo.lock" }}
-            - v0-build-
+            - v2-build-{{ checksum "engine/Cargo.lock" }}
       - run:
           name: Build engine
           command: |
@@ -51,8 +50,9 @@ jobs:
           paths:
             - engine
       - save_cache:
-          key: v0-build-{{ checksum "engine/Cargo.lock" }}
+          key: v2-build-{{ checksum "engine/Cargo.lock" }}
           paths:
+            - /usr/local/cargo/registry
             - engine/target
 
   build:
