@@ -8,6 +8,7 @@ pub mod analysis;
 pub mod parser;
 
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
 use xml::{XMLElem, XML};
@@ -41,7 +42,7 @@ pub enum File {
     Misc(Vec<u8>),
 }
 
-pub type Project = HashMap<std::path::PathBuf, File>;
+pub type Project = HashMap<PathBuf, File>;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
@@ -65,12 +66,14 @@ pub enum TextElem {
     Str(String),
 }
 
+type ArticleList = Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>;
+
 #[derive(Clone, Copy)]
 pub struct Context<'a> {
     level: usize,
-    prevs: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
-    nexts: &'a HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
-    article_list: &'a Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
+    prevs: &'a HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
+    nexts: &'a HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
+    articles: &'a HashMap<PathBuf, ArticleList>,
     ss: &'a SyntaxSet,
     path: &'a std::path::Path,
 }
@@ -81,7 +84,7 @@ impl<'a> Context<'a> {
             level: 1,
             prevs: &report.prevs,
             nexts: &report.nexts,
-            article_list: &report.article_list,
+            articles: &report.articles,
             ss: &report.ss,
             path,
         }
@@ -375,17 +378,23 @@ fn execute_n(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
         .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_articles(ctx: Context) -> EResult<XMLElem> {
+fn execute_articles(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem> {
+    let dir = get!(attrs, "dir", Str)?;
+    let parent = Path::new(&dir);
     Ok(xml!(ul [] ctx
-        .article_list
-        .iter()
-        .map(|(path, title, _)| {
-            Ok(xml!(li [] [xml!(a
-                [href=path.to_str().unwrap()]
-                title.iter().map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
-            )]))
-        })
-        .collect::<EResult<Vec<_>>>()?
+        .articles
+        .get(parent)
+        .map(|articles|
+             articles
+            .iter()
+            .map(|(path, title, _)| {
+                Ok(xml!(li [] [xml!(a
+                    [href=path.to_str().unwrap()]
+                    title.iter().map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
+                )]))
+            })
+            .collect::<EResult<Vec<_>>>())
+        .unwrap_or_else(|| Ok(Vec::new()))?
     ))
 }
 
@@ -463,7 +472,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
         "article" => execute_article(ctx, cmd.attrs, cmd.inner),
-        "articles" => execute_articles(ctx),
+        "articles" => execute_articles(ctx, cmd.attrs),
         "section" => execute_section(ctx, cmd.attrs, cmd.inner),
         "img" => execute_img(cmd.attrs),
         "p" => execute_p(ctx, cmd.inner),

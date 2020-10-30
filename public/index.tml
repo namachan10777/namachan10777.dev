@@ -47,7 +47,7 @@
     ]
   }
   \section title={Articles} {
-    \articles;
+    \articles dir="articles";
   }
   \section title={PGP public key} {
     \blockcode lang="plain" src=###`

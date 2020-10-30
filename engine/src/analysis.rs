@@ -1,6 +1,7 @@
 use super::{Article, File, Project, TextElem, Value};
 
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 use syntect::parsing::SyntaxSet;
 
 #[derive(Debug)]
@@ -8,9 +9,9 @@ pub enum Error {
     InvalidFormat(String),
 }
 pub struct Report {
-    pub prevs: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
-    pub nexts: HashMap<std::path::PathBuf, (std::path::PathBuf, Vec<TextElem>)>,
-    pub article_list: Vec<(std::path::PathBuf, Vec<TextElem>, chrono::NaiveDate)>,
+    pub prevs: HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
+    pub nexts: HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
+    pub articles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>>,
     pub ss: SyntaxSet,
 }
 
@@ -54,32 +55,49 @@ fn extract_title_and_date(
 }
 
 pub fn parse(proj: &Project) -> AResult<Report> {
-    let mut article_list = Vec::new();
     let ss = SyntaxSet::load_defaults_newlines();
+    let mut articles =
+        HashMap::<std::path::PathBuf, Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>>::new();
     for (fname, file) in proj {
         match file {
             File::Article(article) => {
                 if let Some((title, date)) = extract_title_and_date(article)? {
-                    article_list.push((fname.clone(), title, date));
+                    if let Some(list) =
+                        articles.get_mut(fname.parent().unwrap_or_else(|| Path::new("/")))
+                    {
+                        list.push((fname.clone(), title, date));
+                    } else {
+                        articles.insert(
+                            fname
+                                .parent()
+                                .unwrap_or_else(|| Path::new("/"))
+                                .to_path_buf(),
+                            vec![(fname.clone(), title, date)],
+                        );
+                    }
                 }
             }
             File::Misc(_) => (),
         }
     }
-    article_list.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
+    articles
+        .iter_mut()
+        .for_each(|(_, articles)| articles.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap()));
     let mut prevs = HashMap::new();
     let mut nexts = HashMap::new();
-    let mut before: Option<(std::path::PathBuf, Vec<TextElem>)> = None;
-    for (path, title, _) in &article_list {
-        if let Some((prev_path, prev_title)) = before {
-            prevs.insert(path.clone(), (prev_path.clone(), prev_title));
-            nexts.insert(prev_path, (path.clone(), title.clone()));
+    let mut before: Option<(PathBuf, Vec<TextElem>)> = None;
+    for articles in articles.values() {
+        for (path, title, _) in articles {
+            if let Some((prev_path, prev_title)) = before {
+                prevs.insert(path.clone(), (prev_path.clone(), prev_title));
+                nexts.insert(prev_path, (path.clone(), title.clone()));
+            }
+            before = Some((path.clone(), title.clone()))
         }
-        before = Some((path.clone(), title.clone()))
     }
     Ok(Report {
         ss,
-        article_list,
+        articles,
         prevs,
         nexts,
     })
