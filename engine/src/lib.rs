@@ -118,6 +118,22 @@ macro_rules! get {
     };
 }
 
+macro_rules! verify {
+    ( $hash:expr, $key:expr, $tp:ident ) => {
+        if let Some(v) = $hash.get($key) {
+            match v {
+                Value::$tp(v) => Ok(Some(v.clone())),
+                _ => Err(Error::ProcessError(format!(
+                    "wrong attribute type at {}",
+                    $key
+                ))),
+            }
+        } else {
+            Ok(None)
+        }
+    };
+}
+
 fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {
     let target_ancestors = target.ancestors().collect::<Vec<_>>().into_iter().rev();
     let from_ancestors = from.ancestors().collect::<Vec<_>>().into_iter().rev();
@@ -307,6 +323,12 @@ fn execute_p(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
     )
 }
 
+fn execute_line(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
+    Ok(
+        xml!(span [] inner.into_iter().map(|e| process_text_elem(ctx, e)).collect::<EResult<Vec<_>>>()?),
+    )
+}
+
 fn execute_address(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
     Ok(
         xml!(address [] inner.into_iter().map(|e| process_text_elem(ctx, e)).collect::<EResult<Vec<_>>>()?),
@@ -333,7 +355,7 @@ fn execute_ul(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
             )),
         })
         .collect::<EResult<Vec<_>>>()?;
-    Ok(xml!(address [] inner))
+    Ok(xml!(ul [] inner))
 }
 
 fn execute_link(
@@ -409,6 +431,34 @@ fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
     Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
 
+fn execute_iframe(_: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem> {
+    let attrs = [
+        (
+            "width",
+            verify!(attrs, "width", Int)?.map(|i| format!("{}", i)),
+        ),
+        (
+            "height",
+            verify!(attrs, "height", Int)?.map(|i| format!("{}", i)),
+        ),
+        (
+            "frameborder",
+            verify!(attrs, "frameborder", Int)?.map(|i| format!("{}", i)),
+        ),
+        ("style", verify!(attrs, "style", Str)?),
+        ("scrolling", verify!(attrs, "scrolling", Str)?),
+        ("src", Some(get!(attrs, "src", Str)?)),
+    ]
+    .iter()
+    .filter_map(|(name, value)| {
+        value
+            .as_ref()
+            .map(|value| (name.to_owned().to_owned(), value.to_owned()))
+    })
+    .collect::<Vec<(String, String)>>();
+    Ok(XMLElem::Single("iframe".to_owned(), attrs))
+}
+
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
@@ -421,8 +471,10 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "ul" => execute_ul(ctx, cmd.inner),
         "link" => execute_link(ctx, cmd.attrs, cmd.inner),
         "n" => execute_n(ctx, cmd.inner),
+        "line" => execute_line(ctx, cmd.inner),
         "code" => execute_code(ctx, cmd.inner),
         "blockcode" => execute_blockcode(ctx, cmd.attrs),
+        "iframe" => execute_iframe(ctx, cmd.attrs),
         _ => Err(Error::ProcessError(format!(
             "invalid root cmd {}",
             cmd.name

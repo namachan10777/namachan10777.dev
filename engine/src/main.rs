@@ -7,7 +7,7 @@ use std::io::{Read, Write};
 
 fn unwrap<T, E, F>(input: Result<T, E>, f: F) -> T
 where
-    F: FnOnce(E) -> (),
+    F: FnOnce(E),
 {
     match input {
         Ok(x) => x,
