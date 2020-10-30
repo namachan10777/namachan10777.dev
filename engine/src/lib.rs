@@ -139,7 +139,11 @@ macro_rules! verify {
 
 fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {
     if target == from {
-        return from.file_name().map(|s| Path::new(s)).unwrap_or_else(|| Path::new("")).to_path_buf()
+        return from
+            .file_name()
+            .map(|s| Path::new(s))
+            .unwrap_or_else(|| Path::new(""))
+            .to_path_buf();
     }
     let target_ancestors = target.ancestors().collect::<Vec<_>>().into_iter().rev();
     let from_ancestors = from.ancestors().collect::<Vec<_>>().into_iter().rev();
@@ -253,8 +257,9 @@ fn execute_article(
         .into_iter()
         .map(|e| process_text_elem(ctx, e))
         .collect::<EResult<Vec<_>>>()?;
+    let index_path = resolve("index.html", ctx.path);
     let mut body = vec![xml!(header [] [
-        xml!(a [href="index.html"] [xml!("戻る".to_owned())]),
+        xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
