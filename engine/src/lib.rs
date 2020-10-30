@@ -138,6 +138,9 @@ macro_rules! verify {
 }
 
 fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {
+    if target == from {
+        return from.file_name().map(|s| Path::new(s)).unwrap_or_else(|| Path::new("")).to_path_buf()
+    }
     let target_ancestors = target.ancestors().collect::<Vec<_>>().into_iter().rev();
     let from_ancestors = from.ancestors().collect::<Vec<_>>().into_iter().rev();
     let common = target_ancestors
@@ -149,6 +152,7 @@ fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::
         .unwrap_or_else(|| std::path::Path::new(""));
     let target_congenital = target.strip_prefix(common).unwrap();
     let from_congenital = from.strip_prefix(common).unwrap();
+    println!("{:?} {:?} {:?}", common, from_congenital, target_congenital);
     let climb_count = from_congenital.iter().count();
     let climb_src = "../".repeat(climb_count - 1);
     let climb = std::path::Path::new(&climb_src);
@@ -157,6 +161,33 @@ fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::
 
 fn resolve(target: &str, from: &std::path::Path) -> std::path::PathBuf {
     resolve_link(&std::path::Path::new(target), from)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_resolve_link() {
+        let from = Path::new("index.tml");
+        let to = Path::new("index.tml");
+        assert_eq!(resolve_link(to, from), Path::new("index.tml"));
+
+        let from = Path::new("index.tml");
+        let to = Path::new("article/a1.tml");
+        assert_eq!(resolve_link(to, from), Path::new("article/a1.tml"));
+
+        let from = Path::new("article/a1.tml");
+        let to = Path::new("index.tml");
+        assert_eq!(resolve_link(to, from), Path::new("../index.tml"));
+
+        let from = Path::new("article/a1.tml");
+        let to = Path::new("diary/d1.tml");
+        assert_eq!(resolve_link(to, from), Path::new("../diary/d1.tml"));
+
+        let from = Path::new("article/a1.tml");
+        let to = Path::new("article/a2.tml");
+        assert_eq!(resolve_link(to, from), Path::new("a2.tml"));
+    }
 }
 
 fn header_common(ctx: Context) -> Vec<XMLElem> {
@@ -228,17 +259,22 @@ fn execute_article(
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
+    println!("footer {:?}", ctx.path);
     if let Some((prev_path, prev_title)) = ctx.prevs.get(ctx.path) {
+        let href_path = resolve_link(prev_path, ctx.path);
+        println!("prev {:?} -> {:?}", prev_path, href_path);
         footer_inner.push(xml!(a
-            [href=prev_path.to_str().unwrap(), class="prev-article"]
+            [href=href_path.to_str().unwrap(), class="prev-article"]
             prev_title
                 .iter()
                 .map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
     if let Some((next_path, next_title)) = ctx.nexts.get(ctx.path) {
+        let href_path = resolve_link(next_path, ctx.path);
+        println!("next {:?} -> {:?}", next_path, href_path);
         footer_inner.push(xml!(a
-            [href=next_path.to_str().unwrap(), class="next-article"]
+            [href=href_path.to_str().unwrap(), class="next-article"]
             next_title
                 .iter()
                 .map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
@@ -381,6 +417,7 @@ fn execute_n(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
 fn execute_articles(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem> {
     let dir = get!(attrs, "dir", Str)?;
     let parent = Path::new(&dir);
+    println!("processing {:?}", ctx.path);
     Ok(xml!(ul [] ctx
         .articles
         .get(parent)
@@ -388,8 +425,9 @@ fn execute_articles(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XMLE
              articles
             .iter()
             .map(|(path, title, _)| {
+                let href_path = resolve_link(Path::new(path), ctx.path);
                 Ok(xml!(li [] [xml!(a
-                    [href=path.to_str().unwrap()]
+                    [href=href_path.to_str().unwrap()]
                     title.iter().map(|e| process_text_elem(ctx, e.clone())).collect::<EResult<Vec<_>>>()?
                 )]))
             })
