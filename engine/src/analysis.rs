@@ -44,7 +44,6 @@ fn extract_title_and_date(
             let date = &get!(article.body.attrs, "date", Str)?;
             let date_pattern = regex::Regex::new(r"^(\d{4})-(\d{2})-(\d{2})$").unwrap();
             let captured = date_pattern.captures(&date).unwrap();
-            println!("{:?}", captured.get(1));
             let year = captured.get(1).unwrap().as_str().parse().unwrap();
             let month = captured.get(2).unwrap().as_str().parse().unwrap();
             let day = captured.get(3).unwrap().as_str().parse().unwrap();

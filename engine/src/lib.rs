@@ -152,7 +152,6 @@ fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::
         .unwrap_or_else(|| std::path::Path::new(""));
     let target_congenital = target.strip_prefix(common).unwrap();
     let from_congenital = from.strip_prefix(common).unwrap();
-    println!("{:?} {:?} {:?}", common, from_congenital, target_congenital);
     let climb_count = from_congenital.iter().count();
     let climb_src = "../".repeat(climb_count - 1);
     let climb = std::path::Path::new(&climb_src);
@@ -259,10 +258,8 @@ fn execute_article(
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
-    println!("footer {:?}", ctx.path);
     if let Some((prev_path, prev_title)) = ctx.prevs.get(ctx.path) {
         let href_path = resolve_link(prev_path, ctx.path);
-        println!("prev {:?} -> {:?}", prev_path, href_path);
         footer_inner.push(xml!(a
             [href=href_path.to_str().unwrap(), class="prev-article"]
             prev_title
@@ -272,7 +269,6 @@ fn execute_article(
     }
     if let Some((next_path, next_title)) = ctx.nexts.get(ctx.path) {
         let href_path = resolve_link(next_path, ctx.path);
-        println!("next {:?} -> {:?}", next_path, href_path);
         footer_inner.push(xml!(a
             [href=href_path.to_str().unwrap(), class="next-article"]
             next_title
@@ -417,7 +413,6 @@ fn execute_n(ctx: Context, inner: Vec<TextElem>) -> EResult<XMLElem> {
 fn execute_articles(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem> {
     let dir = get!(attrs, "dir", Str)?;
     let parent = Path::new(&dir);
-    println!("processing {:?}", ctx.path);
     Ok(xml!(ul [] ctx
         .articles
         .get(parent)
@@ -457,7 +452,6 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XML
         }
         padding_n = padding_n.min(line.chars().take_while(|c| *c == ' ').count());
     }
-    println!("cut {}", padding_n);
     let mut code = Vec::new();
     for line in lines[empty_line_cnt_from_head..lines.len() - empty_line_cnt_from_tail].to_vec() {
         code.push(line.get(padding_n..).unwrap_or_else(|| ""));
