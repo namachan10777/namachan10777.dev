@@ -49,6 +49,9 @@
   \section title={Articles} {
     \articles dir="articles";
   }
+  \section title={Diaries} {
+    \articles dir="diaries";
+  }
   \section title={PGP public key} {
     \blockcode lang="plain" src=###`
     pub   rsa2048 2018-11-17 [SC] [expires: 2020-11-16]
