@@ -68,8 +68,7 @@ pub fn parse(proj: &Project) -> AResult<Report> {
                     } else {
                         articles.insert(
                             fname
-                                .parent()
-                                .unwrap_or_else(|| Path::new("/"))
+                                .parent() .unwrap_or_else(|| Path::new("/"))
                                 .to_path_buf(),
                             vec![(fname.clone(), title, date)],
                         );
@@ -93,6 +92,7 @@ pub fn parse(proj: &Project) -> AResult<Report> {
             }
             before = Some((path.clone(), title.clone()))
         }
+        before = None;
     }
     Ok(Report {
         ss,
