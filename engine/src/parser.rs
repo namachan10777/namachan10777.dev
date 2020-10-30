@@ -48,6 +48,7 @@ fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
         Rule::esc_endbrace => TextElem::Plain(String::from("}")),
         Rule::esc_esc => TextElem::Plain(String::from("\\")),
         Rule::char_in_text => TextElem::Plain(pair.as_str().to_owned()),
+        Rule::inlinestr => TextElem::Str(pair.as_str()[1..pair.as_str().len() - 1].to_owned()),
         _ => unreachable!(),
     }
 }
@@ -66,6 +67,13 @@ fn fold_textelem(pairs: Pairs<Rule>) -> Vec<TextElem> {
                 }
                 inner.push(TextElem::Cmd(cmd));
                 text.clear();
+            }
+            TextElem::Str(s) => {
+                if !text.is_empty() {
+                    inner.push(TextElem::Plain(text.clone()));
+                }
+                text.clear();
+                inner.push(TextElem::Str(s));
             }
         }
     }
@@ -172,7 +180,7 @@ mod test {
         assert_eq!(
             parse(
                 Rule::cmd,
-                "\\cmdname class=\"cls1\"{\\c1; \\c2 {\\c3;}}",
+                "\\cmdname class=\"cls1\"{\\c1; `hoge`\\c2 {\\c3;}}",
                 parse_cmd
             ),
             Ok(Some(Cmd {
@@ -185,6 +193,7 @@ mod test {
                         inner: vec![]
                     }),
                     TextElem::Plain(" ".to_owned()),
+                    TextElem::Str("hoge".to_owned()),
                     TextElem::Cmd(Cmd {
                         name: "c2".to_owned(),
                         attrs: hash![],
@@ -224,28 +233,6 @@ mod test {
                     }),
                 ]
             })]))),
-        );
-    }
-    #[test]
-    fn test_cmds() {
-        assert_eq!(
-            parse(Rule::cmds, "[]", parse_value),
-            Ok(Some(Value::Text(vec![]))),
-        );
-        assert_eq!(
-            parse(Rule::cmds, "[\\cmd {foo} \\cmd2; ]", parse_value),
-            Ok(Some(Value::Text(vec![
-                TextElem::Cmd(Cmd {
-                    name: String::from("cmd"),
-                    attrs: hash![],
-                    inner: vec![TextElem::Plain(String::from("foo")),]
-                }),
-                TextElem::Cmd(Cmd {
-                    name: String::from("cmd2"),
-                    attrs: hash![],
-                    inner: vec![]
-                })
-            ]))),
         );
     }
     #[test]

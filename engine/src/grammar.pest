@@ -11,10 +11,15 @@ esc_esc_str   = @{ "\\\\" }
 char_in_str   =  { !"\"" ~ ANY }
 str           = ${ "\"" ~ (esc_dq_str | esc_esc_str | char_in_str)* ~ "\"" }
 blockstr      = ${ "###`" ~ (!"`###" ~ ANY)* ~ "`###" }
+inlinestr     = ${ "`" ~ ("\\`" | (!"`" ~ ANY))* ~ "`" }
 esc_endbrace  = @{ "\\}" }
 esc_esc       = @{ "\\\\" }
 char_in_text  = @{ ANY }
-text          = ${ "{" ~ (!"}" ~ (esc_esc | esc_endbrace | cmd | char_in_text))* ~ "}" }
+text          = ${
+	"{" ~
+	(!"}" ~ (esc_esc | esc_endbrace | cmd | inlinestr | char_in_text))*
+	~ "}"
+}
 cmds          =  { "[" ~ cmd* ~ "]" }
 int           = @{ ASCII_DIGIT+ }
 float         = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }

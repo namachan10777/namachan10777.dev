@@ -62,6 +62,7 @@ pub struct Cmd {
 pub enum TextElem {
     Cmd(Cmd),
     Plain(String),
+    Str(String),
 }
 
 #[derive(Clone, Copy)]
@@ -95,6 +96,7 @@ fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
     match elem {
         TextElem::Plain(s) => Ok(xml!(s)),
         TextElem::Cmd(cmd) => process_cmd(ctx, cmd),
+        TextElem::Str(s) => process_inlinestr(ctx, s),
     }
 }
 
@@ -401,6 +403,10 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XML
         eprintln!("language {} is not found!", lang);
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(code.join("\n"))])]))
     }
+}
+
+fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
+    Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
 
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
