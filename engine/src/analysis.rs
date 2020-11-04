@@ -40,13 +40,33 @@ fn extract_title_and_date(
 ) -> AResult<Option<(Vec<TextElem>, chrono::NaiveDate)>> {
     match article.body.name.as_str() {
         "article" => {
+            let gen_date_format_error = || Error::InvalidFormat("Invalid date format".to_owned());
+            let gen_date_parse_error =
+                |e| Error::InvalidFormat(format!("Invalid date format {:?}", e));
             let title = get!(article.body.attrs, "title", Text)?;
             let date = &get!(article.body.attrs, "date", Str)?;
             let date_pattern = regex::Regex::new(r"^(\d{4})-(\d{2})-(\d{2})$").unwrap();
-            let captured = date_pattern.captures(&date).unwrap();
-            let year = captured.get(1).unwrap().as_str().parse().unwrap();
-            let month = captured.get(2).unwrap().as_str().parse().unwrap();
-            let day = captured.get(3).unwrap().as_str().parse().unwrap();
+            let captured = date_pattern
+                .captures(&date)
+                .ok_or_else(gen_date_format_error)?;
+            let year = captured
+                .get(1)
+                .ok_or_else(gen_date_format_error)?
+                .as_str()
+                .parse()
+                .map_err(gen_date_parse_error)?;
+            let month = captured
+                .get(2)
+                .ok_or_else(gen_date_format_error)?
+                .as_str()
+                .parse()
+                .map_err(gen_date_parse_error)?;
+            let day = captured
+                .get(3)
+                .ok_or_else(gen_date_format_error)?
+                .as_str()
+                .parse()
+                .map_err(gen_date_parse_error)?;
             Ok(Some((title, chrono::NaiveDate::from_ymd(year, month, day))))
         }
         _ => Ok(None),
@@ -68,7 +88,8 @@ pub fn parse(proj: &Project) -> AResult<Report> {
                     } else {
                         articles.insert(
                             fname
-                                .parent() .unwrap_or_else(|| Path::new("/"))
+                                .parent()
+                                .unwrap_or_else(|| Path::new("/"))
                                 .to_path_buf(),
                             vec![(fname.clone(), title, date)],
                         );
