@@ -314,15 +314,9 @@ fn execute_article(
     header.push(xml!(meta [property="og:description", content=body_str]));
     header.push(xml!(meta [name="description", content=body_str]));
     header.push(xml!(meta [name="twitter:description", content=body_str]));
-    header
-        .push(xml!(script [
-                   type="text/javascript",
-                   src="https://platform.twitter.com/widgets.js"]));
     body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
-    body.push(xml!(a [
-                   href="https://twitter.com/share?ref_src=twsrc%5Etfw",
-                   class="twitter-share-button"] []));
+
     Ok(
         xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
              xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
