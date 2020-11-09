@@ -57,10 +57,12 @@ fn main() {
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
             proj.insert(
                 dest_path,
-                engine::File::Article(engine::Article::new(unwrap(
-                    engine::parser::parse(&src),
-                    |e| eprintln!("{:?}: {:?}", path, e),
-                ))),
+                engine::File::Article(engine::Article::new(
+                    unwrap(engine::parser::parse(&src), |e| {
+                        eprintln!("{:?}: {:?}", path, e)
+                    }),
+                    src,
+                )),
             );
         } else {
             let mut src = Vec::new();
@@ -72,13 +74,13 @@ fn main() {
     }
     let report = unwrap(engine::analysis::parse(&proj), |e| eprintln!("{:?}", e));
     for (dest_path, file) in proj {
-        let ctx = engine::Context::new(&report, &dest_path);
         unwrap(
             zip.start_file_from_path(std::path::Path::new(&dest_path), default_permission),
             |e| eprintln!("{:?}", e),
         );
         match file {
             engine::File::Article(article) => {
+                let ctx = engine::Context::new(&report, &dest_path, &article.src);
                 let xml = unwrap(engine::root(ctx, article.body), |e| eprintln!("{:?}", e));
                 unwrap(zip.write_all(format!("{}", xml).as_bytes()), |e| {
                     eprintln!("{:?}", e)

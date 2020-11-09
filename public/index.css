@@ -30,6 +30,10 @@ code {
 	float: left;
 }
 
+div.hash {
+	color: #222222;
+}
+
 p{
 	color: #202020;
 	line-height: 170%;

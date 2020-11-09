@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate pest_derive;
+extern crate sha2;
 extern crate syntect;
 
 #[macro_use]
@@ -7,6 +8,7 @@ pub mod xml;
 pub mod analysis;
 pub mod parser;
 
+use sha2::Digest;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
@@ -29,11 +31,12 @@ type EResult<T> = Result<T, Error>;
 
 pub struct Article {
     pub body: Cmd,
+    pub src: String,
 }
 
 impl Article {
-    pub fn new(body: Cmd) -> Self {
-        Article { body }
+    pub fn new(body: Cmd, src: String) -> Self {
+        Article { body, src }
     }
 }
 
@@ -76,10 +79,11 @@ pub struct Context<'a> {
     articles: &'a HashMap<PathBuf, ArticleList>,
     ss: &'a SyntaxSet,
     path: &'a std::path::Path,
+    src: &'a str,
 }
 
 impl<'a> Context<'a> {
-    pub fn new(report: &'a analysis::Report, path: &'a std::path::Path) -> Self {
+    pub fn new(report: &'a analysis::Report, path: &'a std::path::Path, src: &'a str) -> Self {
         Context {
             level: 1,
             prevs: &report.prevs,
@@ -87,6 +91,7 @@ impl<'a> Context<'a> {
             articles: &report.articles,
             ss: &report.ss,
             path,
+            src,
         }
     }
 }
@@ -252,6 +257,11 @@ fn execute_article(
     attrs: HashMap<String, Value>,
     inner: Vec<TextElem>,
 ) -> EResult<XMLElem> {
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(ctx.src);
+    let hashed = hasher.finalize();
+    let hashed_full = hex::encode(hashed);
+    let hashed_short = &hashed_full[..7];
     let title = get!(attrs, "title", Text)?;
     let title = title
         .into_iter()
@@ -260,6 +270,7 @@ fn execute_article(
     let index_path = resolve("index.html", ctx.path);
     let mut body = vec![xml!(header [] [
         xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
+        xml!(div [class="hash"] [xml!(hashed_short.to_owned())]),
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
@@ -481,7 +492,7 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, Value>) -> EResult<XML
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(code.join("\n"))])]))
     }
 }
-
+extern crate hex;
 fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
     Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
@@ -514,36 +525,44 @@ fn execute_iframe(_: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem>
     Ok(XMLElem::Single("iframe".to_owned(), attrs))
 }
 
-fn execute_figure(ctx: Context, attrs: HashMap<String, Value>, inner: Vec<TextElem>) -> EResult<XMLElem> {
+fn execute_figure(
+    ctx: Context,
+    attrs: HashMap<String, Value>,
+    inner: Vec<TextElem>,
+) -> EResult<XMLElem> {
     let caption = get!(attrs, "caption", Text)?;
     let id = verify!(attrs, "id", Str)?;
-    let figures = inner.iter().map(|e| {
-        if let TextElem::Cmd(cmd) = e {
-            if cmd.name.as_str() == "img" {
-                execute_img(cmd.attrs.clone())
+    let figures = inner
+        .iter()
+        .map(|e| {
+            if let TextElem::Cmd(cmd) = e {
+                if cmd.name.as_str() == "img" {
+                    execute_img(cmd.attrs.clone())
+                } else {
+                    Err(Error::ProcessError(
+                        "\\figure can only have \\img as child element.".to_owned(),
+                    ))
+                }
+            } else {
+                Err(Error::ProcessError(
+                    "\\figure can only have \\img as child element.".to_owned(),
+                ))
             }
-            else {
-                Err(Error::ProcessError("\\figure can only have \\img as child element.".to_owned()))
-            }
-        }
-        else {
-            Err(Error::ProcessError("\\figure can only have \\img as child element.".to_owned()))
-        }
-    }).collect::<EResult<Vec<XMLElem>>>()?;
+        })
+        .collect::<EResult<Vec<XMLElem>>>()?;
     let inner = vec![
         xml!(div [class="images"] figures),
         xml!(figurecaption [] process_text(ctx, caption)?),
     ];
     if let Some(id) = id {
         Ok(xml!(figure [id=id] inner))
-    }
-    else {
+    } else {
         Ok(xml!(figure [] inner))
     }
 }
 
 fn process_text(ctx: Context, textelems: Vec<TextElem>) -> EResult<Vec<XMLElem>> {
-    textelems 
+    textelems
         .into_iter()
         .map(|e| process_text_elem(ctx, e))
         .collect::<EResult<Vec<_>>>()
