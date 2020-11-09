@@ -6,10 +6,6 @@ pre {
 	overflow-x: scroll;
 }
 
-img {
-	width: 60vw;
-}
-
 code {
 	font-family: 'Fira Mono', monospace;
 }
@@ -46,14 +42,26 @@ body {
 	justify-content: center;
 }
 
+img.landscape {
+	width: 100%;
+}
+
 @media(orientation: landscape) {
 	#root {
 		width: 55%;
+	}
+
+	img.icon {
+		width: 40%;
 	}
 }
 
 @media(orientation: portrait) {
 	#root {
 		width: 90%;
+	}
+
+	img.icon {
+		width: 60%;
 	}
 }
