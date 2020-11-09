@@ -356,11 +356,12 @@ fn execute_img(attrs: HashMap<String, Value>) -> EResult<XMLElem> {
     let alt = get!(attrs, "alt", Str)?;
     if let Some(Value::Str(classes)) = attrs.get("class") {
         Ok(xml!(img [src=url, class=classes, alt=alt]))
-    }
-    else if let Some(v) = attrs.get("class") {
-        Err(Error::ProcessError(format!("invalid element {:?} for property of \"class\"", v)))
-    }
-    else {
+    } else if let Some(v) = attrs.get("class") {
+        Err(Error::ProcessError(format!(
+            "invalid element {:?} for property of \"class\"",
+            v
+        )))
+    } else {
         Ok(xml!(img [src=url, alt=alt]))
     }
 }
