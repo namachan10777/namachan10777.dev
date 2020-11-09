@@ -514,6 +514,41 @@ fn execute_iframe(_: Context, attrs: HashMap<String, Value>) -> EResult<XMLElem>
     Ok(XMLElem::Single("iframe".to_owned(), attrs))
 }
 
+fn execute_figure(ctx: Context, attrs: HashMap<String, Value>, inner: Vec<TextElem>) -> EResult<XMLElem> {
+    let caption = get!(attrs, "caption", Text)?;
+    let id = verify!(attrs, "id", Str)?;
+    let figures = inner.iter().map(|e| {
+        if let TextElem::Cmd(cmd) = e {
+            if cmd.name.as_str() == "img" {
+                execute_img(cmd.attrs.clone())
+            }
+            else {
+                Err(Error::ProcessError("\\figure can only have \\img as child element.".to_owned()))
+            }
+        }
+        else {
+            Err(Error::ProcessError("\\figure can only have \\img as child element.".to_owned()))
+        }
+    }).collect::<EResult<Vec<XMLElem>>>()?;
+    let inner = vec![
+        xml!(div [class="images"] figures),
+        xml!(figurecaption [] process_text(ctx, caption)?),
+    ];
+    if let Some(id) = id {
+        Ok(xml!(figure [id=id] inner))
+    }
+    else {
+        Ok(xml!(figure [] inner))
+    }
+}
+
+fn process_text(ctx: Context, textelems: Vec<TextElem>) -> EResult<Vec<XMLElem>> {
+    textelems 
+        .into_iter()
+        .map(|e| process_text_elem(ctx, e))
+        .collect::<EResult<Vec<_>>>()
+}
+
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
@@ -530,6 +565,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "code" => execute_code(ctx, cmd.inner),
         "blockcode" => execute_blockcode(ctx, cmd.attrs),
         "iframe" => execute_iframe(ctx, cmd.attrs),
+        "figure" => execute_figure(ctx, cmd.attrs, cmd.inner),
         _ => Err(Error::ProcessError(format!(
             "invalid root cmd {}",
             cmd.name

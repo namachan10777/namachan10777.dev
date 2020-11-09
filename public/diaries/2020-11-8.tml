@@ -18,7 +18,9 @@
     と言っても底打ちはしやすいので相当量タイピングする場合や、
     底打ち感が苦手だと微妙に思えるかも知れない。
   }
-  \img url="./res/majestouch-stingray.webp" alt="Majestouch stingray" class="landscape";
+  \figure caption={Majestouch stingray} [
+    \img url="./res/majestouch-stingray.webp" alt="Majestouch stingray" class="landscape";
+  ]
   \p{
     いくつかのキーの交換機能や、キー交換時用のキーキャップ、
     キープラーなど細かいところでも配慮が効いている。
