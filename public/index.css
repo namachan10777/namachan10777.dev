@@ -48,6 +48,7 @@ figure {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	margin: 0;
 }
 
 div.images {
@@ -60,7 +61,7 @@ div.images {
 }
 
 img.landscape {
-	width: 100%;
+	width: 70%;
 }
 
 @media(orientation: landscape) {
