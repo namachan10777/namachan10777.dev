@@ -1,0 +1,13 @@
+\article title={2020-12-21} date="2020-12-21" {
+  \p{
+    起床してMath for CSの小テストこなした。
+    最後にフェルマーの最終定理が出たので原著のラテン語をオマージュしようかと思ったけど
+    ラテン語やらなさすぎて時間内に読んで書き直せず中途半端な出来になった。
+    語学は努力しないと使い物にならないという反省を得た。
+  }
+  \p{
+    nvimのmasterを適当にpullしていたらtree-sitterという機能が入ったっぽいdiffが出ていたので適当にggった。
+    \a url="https://github.com/tree-sitter/tree-sitter" {tree-sitter}はRobustかつ高速なパーサジェネレータでシンタックスハイライトの実装とかに使えるそうで、
+    今のmasterをビルドして\a url="https://github.com/nvim-treesitter/nvim-treesitter" {nvim-treesitter}を入れluaで設定すると崩れにくいシンタックスハイライトを体験できるみたいです。大体README.mdに書いてある。
+  }
+}
