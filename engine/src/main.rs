@@ -55,10 +55,9 @@ fn main() {
                 .unwrap()
                 .with_extension("html");
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
-            let (cmd, start_location) = unwrap(
-                engine::parser::parse(path_str, &src),
-                |e| eprintln!("{:?}: {:?}", path, e),
-            );
+            let (cmd, start_location) = unwrap(engine::parser::parse(path_str, &src), |e| {
+                eprintln!("{:?}: {:?}", path, e)
+            });
             proj.insert(
                 dest_path,
                 engine::File::Article(engine::Article::new(cmd, src, start_location)),
