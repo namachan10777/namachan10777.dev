@@ -55,14 +55,13 @@ fn main() {
                 .unwrap()
                 .with_extension("html");
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
+            let (cmd, start_location) = unwrap(
+                engine::parser::parse(source_path.as_os_str().to_str().unwrap(), &src),
+                |e| eprintln!("{:?}: {:?}", path, e),
+            );
             proj.insert(
                 dest_path,
-                engine::File::Article(engine::Article::new(
-                    unwrap(engine::parser::parse(&src), |e| {
-                        eprintln!("{:?}: {:?}", path, e)
-                    }),
-                    src,
-                )),
+                engine::File::Article(engine::Article::new(cmd, src, start_location)),
             );
         } else {
             let mut src = Vec::new();
@@ -80,7 +79,8 @@ fn main() {
         );
         match file {
             engine::File::Article(article) => {
-                let ctx = engine::Context::new(&report, &dest_path, &article.src);
+                let ctx =
+                    engine::Context::new(&report, &dest_path, &article.src, article.start_location);
                 let xml = unwrap(engine::root(ctx, article.body), |e| eprintln!("{:?}", e));
                 unwrap(zip.write_all(format!("{}", xml).as_bytes()), |e| {
                     eprintln!("{:?}", e)

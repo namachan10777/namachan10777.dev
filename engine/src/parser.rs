@@ -1,4 +1,4 @@
-use super::{Cmd, TextElem, Value};
+use super::{Cmd, Location, Position, TextElem, Value};
 use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
@@ -10,25 +10,53 @@ struct TextParser;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
-    SyntaxError(LineColLocation),
+    SyntaxError(Location),
 }
 
-fn parse_cmd(pair: Pair<Rule>) -> Cmd {
+fn pest_loc_to_engine_loc(fname: &str, loc: LineColLocation) -> Location {
+    match loc {
+        LineColLocation::Pos((l, c)) => Location::At(Position::new(fname.to_owned(), l, c)),
+        LineColLocation::Span((l1, c1), (l2, c2)) => Location::Span(
+            Position::new(fname.to_owned(), l1, c1),
+            Position::new(fname.to_owned(), l2, c2),
+        ),
+    }
+}
+
+fn get_location(fname: &str, pair: &Pair<Rule>) -> Location {
+    let span = pair.as_span();
+    let s = span.start_pos();
+    let (s_line, s_col) = s.line_col();
+    let e = span.end_pos();
+    let (e_line, e_col) = e.line_col();
+    Location::Span(
+        Position::new(fname.to_owned(), s_line, s_col),
+        Position::new(fname.to_owned(), e_line, e_col),
+    )
+}
+
+fn parse_cmd(fname: &str, pair: Pair<Rule>) -> Cmd {
     match pair.as_rule() {
         Rule::cmd => {
             let mut inner = pair.into_inner();
             let name = &inner.next().unwrap().as_str()[1..];
-            let mut attrs = HashMap::new();
-            inner.next().unwrap().into_inner().for_each(|p| {
-                let mut inner = p.into_inner();
-                let attr = inner.next().unwrap().as_str();
-                let value = parse_value(inner.next().unwrap().into_inner().next().unwrap());
-                attrs.insert(attr.to_owned(), value);
-            });
+            let attrs = inner
+                .next()
+                .unwrap()
+                .into_inner()
+                .map(|p| {
+                    let loc = get_location(fname, &p);
+                    let mut inner = p.into_inner();
+                    let attr = inner.next().unwrap().as_str();
+                    let value =
+                        parse_value(fname, inner.next().unwrap().into_inner().next().unwrap());
+                    (attr.to_owned(), (value, loc))
+                })
+                .collect::<HashMap<String, (Value, Location)>>();
             let inner = inner.next().unwrap();
             let cmd_inner = match inner.as_rule() {
-                Rule::text => fold_textelem(inner.into_inner()),
-                Rule::cmds => fold_textelem(inner.into_inner()),
+                Rule::text => fold_textelem(fname, inner.into_inner()),
+                Rule::cmds => fold_textelem(fname, inner.into_inner()),
                 Rule::end_of_cmd => vec![],
                 _ => unreachable!(),
             };
@@ -42,48 +70,56 @@ fn parse_cmd(pair: Pair<Rule>) -> Cmd {
     }
 }
 
-fn parse_text_elem(pair: Pair<Rule>) -> TextElem {
-    match pair.as_rule() {
-        Rule::cmd => TextElem::Cmd(parse_cmd(pair)),
-        Rule::esc_endbrace => TextElem::Plain(String::from("}")),
-        Rule::esc_esc => TextElem::Plain(String::from("\\")),
-        Rule::char_in_text => TextElem::Plain(pair.as_str().to_owned()),
-        Rule::inlinestr => TextElem::Str(pair.as_str()[1..pair.as_str().len() - 1].to_owned()),
-        _ => unreachable!(),
-    }
+fn parse_text_elem(fname: &str, pair: Pair<Rule>) -> (TextElem, Location) {
+    let loc = get_location(fname, &pair);
+    (
+        match pair.as_rule() {
+            Rule::cmd => TextElem::Cmd(parse_cmd(fname, pair)),
+            Rule::esc_endbrace => TextElem::Plain(String::from("}")),
+            Rule::esc_esc => TextElem::Plain(String::from("\\")),
+            Rule::char_in_text => TextElem::Plain(pair.as_str().to_owned()),
+            Rule::inlinestr => TextElem::Str(pair.as_str()[1..pair.as_str().len() - 1].to_owned()),
+            _ => unreachable!(),
+        },
+        loc,
+    )
 }
 
-fn fold_textelem(pairs: Pairs<Rule>) -> Vec<TextElem> {
+fn fold_textelem(fname: &str, pairs: Pairs<Rule>) -> Vec<(TextElem, Location)> {
+    let mut text_loc = Location::Generated;
     let mut inner = Vec::new();
     let mut text = String::new();
-    for elem in pairs.map(parse_text_elem) {
-        match elem {
+    for elem in pairs.map(|p| parse_text_elem(fname, p)) {
+        match elem.0 {
             TextElem::Plain(s) => {
                 text.push_str(s.as_str());
+                text_loc = text_loc.merge(&elem.1);
             }
             TextElem::Cmd(cmd) => {
                 if !text.is_empty() {
-                    inner.push(TextElem::Plain(text.clone()));
+                    inner.push((TextElem::Plain(text.clone()), text_loc));
                 }
-                inner.push(TextElem::Cmd(cmd));
+                inner.push((TextElem::Cmd(cmd), elem.1));
+                text_loc = Location::Generated;
                 text.clear();
             }
             TextElem::Str(s) => {
                 if !text.is_empty() {
-                    inner.push(TextElem::Plain(text.clone()));
+                    inner.push((TextElem::Plain(text.clone()), text_loc));
                 }
                 text.clear();
-                inner.push(TextElem::Str(s));
+                text_loc = Location::Generated;
+                inner.push((TextElem::Str(s), elem.1));
             }
         }
     }
     if !text.is_empty() {
-        inner.push(TextElem::Plain(text));
+        inner.push((TextElem::Plain(text), text_loc));
     }
     inner
 }
 
-fn parse_value(pair: Pair<Rule>) -> Value {
+fn parse_value(fname: &str, pair: Pair<Rule>) -> Value {
     match pair.as_rule() {
         Rule::int => Value::Int(pair.as_str().parse().unwrap()),
         Rule::float => Value::Float(pair.as_str().parse().unwrap()),
@@ -100,8 +136,8 @@ fn parse_value(pair: Pair<Rule>) -> Value {
             Value::Str(inner.join(""))
         }
         Rule::blockstr => Value::Str(String::from(&pair.as_str()[4..pair.as_str().len() - 4])),
-        Rule::text => Value::Text(fold_textelem(pair.into_inner())),
-        Rule::cmds => Value::Text(fold_textelem(pair.into_inner())),
+        Rule::text => Value::Text(fold_textelem(fname, pair.into_inner())),
+        Rule::cmds => Value::Text(fold_textelem(fname, pair.into_inner())),
         _ => unreachable!(),
     }
 }
@@ -124,21 +160,26 @@ mod test {
         };
     }
 
-    fn parse<T, F>(rule: Rule, s: &str, f: F) -> Result<Option<T>, pest::error::Error<Rule>>
+    fn parse<T, F>(
+        fname: &str,
+        rule: Rule,
+        s: &str,
+        f: F,
+    ) -> Result<Option<T>, pest::error::Error<Rule>>
     where
-        F: FnOnce(Pair<Rule>) -> T,
+        F: FnOnce(&str, Pair<Rule>) -> T,
     {
-        TextParser::parse(rule, s).map(|mut pairs| pairs.next().map(f))
+        TextParser::parse(rule, s).map(|mut pairs| pairs.next().map(|p| f(fname, p)))
     }
 
     #[test]
     fn test_int() {
         assert_eq!(
-            parse(Rule::int, "1234", parse_value),
+            parse("a.tml", Rule::int, "1234", parse_value),
             Ok(Some(Value::Int(1234))),
         );
         assert_eq!(
-            parse(Rule::int, "0000", parse_value),
+            parse("a.tml", Rule::int, "0000", parse_value),
             Ok(Some(Value::Int(0))),
         );
     }
@@ -146,11 +187,11 @@ mod test {
     #[test]
     fn test_float() {
         assert_eq!(
-            parse(Rule::float, "3.14", parse_value),
-            Ok(Some(Value::Float(3.14))),
+            parse("a.tml", Rule::float, "3.14", parse_value),
+            Ok(Some(Value::Float(3.14)))
         );
         assert_eq!(
-            parse(Rule::float, "0.0", parse_value),
+            parse("a.tml", Rule::float, "0.0", parse_value),
             Ok(Some(Value::Float(0.0))),
         );
     }
@@ -158,51 +199,100 @@ mod test {
     #[test]
     fn test_str() {
         assert_eq!(
-            parse(Rule::str, "\"abc\"", parse_value),
-            Ok(Some(Value::Str("abc".to_owned()))),
+            parse("a.tml", Rule::str, "\"abc\"", parse_value),
+            Ok(Some(Value::Str("abc".to_owned()),)),
         );
         assert_eq!(
-            parse(Rule::str, "\"abc\\\"def\\\\\"", parse_value),
-            Ok(Some(Value::Str("abc\"def\\".to_owned()))),
+            parse("a.tml", Rule::str, "\"abc\\\"def\\\\\"", parse_value),
+            Ok(Some(Value::Str("abc\"def\\".to_owned()),)),
         );
     }
 
     #[test]
     fn test_cmd() {
         assert_eq!(
-            parse(Rule::cmd, "\\cmdname class=\"cls1\";", parse_cmd),
+            parse("a.tml", Rule::cmd, "\\cmdname class=\"cls1\";", parse_cmd),
             Ok(Some(Cmd {
                 name: "cmdname".to_owned(),
-                attrs: hash![("class".to_owned(), Value::Str("cls1".to_owned()))],
+                attrs: hash![(
+                    "class".to_owned(),
+                    (
+                        Value::Str("cls1".to_owned()),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 10),
+                            Position::new("a.tml".to_owned(), 1, 22)
+                        )
+                    )
+                )],
                 inner: vec![]
             }))
         );
         assert_eq!(
             parse(
+                "a.tml",
                 Rule::cmd,
                 "\\cmdname class=\"cls1\"{\\c1; `hoge`\\c2 {\\c3;}}",
                 parse_cmd
             ),
             Ok(Some(Cmd {
                 name: "cmdname".to_owned(),
-                attrs: hash![("class".to_owned(), Value::Str("cls1".to_owned()))],
+                attrs: hash![(
+                    "class".to_owned(),
+                    (
+                        Value::Str("cls1".to_owned()),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 10),
+                            Position::new("a.tml".to_owned(), 1, 22)
+                        )
+                    )
+                )],
                 inner: vec![
-                    TextElem::Cmd(Cmd {
-                        name: "c1".to_owned(),
-                        attrs: hash![],
-                        inner: vec![]
-                    }),
-                    TextElem::Plain(" ".to_owned()),
-                    TextElem::Str("hoge".to_owned()),
-                    TextElem::Cmd(Cmd {
-                        name: "c2".to_owned(),
-                        attrs: hash![],
-                        inner: vec![TextElem::Cmd(Cmd {
-                            name: "c3".to_owned(),
+                    (
+                        TextElem::Cmd(Cmd {
+                            name: "c1".to_owned(),
                             attrs: hash![],
                             inner: vec![]
-                        })]
-                    })
+                        }),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 23),
+                            Position::new("a.tml".to_owned(), 1, 27)
+                        )
+                    ),
+                    (
+                        TextElem::Plain(" ".to_owned()),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 27),
+                            Position::new("a.tml".to_owned(), 1, 28)
+                        )
+                    ),
+                    (
+                        TextElem::Str("hoge".to_owned()),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 28),
+                            Position::new("a.tml".to_owned(), 1, 34)
+                        )
+                    ),
+                    (
+                        TextElem::Cmd(Cmd {
+                            name: "c2".to_owned(),
+                            attrs: hash![],
+                            inner: vec![(
+                                TextElem::Cmd(Cmd {
+                                    name: "c3".to_owned(),
+                                    attrs: hash![],
+                                    inner: vec![]
+                                }),
+                                Location::Span(
+                                    Position::new("a.tml".to_owned(), 1, 39),
+                                    Position::new("a.tml".to_owned(), 1, 43)
+                                )
+                            )]
+                        }),
+                        Location::Span(
+                            Position::new("a.tml".to_owned(), 1, 34),
+                            Position::new("a.tml".to_owned(), 1, 44)
+                        )
+                    )
                 ]
             }))
         );
@@ -210,49 +300,77 @@ mod test {
     #[test]
     fn test_text() {
         assert_eq!(
-            parse(Rule::text, "{}", parse_value),
-            Ok(Some(Value::Text(vec![]))),
+            parse("a.tml", Rule::text, "{}", parse_value),
+            Ok(Some(Value::Text(vec![]),)),
         );
         assert_eq!(
-            parse(Rule::text, "{\\}\\\\}", parse_value),
-            Ok(Some(Value::Text(vec![TextElem::Plain(String::from(
-                "}\\"
-            )),]))),
+            parse("a.tml", Rule::text, "{\\}\\\\}", parse_value),
+            Ok(Some(Value::Text(vec![(
+                TextElem::Plain(String::from("}\\")),
+                Location::Span(
+                    Position::new("a.tml".to_owned(), 1, 2),
+                    Position::new("a.tml".to_owned(), 1, 6)
+                )
+            )]),)),
         );
         assert_eq!(
-            parse(Rule::text, "{\\cmd {foo\\red {bar}}}", parse_value),
-            Ok(Some(Value::Text(vec![TextElem::Cmd(Cmd {
-                name: String::from("cmd"),
-                attrs: hash![],
-                inner: vec![
-                    TextElem::Plain(String::from("foo")),
-                    TextElem::Cmd(Cmd {
-                        name: String::from("red"),
-                        attrs: hash![],
-                        inner: vec![TextElem::Plain(String::from("bar"))]
-                    }),
-                ]
-            })]))),
+            parse("a.tml", Rule::text, "{\\cmd {foo\\red {bar}}}", parse_value),
+            Ok(Some(Value::Text(vec![(
+                TextElem::Cmd(Cmd {
+                    name: String::from("cmd"),
+                    attrs: hash![],
+                    inner: vec![
+                        (
+                            TextElem::Plain(String::from("foo")),
+                            Location::Span(
+                                Position::new("a.tml".to_owned(), 1, 8),
+                                Position::new("a.tml".to_owned(), 1, 11)
+                            )
+                        ),
+                        (
+                            TextElem::Cmd(Cmd {
+                                name: String::from("red"),
+                                attrs: hash![],
+                                inner: vec![(
+                                    TextElem::Plain(String::from("bar")),
+                                    Location::Span(
+                                        Position::new("a.tml".to_owned(), 1, 17),
+                                        Position::new("a.tml".to_owned(), 1, 20)
+                                    )
+                                )]
+                            }),
+                            Location::Span(
+                                Position::new("a.tml".to_owned(), 1, 11),
+                                Position::new("a.tml".to_owned(), 1, 21)
+                            )
+                        ),
+                    ]
+                }),
+                Location::Span(
+                    Position::new("a.tml".to_owned(), 1, 2),
+                    Position::new("a.tml".to_owned(), 1, 22)
+                )
+            )]),)),
         );
     }
     #[test]
     fn blockstr() {
         let src = vec!["###`", "foo", "hoge \"bar\"", "`###"].join("\n");
         assert_eq!(
-            parse(Rule::blockstr, src.as_str(), parse_value),
-            Ok(Some(Value::Str("\nfoo\nhoge \"bar\"\n".to_owned()))),
+            parse("a.tml", Rule::blockstr, src.as_str(), parse_value),
+            Ok(Some(Value::Str("\nfoo\nhoge \"bar\"\n".to_owned()),))
         );
     }
 }
 
-pub fn parse(s: &str) -> Result<Cmd, Error> {
-    Ok(parse_cmd(
-        TextParser::parse(Rule::main, s)
-            .map_err(|e| Error::SyntaxError(e.line_col))?
-            .next()
-            .unwrap()
-            .into_inner()
-            .next()
-            .unwrap(),
-    ))
+pub fn parse(fname: &str, s: &str) -> Result<(Cmd, Location), Error> {
+    let pair = TextParser::parse(Rule::main, s)
+        .map_err(|e| Error::SyntaxError(pest_loc_to_engine_loc(fname, e.line_col)))?
+        .next()
+        .unwrap()
+        .into_inner()
+        .next()
+        .unwrap();
+    let loc = get_location(fname, &pair);
+    Ok((parse_cmd(fname, pair), loc))
 }

@@ -1,4 +1,4 @@
-use super::{Article, File, Project, TextElem, Value};
+use super::{Article, File, Project, TextElemAst, Value};
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -9,9 +9,9 @@ pub enum Error {
     InvalidFormat(String),
 }
 pub struct Report {
-    pub prevs: HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
-    pub nexts: HashMap<PathBuf, (PathBuf, Vec<TextElem>)>,
-    pub articles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>>,
+    pub prevs: HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>,
+    pub nexts: HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>,
+    pub articles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>, chrono::NaiveDate)>>,
     pub ss: SyntaxSet,
 }
 
@@ -24,7 +24,7 @@ macro_rules! get {
                 $key
             )))
             .and_then(|v| match v {
-                Value::$tp(v) => Ok(v.clone()),
+                (Value::$tp(v), _) => Ok(v.clone()),
                 _ => Err(Error::InvalidFormat(format!(
                     "wrong attribute type at {}",
                     $key
@@ -37,7 +37,7 @@ pub type AResult<T> = Result<T, Error>;
 
 fn extract_title_and_date(
     article: &Article,
-) -> AResult<Option<(Vec<TextElem>, chrono::NaiveDate)>> {
+) -> AResult<Option<(Vec<TextElemAst>, chrono::NaiveDate)>> {
     match article.body.name.as_str() {
         "article" => {
             let gen_date_format_error = || Error::InvalidFormat("Invalid date format".to_owned());
@@ -76,7 +76,7 @@ fn extract_title_and_date(
 pub fn parse(proj: &Project) -> AResult<Report> {
     let ss = SyntaxSet::load_defaults_newlines();
     let mut articles =
-        HashMap::<std::path::PathBuf, Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>>::new();
+        HashMap::<std::path::PathBuf, Vec<(PathBuf, Vec<TextElemAst>, chrono::NaiveDate)>>::new();
     for (fname, file) in proj {
         match file {
             File::Article(article) => {
@@ -104,7 +104,7 @@ pub fn parse(proj: &Project) -> AResult<Report> {
         .for_each(|(_, articles)| articles.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap()));
     let mut prevs = HashMap::new();
     let mut nexts = HashMap::new();
-    let mut before: Option<(PathBuf, Vec<TextElem>)> = None;
+    let mut before: Option<(PathBuf, Vec<TextElemAst>)> = None;
     for articles in articles.values() {
         for (path, title, _) in articles {
             if let Some((prev_path, prev_title)) = before {
