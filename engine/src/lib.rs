@@ -541,7 +541,7 @@ fn execute_ul(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
             },
             _ => Err(Error::ProcessError(
                 loc,
-                format!("ul cannot process plain text",),
+                "ul cannot process plain text".to_owned(),
             )),
         })
         .collect::<EResult<Vec<_>>>()?;
@@ -609,7 +609,7 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<
     }
     let mut code = Vec::new();
     for line in lines[empty_line_cnt_from_head..lines.len() - empty_line_cnt_from_tail].to_vec() {
-        code.push(line.get(padding_n..).unwrap_or_else(|| ""));
+        code.push(line.get(padding_n..).unwrap_or(""));
     }
     if let Some(sr) = ctx.ss.find_syntax_by_extension(&lang) {
         let mut generator = ClassedHTMLGenerator::new(sr, ctx.ss);
@@ -718,7 +718,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "iframe" => execute_iframe(ctx, cmd.attrs),
         "figure" => execute_figure(ctx, cmd.attrs, cmd.inner),
         _ => Err(Error::ProcessError(
-            ctx.location.to_owned(),
+            ctx.location,
             format!("invalid root cmd {}", cmd.name),
         )),
     }
