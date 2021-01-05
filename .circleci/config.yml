@@ -16,11 +16,13 @@ jobs:
             - v2-test-{{ checksum "engine/Cargo.lock" }}
       - run:
           name: Test engine
-          command: |
-            cd engine
-            cargo test
-            cargo clippy -- -D warnings
-            cargo fmt -- --check
+          command: cd engine && cargo test
+      - run:
+          name: Clippy
+          command: cd engine && cargo clippy -- -D warnings
+      - run:
+          name: Cargo fmt
+          command: cd engine && cargo fmt -- --check
       - save_cache:
           key: v2-test-{{ checksum "engine/Cargo.lock" }}
           paths:
@@ -77,15 +79,14 @@ jobs:
 
 workflows:
   version: 2.1
-  test:
-    jobs:
-      - test
   build_and_deploy:
     jobs:
       - build_engine
+      - test
       - build:
           requires:
             - build_engine
+            - test
           filters:
             branches:
               only:
