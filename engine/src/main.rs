@@ -56,7 +56,7 @@ fn main() {
                 .with_extension("html");
             let src = unwrap(fs::read_to_string(&path), |e| eprintln!("{:?}", e));
             let (cmd, start_location) = unwrap(
-                engine::parser::parse(source_path.as_os_str().to_str().unwrap(), &src),
+                engine::parser::parse(path_str, &src),
                 |e| eprintln!("{:?}: {:?}", path, e),
             );
             proj.insert(
@@ -81,7 +81,15 @@ fn main() {
             engine::File::Article(article) => {
                 let ctx =
                     engine::Context::new(&report, &dest_path, &article.src, article.start_location);
-                let xml = unwrap(engine::root(ctx, article.body), |e| eprintln!("{:?}", e));
+                let xml = unwrap(engine::root(ctx, article.body), |e| match e {
+                    engine::Error::SyntaxError(loc, msg) => {
+                        eprintln!("Syntax error {} {}", loc, msg)
+                    }
+
+                    engine::Error::ProcessError(loc, msg) => {
+                        eprintln!("Syntax error {} {}", loc, msg)
+                    }
+                });
                 unwrap(zip.write_all(format!("{}", xml).as_bytes()), |e| {
                     eprintln!("{:?}", e)
                 });
