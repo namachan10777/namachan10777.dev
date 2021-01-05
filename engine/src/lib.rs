@@ -9,6 +9,7 @@ pub mod analysis;
 pub mod parser;
 
 use sha2::Digest;
+use std::cmp;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
@@ -47,6 +48,89 @@ pub enum File {
 
 pub type Project = HashMap<PathBuf, File>;
 
+#[derive(Debug, PartialEq, Clone, Eq)]
+pub struct Position {
+    // u-indexed
+    from_start: usize,
+    // 1-indexed
+    line: usize,
+    // 1-indexed
+    col: usize,
+}
+
+impl Position {
+    pub fn new(from_start: usize, line: usize, col: usize) -> Self {
+        Self {
+            from_start,
+            line,
+            col,
+        }
+    }
+}
+
+impl PartialOrd for Position {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.from_start.partial_cmp(&other.from_start)
+    }
+}
+
+impl Ord for Position {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.from_start.cmp(&other.from_start)
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Location {
+    Span(Position, Position),
+    At(Position),
+    Generated,
+}
+
+impl Location {
+    pub fn merge(&self, other: &Self) -> Self {
+        match (self, other) {
+            (Location::Span(a1, a2), Location::Span(b1, b2)) => {
+                Location::Span(cmp::min(a1, b1).clone(), cmp::max(a2, b2).clone())
+            }
+            (Location::At(a), Location::At(b)) => {
+                Location::Span(cmp::min(a, b).clone(), cmp::max(a, b).clone())
+            }
+            (Location::Span(a1, a2), Location::At(b)) => {
+                Location::Span(cmp::min(a1, b).clone(), cmp::max(a2, b).clone())
+            }
+            (Location::At(a), Location::Span(b1, b2)) => {
+                Location::Span(cmp::min(a, b1).clone(), cmp::max(a, b2).clone())
+            }
+            (loc, Location::Generated) => loc.clone(),
+            (Location::Generated, loc) => loc.clone(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_loc {
+    use super::*;
+    #[test]
+    fn test_pos() {
+        assert!(Position::new(0, 1, 1) == Position::new(0, 1, 1));
+        assert!(Position::new(1, 1, 2) > Position::new(0, 1, 1));
+    }
+
+    #[test]
+    fn test_merge() {
+        let p1 = Position::new(0, 1, 1);
+        let p2 = Position::new(10, 2, 1);
+        let p3 = Position::new(20, 3, 1);
+        let p4 = Position::new(30, 4, 1);
+        let s1 = Location::Span(p1.clone(), p2.clone());
+        let s2 = Location::Span(p2.clone(), p3.clone());
+        assert_eq!(s1.merge(&Location::At(p3.clone())), Location::Span(p1.clone(), p3.clone()));
+        assert_eq!(s1.merge(&s2), Location::Span(p1.clone(), p3.clone()));
+        assert_eq!(Location::At(p4.clone()).merge(&Location::At(p2.clone())), Location::Span(p2.clone(), p4.clone()));
+    }
+}
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
     Int(i64),
@@ -55,6 +139,8 @@ pub enum Value {
     Text(Vec<TextElem>),
 }
 
+type ValueAst = (Value, Location);
+
 #[derive(PartialEq, Debug, Clone)]
 pub struct Cmd {
     name: String,
@@ -62,12 +148,16 @@ pub struct Cmd {
     inner: Vec<TextElem>,
 }
 
+type CmdAst = (Cmd, Location);
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum TextElem {
     Cmd(Cmd),
     Plain(String),
     Str(String),
 }
+
+type TextElemAst = (TextElem, Location);
 
 type ArticleList = Vec<(PathBuf, Vec<TextElem>, chrono::NaiveDate)>;
 
