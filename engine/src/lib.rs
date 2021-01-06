@@ -13,21 +13,21 @@ use std::fmt;
 use std::cmp;
 
 #[derive(Debug, PartialEq, Clone, Eq)]
-pub struct Position {
-    fname: String,
+pub struct Position<'a> {
+    fname: &'a str,
     // 1-indexed
     line: usize,
     // 1-indexed
     col: usize,
 }
 
-impl Position {
-    pub fn new(fname: String, line: usize, col: usize) -> Self {
+impl<'a> Position<'a> {
+    pub fn new(fname: &'a str, line: usize, col: usize) -> Position<'a> {
         Self { fname, line, col }
     }
 }
 
-impl PartialOrd for Position {
+impl<'a> PartialOrd for Position<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         if self.fname != other.fname {
             self.fname.partial_cmp(&other.fname)
@@ -39,7 +39,7 @@ impl PartialOrd for Position {
     }
 }
 
-impl Ord for Position {
+impl<'a> Ord for Position<'a> {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         if self.fname != other.fname {
             self.fname.cmp(&other.fname)
@@ -52,13 +52,13 @@ impl Ord for Position {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Location {
-    Span(Position, Position),
-    At(Position),
+pub enum Location<'a> {
+    Span(Position<'a>, Position<'a>),
+    At(Position<'a>),
     Generated,
 }
 
-impl Location {
+impl<'a> Location<'a> {
     pub fn merge(&self, other: &Self) -> Self {
         match (self, other) {
             (Location::Span(a1, a2), Location::Span(b1, b2)) => {
@@ -79,7 +79,7 @@ impl Location {
     }
 }
 
-impl fmt::Display for Location {
+impl<'a> fmt::Display for Location<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             Location::Generated => write!(f, "nowhere:nowhere:nowhere"),
@@ -98,16 +98,16 @@ mod test_loc {
     use super::*;
     #[test]
     fn test_pos() {
-        assert!(Position::new(String::new(), 1, 1) == Position::new(String::new(), 1, 1));
-        assert!(Position::new(String::new(), 1, 2) > Position::new(String::new(), 1, 1));
+        assert!(Position::new("", 1, 1) == Position::new("", 1, 1));
+        assert!(Position::new("", 1, 2) > Position::new("", 1, 1));
     }
 
     #[test]
     fn test_merge() {
-        let p1 = Position::new(String::new(), 1, 1);
-        let p2 = Position::new(String::new(), 2, 1);
-        let p3 = Position::new(String::new(), 3, 1);
-        let p4 = Position::new(String::new(), 4, 1);
+        let p1 = Position::new("", 1, 1);
+        let p2 = Position::new("", 2, 1);
+        let p3 = Position::new("", 3, 1);
+        let p4 = Position::new("", 4, 1);
         let s1 = Location::Span(p1.clone(), p2.clone());
         let s2 = Location::Span(p2.clone(), p3.clone());
         assert_eq!(
@@ -123,27 +123,27 @@ mod test_loc {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum Value {
+pub enum Value<'a> {
     Int(i64),
     Float(f64),
     Str(String),
-    Text(Vec<TextElemAst>),
+    Text(Vec<TextElemAst<'a>>),
 }
 
-type ValueAst = (Value, Location);
+type ValueAst<'a> = (Value<'a>, Location<'a>);
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct Cmd {
+pub struct Cmd<'a> {
     name: String,
-    attrs: HashMap<String, ValueAst>,
-    inner: Vec<TextElemAst>,
+    attrs: HashMap<String, ValueAst<'a>>,
+    inner: Vec<TextElemAst<'a>>,
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum TextElem {
-    Cmd(Cmd),
+pub enum TextElem<'a> {
+    Cmd(Cmd<'a>),
     Plain(String),
     Str(String),
 }
 
-type TextElemAst = (TextElem, Location);
+type TextElemAst<'a> = (TextElem<'a>, Location<'a>);

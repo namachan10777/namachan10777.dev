@@ -9,33 +9,33 @@ use std::collections::HashMap;
 struct TextParser;
 
 #[derive(Debug, PartialEq)]
-pub enum Error {
-    SyntaxError(Location),
+pub enum Error<'a> {
+    SyntaxError(Location<'a>),
 }
 
-fn pest_loc_to_engine_loc(fname: &str, loc: LineColLocation) -> Location {
+fn pest_loc_to_engine_loc<'a>(fname: &'a str, loc: LineColLocation) -> Location<'a> {
     match loc {
-        LineColLocation::Pos((l, c)) => Location::At(Position::new(fname.to_owned(), l, c)),
+        LineColLocation::Pos((l, c)) => Location::At(Position::new(fname, l, c)),
         LineColLocation::Span((l1, c1), (l2, c2)) => Location::Span(
-            Position::new(fname.to_owned(), l1, c1),
-            Position::new(fname.to_owned(), l2, c2),
+            Position::new(fname, l1, c1),
+            Position::new(fname, l2, c2),
         ),
     }
 }
 
-fn get_location(fname: &str, pair: &Pair<Rule>) -> Location {
+fn get_location<'a>(fname: &'a str, pair: &Pair<Rule>) -> Location<'a> {
     let span = pair.as_span();
     let s = span.start_pos();
     let (s_line, s_col) = s.line_col();
     let e = span.end_pos();
     let (e_line, e_col) = e.line_col();
     Location::Span(
-        Position::new(fname.to_owned(), s_line, s_col),
-        Position::new(fname.to_owned(), e_line, e_col),
+        Position::new(fname, s_line, s_col),
+        Position::new(fname, e_line, e_col),
     )
 }
 
-fn parse_cmd(fname: &str, pair: Pair<Rule>) -> Cmd {
+fn parse_cmd<'a>(fname: &'a str, pair: Pair<Rule>) -> Cmd<'a> {
     match pair.as_rule() {
         Rule::cmd => {
             let mut inner = pair.into_inner();
@@ -70,7 +70,7 @@ fn parse_cmd(fname: &str, pair: Pair<Rule>) -> Cmd {
     }
 }
 
-fn parse_text_elem(fname: &str, pair: Pair<Rule>) -> (TextElem, Location) {
+fn parse_text_elem<'a>(fname: &'a str, pair: Pair<Rule>) -> (TextElem<'a>, Location<'a>) {
     let loc = get_location(fname, &pair);
     (
         match pair.as_rule() {
@@ -85,7 +85,7 @@ fn parse_text_elem(fname: &str, pair: Pair<Rule>) -> (TextElem, Location) {
     )
 }
 
-fn fold_textelem(fname: &str, pairs: Pairs<Rule>) -> Vec<(TextElem, Location)> {
+fn fold_textelem<'a>(fname: &'a str, pairs: Pairs<Rule>) -> Vec<(TextElem<'a>, Location<'a>)> {
     let mut text_loc = Location::Generated;
     let mut inner = Vec::new();
     let mut text = String::new();
@@ -119,7 +119,7 @@ fn fold_textelem(fname: &str, pairs: Pairs<Rule>) -> Vec<(TextElem, Location)> {
     inner
 }
 
-fn parse_value(fname: &str, pair: Pair<Rule>) -> Value {
+fn parse_value<'a>(fname: &'a str, pair: Pair<Rule>) -> Value<'a> {
     match pair.as_rule() {
         Rule::int => Value::Int(pair.as_str().parse().unwrap()),
         Rule::float => Value::Float(pair.as_str().parse().unwrap()),
@@ -160,26 +160,20 @@ mod test {
         };
     }
 
-    fn parse<T, F>(
-        fname: &str,
-        rule: Rule,
-        s: &str,
-        f: F,
-    ) -> Result<Option<T>, pest::error::Error<Rule>>
-    where
-        F: FnOnce(&str, Pair<Rule>) -> T,
-    {
-        TextParser::parse(rule, s).map(|mut pairs| pairs.next().map(|p| f(fname, p)))
+    macro_rules! parse {
+        ($fname:expr, $rule:expr, $s:expr, $f:expr ) => {
+            TextParser::parse($rule, $s).map(|mut pairs| pairs.next().map(|p| $f($fname, p)))
+        };
     }
 
     #[test]
     fn test_int() {
         assert_eq!(
-            parse("a.tml", Rule::int, "1234", parse_value),
+            parse!("a.tml", Rule::int, "1234", parse_value),
             Ok(Some(Value::Int(1234))),
         );
         assert_eq!(
-            parse("a.tml", Rule::int, "0000", parse_value),
+            parse!("a.tml", Rule::int, "0000", parse_value),
             Ok(Some(Value::Int(0))),
         );
     }
@@ -187,11 +181,11 @@ mod test {
     #[test]
     fn test_float() {
         assert_eq!(
-            parse("a.tml", Rule::float, "3.14", parse_value),
+            parse!("a.tml", Rule::float, "3.14", parse_value),
             Ok(Some(Value::Float(3.14)))
         );
         assert_eq!(
-            parse("a.tml", Rule::float, "0.0", parse_value),
+            parse!("a.tml", Rule::float, "0.0", parse_value),
             Ok(Some(Value::Float(0.0))),
         );
     }
@@ -199,11 +193,11 @@ mod test {
     #[test]
     fn test_str() {
         assert_eq!(
-            parse("a.tml", Rule::str, "\"abc\"", parse_value),
-            Ok(Some(Value::Str("abc".to_owned()),)),
+            parse!("a.tml", Rule::str, "\"abc\"", parse_value),
+            Ok(Some(Value::Str("abc".to_owned()))),
         );
         assert_eq!(
-            parse("a.tml", Rule::str, "\"abc\\\"def\\\\\"", parse_value),
+            parse!("a.tml", Rule::str, "\"abc\\\"def\\\\\"", parse_value),
             Ok(Some(Value::Str("abc\"def\\".to_owned()),)),
         );
     }
@@ -211,16 +205,16 @@ mod test {
     #[test]
     fn test_cmd() {
         assert_eq!(
-            parse("a.tml", Rule::cmd, "\\cmdname class=\"cls1\";", parse_cmd),
+            parse!("a.tml", Rule::cmd, "\\cmdname class=\"cls1\";", parse_cmd),
             Ok(Some(Cmd {
-                name: "cmdname".to_owned(),
+                name: String::from("cmdname"),
                 attrs: hash![(
-                    "class".to_owned(),
+                    String::from("class"),
                     (
-                        Value::Str("cls1".to_owned()),
+                        Value::Str(String::from("cls1")),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 10),
-                            Position::new("a.tml".to_owned(), 1, 22)
+                            Position::new("a.tml", 1, 10),
+                            Position::new("a.tml", 1, 22)
                         )
                     )
                 )],
@@ -228,21 +222,21 @@ mod test {
             }))
         );
         assert_eq!(
-            parse(
+            parse!(
                 "a.tml",
                 Rule::cmd,
                 "\\cmdname class=\"cls1\"{\\c1; `hoge`\\c2 {\\c3;}}",
                 parse_cmd
             ),
             Ok(Some(Cmd {
-                name: "cmdname".to_owned(),
+                name: String::from("cmdname"),
                 attrs: hash![(
-                    "class".to_owned(),
+                    String::from("class"),
                     (
-                        Value::Str("cls1".to_owned()),
+                        Value::Str(String::from("cls1")),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 10),
-                            Position::new("a.tml".to_owned(), 1, 22)
+                            Position::new("a.tml", 1, 10),
+                            Position::new("a.tml", 1, 22)
                         )
                     )
                 )],
@@ -254,22 +248,22 @@ mod test {
                             inner: vec![]
                         }),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 23),
-                            Position::new("a.tml".to_owned(), 1, 27)
+                            Position::new("a.tml", 1, 23),
+                            Position::new("a.tml", 1, 27)
                         )
                     ),
                     (
                         TextElem::Plain(" ".to_owned()),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 27),
-                            Position::new("a.tml".to_owned(), 1, 28)
+                            Position::new("a.tml", 1, 27),
+                            Position::new("a.tml", 1, 28)
                         )
                     ),
                     (
                         TextElem::Str("hoge".to_owned()),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 28),
-                            Position::new("a.tml".to_owned(), 1, 34)
+                            Position::new("a.tml", 1, 28),
+                            Position::new("a.tml", 1, 34)
                         )
                     ),
                     (
@@ -283,14 +277,14 @@ mod test {
                                     inner: vec![]
                                 }),
                                 Location::Span(
-                                    Position::new("a.tml".to_owned(), 1, 39),
-                                    Position::new("a.tml".to_owned(), 1, 43)
+                                    Position::new("a.tml", 1, 39),
+                                    Position::new("a.tml", 1, 43)
                                 )
                             )]
                         }),
                         Location::Span(
-                            Position::new("a.tml".to_owned(), 1, 34),
-                            Position::new("a.tml".to_owned(), 1, 44)
+                            Position::new("a.tml", 1, 34),
+                            Position::new("a.tml", 1, 44)
                         )
                     )
                 ]
@@ -300,21 +294,21 @@ mod test {
     #[test]
     fn test_text() {
         assert_eq!(
-            parse("a.tml", Rule::text, "{}", parse_value),
+            parse!("a.tml", Rule::text, "{}", parse_value),
             Ok(Some(Value::Text(vec![]),)),
         );
         assert_eq!(
-            parse("a.tml", Rule::text, "{\\}\\\\}", parse_value),
+            parse!("a.tml", Rule::text, "{\\}\\\\}", parse_value),
             Ok(Some(Value::Text(vec![(
                 TextElem::Plain(String::from("}\\")),
                 Location::Span(
-                    Position::new("a.tml".to_owned(), 1, 2),
-                    Position::new("a.tml".to_owned(), 1, 6)
+                    Position::new("a.tml", 1, 2),
+                    Position::new("a.tml", 1, 6)
                 )
             )]),)),
         );
         assert_eq!(
-            parse("a.tml", Rule::text, "{\\cmd {foo\\red {bar}}}", parse_value),
+            parse!("a.tml", Rule::text, "{\\cmd {foo\\red {bar}}}", parse_value),
             Ok(Some(Value::Text(vec![(
                 TextElem::Cmd(Cmd {
                     name: String::from("cmd"),
@@ -323,8 +317,8 @@ mod test {
                         (
                             TextElem::Plain(String::from("foo")),
                             Location::Span(
-                                Position::new("a.tml".to_owned(), 1, 8),
-                                Position::new("a.tml".to_owned(), 1, 11)
+                                Position::new("a.tml", 1, 8),
+                                Position::new("a.tml", 1, 11)
                             )
                         ),
                         (
@@ -334,21 +328,21 @@ mod test {
                                 inner: vec![(
                                     TextElem::Plain(String::from("bar")),
                                     Location::Span(
-                                        Position::new("a.tml".to_owned(), 1, 17),
-                                        Position::new("a.tml".to_owned(), 1, 20)
+                                        Position::new("a.tml", 1, 17),
+                                        Position::new("a.tml", 1, 20)
                                     )
                                 )]
                             }),
                             Location::Span(
-                                Position::new("a.tml".to_owned(), 1, 11),
-                                Position::new("a.tml".to_owned(), 1, 21)
+                                Position::new("a.tml", 1, 11),
+                                Position::new("a.tml", 1, 21)
                             )
                         ),
                     ]
                 }),
                 Location::Span(
-                    Position::new("a.tml".to_owned(), 1, 2),
-                    Position::new("a.tml".to_owned(), 1, 22)
+                    Position::new("a.tml", 1, 2),
+                    Position::new("a.tml", 1, 22)
                 )
             )]),)),
         );
@@ -357,13 +351,13 @@ mod test {
     fn blockstr() {
         let src = vec!["###`", "foo", "hoge \"bar\"", "`###"].join("\n");
         assert_eq!(
-            parse("a.tml", Rule::blockstr, src.as_str(), parse_value),
+            parse!("a.tml", Rule::blockstr, src.as_str(), parse_value),
             Ok(Some(Value::Str("\nfoo\nhoge \"bar\"\n".to_owned()),))
         );
     }
 }
 
-pub fn parse(fname: &str, s: &str) -> Result<(Cmd, Location), Error> {
+pub fn parse<'a>(fname: &'a str, s: &str) -> Result<(Cmd<'a>, Location<'a>), Error<'a>> {
     let pair = TextParser::parse(Rule::main, s)
         .map_err(|e| Error::SyntaxError(pest_loc_to_engine_loc(fname, e.line_col)))?
         .next()
