@@ -1,4 +1,4 @@
-use super::{Cmd, Location, Position, TextElem, Value};
+use super::{Cmd, Error, Location, Position, TextElem, Value};
 use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
@@ -7,11 +7,6 @@ use std::collections::HashMap;
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
 struct TextParser;
-
-#[derive(Debug, PartialEq)]
-pub enum Error<'a> {
-    SyntaxError(Location<'a>),
-}
 
 fn pest_loc_to_engine_loc(fname: &str, loc: LineColLocation) -> Location {
     match loc {

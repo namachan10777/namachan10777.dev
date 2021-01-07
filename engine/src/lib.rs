@@ -23,6 +23,21 @@ pub struct Position<'a> {
     col: usize,
 }
 
+#[derive(Debug)]
+pub enum Error<'a> {
+    SyntaxError(Location<'a>),
+    MissingAttribute {
+        name: String,
+        loc: Location<'a>,
+    },
+    InvalidAttributeType {
+        name: String,
+        expected: String,
+        found: String,
+        loc: Location<'a>,
+    },
+}
+
 impl<'a> Position<'a> {
     pub fn new(fname: &'a str, line: usize, col: usize) -> Position<'a> {
         Self { fname, line, col }
@@ -130,6 +145,17 @@ pub enum Value<'a> {
     Float(f64),
     Str(String),
     Text(Vec<TextElemAst<'a>>),
+}
+
+impl<'a> Value<'a> {
+    pub fn label(&self) -> String {
+        match self {
+            Value::Int(_) => "int".to_owned(),
+            Value::Float(_) => "float".to_owned(),
+            Value::Str(_) => "string".to_owned(),
+            Value::Text(_) => "text".to_owned(),
+        }
+    }
 }
 
 type ValueAst<'a> = (Value<'a>, Location<'a>);
