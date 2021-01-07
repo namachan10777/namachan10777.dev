@@ -1,6 +1,5 @@
 use super::xml::{XMLElem, XML};
 use super::{Cmd, Location, TextElem, TextElemAst, Value, ValueAst};
-use sha2::Digest;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
@@ -14,17 +13,16 @@ pub enum Error<'a> {
 
 type EResult<'a, T> = Result<T, Error<'a>>;
 
-type ArticleList<'a> = Vec<(PathBuf, Vec<TextElemAst<'a>>, chrono::NaiveDate)>;
 #[derive(Clone)]
 pub struct Context<'a> {
-    location: Location<'a>,
-    level: usize,
-    prevs: &'a HashMap<PathBuf, (PathBuf, Vec<TextElemAst<'a>>)>,
-    nexts: &'a HashMap<PathBuf, (PathBuf, Vec<TextElemAst<'a>>)>,
-    articles: &'a HashMap<PathBuf, ArticleList<'a>>,
-    ss: &'a SyntaxSet,
-    path: &'a std::path::Path,
-    src: &'a str,
+    pub location: Location<'a>,
+    pub level: usize,
+    pub prev: &'a Option<(PathBuf, Vec<TextElemAst<'a>>)>,
+    pub next: &'a Option<(PathBuf, Vec<TextElemAst<'a>>)>,
+    pub titles: &'a HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst<'a>>)>>,
+    pub ss: &'a SyntaxSet,
+    pub sha256: &'a str,
+    pub path: &'a std::path::Path,
 }
 
 impl<'a> Context<'a> {
@@ -197,11 +195,7 @@ fn execute_article<'a>(
     attrs: HashMap<String, ValueAst<'a>>,
     inner: Vec<TextElemAst<'a>>,
 ) -> EResult<'a, XMLElem> {
-    let mut hasher = sha2::Sha256::new();
-    hasher.update(ctx.src);
-    let hashed = hasher.finalize();
-    let hashed_full = hex::encode(hashed);
-    let hashed_short = &hashed_full[..7];
+    let hashed_short = &ctx.sha256[..7];
     let title = get!(ctx.location, attrs, "title", Text)?;
     let title = title
         .into_iter()
@@ -214,7 +208,7 @@ fn execute_article<'a>(
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
-    if let Some((prev_path, prev_title)) = ctx.prevs.get(ctx.path) {
+    if let Some((prev_path, prev_title)) = ctx.prev {
         let href_path = resolve_link(prev_path, ctx.path);
         footer_inner.push(xml!(a
             [href=href_path.to_str().unwrap(), class="prev-article"]
@@ -223,7 +217,7 @@ fn execute_article<'a>(
                 .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<'a, Vec<_>>>()?
         ));
     }
-    if let Some((next_path, next_title)) = ctx.nexts.get(ctx.path) {
+    if let Some((next_path, next_title)) = ctx.next {
         let href_path = resolve_link(next_path, ctx.path);
         footer_inner.push(xml!(a
             [href=href_path.to_str().unwrap(), class="next-article"]
@@ -383,12 +377,12 @@ fn execute_articles<'a>(
     let dir = get!(ctx.location, attrs, "dir", Str)?;
     let parent = Path::new(&dir);
     Ok(xml!(ul [] ctx
-        .articles
+        .titles
         .get(parent)
         .map(|articles|
              articles
             .iter()
-            .map(|(path, title, _)| {
+            .map(|(path, title)| {
                 let href_path = resolve_link(Path::new(path), ctx.path);
                 Ok(xml!(li [] [xml!(a
                     [href=href_path.to_str().unwrap()]

@@ -5,12 +5,14 @@ extern crate syntect;
 
 #[macro_use]
 pub mod xml;
+pub mod analysis;
 pub mod convert;
 pub mod parser;
 
 use std::cmp;
 use std::collections::HashMap;
 use std::fmt;
+use std::path::PathBuf;
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Position<'a> {
@@ -147,3 +149,11 @@ pub enum TextElem<'a> {
 }
 
 type TextElemAst<'a> = (TextElem<'a>, Location<'a>);
+
+#[derive(Debug)]
+pub enum File<'a> {
+    Tml((Cmd<'a>, Location<'a>), Vec<u8>),
+    Blob(Vec<u8>),
+}
+
+pub type Parsed<'a> = HashMap<PathBuf, File<'a>>;
