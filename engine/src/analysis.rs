@@ -1,21 +1,26 @@
 use super::convert::Context;
-use super::{Parsed, Location, TextElemAst};
-use std::path::{Path, PathBuf};
+use super::{Location, Parsed, TextElemAst};
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 use syntect::parsing::SyntaxSet;
 
-type ArticleHeading<'a> = (PathBuf, Vec<TextElemAst<'a>>);
+type ArticleHeading = (PathBuf, Vec<TextElemAst>);
 
-type ArticleInfo<'a> = (Location<'a>, Option<ArticleHeading<'a>>, Option<ArticleHeading<'a>>, String);
+type ArticleInfo = (
+    Location,
+    Option<ArticleHeading>,
+    Option<ArticleHeading>,
+    String,
+);
 
-pub struct Report<'a> {
-    hash: HashMap<PathBuf, ArticleInfo<'a>>,
-    titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst<'a>>)>>,
+pub struct Report {
+    hash: HashMap<PathBuf, ArticleInfo>,
+    titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
     ss: SyntaxSet,
 }
 
-impl<'a> Report<'a> {
-    pub fn get_context(&'a self, p: &'a Path) -> Option<Context<'a>> {
+impl Report {
+    pub fn get_context<'a>(&'a self, p: &'a Path) -> Option<Context<'a>> {
         if let Some((loc, prev, next, sha256)) = &self.hash.get(p) {
             Some(Context {
                 location: loc.to_owned(),
@@ -25,15 +30,14 @@ impl<'a> Report<'a> {
                 titles: &self.titles,
                 ss: &self.ss,
                 sha256,
-                path: p
+                path: p,
             })
-        }
-        else {
+        } else {
             None
         }
     }
 }
 
-pub fn analyze<'a>(_: &Parsed<'a>) -> Report<'a> {
+pub fn analyze(_: &Parsed) -> Report {
     unimplemented!()
 }

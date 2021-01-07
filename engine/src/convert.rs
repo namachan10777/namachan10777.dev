@@ -1,32 +1,26 @@
 use super::xml::{XMLElem, XML};
-use super::{Cmd, Location, TextElem, TextElemAst, Value, ValueAst};
+use super::{Cmd, Error, Location, TextElem, TextElemAst, Value, ValueAst};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
 
-#[derive(Debug)]
-pub enum Error<'a> {
-    SyntaxError(Location<'a>, String),
-    ProcessError(Location<'a>, String),
-}
-
-type EResult<'a, T> = Result<T, Error<'a>>;
+type EResult<T> = Result<T, Error>;
 
 #[derive(Clone)]
 pub struct Context<'a> {
-    pub location: Location<'a>,
+    pub location: Location,
     pub level: usize,
-    pub prev: &'a Option<(PathBuf, Vec<TextElemAst<'a>>)>,
-    pub next: &'a Option<(PathBuf, Vec<TextElemAst<'a>>)>,
-    pub titles: &'a HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst<'a>>)>>,
+    pub prev: &'a Option<(PathBuf, Vec<TextElemAst>)>,
+    pub next: &'a Option<(PathBuf, Vec<TextElemAst>)>,
+    pub titles: &'a HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub ss: &'a SyntaxSet,
     pub sha256: &'a str,
     pub path: &'a std::path::Path,
 }
 
 impl<'a> Context<'a> {
-    fn fork_with_loc(&self, loc: Location<'a>) -> Self {
+    fn fork_with_loc(&self, loc: Location) -> Context<'a> {
         Self {
             location: loc,
             ..self.clone()
@@ -34,11 +28,11 @@ impl<'a> Context<'a> {
     }
 }
 
-pub fn root<'a>(ctx: Context<'a>, cmd: Cmd<'a>) -> EResult<'a, XML> {
+pub fn root(ctx: Context, cmd: Cmd) -> EResult<XML> {
     Ok(XML::new("1.0", "UTF-8", "html", process_cmd(ctx, cmd)?))
 }
 
-fn process_text_elem<'a>(ctx: Context<'a>, elem: TextElem<'a>) -> EResult<'a, XMLElem> {
+fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
     match elem {
         TextElem::Plain(s) => Ok(xml!(s)),
         TextElem::Cmd(cmd) => process_cmd(ctx, cmd),
@@ -46,20 +40,32 @@ fn process_text_elem<'a>(ctx: Context<'a>, elem: TextElem<'a>) -> EResult<'a, XM
     }
 }
 
+fn normalize_value_type_name(name: &str) -> String {
+    match name {
+        "Str" => "string".to_owned(),
+        "Int" => "int".to_owned(),
+        "Float" => "float".to_owned(),
+        "Text" => "text".to_owned(),
+        _ => unreachable!(),
+    }
+}
+
 macro_rules! get {
     ( $loc:expr, $hash:expr, $key:expr, $tp:ident ) => {
         $hash
             .get($key)
-            .ok_or(Error::ProcessError(
-                $loc.to_owned(),
-                format!("missing attribute {} in \\index", $key),
-            ))
+            .ok_or(Error::MissingAttribute {
+                loc: $loc.to_owned(),
+                name: String::from($key),
+            })
             .and_then(|v| match v {
                 (Value::$tp(v), _) => Ok(v.clone()),
-                (_, loc) => Err(Error::ProcessError(
-                    loc.to_owned(),
-                    format!("wrong attribute type at {}", $key),
-                )),
+                (val, loc) => Err(Error::InvalidAttributeType {
+                    loc: loc.to_owned(),
+                    expected: normalize_value_type_name(stringify!($tp)),
+                    found: val.type_name(),
+                    name: String::from($key),
+                }),
             })
     };
 }
@@ -69,10 +75,12 @@ macro_rules! verify {
         if let Some(v) = $hash.get($key) {
             match v {
                 (Value::$tp(v), _) => Ok(Some(v.clone())),
-                (_, loc) => Err(Error::ProcessError(
-                    loc.to_owned(),
-                    format!("wrong attribute type at {}", $key),
-                )),
+                (val, loc) => Err(Error::InvalidAttributeType {
+                    loc: loc.to_owned(),
+                    expected: normalize_value_type_name(stringify!($tp)),
+                    found: val.type_name(),
+                    name: String::from($key),
+                }),
             }
         } else {
             Ok(None)
@@ -152,22 +160,22 @@ fn header_common(ctx: Context) -> Vec<XMLElem> {
     ]
 }
 
-fn execute_index<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_index(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let title = get!(ctx.location, attrs, "title", Text)?;
     let title = title
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?;
+        .collect::<EResult<Vec<_>>>()?;
     let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
     body.append(
         &mut inner
             .into_iter()
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-            .collect::<EResult<'a, Vec<_>>>()?,
+            .collect::<EResult<Vec<_>>>()?,
     );
     let mut header = header_common(ctx);
     let title_str = title
@@ -190,17 +198,17 @@ fn execute_index<'a>(
     )
 }
 
-fn execute_article<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_article(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let hashed_short = &ctx.sha256[..7];
     let title = get!(ctx.location, attrs, "title", Text)?;
     let title = title
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?;
+        .collect::<EResult<Vec<_>>>()?;
     let index_path = resolve("index.html", ctx.path);
     let mut body = vec![xml!(header [] [
         xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
@@ -214,7 +222,7 @@ fn execute_article<'a>(
             [href=href_path.to_str().unwrap(), class="prev-article"]
             prev_title
                 .iter()
-                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<'a, Vec<_>>>()?
+                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
     if let Some((next_path, next_title)) = ctx.next {
@@ -223,14 +231,14 @@ fn execute_article<'a>(
             [href=href_path.to_str().unwrap(), class="next-article"]
             next_title
                 .iter()
-                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<'a, Vec<_>>>()?
+                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
     let mut header = header_common(ctx.clone());
     let mut body_xml = inner
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?;
+        .collect::<EResult<Vec<_>>>()?;
     let title_str = title
         .iter()
         .map(|xml| xml.extract_string())
@@ -270,18 +278,18 @@ fn execute_article<'a>(
     )
 }
 
-fn execute_section<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_section(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let title = get!(ctx.location, attrs, "title", Text)?;
     let mut header = vec![xml!(header [] [
         XMLElem::WithElem(format!("h{}", ctx.level), vec![],
             title
             .into_iter()
             .map(|(e, loc)| process_text_elem(Context {location: loc, level: ctx.level+1, ..ctx.clone()}, e))
-            .collect::<EResult<'a, Vec<_>>>()?
+            .collect::<EResult<Vec<_>>>()?
         )
     ])];
     let ctx_child = Context {
@@ -291,45 +299,41 @@ fn execute_section<'a>(
     let mut body = inner
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx_child.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?;
+        .collect::<EResult<Vec<_>>>()?;
     header.append(&mut body);
     Ok(xml!(section [] header))
 }
 
-fn execute_img<'a>(ctx: Context<'a>, attrs: HashMap<String, ValueAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let url = get!(ctx.location, attrs, "url", Str)?;
     let alt = get!(ctx.location, attrs, "alt", Str)?;
-    if let Some((Value::Str(classes), _)) = attrs.get("class") {
+    let classes = verify!(attrs, "class", Str)?;
+    if let Some(classes) = classes {
         Ok(xml!(img [src=url, class=classes, alt=alt]))
-    } else if let Some(v) = attrs.get("class") {
-        Err(Error::ProcessError(
-            ctx.location,
-            format!("invalid element {:?} for property of \"class\"", v),
-        ))
     } else {
         Ok(xml!(img [src=url, alt=alt]))
     }
 }
 
-fn execute_p<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_p(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(
-        xml!(p [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<'a, Vec<_>>>()?),
+        xml!(p [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<Vec<_>>>()?),
     )
 }
 
-fn execute_line<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_line(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(
-        xml!(span [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<'a, Vec<_>>>()?),
+        xml!(span [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<Vec<_>>>()?),
     )
 }
 
-fn execute_address<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_address(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(
-        xml!(address [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<'a, Vec<_>>>()?),
+        xml!(address [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<Vec<_>>>()?),
     )
 }
 
-fn execute_ul<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_ul(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     let inner = inner
         .into_iter()
         .map(|(e, loc)| match e {
@@ -339,41 +343,35 @@ fn execute_ul<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, 
                         .inner
                         .into_iter()
                         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-                        .collect::<EResult<'a, Vec<_>>>()?;
+                        .collect::<EResult<Vec<_>>>()?;
                     Ok(xml!(li [] inner))
                 }
                 _ => Ok(xml!(li [] [process_cmd(ctx.fork_with_loc(loc), cmd)?])),
             },
-            _ => Err(Error::ProcessError(
-                loc,
-                "ul cannot process plain text".to_owned(),
-            )),
+            _ => unreachable!(),
         })
-        .collect::<EResult<'a, Vec<_>>>()?;
+        .collect::<EResult<Vec<_>>>()?;
     Ok(xml!(ul [] inner))
 }
 
-fn execute_link<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_link(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let url = get!(ctx.location, attrs, "url", Str)?;
     Ok(xml!(a [href=url] inner.into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?))
+        .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_n<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_n(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(xml!(div [] inner.into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()?))
+        .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_articles<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_articles(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let dir = get!(ctx.location, attrs, "dir", Str)?;
     let parent = Path::new(&dir);
     Ok(xml!(ul [] ctx
@@ -386,24 +384,21 @@ fn execute_articles<'a>(
                 let href_path = resolve_link(Path::new(path), ctx.path);
                 Ok(xml!(li [] [xml!(a
                     [href=href_path.to_str().unwrap()]
-                    title.iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<'a, Vec<_>>>()?
+                    title.iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
                 )]))
             })
-            .collect::<EResult<'a, Vec<_>>>())
+            .collect::<EResult<Vec<_>>>())
         .unwrap_or_else(|| Ok(Vec::new()))?
     ))
 }
 
-fn execute_code<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_code(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(xml!(code [] inner.into_iter()
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-            .collect::<EResult<'a, Vec<_>>>()?))
+            .collect::<EResult<Vec<_>>>()?))
 }
 
-fn execute_blockcode<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let src = get!(ctx.location, attrs, "src", Str)?;
     let lang = get!(ctx.location, attrs, "lang", Str)?;
     let lines = src.split('\n').collect::<Vec<_>>();
@@ -438,10 +433,7 @@ fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
     Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
 
-fn execute_iframe<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let attrs = [
         (
             "width",
@@ -469,11 +461,11 @@ fn execute_iframe<'a>(
     Ok(XMLElem::Single("iframe".to_owned(), attrs))
 }
 
-fn execute_figure<'a>(
-    ctx: Context<'a>,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
-) -> EResult<'a, XMLElem> {
+fn execute_figure(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let caption = get!(ctx.location, attrs, "caption", Text)?;
     let id = verify!(attrs, "id", Str)?;
     let figures = inner
@@ -483,19 +475,19 @@ fn execute_figure<'a>(
                 if cmd.name.as_str() == "img" {
                     execute_img(ctx.fork_with_loc(loc.to_owned()), cmd.attrs.clone())
                 } else {
-                    Err(Error::ProcessError(
-                        ctx.location.clone(),
-                        "\\figure can only have \\img as child element.".to_owned(),
-                    ))
+                    Err(Error::ProcessError {
+                        loc: ctx.location.clone(),
+                        desc: "\\figure can only have \\img as child element.".to_owned(),
+                    })
                 }
             } else {
-                Err(Error::ProcessError(
-                    ctx.location.clone(),
-                    "\\figure can only have \\img as child element.".to_owned(),
-                ))
+                Err(Error::ProcessError {
+                    loc: ctx.location.clone(),
+                    desc: "\\figure can only have \\img as child element.".to_owned(),
+                })
             }
         })
-        .collect::<EResult<'a, Vec<XMLElem>>>()?;
+        .collect::<EResult<Vec<XMLElem>>>()?;
     let inner = vec![
         xml!(div [class="images"] figures),
         xml!(figurecaption [] process_text(ctx, caption)?),
@@ -507,17 +499,14 @@ fn execute_figure<'a>(
     }
 }
 
-fn process_text<'a>(
-    ctx: Context<'a>,
-    textelems: Vec<TextElemAst<'a>>,
-) -> EResult<'a, Vec<XMLElem>> {
+fn process_text(ctx: Context, textelems: Vec<TextElemAst>) -> EResult<Vec<XMLElem>> {
     textelems
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<'a, Vec<_>>>()
+        .collect::<EResult<Vec<_>>>()
 }
 
-fn process_cmd<'a>(ctx: Context<'a>, cmd: Cmd<'a>) -> EResult<'a, XMLElem> {
+fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
         "article" => execute_article(ctx, cmd.attrs, cmd.inner),
@@ -534,9 +523,9 @@ fn process_cmd<'a>(ctx: Context<'a>, cmd: Cmd<'a>) -> EResult<'a, XMLElem> {
         "blockcode" => execute_blockcode(ctx, cmd.attrs),
         "iframe" => execute_iframe(ctx, cmd.attrs),
         "figure" => execute_figure(ctx, cmd.attrs, cmd.inner),
-        _ => Err(Error::ProcessError(
-            ctx.location,
-            format!("invalid root cmd {}", cmd.name),
-        )),
+        _ => Err(Error::NoSuchCmd {
+            loc: ctx.location,
+            name: cmd.name.to_owned(),
+        }),
     }
 }

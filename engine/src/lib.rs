@@ -2,6 +2,7 @@
 extern crate pest_derive;
 extern crate sha2;
 extern crate syntect;
+extern crate zip;
 
 #[macro_use]
 pub mod xml;
@@ -11,12 +12,17 @@ pub mod parser;
 
 use std::cmp;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fmt;
+use std::fs;
+use std::io;
+use std::io::{Seek, Write};
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(Debug, PartialEq, Clone, Eq)]
-pub struct Position<'a> {
-    fname: &'a str,
+pub struct Position {
+    fname: String,
     // 1-indexed
     line: usize,
     // 1-indexed
@@ -24,27 +30,53 @@ pub struct Position<'a> {
 }
 
 #[derive(Debug)]
-pub enum Error<'a> {
-    SyntaxError(Location<'a>),
+pub enum Error {
+    SyntaxError(Location),
     MissingAttribute {
         name: String,
-        loc: Location<'a>,
+        loc: Location,
     },
     InvalidAttributeType {
         name: String,
         expected: String,
         found: String,
-        loc: Location<'a>,
+        loc: Location,
+    },
+    NoSuchCmd {
+        name: String,
+        loc: Location,
+    },
+    ProcessError {
+        loc: Location,
+        desc: String,
+    },
+    FsError {
+        path: PathBuf,
+        desc: String,
+        because: io::Error,
+    },
+    CannotInterpretPathAsUTF8(PathBuf),
+    ZipError {
+        desc: String,
+        because: zip::result::ZipError,
+    },
+    ZipIOError {
+        desc: String,
+        because: io::Error,
     },
 }
 
-impl<'a> Position<'a> {
-    pub fn new(fname: &'a str, line: usize, col: usize) -> Position<'a> {
-        Self { fname, line, col }
+impl Position {
+    pub fn new(fname: &str, line: usize, col: usize) -> Position {
+        Self {
+            fname: fname.to_owned(),
+            line,
+            col,
+        }
     }
 }
 
-impl<'a> PartialOrd for Position<'a> {
+impl PartialOrd for Position {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         if self.fname != other.fname {
             self.fname.partial_cmp(&other.fname)
@@ -56,7 +88,7 @@ impl<'a> PartialOrd for Position<'a> {
     }
 }
 
-impl<'a> Ord for Position<'a> {
+impl Ord for Position {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         if self.fname != other.fname {
             self.fname.cmp(&other.fname)
@@ -69,13 +101,13 @@ impl<'a> Ord for Position<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Location<'a> {
-    Span(Position<'a>, Position<'a>),
-    At(Position<'a>),
+pub enum Location {
+    Span(Position, Position),
+    At(Position),
     Generated,
 }
 
-impl<'a> Location<'a> {
+impl Location {
     pub fn merge(&self, other: &Self) -> Self {
         match (self, other) {
             (Location::Span(a1, a2), Location::Span(b1, b2)) => {
@@ -96,7 +128,7 @@ impl<'a> Location<'a> {
     }
 }
 
-impl<'a> fmt::Display for Location<'a> {
+impl fmt::Display for Location {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             Location::Generated => write!(f, "nowhere:nowhere:nowhere"),
@@ -140,15 +172,15 @@ mod test_loc {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum Value<'a> {
+pub enum Value {
     Int(i64),
     Float(f64),
     Str(String),
-    Text(Vec<TextElemAst<'a>>),
+    Text(Vec<TextElemAst>),
 }
 
-impl<'a> Value<'a> {
-    pub fn label(&self) -> String {
+impl Value {
+    pub fn type_name(&self) -> String {
         match self {
             Value::Int(_) => "int".to_owned(),
             Value::Float(_) => "float".to_owned(),
@@ -158,28 +190,111 @@ impl<'a> Value<'a> {
     }
 }
 
-type ValueAst<'a> = (Value<'a>, Location<'a>);
+type ValueAst = (Value, Location);
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct Cmd<'a> {
+pub struct Cmd {
     name: String,
-    attrs: HashMap<String, ValueAst<'a>>,
-    inner: Vec<TextElemAst<'a>>,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum TextElem<'a> {
-    Cmd(Cmd<'a>),
+pub enum TextElem {
+    Cmd(Cmd),
     Plain(String),
     Str(String),
 }
 
-type TextElemAst<'a> = (TextElem<'a>, Location<'a>);
+type TextElemAst = (TextElem, Location);
 
 #[derive(Debug)]
-pub enum File<'a> {
-    Tml((Cmd<'a>, Location<'a>), Vec<u8>),
+pub enum File {
+    Tml((Cmd, Location), Vec<u8>),
     Blob(Vec<u8>),
 }
 
-pub type Parsed<'a> = HashMap<PathBuf, File<'a>>;
+pub type Parsed = HashMap<PathBuf, File>;
+
+fn enumerate_all_file_paths<P>(dir_path: P) -> Vec<PathBuf>
+where
+    P: AsRef<Path>,
+{
+    let mut paths = Vec::new();
+    for child in fs::read_dir(dir_path).unwrap() {
+        if let Ok(child) = child {
+            if let Ok(metadata) = child.metadata() {
+                if metadata.is_dir() {
+                    paths.append(&mut enumerate_all_file_paths(&child.path()));
+                } else {
+                    paths.push(child.path().to_owned());
+                }
+            }
+        }
+    }
+    paths
+}
+
+pub fn compile_and_write<W: Write + Seek, P>(writer: &mut W, dir_path: P) -> Result<(), Error>
+where
+    P: AsRef<Path>,
+{
+    let mut files = HashMap::new();
+    let source_paths: Vec<PathBuf> = enumerate_all_file_paths(dir_path);
+    for p in &source_paths {
+        println!("{:?}", p);
+        if p.extension() == Some(OsStr::new(".tml")) && p.is_dir() {
+            let source = fs::read_to_string(p).map_err(|e| Error::FsError {
+                path: p.to_owned(),
+                desc: "Cannot read tml file".to_owned(),
+                because: e,
+            })?;
+            let fname = p
+                .as_os_str()
+                .to_str()
+                .ok_or(Error::CannotInterpretPathAsUTF8(p.to_owned()))?;
+            let ast = parser::parse(fname, &source)?;
+            files.insert(p.to_owned(), File::Tml(ast, source.into_bytes()));
+        } else {
+            let binary = fs::read(p).map_err(|e| Error::FsError {
+                path: p.to_owned(),
+                desc: "Cannot read blob file".to_owned(),
+                because: e,
+            })?;
+            files.insert(p.to_owned(), File::Blob(binary));
+        }
+    }
+    let report = analysis::analyze(&files);
+    let out = files
+        .into_iter()
+        .map(|(p, file)| match file {
+            File::Blob(binary) => Ok((p, binary)),
+            File::Tml(cmd, _) => {
+                let xml = convert::root(report.get_context(&p).unwrap(), cmd.0)?;
+                Ok((p, xml.to_string().into_bytes()))
+            }
+        })
+        .collect::<Result<HashMap<_, _>, Error>>()?;
+    let dist_writer = io::BufWriter::new(writer);
+    let mut dist_zip = zip::ZipWriter::new(dist_writer);
+    let options = zip::write::FileOptions::default()
+        .compression_method(zip::CompressionMethod::Bzip2)
+        .unix_permissions(0o444);
+    for (p, bin) in out {
+        dist_zip
+            .start_file_from_path(&p, options)
+            .map_err(|e| Error::ZipError {
+                desc: "Failed to create file in zip archive".to_owned(),
+                because: e,
+            })?;
+        dist_zip.write_all(&bin).map_err(|e| Error::ZipIOError {
+            desc: "Failed to write to zip archive".to_owned(),
+            because: e,
+        })?;
+    }
+    dist_zip.finish().map_err(|e| Error::ZipError {
+        desc: "Failed to flush zip file".to_owned(),
+        because: e,
+    })?;
+    Ok(())
+}

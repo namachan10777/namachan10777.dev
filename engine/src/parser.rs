@@ -17,7 +17,7 @@ fn pest_loc_to_engine_loc(fname: &str, loc: LineColLocation) -> Location {
     }
 }
 
-fn get_location<'a>(fname: &'a str, pair: &Pair<Rule>) -> Location<'a> {
+fn get_location(fname: &str, pair: &Pair<Rule>) -> Location {
     let span = pair.as_span();
     let s = span.start_pos();
     let (s_line, s_col) = s.line_col();
@@ -29,7 +29,7 @@ fn get_location<'a>(fname: &'a str, pair: &Pair<Rule>) -> Location<'a> {
     )
 }
 
-fn parse_cmd<'a>(fname: &'a str, pair: Pair<Rule>) -> Cmd<'a> {
+fn parse_cmd(fname: &str, pair: Pair<Rule>) -> Cmd {
     match pair.as_rule() {
         Rule::cmd => {
             let mut inner = pair.into_inner();
@@ -64,7 +64,7 @@ fn parse_cmd<'a>(fname: &'a str, pair: Pair<Rule>) -> Cmd<'a> {
     }
 }
 
-fn parse_text_elem<'a>(fname: &'a str, pair: Pair<Rule>) -> (TextElem<'a>, Location<'a>) {
+fn parse_text_elem(fname: &str, pair: Pair<Rule>) -> (TextElem, Location) {
     let loc = get_location(fname, &pair);
     (
         match pair.as_rule() {
@@ -79,7 +79,7 @@ fn parse_text_elem<'a>(fname: &'a str, pair: Pair<Rule>) -> (TextElem<'a>, Locat
     )
 }
 
-fn fold_textelem<'a>(fname: &'a str, pairs: Pairs<Rule>) -> Vec<(TextElem<'a>, Location<'a>)> {
+fn fold_textelem(fname: &str, pairs: Pairs<Rule>) -> Vec<(TextElem, Location)> {
     let mut text_loc = Location::Generated;
     let mut inner = Vec::new();
     let mut text = String::new();
@@ -113,7 +113,7 @@ fn fold_textelem<'a>(fname: &'a str, pairs: Pairs<Rule>) -> Vec<(TextElem<'a>, L
     inner
 }
 
-fn parse_value<'a>(fname: &'a str, pair: Pair<Rule>) -> Value<'a> {
+fn parse_value(fname: &str, pair: Pair<Rule>) -> Value {
     match pair.as_rule() {
         Rule::int => Value::Int(pair.as_str().parse().unwrap()),
         Rule::float => Value::Float(pair.as_str().parse().unwrap()),
@@ -345,7 +345,7 @@ mod test {
     }
 }
 
-pub fn parse<'a>(fname: &'a str, s: &str) -> Result<(Cmd<'a>, Location<'a>), Error<'a>> {
+pub fn parse(fname: &str, s: &str) -> Result<(Cmd, Location), Error> {
     let pair = TextParser::parse(Rule::main, s)
         .map_err(|e| Error::SyntaxError(pest_loc_to_engine_loc(fname, e.line_col)))?
         .next()
