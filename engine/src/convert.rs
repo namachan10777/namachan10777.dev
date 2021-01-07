@@ -1,10 +1,10 @@
+use super::xml::{XMLElem, XML};
+use super::{Cmd, Location, TextElem, TextElemAst, Value, ValueAst};
 use sha2::Digest;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
-use super::xml::{XMLElem, XML};
-use super::{TextElemAst, ValueAst, Value, TextElem, Cmd, Location};
 
 #[derive(Debug)]
 pub enum Error<'a> {
@@ -13,7 +13,6 @@ pub enum Error<'a> {
 }
 
 type EResult<'a, T> = Result<T, Error<'a>>;
-
 
 type ArticleList<'a> = Vec<(PathBuf, Vec<TextElemAst<'a>>, chrono::NaiveDate)>;
 #[derive(Clone)]
@@ -139,7 +138,7 @@ mod test {
     }
 }
 
-fn header_common<'a>(ctx: Context<'a>) -> Vec<XMLElem> {
+fn header_common(ctx: Context) -> Vec<XMLElem> {
     let url = "https://namachan10777.dev/".to_owned() + ctx.path.to_str().unwrap();
     vec![
         xml!(link [href=resolve("index.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
@@ -377,7 +376,10 @@ fn execute_n<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a, X
         .collect::<EResult<'a, Vec<_>>>()?))
 }
 
-fn execute_articles<'a>(ctx: Context<'a>, attrs: HashMap<String, ValueAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_articles<'a>(
+    ctx: Context<'a>,
+    attrs: HashMap<String, ValueAst<'a>>,
+) -> EResult<'a, XMLElem> {
     let dir = get!(ctx.location, attrs, "dir", Str)?;
     let parent = Path::new(&dir);
     Ok(xml!(ul [] ctx
@@ -404,7 +406,10 @@ fn execute_code<'a>(ctx: Context<'a>, inner: Vec<TextElemAst<'a>>) -> EResult<'a
             .collect::<EResult<'a, Vec<_>>>()?))
 }
 
-fn execute_blockcode<'a>(ctx: Context<'a>, attrs: HashMap<String, ValueAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_blockcode<'a>(
+    ctx: Context<'a>,
+    attrs: HashMap<String, ValueAst<'a>>,
+) -> EResult<'a, XMLElem> {
     let src = get!(ctx.location, attrs, "src", Str)?;
     let lang = get!(ctx.location, attrs, "lang", Str)?;
     let lines = src.split('\n').collect::<Vec<_>>();
@@ -435,11 +440,14 @@ fn execute_blockcode<'a>(ctx: Context<'a>, attrs: HashMap<String, ValueAst<'a>>)
     }
 }
 extern crate hex;
-fn process_inlinestr<'a>(_: Context<'a>, s: String) -> EResult<'a, XMLElem> {
+fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
     Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
 
-fn execute_iframe<'a>(ctx: Context<'a>, attrs: HashMap<String, ValueAst<'a>>) -> EResult<'a, XMLElem> {
+fn execute_iframe<'a>(
+    ctx: Context<'a>,
+    attrs: HashMap<String, ValueAst<'a>>,
+) -> EResult<'a, XMLElem> {
     let attrs = [
         (
             "width",
@@ -505,7 +513,10 @@ fn execute_figure<'a>(
     }
 }
 
-fn process_text<'a>(ctx: Context<'a>, textelems: Vec<TextElemAst<'a>>) -> EResult<'a, Vec<XMLElem>> {
+fn process_text<'a>(
+    ctx: Context<'a>,
+    textelems: Vec<TextElemAst<'a>>,
+) -> EResult<'a, Vec<XMLElem>> {
     textelems
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))

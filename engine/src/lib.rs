@@ -5,12 +5,12 @@ extern crate syntect;
 
 #[macro_use]
 pub mod xml;
-pub mod parser;
 pub mod convert;
+pub mod parser;
 
+use std::cmp;
 use std::collections::HashMap;
 use std::fmt;
-use std::cmp;
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Position<'a> {

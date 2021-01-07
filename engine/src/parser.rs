@@ -13,13 +13,12 @@ pub enum Error<'a> {
     SyntaxError(Location<'a>),
 }
 
-fn pest_loc_to_engine_loc<'a>(fname: &'a str, loc: LineColLocation) -> Location<'a> {
+fn pest_loc_to_engine_loc(fname: &str, loc: LineColLocation) -> Location {
     match loc {
         LineColLocation::Pos((l, c)) => Location::At(Position::new(fname, l, c)),
-        LineColLocation::Span((l1, c1), (l2, c2)) => Location::Span(
-            Position::new(fname, l1, c1),
-            Position::new(fname, l2, c2),
-        ),
+        LineColLocation::Span((l1, c1), (l2, c2)) => {
+            Location::Span(Position::new(fname, l1, c1), Position::new(fname, l2, c2))
+        }
     }
 }
 
@@ -301,10 +300,7 @@ mod test {
             parse!("a.tml", Rule::text, "{\\}\\\\}", parse_value),
             Ok(Some(Value::Text(vec![(
                 TextElem::Plain(String::from("}\\")),
-                Location::Span(
-                    Position::new("a.tml", 1, 2),
-                    Position::new("a.tml", 1, 6)
-                )
+                Location::Span(Position::new("a.tml", 1, 2), Position::new("a.tml", 1, 6))
             )]),)),
         );
         assert_eq!(
@@ -340,10 +336,7 @@ mod test {
                         ),
                     ]
                 }),
-                Location::Span(
-                    Position::new("a.tml", 1, 2),
-                    Position::new("a.tml", 1, 22)
-                )
+                Location::Span(Position::new("a.tml", 1, 2), Position::new("a.tml", 1, 22))
             )]),)),
         );
     }
