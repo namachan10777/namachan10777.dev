@@ -5,6 +5,46 @@ use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
 
+#[macro_export]
+macro_rules! get {
+    ( $loc:expr, $hash:expr, $key:expr, $tp:ident ) => {
+        $hash
+            .get($key)
+            .ok_or(Error::MissingAttribute {
+                loc: $loc.to_owned(),
+                name: String::from($key),
+            })
+            .and_then(|v| match v {
+                (Value::$tp(v), _) => Ok(v.clone()),
+                (val, loc) => Err(Error::InvalidAttributeType {
+                    loc: loc.to_owned(),
+                    expected: normalize_value_type_name(stringify!($tp)),
+                    found: val.type_name(),
+                    name: String::from($key),
+                }),
+            })
+    };
+}
+
+#[macro_export]
+macro_rules! verify {
+    ( $hash:expr, $key:expr, $tp:ident ) => {
+        if let Some(v) = $hash.get($key) {
+            match v {
+                (Value::$tp(v), _) => Ok(Some(v.clone())),
+                (val, loc) => Err(Error::InvalidAttributeType {
+                    loc: loc.to_owned(),
+                    expected: normalize_value_type_name(stringify!($tp)),
+                    found: val.type_name(),
+                    name: String::from($key),
+                }),
+            }
+        } else {
+            Ok(None)
+        }
+    };
+}
+
 type EResult<T> = Result<T, Error>;
 
 #[derive(Clone)]
@@ -40,7 +80,7 @@ fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
     }
 }
 
-fn normalize_value_type_name(name: &str) -> String {
+pub fn normalize_value_type_name(name: &str) -> String {
     match name {
         "Str" => "string".to_owned(),
         "Int" => "int".to_owned(),
@@ -48,44 +88,6 @@ fn normalize_value_type_name(name: &str) -> String {
         "Text" => "text".to_owned(),
         _ => unreachable!(),
     }
-}
-
-macro_rules! get {
-    ( $loc:expr, $hash:expr, $key:expr, $tp:ident ) => {
-        $hash
-            .get($key)
-            .ok_or(Error::MissingAttribute {
-                loc: $loc.to_owned(),
-                name: String::from($key),
-            })
-            .and_then(|v| match v {
-                (Value::$tp(v), _) => Ok(v.clone()),
-                (val, loc) => Err(Error::InvalidAttributeType {
-                    loc: loc.to_owned(),
-                    expected: normalize_value_type_name(stringify!($tp)),
-                    found: val.type_name(),
-                    name: String::from($key),
-                }),
-            })
-    };
-}
-
-macro_rules! verify {
-    ( $hash:expr, $key:expr, $tp:ident ) => {
-        if let Some(v) = $hash.get($key) {
-            match v {
-                (Value::$tp(v), _) => Ok(Some(v.clone())),
-                (val, loc) => Err(Error::InvalidAttributeType {
-                    loc: loc.to_owned(),
-                    expected: normalize_value_type_name(stringify!($tp)),
-                    found: val.type_name(),
-                    name: String::from($key),
-                }),
-            }
-        } else {
-            Ok(None)
-        }
-    };
 }
 
 fn resolve_link(target: &std::path::Path, from: &std::path::Path) -> std::path::PathBuf {

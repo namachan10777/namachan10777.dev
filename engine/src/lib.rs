@@ -210,7 +210,7 @@ type TextElemAst = (TextElem, Location);
 
 #[derive(Debug)]
 pub enum File {
-    Tml((Cmd, Location), Vec<u8>),
+    Tml((Cmd, Location), String),
     Blob(Vec<u8>),
 }
 
@@ -254,7 +254,7 @@ where
                 .to_str()
                 .ok_or(Error::CannotInterpretPathAsUTF8(p.to_owned()))?;
             let ast = parser::parse(fname, &source)?;
-            files.insert(p.to_owned(), File::Tml(ast, source.into_bytes()));
+            files.insert(p.to_owned(), File::Tml(ast, source));
         } else {
             let binary = fs::read(p).map_err(|e| Error::FsError {
                 path: p.to_owned(),
@@ -264,13 +264,13 @@ where
             files.insert(p.to_owned(), File::Blob(binary));
         }
     }
-    let report = analysis::analyze(&files);
+    let report = analysis::analyze(&files)?;
     let out = files
         .into_iter()
         .map(|(p, file)| match file {
             File::Blob(binary) => Ok((p, binary)),
             File::Tml(cmd, _) => {
-                let xml = convert::root(report.get_context(&p).unwrap(), cmd.0)?;
+                let xml = convert::root(report.get_context(&p).unwrap(), cmd.0).unwrap();
                 Ok((p, xml.to_string().into_bytes()))
             }
         })

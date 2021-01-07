@@ -1,5 +1,8 @@
-use super::convert::Context;
-use super::{Location, Parsed, TextElemAst};
+use super::convert::{normalize_value_type_name, Context};
+use super::{get, Error, Value};
+use super::{Cmd, Location, Parsed, TextElemAst};
+use chrono::{DateTime, FixedOffset};
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::parsing::SyntaxSet;
@@ -14,14 +17,14 @@ type ArticleInfo = (
 );
 
 pub struct Report {
-    hash: HashMap<PathBuf, ArticleInfo>,
+    per_article: HashMap<PathBuf, ArticleInfo>,
     titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
     ss: SyntaxSet,
 }
 
 impl Report {
     pub fn get_context<'a>(&'a self, p: &'a Path) -> Option<Context<'a>> {
-        if let Some((loc, prev, next, sha256)) = &self.hash.get(p) {
+        if let Some((loc, prev, next, sha256)) = &self.per_article.get(p) {
             Some(Context {
                 location: loc.to_owned(),
                 level: 1,
@@ -38,6 +41,108 @@ impl Report {
     }
 }
 
-pub fn analyze(_: &Parsed) -> Report {
-    unimplemented!()
+fn extract_title(cmd: &(Cmd, Location)) -> Result<Vec<TextElemAst>, Error> {
+    let (cmd, loc) = cmd;
+    get!(loc, cmd.attrs, "title", Text)
+}
+
+fn extract_date(cmd: &(Cmd, Location)) -> Result<DateTime<FixedOffset>, Error> {
+    if let Some((data_val, loc)) = cmd.0.attrs.get("date") {
+        if let Value::Str(date_str) = data_val {
+            DateTime::parse_from_rfc3339(date_str).map_err(|_| Error::ProcessError {
+                loc: loc.to_owned(),
+                desc: "invalid date format".to_owned(),
+            })
+        } else {
+            Err(Error::InvalidAttributeType {
+                name: "date".to_owned(),
+                loc: loc.to_owned(),
+                expected: "string".to_owned(),
+                found: data_val.type_name(),
+            })
+        }
+    } else {
+        Err(Error::MissingAttribute {
+            name: "date".to_owned(),
+            loc: cmd.1.to_owned(),
+        })
+    }
+}
+
+type Titles = HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>;
+
+fn calc_sorted_titles(parsed: &Parsed) -> Result<Titles, Error> {
+    let mut ret = HashMap::new();
+    for (p, f) in parsed {
+        if let super::File::Tml(cmd, _) = f {
+            let title = extract_title(cmd)?;
+            let date = extract_date(cmd)?;
+            ret.entry(p.parent().unwrap())
+                .or_insert_with(Vec::new)
+                .push((p.to_owned(), date, title));
+        }
+    }
+    Ok(ret
+        .into_iter()
+        .map(|(p, mut titles)| {
+            titles.sort_by(|(_, a, _), (_, b, _)| a.cmp(&b));
+            (
+                p.to_owned(),
+                titles.into_iter().map(|(p, _, title)| (p, title)).collect(),
+            )
+        })
+        .collect())
+}
+
+type Prevs = HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>;
+type Nexts = HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>;
+
+fn prevs_and_nexts(parsed: &Parsed) -> Result<(Prevs, Nexts, Titles), Error> {
+    let mut prevs = HashMap::new();
+    let mut nexts = HashMap::new();
+    let titles = calc_sorted_titles(parsed)?;
+    for titles in titles.values() {
+        let mut prev: Option<(&Path, &Vec<TextElemAst>)> = None;
+        for (path, title) in titles {
+            if let Some((prev_path, prev_title)) = prev {
+                prevs.insert(prev_path.to_owned(), (path.to_owned(), title.clone()));
+                nexts.insert(
+                    path.to_owned(),
+                    (prev_path.to_owned(), prev_title.to_owned()),
+                );
+            }
+            prev = Some((path, title));
+        }
+    }
+    Ok((prevs, nexts, titles))
+}
+
+fn calc_sha256(path: &Path, src: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(src);
+    hasher.update(path.as_os_str().to_string_lossy().as_bytes());
+    hex::encode(hasher.finalize().as_slice())
+}
+
+pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
+    let (prevs, nexts, titles) = prevs_and_nexts(parsed)?;
+    let mut per_article = HashMap::new();
+    for (path, file) in parsed {
+        if let super::File::Tml(cmd, src) = file {
+            per_article.insert(
+                path.to_owned(),
+                (
+                    cmd.1.to_owned(),
+                    prevs.get(path).cloned(),
+                    nexts.get(path).cloned(),
+                    calc_sha256(path, src),
+                ),
+            );
+        }
+    }
+    Ok(Report {
+        per_article,
+        ss: SyntaxSet::load_defaults_nonewlines(),
+        titles,
+    })
 }
