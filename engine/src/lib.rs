@@ -811,7 +811,10 @@ where
         }
     }
     let report = analysis::analyze(&files)?;
-    let out = files
+    let generated_files = convert::generate_category_pages(&report)?
+        .into_iter()
+        .map(|(p, xml)| (p, xml.to_string().into_bytes()));
+    let mut out = files
         .into_iter()
         .map(|(p, file)| match file {
             File::Blob(binary) => Ok((p, binary)),
@@ -821,6 +824,7 @@ where
             }
         })
         .collect::<Result<HashMap<_, _>, Error>>()?;
+    out.extend(generated_files);
     let dist_writer = io::BufWriter::new(writer);
     let mut dist_zip = zip::ZipWriter::new(dist_writer);
     let options = zip::write::FileOptions::default()

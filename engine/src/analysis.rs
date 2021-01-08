@@ -19,8 +19,8 @@ type ArticleInfo = (
 pub struct Report {
     per_article: HashMap<PathBuf, ArticleInfo>,
     titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
-    categories: HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     ss: SyntaxSet,
+    pub category_pages: HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
 }
 
 impl Report {
@@ -28,17 +28,29 @@ impl Report {
         if let Some((loc, prev, next, sha256)) = &self.per_article.get(p) {
             Some(Context {
                 location: loc.to_owned(),
-                categories: &self.categories,
                 level: 1,
-                prev,
-                next,
+                prev: prev.as_ref(),
+                next: next.as_ref(),
                 titles: &self.titles,
                 ss: &self.ss,
-                sha256,
+                sha256: Some(sha256),
                 path: p,
             })
         } else {
             None
+        }
+    }
+
+    pub fn general_context<'a>(&'a self, p: &'a Path) -> Context<'a> {
+        Context {
+            location: crate::Location::Generated,
+            level: 1,
+            prev: None,
+            next: None,
+            titles: &self.titles,
+            ss: &self.ss,
+            sha256: None,
+            path: p,
         }
     }
 }
@@ -152,11 +164,11 @@ fn calc_sha256(path: &Path, src: &str) -> String {
 pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
     let (prevs, nexts, titles) = prevs_and_nexts(parsed)?;
     let mut per_article = HashMap::new();
-    let mut categories = HashMap::new();
+    let mut category_pages = HashMap::new();
     for (path, file) in parsed {
         if let super::File::Tml(cmd, src) = file {
             for category in extract_category(cmd)? {
-                categories
+                category_pages
                     .entry(category)
                     .or_insert_with(Vec::new)
                     .push((path.to_owned(), extract_title(cmd)?));
@@ -173,7 +185,7 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
         }
     }
     Ok(Report {
-        categories,
+        category_pages,
         per_article,
         ss: SyntaxSet::load_defaults_nonewlines(),
         titles,

@@ -10,14 +10,13 @@ type EResult<T> = Result<T, Error>;
 
 #[derive(Clone)]
 pub struct Context<'a> {
-    pub categories: &'a HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub location: Location,
     pub level: usize,
-    pub prev: &'a Option<(PathBuf, Vec<TextElemAst>)>,
-    pub next: &'a Option<(PathBuf, Vec<TextElemAst>)>,
+    pub prev: Option<&'a (PathBuf, Vec<TextElemAst>)>,
+    pub next: Option<&'a (PathBuf, Vec<TextElemAst>)>,
     pub titles: &'a HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub ss: &'a SyntaxSet,
-    pub sha256: &'a str,
+    pub sha256: Option<&'a str>,
     pub path: &'a std::path::Path,
 }
 
@@ -98,22 +97,6 @@ mod test {
     }
 }
 
-fn header_common(ctx: Context) -> Vec<XMLElem> {
-    let url = "https://namachan10777.dev/".to_owned() + ctx.path.to_str().unwrap();
-    vec![
-        xml!(link [href=resolve("index.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
-        xml!(link [href=resolve("syntect.css", &ctx.path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
-        xml!(link [href=resolve("res/favicon.ico", &ctx.path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
-        xml!(meta [name="twitter:card", content="summary"]),
-        xml!(meta [name="twitter:site", content="@namachan10777"]),
-        xml!(meta [name="twitter:creator", content="@namachan10777"]),
-        xml!(meta [property="og:url", content=&url]),
-        xml!(meta [property="og:site_name", content="namachan10777"]),
-        xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
-        xml!(meta [name="twitter:image", content="https://namachan10777.dev/res/icon.jpg"]),
-    ]
-}
-
 fn execute_index(
     ctx: Context,
     attrs: HashMap<String, ValueAst>,
@@ -131,79 +114,25 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
-    let mut header = header_common(ctx);
-    let title_str = title
-        .iter()
-        .map(|xml| xml.extract_string())
-        .collect::<Vec<_>>()
-        .join("");
-    header.push(xml!(meta [property="og:title", content=&title_str]));
-    header.push(xml!(meta [name="twitter:title", content=&title_str]));
-    header.push(xml!(meta [property="og:type", content="website"]));
-    header.push(xml!(meta [property="og:description", content="about me"]));
-    header.push(xml!(meta [name="description", content="about me"]));
-    header.push(xml!(meta [name="twitter:description", content="about me"]));
-    header.push(xml!(title [] title));
-    Ok(
-        xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-             xml!(head [prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#"] header),
-             xml!(body [] [xml!(div [id="root"] body)])
-        ]),
-    )
+    let header = gen_headers(&ctx.path, body.clone(), title);
+    Ok(html(body, header))
 }
 
-fn execute_article(
-    ctx: Context,
-    attrs: HashMap<String, ValueAst>,
-    inner: Vec<TextElemAst>,
-) -> EResult<XMLElem> {
-    let hashed_short = &ctx.sha256[..7];
-    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
-    let title = title
-        .iter()
-        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
-        .collect::<EResult<Vec<_>>>()?;
-    let index_path = resolve("index.html", ctx.path);
-    let category =
-        value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
-            .iter()
-            .map(|(cat, _)| {
-                let href = resolve(&format!("categories/{}.html", cat.str().unwrap()), ctx.path);
-                let inner = XMLElem::Text(format!("#{}", cat.str().unwrap()));
-                xml!(a [class="category", href=href.to_str().unwrap().to_owned()] vec![inner])
-            })
-            .collect::<Vec<XMLElem>>();
-    let mut body = vec![xml!(header [] [
-        xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
-        xml!(div [class="hash"] [xml!(hashed_short.to_owned())]),
-        xml!(div [class="categories"] category),
-        xml!(h1 [] title.clone())
-    ])];
-    let mut footer_inner = Vec::new();
-    if let Some((prev_path, prev_title)) = ctx.prev {
-        let href_path = resolve_link(prev_path, ctx.path);
-        footer_inner.push(xml!(a
-            [href=href_path.to_str().unwrap(), class="prev-article"]
-            prev_title
-                .iter()
-                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
-        ));
-    }
-    if let Some((next_path, next_title)) = ctx.next {
-        let href_path = resolve_link(next_path, ctx.path);
-        footer_inner.push(xml!(a
-            [href=href_path.to_str().unwrap(), class="next-article"]
-            next_title
-                .iter()
-                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
-        ));
-    }
-    let mut header = header_common(ctx.clone());
-    let mut body_xml = inner
-        .into_iter()
-        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-        .collect::<EResult<Vec<_>>>()?;
-    let title_str = title
+fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> Vec<XMLElem> {
+    let url = "https://namachan10777.dev/".to_owned() + path.to_str().unwrap();
+    let mut header = vec![
+        xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
+        xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
+        xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
+        xml!(meta [name="twitter:card", content="summary"]),
+        xml!(meta [name="twitter:site", content="@namachan10777"]),
+        xml!(meta [name="twitter:creator", content="@namachan10777"]),
+        xml!(meta [property="og:url", content=&url]),
+        xml!(meta [property="og:site_name", content="namachan10777"]),
+        xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
+        xml!(meta [name="twitter:image", content="https://namachan10777.dev/res/icon.jpg"]),
+    ];
+    let title_str = title_xml
         .iter()
         .map(|xml| xml.extract_string())
         .collect::<Vec<_>>()
@@ -224,22 +153,78 @@ fn execute_article(
         body_str
     };
     let body_str = body_str.trim().to_owned() + "……";
-    header.push(xml!(title [] title));
+    header.push(xml!(title [] title_xml));
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
     header.push(xml!(meta [property="og:type", content="article"]));
     header.push(xml!(meta [property="og:description", content=body_str]));
     header.push(xml!(meta [name="description", content=body_str]));
     header.push(xml!(meta [name="twitter:description", content=body_str]));
+    header
+}
+
+fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
+    xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
+         xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
+         xml!(body [] [xml!(div [id="root"] body)])
+    ])
+}
+
+fn execute_article(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
+    let hashed_short = &ctx.sha256.unwrap()[..7];
+    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
+    let title_xml = title
+        .iter()
+        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
+        .collect::<EResult<Vec<_>>>()?;
+    let index_path = resolve("index.html", ctx.path);
+    let category =
+        value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
+            .iter()
+            .map(|(cat, _)| {
+                let href = resolve(&format!("category/{}.html", cat.str().unwrap()), ctx.path);
+                let inner = XMLElem::Text(format!("#{}", cat.str().unwrap()));
+                xml!(a [class="category", href=href.to_str().unwrap().to_owned()] vec![inner])
+            })
+            .collect::<Vec<XMLElem>>();
+    let mut body = vec![xml!(header [] [
+        xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
+        xml!(div [class="hash"] [xml!(hashed_short.to_owned())]),
+        xml!(div [class="categories"] category),
+        xml!(h1 [] title_xml.clone())
+    ])];
+    let mut footer_inner = Vec::new();
+    if let Some((prev_path, prev_title)) = ctx.prev {
+        let href_path = resolve_link(prev_path, ctx.path);
+        footer_inner.push(xml!(a
+            [href=href_path.to_str().unwrap(), class="prev-article"]
+            prev_title
+                .iter()
+                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
+        ));
+    }
+    if let Some((next_path, next_title)) = ctx.next {
+        let href_path = resolve_link(next_path, ctx.path);
+        footer_inner.push(xml!(a
+            [href=href_path.to_str().unwrap(), class="next-article"]
+            next_title
+                .iter()
+                .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
+        ));
+    }
+    let mut body_xml = inner
+        .into_iter()
+        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
+        .collect::<EResult<Vec<_>>>()?;
+    let header = gen_headers(&ctx.path, body_xml.clone(), title_xml);
     body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
 
-    Ok(
-        xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-             xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
-             xml!(body [] [xml!(div [id="root"] body)])
-        ]),
-    )
+    Ok(html(body, header))
 }
 
 fn execute_section(
@@ -501,4 +486,35 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
             name: cmd.name.to_owned(),
         }),
     }
+}
+
+pub fn generate_category_pages(
+    report: &super::analysis::Report,
+) -> EResult<Vec<(PathBuf, XMLElem)>> {
+    report.category_pages
+        .iter()
+        .map(|(category_name, articles)| {
+            let output_path = Path::new(&format!("category/{}.html", category_name)).to_owned();
+            let title = vec![XMLElem::Text(format!("Category: {}", category_name))];
+            let titles = articles
+                .iter()
+                .map(|(p, title)| {
+                    println!("{:?}", p);
+                    let title_xml = title
+                        .iter()
+                        .map(|(e, _)| process_text_elem(report.general_context(p), e.to_owned()))
+                        .collect::<EResult<Vec<XMLElem>>>()?;
+                    let path = resolve(p.to_str().unwrap(), &output_path);
+                    Ok(xml!(a [href=path.to_str().unwrap().to_owned()] title_xml))
+                })
+                .collect::<EResult<Vec<XMLElem>>>()?;
+            let body = vec![xml!(header [] [
+                xml!(a [href="../index.html"] [xml!("戻る".to_owned())]),
+                xml!(h1 [] title.clone()),
+                xml!(ul [] titles)
+            ])];
+            let header = gen_headers(&output_path, body.clone(), title);
+            Ok((output_path, html(body, header)))
+        })
+        .collect::<EResult<Vec<(PathBuf, XMLElem)>>>()
 }
