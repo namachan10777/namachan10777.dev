@@ -178,7 +178,7 @@ fn execute_article(
                 .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
-    let category =
+    let _category =
         value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
             .iter()
             .map(|(cat, _)| cat.str().unwrap().to_owned())
@@ -266,8 +266,8 @@ fn execute_section(
 fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
-    let classes = value_utils::access(&attrs, "classes", &ctx.location)?;
-    if let Some(classes) = classes.str() {
+    let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
+    if let Some(classes) = classes {
         Ok(xml!(img [src=url, class=classes, alt=alt]))
     } else {
         Ok(xml!(img [src=url, alt=alt]))
@@ -396,38 +396,32 @@ fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XML
     let attrs = [
         (
             "width",
-            value_utils::access(&attrs, "width", &ctx.location)?
-                .int()
+            value_utils::verify_int(&attrs, "width", &ctx.location)?
                 .map(|i| i.to_string()),
         ),
         (
             "height",
-            value_utils::access(&attrs, "height", &ctx.location)?
-                .int()
+            value_utils::verify_int(&attrs, "height", &ctx.location)?
                 .map(|i| i.to_string()),
         ),
         (
             "frameborder",
-            value_utils::access(&attrs, "frameborder", &ctx.location)?
-                .int()
+            value_utils::verify_int(&attrs, "frameborder", &ctx.location)?
                 .map(|i| i.to_string()),
         ),
         (
             "style",
-            value_utils::access(&attrs, "style", &ctx.location)?
-                .str()
+            value_utils::verify_str(&attrs, "style", &ctx.location)?
                 .map(|s| s.to_string()),
         ),
         (
             "scrolling",
-            value_utils::access(&attrs, "scrolling", &ctx.location)?
-                .str()
+            value_utils::verify_str(&attrs, "scrolling", &ctx.location)?
                 .map(|s| s.to_string()),
         ),
         (
             "src",
-            value_utils::access(&attrs, "src", &ctx.location)?
-                .str()
+            value_utils::verify_str(&attrs, "src", &ctx.location)?
                 .map(|s| s.to_string()),
         ),
     ]
@@ -447,7 +441,7 @@ fn execute_figure(
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
     let caption = value_utils::get_text(&attrs, "caption", &ctx.location)?.to_vec();
-    let id = value_utils::access(&attrs, "id", &ctx.location)?;
+    let id = value_utils::verify_str(&attrs, "id", &ctx.location)?;
     let figures = inner
         .iter()
         .map(|(e, loc)| {
@@ -472,7 +466,7 @@ fn execute_figure(
         xml!(div [class="images"] figures),
         xml!(figurecaption [] process_text(ctx, caption)?),
     ];
-    if let Some(id) = id.str() {
+    if let Some(id) = id {
         Ok(xml!(figure [id=id] inner))
     } else {
         Ok(xml!(figure [] inner))

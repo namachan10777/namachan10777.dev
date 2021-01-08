@@ -556,7 +556,7 @@ pub mod value_utils {
 
     type Attrs = HashMap<String, ValueAst>;
 
-    pub fn access<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<&'a Value, Error> {
+    fn access<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<&'a Value, Error> {
         attrs
             .get(name)
             .ok_or(Error::MissingAttribute {
@@ -564,6 +564,20 @@ pub mod value_utils {
                 loc: loc.to_owned(),
             })
             .map(|(v, _)| v)
+    }
+
+    pub fn verify_str<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<&'a str>, Error> {
+        if let Some((v, _)) = attrs.get(name) {
+            v.str().ok_or(Error::InvalidAttributeType {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+                expected: ValueType::Str,
+                found: v.value_type(),
+            }).map(|v| Some(v))
+        }
+        else {
+            Ok(None)
+        }
     }
 
     pub fn get_str<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<&'a str, Error> {
@@ -576,6 +590,21 @@ pub mod value_utils {
         })
     }
 
+
+    pub fn verify_int<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<i64>, Error> {
+        if let Some((v, _)) = attrs.get(name) {
+            v.int().ok_or(Error::InvalidAttributeType {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+                expected: ValueType::Str,
+                found: v.value_type(),
+            }).map(|v| Some(v))
+        }
+        else {
+            Ok(None)
+        }
+    }
+
     pub fn get_int<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<i64, Error> {
         let v = access(attrs, name, loc)?;
         v.int().ok_or(Error::InvalidAttributeType {
@@ -586,6 +615,20 @@ pub mod value_utils {
         })
     }
 
+    pub fn verify_float<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<f64>, Error> {
+        if let Some((v, _)) = attrs.get(name) {
+            v.float().ok_or(Error::InvalidAttributeType {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+                expected: ValueType::Str,
+                found: v.value_type(),
+            }).map(|v| Some(v))
+        }
+        else {
+            Ok(None)
+        }
+    }
+
     pub fn get_float<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<f64, Error> {
         let v = access(attrs, name, loc)?;
         v.float().ok_or(Error::InvalidAttributeType {
@@ -594,6 +637,20 @@ pub mod value_utils {
             expected: ValueType::Float,
             found: v.value_type(),
         })
+    }
+
+    pub fn verify_text<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<&'a [TextElemAst]>, Error> {
+        if let Some((v, _)) = attrs.get(name) {
+            v.text().ok_or(Error::InvalidAttributeType {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+                expected: ValueType::Str,
+                found: v.value_type(),
+            }).map(|v| Some(v))
+        }
+        else {
+            Ok(None)
+        }
     }
 
     pub fn get_text<'a>(
@@ -610,6 +667,25 @@ pub mod value_utils {
         })
     }
 
+    pub fn verify_list<'a>(attrs: &'a Attrs, name: &str, loc: &Location, element_type: &ValueType) -> Result<Option<&'a [ValueAst]>, Error> {
+        let typ = ValueType::ListOf(Box::new(element_type.to_owned()));
+        if let Some((v, _)) = attrs.get(name) {
+            if !v.is_instanceof(&typ) {
+                Err(Error::InvalidAttributeType {
+                    name: name.to_owned(),
+                    loc: loc.to_owned(),
+                    expected: ValueType::Str,
+                    found: v.value_type(),
+                })
+            }
+            else {
+                Ok(v.list())
+            }
+        }
+        else {
+            Ok(None)
+        }
+    }
     pub fn get_list<'a>(
         attrs: &'a Attrs,
         name: &str,
