@@ -95,9 +95,11 @@ fn main() {
         .arg(Arg::with_name("DEST").required(true).takes_value(true))
         .get_matches();
     let dir_path = Path::new(matches.value_of("SOURCE").unwrap());
-    match fs::File::create(matches.value_of("DEST").unwrap()) {
+    let dist_path = Path::new(matches.value_of("DEST").unwrap());
+    match fs::File::create(&dist_path) {
         Ok(mut writer) => {
-            if let Err(e)  = engine::compile_and_write(&mut writer, &dir_path) {
+            if let Err(e) = engine::compile_and_write(&mut writer, &dir_path) {
+                fs::remove_file(&dist_path).ok();
                 handle_error(e);
             }
         }
