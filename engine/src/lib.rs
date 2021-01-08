@@ -566,16 +566,21 @@ pub mod value_utils {
             .map(|(v, _)| v)
     }
 
-    pub fn verify_str<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<&'a str>, Error> {
+    pub fn verify_str<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<Option<&'a str>, Error> {
         if let Some((v, _)) = attrs.get(name) {
-            v.str().ok_or(Error::InvalidAttributeType {
-                name: name.to_owned(),
-                loc: loc.to_owned(),
-                expected: ValueType::Str,
-                found: v.value_type(),
-            }).map(|v| Some(v))
-        }
-        else {
+            v.str()
+                .ok_or(Error::InvalidAttributeType {
+                    name: name.to_owned(),
+                    loc: loc.to_owned(),
+                    expected: ValueType::Str,
+                    found: v.value_type(),
+                })
+                .map(Some)
+        } else {
             Ok(None)
         }
     }
@@ -590,17 +595,21 @@ pub mod value_utils {
         })
     }
 
-
-    pub fn verify_int<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<i64>, Error> {
+    pub fn verify_int<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<Option<i64>, Error> {
         if let Some((v, _)) = attrs.get(name) {
-            v.int().ok_or(Error::InvalidAttributeType {
-                name: name.to_owned(),
-                loc: loc.to_owned(),
-                expected: ValueType::Str,
-                found: v.value_type(),
-            }).map(|v| Some(v))
-        }
-        else {
+            v.int()
+                .ok_or(Error::InvalidAttributeType {
+                    name: name.to_owned(),
+                    loc: loc.to_owned(),
+                    expected: ValueType::Str,
+                    found: v.value_type(),
+                })
+                .map(Some)
+        } else {
             Ok(None)
         }
     }
@@ -615,16 +624,21 @@ pub mod value_utils {
         })
     }
 
-    pub fn verify_float<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<f64>, Error> {
+    pub fn verify_float<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<Option<f64>, Error> {
         if let Some((v, _)) = attrs.get(name) {
-            v.float().ok_or(Error::InvalidAttributeType {
-                name: name.to_owned(),
-                loc: loc.to_owned(),
-                expected: ValueType::Str,
-                found: v.value_type(),
-            }).map(|v| Some(v))
-        }
-        else {
+            v.float()
+                .ok_or(Error::InvalidAttributeType {
+                    name: name.to_owned(),
+                    loc: loc.to_owned(),
+                    expected: ValueType::Str,
+                    found: v.value_type(),
+                })
+                .map(Some)
+        } else {
             Ok(None)
         }
     }
@@ -639,16 +653,21 @@ pub mod value_utils {
         })
     }
 
-    pub fn verify_text<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<Option<&'a [TextElemAst]>, Error> {
+    pub fn verify_text<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<Option<&'a [TextElemAst]>, Error> {
         if let Some((v, _)) = attrs.get(name) {
-            v.text().ok_or(Error::InvalidAttributeType {
-                name: name.to_owned(),
-                loc: loc.to_owned(),
-                expected: ValueType::Str,
-                found: v.value_type(),
-            }).map(|v| Some(v))
-        }
-        else {
+            v.text()
+                .ok_or(Error::InvalidAttributeType {
+                    name: name.to_owned(),
+                    loc: loc.to_owned(),
+                    expected: ValueType::Str,
+                    found: v.value_type(),
+                })
+                .map(Some)
+        } else {
             Ok(None)
         }
     }
@@ -667,7 +686,12 @@ pub mod value_utils {
         })
     }
 
-    pub fn verify_list<'a>(attrs: &'a Attrs, name: &str, loc: &Location, element_type: &ValueType) -> Result<Option<&'a [ValueAst]>, Error> {
+    pub fn verify_list<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+        element_type: &ValueType,
+    ) -> Result<Option<&'a [ValueAst]>, Error> {
         let typ = ValueType::ListOf(Box::new(element_type.to_owned()));
         if let Some((v, _)) = attrs.get(name) {
             if !v.is_instanceof(&typ) {
@@ -677,12 +701,10 @@ pub mod value_utils {
                     expected: ValueType::Str,
                     found: v.value_type(),
                 })
-            }
-            else {
+            } else {
                 Ok(v.list())
             }
-        }
-        else {
+        } else {
             Ok(None)
         }
     }

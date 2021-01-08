@@ -396,33 +396,27 @@ fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XML
     let attrs = [
         (
             "width",
-            value_utils::verify_int(&attrs, "width", &ctx.location)?
-                .map(|i| i.to_string()),
+            value_utils::verify_int(&attrs, "width", &ctx.location)?.map(|i| i.to_string()),
         ),
         (
             "height",
-            value_utils::verify_int(&attrs, "height", &ctx.location)?
-                .map(|i| i.to_string()),
+            value_utils::verify_int(&attrs, "height", &ctx.location)?.map(|i| i.to_string()),
         ),
         (
             "frameborder",
-            value_utils::verify_int(&attrs, "frameborder", &ctx.location)?
-                .map(|i| i.to_string()),
+            value_utils::verify_int(&attrs, "frameborder", &ctx.location)?.map(|i| i.to_string()),
         ),
         (
             "style",
-            value_utils::verify_str(&attrs, "style", &ctx.location)?
-                .map(|s| s.to_string()),
+            value_utils::verify_str(&attrs, "style", &ctx.location)?.map(|s| s.to_string()),
         ),
         (
             "scrolling",
-            value_utils::verify_str(&attrs, "scrolling", &ctx.location)?
-                .map(|s| s.to_string()),
+            value_utils::verify_str(&attrs, "scrolling", &ctx.location)?.map(|s| s.to_string()),
         ),
         (
             "src",
-            value_utils::verify_str(&attrs, "src", &ctx.location)?
-                .map(|s| s.to_string()),
+            value_utils::verify_str(&attrs, "src", &ctx.location)?.map(|s| s.to_string()),
         ),
     ]
     .iter()
