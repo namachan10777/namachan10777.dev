@@ -177,6 +177,7 @@ pub enum Value {
     Float(f64),
     Str(String),
     Text(Vec<TextElemAst>),
+    List(Vec<ValueAst>),
 }
 
 impl Value {

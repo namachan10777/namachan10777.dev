@@ -23,6 +23,7 @@ text          = ${
 cmds          =  { "[" ~ cmd* ~ "]" }
 int           = @{ ASCII_DIGIT+ }
 float         = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
-value         =  { str | text | float | int | blockstr }
+value         =  { str | text | float | int | blockstr | list }
+list          =  { "(" ~ (value ~ ("," ~ value)* )? ~ ")" }
 
 main = { SOI ~ cmd ~ EOI }

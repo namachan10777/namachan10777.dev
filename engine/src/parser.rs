@@ -1,4 +1,4 @@
-use super::{Cmd, Error, Location, Position, TextElem, Value};
+use super::{Cmd, Error, Location, Position, TextElem, Value, ValueAst};
 use pest::error::LineColLocation;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
@@ -129,6 +129,15 @@ fn parse_value(fname: &str, pair: Pair<Rule>) -> Value {
                 .collect::<Vec<_>>();
             Value::Str(inner.join(""))
         }
+        Rule::list => Value::List(
+            pair.into_inner()
+                .map(|p| {
+                    let loc = get_location(fname, &p);
+                    let val = parse_value(fname, p.into_inner().next().unwrap());
+                    (val, loc)
+                })
+                .collect::<Vec<ValueAst>>(),
+        ),
         Rule::blockstr => Value::Str(String::from(&pair.as_str()[4..pair.as_str().len() - 4])),
         Rule::text => Value::Text(fold_textelem(fname, pair.into_inner())),
         Rule::cmds => Value::Text(fold_textelem(fname, pair.into_inner())),
@@ -193,6 +202,34 @@ mod test {
         assert_eq!(
             parse!("a.tml", Rule::str, "\"abc\\\"def\\\\\"", parse_value),
             Ok(Some(Value::Str("abc\"def\\".to_owned()),)),
+        );
+    }
+
+    #[test]
+    fn test_list() {
+        assert_eq!(
+            parse!("a.tml", Rule::list, "( )", parse_value),
+            Ok(Some(Value::List(vec![])))
+        );
+        assert_eq!(
+            parse!("a.tml", Rule::list, "(1)", parse_value),
+            Ok(Some(Value::List(vec![(
+                Value::Int(1),
+                Location::Span(Position::new("a.tml", 1, 2), Position::new("a.tml", 1, 3))
+            ),])))
+        );
+        assert_eq!(
+            parse!("a.tml", Rule::list, "(1, 2)", parse_value),
+            Ok(Some(Value::List(vec![
+                (
+                    Value::Int(1),
+                    Location::Span(Position::new("a.tml", 1, 2), Position::new("a.tml", 1, 3))
+                ),
+                (
+                    Value::Int(2),
+                    Location::Span(Position::new("a.tml", 1, 5), Position::new("a.tml", 1, 6))
+                ),
+            ])))
         );
     }
 
