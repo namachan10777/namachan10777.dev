@@ -346,8 +346,11 @@ impl Value {
                 return Self::gen_nested_list_type(i, ValueType::Any);
             }
         }
-        let leaf_type = list_types.last().unwrap().iter().next().unwrap().to_owned();
-        Self::gen_nested_list_type(list_types.len() - 1, leaf_type)
+        if let Some(leaf_type) = list_types.last().unwrap().iter().next() {
+            Self::gen_nested_list_type(list_types.len() - 1, leaf_type.to_owned())
+        } else {
+            ValueType::ListOf(Box::new(ValueType::Any))
+        }
     }
 
     pub fn value_type(&self) -> ValueType {
@@ -615,7 +618,7 @@ pub mod value_utils {
     ) -> Result<&'a [ValueAst], Error> {
         let v = access(attrs, name, loc)?;
         let typ = ValueType::ListOf(Box::new(element_type.to_owned()));
-        if v.is_instanceof(&typ) {
+        if !v.is_instanceof(&typ) {
             return Err(Error::InvalidAttributeType {
                 name: name.to_owned(),
                 loc: loc.to_owned(),
