@@ -515,7 +515,7 @@ pub fn generate_category_pages(
                         .map(|(e, _)| process_text_elem(report.general_context(p), e.to_owned()))
                         .collect::<EResult<Vec<XMLElem>>>()?;
                     let path = resolve(p.to_str().unwrap(), &output_path);
-                    Ok(xml!(a [href=path.to_str().unwrap().to_owned()] title_xml))
+                    Ok(xml!(li [] [xml!(a [href=path.to_str().unwrap().to_owned()] title_xml)]))
                 })
                 .collect::<EResult<Vec<XMLElem>>>()?;
             let body = vec![xml!(header [] [
