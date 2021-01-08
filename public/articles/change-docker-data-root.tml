@@ -1,4 +1,4 @@
-\article title={Dockerイメージの格納先を変更する} date="2020-06-06" {
+\article title={Dockerイメージの格納先を変更する} date="2020-06-06" category = (){
   \p{
     夏ですね。響け！ユーフォニアムの事を考えて熱波をやり過ごしていますが人間限界がある。
     \code{/var}を\code{/}に乗せていれば特に問題はないが、
