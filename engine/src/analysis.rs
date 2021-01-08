@@ -1,7 +1,7 @@
 use super::convert::Context;
 use super::{Cmd, Location, Parsed, TextElemAst};
 use super::{Error, Value};
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, Utc, TimeZone, NaiveDate};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -47,25 +47,31 @@ fn extract_title(cmd: &(Cmd, Location)) -> Result<Vec<TextElemAst>, Error> {
 }
 
 fn extract_date(cmd: &(Cmd, Location)) -> Result<DateTime<FixedOffset>, Error> {
-    if let Some((data_val, loc)) = cmd.0.attrs.get("date") {
-        if let Value::Str(date_str) = data_val {
-            DateTime::parse_from_rfc3339(date_str).map_err(|_| Error::ProcessError {
-                loc: loc.to_owned(),
-                desc: "invalid date format".to_owned(),
-            })
+    if cmd.0.name == "article" {
+        if let Some((data_val, loc)) = cmd.0.attrs.get("date") {
+            if let Value::Str(date_str) = data_val {
+                let utc = NaiveDate::parse_from_str(date_str, "%Y-%m-%d").map_err(|_| Error::ProcessError {
+                    loc: loc.to_owned(),
+                    desc: "invalid date format".to_owned(),
+                })?.and_hms(0, 0, 0);
+                Ok(DateTime::from_utc(utc, TimeZone::from_offset(&FixedOffset::east(9 * 3600))))
+            } else {
+                Err(Error::InvalidAttributeType {
+                    name: "date".to_owned(),
+                    loc: loc.to_owned(),
+                    expected: crate::ValueType::Str,
+                    found: data_val.value_type(),
+                })
+            }
         } else {
-            Err(Error::InvalidAttributeType {
+            Err(Error::MissingAttribute {
                 name: "date".to_owned(),
-                loc: loc.to_owned(),
-                expected: crate::ValueType::Str,
-                found: data_val.value_type(),
+                loc: cmd.1.to_owned(),
             })
         }
-    } else {
-        Err(Error::MissingAttribute {
-            name: "date".to_owned(),
-            loc: cmd.1.to_owned(),
-        })
+    }
+    else {
+        Ok(DateTime::parse_from_rfc3339("1970-01-01T00:00:00Z").unwrap())
     }
 }
 
