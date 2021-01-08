@@ -459,10 +459,17 @@ fn execute_figure(
 }
 
 fn execute_categories(ctx: Context) -> EResult<XMLElem> {
-    let cateories = ctx.categories.keys().map(|p| {
-        let path = resolve(&format!("category/{}.html", p), ctx.path).to_str().unwrap().to_owned();
-        xml!(li [] [xml!(a [href=path] [XMLElem::Text(p.to_owned())])])
-    }).collect();
+    let cateories = ctx
+        .categories
+        .keys()
+        .map(|p| {
+            let path = resolve(&format!("category/{}.html", p), ctx.path)
+                .to_str()
+                .unwrap()
+                .to_owned();
+            xml!(li [] [xml!(a [href=path] [XMLElem::Text(p.to_owned())])])
+        })
+        .collect();
     Ok(xml!(ul [] cateories))
 }
 
@@ -501,7 +508,8 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
 pub fn generate_category_pages(
     report: &super::analysis::Report,
 ) -> EResult<Vec<(PathBuf, XMLElem)>> {
-    report.category_pages
+    report
+        .category_pages
         .iter()
         .map(|(category_name, articles)| {
             let output_path = Path::new(&format!("category/{}.html", category_name)).to_owned();
