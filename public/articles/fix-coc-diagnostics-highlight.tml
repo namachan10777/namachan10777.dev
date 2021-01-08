@@ -1,4 +1,4 @@
-\article title={CocのDiagnosticsのハイライトが上書きされることへの対策} date="2020-06-08" category = () {
+\article title={CocのDiagnosticsのハイライトが上書きされることへの対策} date="2020-06-08" category = ("tech") {
   \p{
     vim本体（と言ってもNeovimだけど）に最近追加されたパッケージマネージャ機能を使うようにしてから
     CocのDiagnosticsのハイライトが消えるようになってしまった。

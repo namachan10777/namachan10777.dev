@@ -1,4 +1,4 @@
-\article title={Twitter Cardに関するメモ} date="2020-06-21" category = () {
+\article title={Twitter Cardに関するメモ} date="2020-06-21" category = ("tech") {
   \p{
     毎回苦労している気がするのでメモ。
     Twitter Botくんはどうも\code{.html}でないと読んでくれないらしい。つまりXHTMLではそもそもTwitter Cardに対応できない。迫害だ！
