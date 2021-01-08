@@ -1,6 +1,6 @@
-use super::convert::{normalize_value_type_name, Context};
-use super::{get, Error, Value};
+use super::convert::Context;
 use super::{Cmd, Location, Parsed, TextElemAst};
+use super::{Error, Value};
 use chrono::{DateTime, FixedOffset};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -43,7 +43,7 @@ impl Report {
 
 fn extract_title(cmd: &(Cmd, Location)) -> Result<Vec<TextElemAst>, Error> {
     let (cmd, loc) = cmd;
-    get!(loc, cmd.attrs, "title", Text)
+    Ok(crate::value_utils::get_text(&cmd.attrs, "title", loc)?.to_vec())
 }
 
 fn extract_date(cmd: &(Cmd, Location)) -> Result<DateTime<FixedOffset>, Error> {
@@ -57,8 +57,8 @@ fn extract_date(cmd: &(Cmd, Location)) -> Result<DateTime<FixedOffset>, Error> {
             Err(Error::InvalidAttributeType {
                 name: "date".to_owned(),
                 loc: loc.to_owned(),
-                expected: "string".to_owned(),
-                found: data_val.type_name(),
+                expected: crate::ValueType::Str,
+                found: data_val.value_type(),
             })
         }
     } else {

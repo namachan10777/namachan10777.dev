@@ -38,8 +38,8 @@ pub enum Error {
     },
     InvalidAttributeType {
         name: String,
-        expected: String,
-        found: String,
+        expected: ValueType,
+        found: ValueType,
         loc: Location,
     },
     NoSuchCmd {
@@ -170,7 +170,6 @@ mod test_loc {
         );
     }
 }
-
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
     Int(i64),
@@ -180,14 +179,152 @@ pub enum Value {
     List(Vec<ValueAst>),
 }
 
-impl Value {
-    pub fn type_name(&self) -> String {
+#[derive(Debug, PartialEq)]
+pub enum ValueType {
+    Any,
+    Int,
+    Float,
+    Str,
+    Text,
+    ListOf(Box<ValueType>),
+}
+
+impl fmt::Display for ValueType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            Value::Int(_) => "int".to_owned(),
-            Value::Float(_) => "float".to_owned(),
-            Value::Str(_) => "string".to_owned(),
-            Value::Text(_) => "text".to_owned(),
+            ValueType::Any => write!(f, "any"),
+            ValueType::Int => write!(f, "int"),
+            ValueType::Float => write!(f, "float"),
+            ValueType::Str => write!(f, "string"),
+            ValueType::Text => write!(f, "text"),
+            ValueType::ListOf(element_type) => write!(f, "{} list", element_type),
         }
+    }
+}
+
+impl ValueType {
+    pub fn is_list(&self) -> bool {
+        matches!(self, ValueType::ListOf(_))
+    }
+}
+
+impl Value {
+    pub fn str(&self) -> Option<&str> {
+        if let Value::Str(s) = self {
+            Some(s)
+        } else {
+            None
+        }
+    }
+
+    pub fn int(&self) -> Option<i64> {
+        if let Value::Int(i) = self {
+            Some(*i)
+        } else {
+            None
+        }
+    }
+
+    pub fn text(&self) -> Option<&[TextElemAst]> {
+        if let Value::Text(t) = self {
+            Some(t)
+        } else {
+            None
+        }
+    }
+
+    pub fn float(&self) -> Option<f64> {
+        if let Value::Float(f) = self {
+            Some(*f)
+        } else {
+            None
+        }
+    }
+
+    pub fn list(&self) -> Option<&[ValueAst]> {
+        if let Value::List(l) = self {
+            Some(l)
+        } else {
+            None
+        }
+    }
+
+    pub fn value_type(&self) -> ValueType {
+        unimplemented!()
+    }
+}
+
+pub mod value_utils {
+    use super::*;
+
+    type Attrs = HashMap<String, ValueAst>;
+
+    pub fn access<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<&'a Value, Error> {
+        attrs
+            .get(name)
+            .ok_or(Error::MissingAttribute {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+            })
+            .map(|(v, _)| v)
+    }
+
+    pub fn get_str<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<&'a str, Error> {
+        let v = access(attrs, name, loc)?;
+        v.str().ok_or(Error::InvalidAttributeType {
+            name: name.to_owned(),
+            loc: loc.to_owned(),
+            expected: ValueType::Str,
+            found: v.value_type(),
+        })
+    }
+
+    pub fn get_int<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<i64, Error> {
+        let v = access(attrs, name, loc)?;
+        v.int().ok_or(Error::InvalidAttributeType {
+            name: name.to_owned(),
+            loc: loc.to_owned(),
+            expected: ValueType::Int,
+            found: v.value_type(),
+        })
+    }
+
+    pub fn get_float<'a>(attrs: &'a Attrs, name: &str, loc: &Location) -> Result<f64, Error> {
+        let v = access(attrs, name, loc)?;
+        v.float().ok_or(Error::InvalidAttributeType {
+            name: name.to_owned(),
+            loc: loc.to_owned(),
+            expected: ValueType::Float,
+            found: v.value_type(),
+        })
+    }
+
+    pub fn get_text<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<&'a [TextElemAst], Error> {
+        let v = access(attrs, name, loc)?;
+        v.text().ok_or(Error::InvalidAttributeType {
+            name: name.to_owned(),
+            loc: loc.to_owned(),
+            expected: ValueType::Float,
+            found: v.value_type(),
+        })
+    }
+
+    pub fn get_list<'a>(
+        attrs: &'a Attrs,
+        name: &str,
+        loc: &Location,
+    ) -> Result<&'a [ValueAst], Error> {
+        let v = access(attrs, name, loc)?;
+        v.list().ok_or(Error::InvalidAttributeType {
+            name: name.to_owned(),
+            loc: loc.to_owned(),
+            expected: ValueType::Float,
+            found: v.value_type(),
+        })
     }
 }
 
@@ -253,7 +390,7 @@ where
             let fname = p
                 .as_os_str()
                 .to_str()
-                .ok_or(Error::CannotInterpretPathAsUTF8(p.to_owned()))?;
+                .ok_or_else(|| Error::CannotInterpretPathAsUTF8(p.to_owned()))?;
             let ast = parser::parse(fname, &source)?;
             files.insert(p.to_owned(), File::Tml(ast, source));
         } else {

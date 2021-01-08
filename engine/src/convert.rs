@@ -1,49 +1,10 @@
+use super::value_utils;
 use super::xml::{XMLElem, XML};
-use super::{Cmd, Error, Location, TextElem, TextElemAst, Value, ValueAst};
+use super::{Cmd, Error, Location, TextElem, TextElemAst, ValueAst};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
-
-#[macro_export]
-macro_rules! get {
-    ( $loc:expr, $hash:expr, $key:expr, $tp:ident ) => {
-        $hash
-            .get($key)
-            .ok_or(Error::MissingAttribute {
-                loc: $loc.to_owned(),
-                name: String::from($key),
-            })
-            .and_then(|v| match v {
-                (Value::$tp(v), _) => Ok(v.clone()),
-                (val, loc) => Err(Error::InvalidAttributeType {
-                    loc: loc.to_owned(),
-                    expected: normalize_value_type_name(stringify!($tp)),
-                    found: val.type_name(),
-                    name: String::from($key),
-                }),
-            })
-    };
-}
-
-#[macro_export]
-macro_rules! verify {
-    ( $hash:expr, $key:expr, $tp:ident ) => {
-        if let Some(v) = $hash.get($key) {
-            match v {
-                (Value::$tp(v), _) => Ok(Some(v.clone())),
-                (val, loc) => Err(Error::InvalidAttributeType {
-                    loc: loc.to_owned(),
-                    expected: normalize_value_type_name(stringify!($tp)),
-                    found: val.type_name(),
-                    name: String::from($key),
-                }),
-            }
-        } else {
-            Ok(None)
-        }
-    };
-}
 
 type EResult<T> = Result<T, Error>;
 
@@ -77,16 +38,6 @@ fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
         TextElem::Plain(s) => Ok(xml!(s)),
         TextElem::Cmd(cmd) => process_cmd(ctx, cmd),
         TextElem::Str(s) => process_inlinestr(ctx, s),
-    }
-}
-
-pub fn normalize_value_type_name(name: &str) -> String {
-    match name {
-        "Str" => "string".to_owned(),
-        "Int" => "int".to_owned(),
-        "Float" => "float".to_owned(),
-        "Text" => "text".to_owned(),
-        _ => unreachable!(),
     }
 }
 
@@ -167,10 +118,10 @@ fn execute_index(
     attrs: HashMap<String, ValueAst>,
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
-    let title = get!(ctx.location, attrs, "title", Text)?;
+    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
     let title = title
-        .into_iter()
-        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
+        .iter()
+        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
         .collect::<EResult<Vec<_>>>()?;
     let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
     body.append(
@@ -206,10 +157,10 @@ fn execute_article(
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
     let hashed_short = &ctx.sha256[..7];
-    let title = get!(ctx.location, attrs, "title", Text)?;
+    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
     let title = title
-        .into_iter()
-        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
+        .iter()
+        .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
         .collect::<EResult<Vec<_>>>()?;
     let index_path = resolve("index.html", ctx.path);
     let mut body = vec![xml!(header [] [
@@ -285,12 +236,12 @@ fn execute_section(
     attrs: HashMap<String, ValueAst>,
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
-    let title = get!(ctx.location, attrs, "title", Text)?;
+    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
     let mut header = vec![xml!(header [] [
         XMLElem::WithElem(format!("h{}", ctx.level), vec![],
             title
-            .into_iter()
-            .map(|(e, loc)| process_text_elem(Context {location: loc, level: ctx.level+1, ..ctx.clone()}, e))
+            .iter()
+            .map(|(e, loc)| process_text_elem(Context {location: loc.to_owned(), level: ctx.level+1, ..ctx.clone()}, e.to_owned()))
             .collect::<EResult<Vec<_>>>()?
         )
     ])];
@@ -307,10 +258,10 @@ fn execute_section(
 }
 
 fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
-    let url = get!(ctx.location, attrs, "url", Str)?;
-    let alt = get!(ctx.location, attrs, "alt", Str)?;
-    let classes = verify!(attrs, "class", Str)?;
-    if let Some(classes) = classes {
+    let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
+    let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
+    let classes = value_utils::access(&attrs, "classes", &ctx.location)?;
+    if let Some(classes) = classes.str() {
         Ok(xml!(img [src=url, class=classes, alt=alt]))
     } else {
         Ok(xml!(img [src=url, alt=alt]))
@@ -361,7 +312,7 @@ fn execute_link(
     attrs: HashMap<String, ValueAst>,
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
-    let url = get!(ctx.location, attrs, "url", Str)?;
+    let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     Ok(xml!(a [href=url] inner.into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
         .collect::<EResult<Vec<_>>>()?))
@@ -374,8 +325,8 @@ fn execute_n(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
 }
 
 fn execute_articles(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
-    let dir = get!(ctx.location, attrs, "dir", Str)?;
-    let parent = Path::new(&dir);
+    let dir = value_utils::get_str(&attrs, "dir", &ctx.location)?;
+    let parent = Path::new(dir);
     Ok(xml!(ul [] ctx
         .titles
         .get(parent)
@@ -401,8 +352,8 @@ fn execute_code(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
 }
 
 fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
-    let src = get!(ctx.location, attrs, "src", Str)?;
-    let lang = get!(ctx.location, attrs, "lang", Str)?;
+    let src = value_utils::get_str(&attrs, "src", &ctx.location)?;
+    let lang = value_utils::get_str(&attrs, "lang", &ctx.location)?;
     let lines = src.split('\n').collect::<Vec<_>>();
     let white = regex::Regex::new(r"^[ \t\r\n]*$").unwrap();
     assert!(!white.is_match("abc"));
@@ -439,19 +390,40 @@ fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XML
     let attrs = [
         (
             "width",
-            verify!(attrs, "width", Int)?.map(|i| format!("{}", i)),
+            value_utils::access(&attrs, "width", &ctx.location)?
+                .int()
+                .map(|i| i.to_string()),
         ),
         (
             "height",
-            verify!(attrs, "height", Int)?.map(|i| format!("{}", i)),
+            value_utils::access(&attrs, "height", &ctx.location)?
+                .int()
+                .map(|i| i.to_string()),
         ),
         (
             "frameborder",
-            verify!(attrs, "frameborder", Int)?.map(|i| format!("{}", i)),
+            value_utils::access(&attrs, "frameborder", &ctx.location)?
+                .int()
+                .map(|i| i.to_string()),
         ),
-        ("style", verify!(attrs, "style", Str)?),
-        ("scrolling", verify!(attrs, "scrolling", Str)?),
-        ("src", Some(get!(ctx.location, attrs, "src", Str)?)),
+        (
+            "style",
+            value_utils::access(&attrs, "style", &ctx.location)?
+                .str()
+                .map(|s| s.to_string()),
+        ),
+        (
+            "scrolling",
+            value_utils::access(&attrs, "scrolling", &ctx.location)?
+                .str()
+                .map(|s| s.to_string()),
+        ),
+        (
+            "src",
+            value_utils::access(&attrs, "src", &ctx.location)?
+                .str()
+                .map(|s| s.to_string()),
+        ),
     ]
     .iter()
     .filter_map(|(name, value)| {
@@ -468,8 +440,8 @@ fn execute_figure(
     attrs: HashMap<String, ValueAst>,
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
-    let caption = get!(ctx.location, attrs, "caption", Text)?;
-    let id = verify!(attrs, "id", Str)?;
+    let caption = value_utils::get_text(&attrs, "caption", &ctx.location)?.to_vec();
+    let id = value_utils::access(&attrs, "id", &ctx.location)?;
     let figures = inner
         .iter()
         .map(|(e, loc)| {
@@ -494,7 +466,7 @@ fn execute_figure(
         xml!(div [class="images"] figures),
         xml!(figurecaption [] process_text(ctx, caption)?),
     ];
-    if let Some(id) = id {
+    if let Some(id) = id.str() {
         Ok(xml!(figure [id=id] inner))
     } else {
         Ok(xml!(figure [] inner))
