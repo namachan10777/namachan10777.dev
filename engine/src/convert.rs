@@ -10,6 +10,7 @@ type EResult<T> = Result<T, Error>;
 
 #[derive(Clone)]
 pub struct Context<'a> {
+    pub categories: &'a HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub location: Location,
     pub level: usize,
     pub prev: &'a Option<(PathBuf, Vec<TextElemAst>)>,
@@ -163,9 +164,19 @@ fn execute_article(
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
         .collect::<EResult<Vec<_>>>()?;
     let index_path = resolve("index.html", ctx.path);
+    let category =
+        value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
+            .iter()
+            .map(|(cat, _)| {
+                let href = resolve(&format!("categories/{}.html", cat.str().unwrap()), ctx.path);
+                let inner = XMLElem::Text(format!("#{}", cat.str().unwrap()));
+                xml!(a [class="category", href=href.to_str().unwrap().to_owned()] vec![inner])
+            })
+            .collect::<Vec<XMLElem>>();
     let mut body = vec![xml!(header [] [
         xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
         xml!(div [class="hash"] [xml!(hashed_short.to_owned())]),
+        xml!(div [class="categories"] category),
         xml!(h1 [] title.clone())
     ])];
     let mut footer_inner = Vec::new();
@@ -178,12 +189,6 @@ fn execute_article(
                 .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
-    let _category =
-        value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
-            .iter()
-            .map(|(cat, _)| cat.str().unwrap().to_owned())
-            .collect::<Vec<String>>();
-
     if let Some((next_path, next_title)) = ctx.next {
         let href_path = resolve_link(next_path, ctx.path);
         footer_inner.push(xml!(a

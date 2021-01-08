@@ -19,6 +19,7 @@ type ArticleInfo = (
 pub struct Report {
     per_article: HashMap<PathBuf, ArticleInfo>,
     titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
+    categories: HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     ss: SyntaxSet,
 }
 
@@ -27,6 +28,7 @@ impl Report {
         if let Some((loc, prev, next, sha256)) = &self.per_article.get(p) {
             Some(Context {
                 location: loc.to_owned(),
+                categories: &self.categories,
                 level: 1,
                 prev,
                 next,
@@ -107,6 +109,19 @@ fn calc_sorted_titles(parsed: &Parsed) -> Result<Titles, Error> {
 type Prevs = HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>;
 type Nexts = HashMap<PathBuf, (PathBuf, Vec<TextElemAst>)>;
 
+fn extract_category(cmd: &(Cmd, Location)) -> Result<Vec<String>, Error> {
+    if cmd.0.name == "article" {
+        let categories =
+            crate::value_utils::get_list(&cmd.0.attrs, "category", &cmd.1, &crate::ValueType::Str)?;
+        Ok(categories
+            .iter()
+            .map(|(v, _)| v.str().unwrap().to_owned())
+            .collect::<Vec<String>>())
+    } else {
+        Ok(Vec::new())
+    }
+}
+
 fn prevs_and_nexts(parsed: &Parsed) -> Result<(Prevs, Nexts, Titles), Error> {
     let mut prevs = HashMap::new();
     let mut nexts = HashMap::new();
@@ -137,8 +152,15 @@ fn calc_sha256(path: &Path, src: &str) -> String {
 pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
     let (prevs, nexts, titles) = prevs_and_nexts(parsed)?;
     let mut per_article = HashMap::new();
+    let mut categories = HashMap::new();
     for (path, file) in parsed {
         if let super::File::Tml(cmd, src) = file {
+            for category in extract_category(cmd)? {
+                categories
+                    .entry(category)
+                    .or_insert_with(Vec::new)
+                    .push((path.to_owned(), extract_title(cmd)?));
+            }
             per_article.insert(
                 path.to_owned(),
                 (
@@ -151,6 +173,7 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
         }
     }
     Ok(Report {
+        categories,
         per_article,
         ss: SyntaxSet::load_defaults_nonewlines(),
         titles,

@@ -778,7 +778,7 @@ where
     P: AsRef<Path>,
 {
     let mut files = HashMap::new();
-    let source_paths: Vec<PathBuf> = enumerate_all_file_paths(dir_path);
+    let source_paths: Vec<PathBuf> = enumerate_all_file_paths(&dir_path);
     for p in &source_paths {
         if p.extension() == Some(OsStr::new("tml")) {
             let source = fs::read_to_string(p).map_err(|e| Error::FsError {
@@ -791,14 +791,23 @@ where
                 .to_str()
                 .ok_or_else(|| Error::CannotInterpretPathAsUTF8(p.to_owned()))?;
             let ast = parser::parse(fname, &source)?;
-            files.insert(p.to_owned(), File::Tml(ast, source));
+            files.insert(
+                p.strip_prefix(&dir_path)
+                    .unwrap()
+                    .with_extension("html")
+                    .to_owned(),
+                File::Tml(ast, source),
+            );
         } else {
             let binary = fs::read(p).map_err(|e| Error::FsError {
                 path: p.to_owned(),
                 desc: "Cannot read blob file".to_owned(),
                 because: e,
             })?;
-            files.insert(p.to_owned(), File::Blob(binary));
+            files.insert(
+                p.strip_prefix(&dir_path).unwrap().to_owned(),
+                File::Blob(binary),
+            );
         }
     }
     let report = analysis::analyze(&files)?;
