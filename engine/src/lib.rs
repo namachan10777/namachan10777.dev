@@ -257,7 +257,6 @@ impl Value {
             (Value::Str(_), ValueType::Str) => true,
             (Value::Text(_), ValueType::Text) => true,
             (Value::List(elems), ValueType::ListOf(elem_type)) => {
-                println!("elems {:?}", elems);
                 elems.iter().all(|(elem, _)| elem.is_instanceof(&elem_type))
             }
             _ => false,
@@ -334,18 +333,10 @@ impl Value {
         for (i, types) in list_types.iter().enumerate() {
             // unification中止
             if types.len() > 1 {
-                println!("failed to unification {} {:?}", i, types);
                 return Self::gen_nested_list_type(i, ValueType::Any);
             }
-            println!("success to unification {} {:?}", i, types);
         }
-        let leaf_type = list_types
-            .last()
-            .unwrap()
-            .iter()
-            .next()
-            .unwrap()
-            .to_owned();
+        let leaf_type = list_types.last().unwrap().iter().next().unwrap().to_owned();
         Self::gen_nested_list_type(list_types.len() - 1, leaf_type)
     }
 
@@ -610,14 +601,19 @@ pub mod value_utils {
         attrs: &'a Attrs,
         name: &str,
         loc: &Location,
+        element_type: &ValueType,
     ) -> Result<&'a [ValueAst], Error> {
         let v = access(attrs, name, loc)?;
-        v.list().ok_or(Error::InvalidAttributeType {
-            name: name.to_owned(),
-            loc: loc.to_owned(),
-            expected: ValueType::Float,
-            found: v.value_type(),
-        })
+        let typ = ValueType::ListOf(Box::new(element_type.to_owned()));
+        if v.is_instanceof(&typ) {
+            return Err(Error::InvalidAttributeType {
+                name: name.to_owned(),
+                loc: loc.to_owned(),
+                expected: typ,
+                found: v.value_type(),
+            });
+        }
+        Ok(v.list().unwrap())
     }
 }
 
@@ -673,8 +669,7 @@ where
     let mut files = HashMap::new();
     let source_paths: Vec<PathBuf> = enumerate_all_file_paths(dir_path);
     for p in &source_paths {
-        println!("{:?}", p);
-        if p.extension() == Some(OsStr::new(".tml")) && p.is_dir() {
+        if p.extension() == Some(OsStr::new("tml")) {
             let source = fs::read_to_string(p).map_err(|e| Error::FsError {
                 path: p.to_owned(),
                 desc: "Cannot read tml file".to_owned(),

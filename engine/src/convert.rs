@@ -178,6 +178,12 @@ fn execute_article(
                 .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
         ));
     }
+    let category =
+        value_utils::get_list(&attrs, "category", &ctx.location, &crate::ValueType::Str)?
+            .iter()
+            .map(|(cat, _)| cat.str().unwrap().to_owned())
+            .collect::<Vec<String>>();
+
     if let Some((next_path, next_title)) = ctx.next {
         let href_path = resolve_link(next_path, ctx.path);
         footer_inner.push(xml!(a
