@@ -15,6 +15,7 @@ pub struct Context<'a> {
     pub prev: Option<&'a (PathBuf, Vec<TextElemAst>)>,
     pub next: Option<&'a (PathBuf, Vec<TextElemAst>)>,
     pub titles: &'a HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
+    pub categories: &'a HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub ss: &'a SyntaxSet,
     pub sha256: Option<&'a str>,
     pub path: &'a std::path::Path,
@@ -457,6 +458,14 @@ fn execute_figure(
     }
 }
 
+fn execute_categories(ctx: Context) -> EResult<XMLElem> {
+    let cateories = ctx.categories.keys().map(|p| {
+        let path = resolve(&format!("category/{}.html", p), ctx.path).to_str().unwrap().to_owned();
+        xml!(li [] [xml!(a [href=path] [XMLElem::Text(p.to_owned())])])
+    }).collect();
+    Ok(xml!(ul [] cateories))
+}
+
 fn process_text(ctx: Context, textelems: Vec<TextElemAst>) -> EResult<Vec<XMLElem>> {
     textelems
         .into_iter()
@@ -469,6 +478,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
         "article" => execute_article(ctx, cmd.attrs, cmd.inner),
         "articles" => execute_articles(ctx, cmd.attrs),
+        "categories" => execute_categories(ctx),
         "section" => execute_section(ctx, cmd.attrs, cmd.inner),
         "img" => execute_img(ctx, cmd.attrs),
         "p" => execute_p(ctx, cmd.inner),
