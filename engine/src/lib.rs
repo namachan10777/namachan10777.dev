@@ -11,7 +11,7 @@ pub mod convert;
 pub mod parser;
 
 use std::cmp;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fmt;
 use std::fs;
@@ -179,7 +179,7 @@ pub enum Value {
     List(Vec<ValueAst>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash, Eq, Clone)]
 pub enum ValueType {
     Any,
     Int,
@@ -249,8 +249,301 @@ impl Value {
         }
     }
 
+    pub fn is_instanceof(&self, typ: &ValueType) -> bool {
+        match (self, typ) {
+            (_, ValueType::Any) => true,
+            (Value::Int(_), ValueType::Int) => true,
+            (Value::Float(_), ValueType::Float) => true,
+            (Value::Str(_), ValueType::Str) => true,
+            (Value::Text(_), ValueType::Text) => true,
+            (Value::List(elems), ValueType::ListOf(elem_type)) => {
+                println!("elems {:?}", elems);
+                elems.iter().all(|(elem, _)| elem.is_instanceof(&elem_type))
+            }
+            _ => false,
+        }
+    }
+
+    fn weak_type(&self) -> ValueType {
+        match self {
+            Value::Int(_) => ValueType::Int,
+            Value::Float(_) => ValueType::Float,
+            Value::Str(_) => ValueType::Str,
+            Value::Text(_) => ValueType::Text,
+            Value::List(_) => ValueType::ListOf(Box::new(ValueType::Any)),
+        }
+    }
+
+    fn merge_list_types(
+        a: Vec<HashSet<ValueType>>,
+        b: Vec<HashSet<ValueType>>,
+    ) -> Vec<HashSet<ValueType>> {
+        let mut dist = Vec::new();
+        let mut a_iter = a.into_iter();
+        let mut b_iter = b.into_iter();
+        loop {
+            match (a_iter.next(), b_iter.next()) {
+                (Some(mut hash_a), Some(hash_b)) => {
+                    hash_a.extend(hash_b.into_iter());
+                    dist.push(hash_a);
+                }
+                (Some(hash_a), None) => {
+                    dist.push(hash_a);
+                    dist.append(&mut a_iter.collect());
+                    break;
+                }
+                (None, Some(hash_b)) => {
+                    dist.push(hash_b);
+                    dist.append(&mut b_iter.collect());
+                    break;
+                }
+                (None, None) => {
+                    break;
+                }
+            }
+        }
+        dist
+    }
+
+    fn flat_list_types(inner: &[(Value, Location)]) -> Vec<HashSet<ValueType>> {
+        let mut head = HashSet::new();
+        let mut last = Vec::new();
+        for (elem, _) in inner {
+            head.insert(elem.weak_type());
+            if let Some(children) = elem.list() {
+                last = Self::merge_list_types(last, Self::flat_list_types(children));
+            }
+        }
+        let mut head = vec![head];
+        head.append(&mut last);
+        head
+    }
+
+    fn gen_nested_list_type(nest_level: usize, leaf_type: ValueType) -> ValueType {
+        if nest_level == 0 {
+            leaf_type
+        } else {
+            ValueType::ListOf(Box::new(Self::gen_nested_list_type(
+                nest_level - 1,
+                leaf_type,
+            )))
+        }
+    }
+
+    fn unification(list_types: Vec<HashSet<ValueType>>) -> ValueType {
+        for (i, types) in list_types.iter().enumerate() {
+            // unification中止
+            if types.len() > 1 {
+                println!("failed to unification {} {:?}", i, types);
+                return Self::gen_nested_list_type(i, ValueType::Any);
+            }
+            println!("success to unification {} {:?}", i, types);
+        }
+        let leaf_type = list_types
+            .last()
+            .unwrap()
+            .iter()
+            .next()
+            .unwrap()
+            .to_owned();
+        Self::gen_nested_list_type(list_types.len() - 1, leaf_type)
+    }
+
     pub fn value_type(&self) -> ValueType {
-        unimplemented!()
+        match self {
+            Value::List(l) => {
+                let list_types = Self::flat_list_types(l.as_slice());
+                Self::unification(list_types)
+            }
+            _ => self.weak_type(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_value {
+    use super::*;
+    #[test]
+    fn test_is_instanceof() {
+        assert!(Value::Text(vec![]).is_instanceof(&ValueType::Text));
+        assert!(Value::List(vec![]).is_instanceof(&ValueType::ListOf(Box::new(ValueType::Str))));
+        assert!(!Value::List(vec![(Value::Int(0), Location::Generated)])
+            .is_instanceof(&ValueType::ListOf(Box::new(ValueType::Str))));
+        assert!(Value::List(vec![
+            (
+                Value::List(vec![(Value::Int(0), Location::Generated)]),
+                Location::Generated
+            ),
+            (Value::List(vec![]), Location::Generated)
+        ])
+        .is_instanceof(&ValueType::ListOf(Box::new(ValueType::ListOf(Box::new(
+            ValueType::Int
+        ))))));
+        assert!(!Value::List(vec![
+            (
+                Value::List(vec![(Value::Int(0), Location::Generated)]),
+                Location::Generated
+            ),
+            (Value::List(vec![]), Location::Generated)
+        ])
+        .is_instanceof(&ValueType::ListOf(Box::new(ValueType::ListOf(Box::new(
+            ValueType::Str
+        ))))));
+    }
+
+    #[test]
+    fn test_merge() {
+        let a = vec![
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        let b = vec![
+            vec![ValueType::Str].into_iter().collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        let expected = vec![
+            vec![ValueType::Str, ValueType::Int]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        assert_eq!(Value::merge_list_types(a, b), expected);
+
+        let a = vec![
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        let b = vec![vec![ValueType::Str].into_iter().collect::<HashSet<_>>()];
+        let expected = vec![
+            vec![ValueType::Str, ValueType::Int]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        assert_eq!(Value::merge_list_types(a, b), expected);
+
+        let a = vec![vec![ValueType::Int]
+            .into_iter()
+            .collect::<HashSet<ValueType>>()];
+        let b = vec![
+            vec![ValueType::Str].into_iter().collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        let expected = vec![
+            vec![ValueType::Str, ValueType::Int]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        assert_eq!(Value::merge_list_types(a, b), expected);
+    }
+
+    #[test]
+    fn test_flat_list_types() {
+        let list = vec![(
+            Value::List(vec![
+                (Value::Int(0), Location::Generated),
+                (Value::Float(2.87), Location::Generated),
+                (
+                    Value::List(vec![
+                        (Value::Int(1), Location::Generated),
+                        (Value::Float(3.14), Location::Generated),
+                    ]),
+                    Location::Generated,
+                ),
+            ]),
+            Location::Generated,
+        )];
+        let expected = vec![
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![
+                ValueType::ListOf(Box::new(ValueType::Any)),
+                ValueType::Int,
+                ValueType::Float,
+            ]
+            .into_iter()
+            .collect::<HashSet<_>>(),
+            vec![ValueType::Int, ValueType::Float]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+        ];
+        assert_eq!(Value::flat_list_types(list.as_slice()), expected);
+
+        let list = vec![(
+            Value::List(vec![
+                (
+                    Value::List(vec![(Value::Int(1), Location::Generated)]),
+                    Location::Generated,
+                ),
+                (Value::List(vec![]), Location::Generated),
+            ]),
+            Location::Generated,
+        )];
+        let expected = vec![
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        assert_eq!(Value::flat_list_types(list.as_slice()), expected);
+    }
+
+    #[test]
+    fn test_unification() {
+        let target = vec![
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![
+                ValueType::ListOf(Box::new(ValueType::Any)),
+                ValueType::Int,
+                ValueType::Float,
+            ]
+            .into_iter()
+            .collect::<HashSet<_>>(),
+            vec![ValueType::Int, ValueType::Float]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+        ];
+        assert_eq!(
+            Value::unification(target),
+            ValueType::ListOf(Box::new(ValueType::Any))
+        );
+
+        let target = vec![
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int, ValueType::Float]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+        ];
+        assert_eq!(
+            Value::unification(target),
+            ValueType::ListOf(Box::new(ValueType::ListOf(Box::new(ValueType::Any))))
+        );
+
+        let target = vec![
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::ListOf(Box::new(ValueType::Any))]
+                .into_iter()
+                .collect::<HashSet<_>>(),
+            vec![ValueType::Int].into_iter().collect::<HashSet<_>>(),
+        ];
+        assert_eq!(
+            Value::unification(target),
+            ValueType::ListOf(Box::new(ValueType::ListOf(Box::new(ValueType::Int))))
+        );
     }
 }
 
