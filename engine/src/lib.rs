@@ -135,17 +135,16 @@ impl fmt::Display for Location {
             Location::At(p) => write!(f, "{}:{}:{}", p.fname, p.line, p.col),
             Location::Span(p1, p2) => {
                 if p1.fname == p2.fname {
-                write!(
-                    f,
-                    "{}:{}:{} -- {}:{}",
-                    p1.fname, p1.line, p1.col, p2.line, p2.col
+                    write!(
+                        f,
+                        "{}:{}:{} -- {}:{}",
+                        p1.fname, p1.line, p1.col, p2.line, p2.col
                     )
-                }
-                else {
-                write!(
-                    f,
-                    "{}:{}:{} -- {}:{}:{}",
-                    p1.fname, p1.line, p1.col, p2.fname, p2.line, p2.col
+                } else {
+                    write!(
+                        f,
+                        "{}:{}:{} -- {}:{}:{}",
+                        p1.fname, p1.line, p1.col, p2.fname, p2.line, p2.col
                     )
                 }
             }
