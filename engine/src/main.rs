@@ -6,6 +6,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 use std::process::exit;
+use log::{info, error};
 
 #[allow(dead_code)]
 fn unwrap<T, E, F>(input: Result<T, E>, f: F) -> T
@@ -32,7 +33,7 @@ fn handle_error(e: Error) -> ! {
             desc,
             because,
         } => {
-            eprintln!(
+            error!(
                 "{} at {:?} because {}",
                 desc,
                 path,
@@ -41,30 +42,30 @@ fn handle_error(e: Error) -> ! {
             exit(because.raw_os_error().unwrap_or(-1));
         }
         Error::ZipError { desc, because } => {
-            eprintln!("zip operation error. {} because {}", desc, because);
+            error!("zip operation error. {} because {}", desc, because);
             // FIXME
             exit(-1);
         }
         Error::NoSuchCmd { name, loc } => {
-            eprintln!("{} No such command \\{}", loc, name);
+            error!("{} No such command \\{}", loc, name);
             // FIXME
             exit(-1);
         }
         Error::ZipIOError { desc, because } => {
-            eprintln!("zip operation error. {} because {}", desc, because);
+            error!("zip operation error. {} because {}", desc, because);
             // FIXME
             exit(-1);
         }
         Error::ProcessError { loc, desc } => {
-            eprintln!("{} {}", loc, desc);
+            error!("{} {}", loc, desc);
             exit(-1);
         }
         Error::SyntaxError(loc) => {
-            eprintln!("{} syntax error", loc);
+            error!("{} syntax error", loc);
             exit(-1);
         }
         Error::MissingAttribute { name, loc } => {
-            eprintln!("{} missing attribute {}", loc, name);
+            error!("{} missing attribute {}", loc, name);
             exit(-1);
         }
         Error::InvalidAttributeType {
@@ -73,14 +74,14 @@ fn handle_error(e: Error) -> ! {
             expected,
             found,
         } => {
-            eprintln!(
+            error!(
                 "{} invalid attribute type {} at {}. {} is expected",
                 loc, found, name, expected
             );
             exit(-1);
         }
         Error::CannotInterpretPathAsUTF8(path) => {
-            eprintln!(
+            error!(
                 "cannot interpret path {:?}. all paths must be encoded by UTF-8",
                 path
             );
@@ -90,6 +91,8 @@ fn handle_error(e: Error) -> ! {
 }
 
 fn main() {
+    env_logger::init();
+    info!("start compiling");
     let matches = App::new("engine")
         .arg(Arg::with_name("SOURCE").required(true).takes_value(true))
         .arg(Arg::with_name("DEST").required(true).takes_value(true))
@@ -104,7 +107,7 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!("Cannot create zip file {} ", interpret_io_error(e.kind()));
+            error!("Cannot create zip file {} ", interpret_io_error(e.kind()));
             exit(e.raw_os_error().unwrap_or(-1));
         }
     }

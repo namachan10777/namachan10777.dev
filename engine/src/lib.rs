@@ -19,6 +19,7 @@ use std::io;
 use std::io::{Seek, Write};
 use std::path::Path;
 use std::path::PathBuf;
+use log::{warn, error, info};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Position {
@@ -781,6 +782,7 @@ where
     let source_paths: Vec<PathBuf> = enumerate_all_file_paths(&dir_path);
     for p in &source_paths {
         if p.extension() == Some(OsStr::new("tml")) {
+            info!("add compile target {:?}", p);
             let source = fs::read_to_string(p).map_err(|e| Error::FsError {
                 path: p.to_owned(),
                 desc: "Cannot read tml file".to_owned(),
@@ -799,6 +801,7 @@ where
                 File::Tml(ast, source),
             );
         } else {
+            info!("add blob {:?}", p);
             let binary = fs::read(p).map_err(|e| Error::FsError {
                 path: p.to_owned(),
                 desc: "Cannot read blob file".to_owned(),
@@ -831,6 +834,7 @@ where
         .compression_method(zip::CompressionMethod::Bzip2)
         .unix_permissions(0o444);
     for (p, bin) in out {
+        info!("saving {:?}", p);
         dist_zip
             .start_file_from_path(&p, options)
             .map_err(|e| Error::ZipError {

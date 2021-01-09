@@ -4,6 +4,8 @@ executors:
   default:
     docker:
       - image: namachan10777/namachan10777.dev:latest
+        environment:
+          RUST_LOG: Info
 
 jobs:
   test:

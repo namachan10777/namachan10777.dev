@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
+use log::warn;
 
 type EResult<T> = Result<T, Error>;
 
@@ -374,7 +375,7 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<
         }
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(generator.finalize())])]))
     } else {
-        eprintln!("language {} is not found!", lang);
+        warn!("missing syntax for {}", lang);
         Ok(xml!(code [] [xml!(pre [] [XMLElem::Raw(code.join("\n"))])]))
     }
 }
