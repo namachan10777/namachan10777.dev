@@ -831,7 +831,7 @@ where
     let dist_writer = io::BufWriter::new(writer);
     let mut dist_zip = zip::ZipWriter::new(dist_writer);
     let options = zip::write::FileOptions::default()
-        .compression_method(zip::CompressionMethod::Bzip2)
+        .compression_method(zip::CompressionMethod::Deflated)
         .unix_permissions(0o444);
     for (p, bin) in out {
         info!("saving {:?}", p);
