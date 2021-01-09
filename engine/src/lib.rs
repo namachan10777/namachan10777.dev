@@ -10,6 +10,7 @@ pub mod analysis;
 pub mod convert;
 pub mod parser;
 
+use log::info;
 use std::cmp;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
@@ -19,7 +20,6 @@ use std::io;
 use std::io::{Seek, Write};
 use std::path::Path;
 use std::path::PathBuf;
-use log::{warn, error, info};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Position {

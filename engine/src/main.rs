@@ -2,11 +2,11 @@ extern crate engine;
 
 use clap::{App, Arg};
 use engine::Error;
+use log::{error, info};
 use std::fs;
 use std::io;
 use std::path::Path;
 use std::process::exit;
-use log::{info, error};
 
 #[allow(dead_code)]
 fn unwrap<T, E, F>(input: Result<T, E>, f: F) -> T

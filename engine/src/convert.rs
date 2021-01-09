@@ -1,11 +1,11 @@
 use super::value_utils;
 use super::xml::{XMLElem, XML};
 use super::{Cmd, Error, Location, TextElem, TextElemAst, ValueAst};
+use log::warn;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
-use log::warn;
 
 type EResult<T> = Result<T, Error>;
 
