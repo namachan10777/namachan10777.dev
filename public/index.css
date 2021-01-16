@@ -1,16 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap');
 
-pre {
-	padding: max(1vw, 1vh);
-	border-radius: 0.5%;
-	overflow-x: scroll;
-	background-color: #000000;
-	color: #f0f0f0;
-}
-
-code {
-	font-family: 'Fira Mono', monospace;
-}
 
 .icon {
 	border-radius: 2%;
@@ -87,6 +76,19 @@ img.landscape {
 	img.icon {
 		width: 40%;
 	}
+
+	code {
+		font-family: 'Fira Mono', monospace;
+		font-size: 100%;
+	}
+
+	pre {
+		padding: 1vh;
+		border-radius: 0.5%;
+		overflow-x: scroll;
+		background-color: #000000;
+		color: #f0f0f0;
+	}
 }
 
 @media(orientation: portrait) {
@@ -96,5 +98,18 @@ img.landscape {
 
 	img.icon {
 		width: 60%;
+	}
+
+	code {
+		font-size: 50%;
+		font-family: 'Fira Mono', monospace;
+	}
+
+	pre {
+		padding: 1vw;
+		border-radius: 0.5%;
+		overflow-x: scroll;
+		background-color: #000000;
+		color: #f0f0f0;
 	}
 }
