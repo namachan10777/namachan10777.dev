@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap');
 
 pre {
-	padding: 3%;
+	padding: max(1vw, 1vh);
 	border-radius: 0.5%;
 	overflow-x: scroll;
 	background-color: #000000;
@@ -54,6 +54,7 @@ body {
 	font-size: large;
 	display: flex;
 	justify-content: center;
+	text-size-adjust: none;
 }
 
 figure {
