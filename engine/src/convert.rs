@@ -133,6 +133,7 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
         xml!(meta [property="og:site_name", content="namachan10777"]),
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
         xml!(meta [name="twitter:image", content="https://namachan10777.dev/res/icon.jpg"]),
+        xml!(meta [name="viewport", content="width=device-width,initial-scale=1"]),
     ];
     let title_str = title_xml
         .iter()
