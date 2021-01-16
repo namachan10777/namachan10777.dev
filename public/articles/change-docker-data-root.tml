@@ -1,12 +1,12 @@
 \article title={Dockerイメージの格納先を変更する} date="2020-06-06" category = ("tech"){
   \p{
     夏ですね。響け！ユーフォニアムの事を考えて熱波をやり過ごしていますが人間限界がある。
-    \code{/var}を\code{/}に乗せていれば特に問題はないが、
-    私は\code{/var}を\code{/}とは別で切ってraiserfs載せる運用を行っていたのでこれは結構痛かった。
+    `/var`を`/`に乗せていれば特に問題はないが、
+    私は`/var`を`/`とは別で切ってraiserfs載せる運用を行っていたのでこれは結構痛かった。
   }
   \p{
-    簡単な対処として\code{docker.service}を触って格納先を\code{/}以下の\code{/opt/docker}に変更する方法があるものの、
-    これだとパッケージマネージャが\code{docker.service}を更新する度にリセットされてしまう。
+    簡単な対処として`docker.service`を触って格納先を`/`以下の`/opt/docker`に変更する方法があるものの、
+    これだとパッケージマネージャが`docker.service`を更新する度にリセットされてしまう。
   }
   \section title={解決策} {
     \p{
@@ -20,7 +20,7 @@
       touch /etc/systemd/system/docker.service.d/override.conf
     `###;
     \p{
-      それで\code{override.conf}を以下のように編集する。
+      それで`override.conf`を以下のように編集する。
     }
     \blockcode lang="plain" src=###`
       [Service]
@@ -34,12 +34,12 @@
       systemd daemon-reload
     `###;
     \p{
-      \code{ExecStart=}が無いと
-      \code{docker.service: Service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing.}
+      `ExecStart=`が無いと
+      `docker.service: Service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing.`
       と言わる。
       systemdにはドロップインファイルと呼ばれるユーザーが独自にserviceの一部を書き換えるための機能が提供されており、
       これはパッケージ管理システムの外にあるので恒久的な変更が出来る。
-      \code{systemctl edit}を使ってもいいです。今まで知らなかった。
+      `systemctl edit`を使ってもいいです。今まで知らなかった。
       けしずみ(@ray45422)さんに教えていただきました。ありがとうございます。
     }
   }

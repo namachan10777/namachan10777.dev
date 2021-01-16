@@ -344,12 +344,6 @@ fn execute_articles(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<X
     ))
 }
 
-fn execute_code(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
-    Ok(xml!(code [] inner.into_iter()
-            .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
-            .collect::<EResult<Vec<_>>>()?))
-}
-
 fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let src = value_utils::get_str(&attrs, "src", &ctx.location)?;
     let lang = value_utils::get_str(&attrs, "lang", &ctx.location)?;
@@ -496,7 +490,6 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
         "link" => execute_link(ctx, cmd.attrs, cmd.inner),
         "n" => execute_n(ctx, cmd.inner),
         "line" => execute_line(ctx, cmd.inner),
-        "code" => execute_code(ctx, cmd.inner),
         "blockcode" => execute_blockcode(ctx, cmd.attrs),
         "iframe" => execute_iframe(ctx, cmd.attrs),
         "figure" => execute_figure(ctx, cmd.attrs, cmd.inner),
