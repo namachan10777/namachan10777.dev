@@ -776,7 +776,7 @@ where
 
 pub fn generate_syntect_css() -> (PathBuf, Vec<u8>) {
     let ts = syntect::highlighting::ThemeSet::load_defaults();
-    let light_theme = &ts.themes["Solarized (light)"];
+    let light_theme = &ts.themes["base16-eighties.dark"];
     let css_light = syntect::html::css_for_theme(light_theme);
     let mut buf = Vec::new();
     {

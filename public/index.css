@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap');
 
 pre {
-	padding: 0.3%;
-	border-radius: 1%;
+	padding: 3%;
+	border-radius: 0.5%;
 	overflow-x: scroll;
+	background-color: #000000;
+	color: #f0f0f0;
 }
 
 code {
@@ -15,7 +17,15 @@ code {
 }
 
 .inline-code {
-	background-color: #EFEFEF;
+	color: #000000;
+	margin: 0px 2px 0px 2px;
+	font-family: monospace;
+	border: solid 0.5px;
+	border-radius: 2px;
+	padding: 0px 2px 0px 2px;
+}
+
+h1 {
 }
 
 .article-footer {
@@ -36,7 +46,7 @@ div.hash {
 
 p{
 	color: #202020;
-	line-height: 170%;
+	line-height: 180%;
 }
 
 body {
