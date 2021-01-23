@@ -112,6 +112,59 @@ impl fmt::Display for XMLElem {
     }
 }
 
+impl XMLElem {
+    fn pp_impl(&self, indent: &str) -> Vec<String> {
+        match self {
+            XMLElem::Text(txt) => txt.split('\n').map(|s| indent.to_owned() + s).collect(),
+            XMLElem::Single(name, attrs) => vec![format!(
+                "{}<{}{}/>",
+                indent,
+                name,
+                attrs
+                    .iter()
+                    .map(|(attr, val)| format!(" {}=\"{}\"", attr, val))
+                    .collect::<Vec<String>>()
+                    .join("")
+            )],
+            XMLElem::Raw(raw) => vec![indent.to_owned() + raw],
+            XMLElem::WithElem(name, attrs, inner) => {
+                unimplemented!()
+            }
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn pretty_print(&self) -> String {
+        self.pp_impl("").join("\n")
+    }
+}
+
+#[cfg(test)]
+mod test_pp{
+    use super::*;
+    #[test]
+    fn test_text() {
+        let xml = XMLElem::Text("hoge\nfoo\nbar".to_owned());
+        assert_eq!(xml.pp_impl("  "), vec![
+            "  hoge",
+            "  foo",
+            "  bar",
+        ]);
+    }
+
+    #[test]
+    fn test_single() {
+        let xml = xml!(img [src="https://namachan10777.dev/res/icon.jpg", alt="my icon"]);
+        assert_eq!(xml.pp_impl("  "), vec![
+            "  <img src=\"https://namachan10777.dev/res/icon.jpg\" alt=\"my icon\"/>",
+        ]);
+        let xml = xml!(br []);
+        assert_eq!(xml.pp_impl("  "), vec![
+            "  <br/>",
+        ]);
+    }
+}
+
 impl fmt::Display for XML {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(
