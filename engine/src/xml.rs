@@ -114,18 +114,35 @@ impl fmt::Display for XMLElem {
 
 impl XMLElem {
     fn pp_impl(&self, indent: &str) -> Vec<String> {
+        const WRAP_WIDTH: usize = 120;
+        const INDENT: &'static str = "  ";
         match self {
+            // UTF-8を適切に区切るのは無理なのでここはwrappingしません
             XMLElem::Text(txt) => txt.split('\n').map(|s| indent.to_owned() + s).collect(),
-            XMLElem::Single(name, attrs) => vec![format!(
-                "{}<{}{}/>",
-                indent,
-                name,
-                attrs
+            XMLElem::Single(name, attrs) => {
+                let attrs = attrs
                     .iter()
-                    .map(|(attr, val)| format!(" {}=\"{}\"", attr, val))
-                    .collect::<Vec<String>>()
-                    .join("")
-            )],
+                    .map(|(attr, val)| format!("{}=\"{}\"", attr, val))
+                    .collect::<Vec<String>>();
+                let attrs_length = attrs.iter().map(|s| s.len()).fold(0, |l, acc| l + acc + 1);
+                // < + tag        + /> + attrs
+                if attrs.len() > 0 && 1 + name.len() + 2 + attrs_length > WRAP_WIDTH {
+                    let mut lines = Vec::new();
+                    lines.push(format!("{}<{}", indent, name));
+                    lines.append(
+                        &mut attrs
+                            .into_iter()
+                            .map(|line| INDENT.to_owned() + indent + &line)
+                            .collect(),
+                    );
+                    lines.push(format!("{}/>", indent));
+                    lines
+                } else if attrs.len() > 0 {
+                    vec![format!("{}<{} {}/>", indent, name, attrs.join(" "))]
+                } else {
+                    vec![format!("{}<{}/>", indent, name)]
+                }
+            }
             XMLElem::Raw(raw) => vec![indent.to_owned() + raw],
             XMLElem::WithElem(name, attrs, inner) => {
                 unimplemented!()
@@ -140,28 +157,36 @@ impl XMLElem {
 }
 
 #[cfg(test)]
-mod test_pp{
+mod test_pp {
     use super::*;
     #[test]
     fn test_text() {
         let xml = XMLElem::Text("hoge\nfoo\nbar".to_owned());
-        assert_eq!(xml.pp_impl("  "), vec![
-            "  hoge",
-            "  foo",
-            "  bar",
-        ]);
+        assert_eq!(xml.pp_impl("  "), vec!["  hoge", "  foo", "  bar",]);
     }
 
     #[test]
     fn test_single() {
         let xml = xml!(img [src="https://namachan10777.dev/res/icon.jpg", alt="my icon"]);
-        assert_eq!(xml.pp_impl("  "), vec![
-            "  <img src=\"https://namachan10777.dev/res/icon.jpg\" alt=\"my icon\"/>",
-        ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec!["  <img src=\"https://namachan10777.dev/res/icon.jpg\" alt=\"my icon\"/>",]
+        );
         let xml = xml!(br []);
-        assert_eq!(xml.pp_impl("  "), vec![
-            "  <br/>",
+        assert_eq!(xml.pp_impl("  "), vec!["  <br/>",]);
+        let xml = xml!(udhr [
+            ja="人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない",
+            en="Wheres recognition of the inherent dignity and of the equal and"
         ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec![
+                "  <udhr",
+                "    ja=\"人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない\"",
+                "    en=\"Wheres recognition of the inherent dignity and of the equal and\"",
+                "  />"
+            ]
+        );
     }
 }
 
