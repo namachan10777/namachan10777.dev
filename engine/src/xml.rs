@@ -302,6 +302,12 @@ impl fmt::Display for XML {
     }
 }
 
+impl XML {
+    pub fn pretty_print(&self) -> String {
+        format!("<?xml version=\"{}\" encoding=\"{}\" ?>\n<!DOCTYPE {}>\n{}", self.ver, self.encoding, self.dtd, self.body.pretty_print())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

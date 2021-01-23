@@ -835,7 +835,7 @@ where
             File::Blob(binary) => Ok((p, binary)),
             File::Tml(cmd, _) => {
                 let xml = convert::root(report.get_context(&p).unwrap(), cmd.0)?;
-                Ok((p, xml.to_string().into_bytes()))
+                Ok((p, xml.pretty_print().into_bytes()))
             }
         })
         .collect::<Result<HashMap<_, _>, Error>>()?;
