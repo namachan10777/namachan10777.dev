@@ -132,7 +132,14 @@ impl XMLElem {
         };
         match self {
             // UTF-8を適切に区切るのは無理なのでここはwrappingしません
-            XMLElem::Text(txt) => txt.split('\n').map(|s| indent.to_owned() + s).collect(),
+            XMLElem::Text(txt) => {
+                if txt.trim().len() == 0 {
+                    vec![]
+                }
+                else {
+                    txt.trim().split('\n').map(|s| indent.to_owned() + s.trim_start()).collect()
+                }
+            }
             XMLElem::Single(name, attrs) => {
                 let attrs = stringify_attrs(attrs);
                 let attrs_length = attrs_length(&attrs);
@@ -156,8 +163,8 @@ impl XMLElem {
                     inner
                         .iter()
                         .map(|xml| xml.pp_impl(indent))
-                        .flatten()
-                        .collect::<Vec<String>>()
+                        .collect::<Vec<Vec<String>>>()
+                        .concat()
                 };
                 let attrs = stringify_attrs(attrs);
                 let attrs_length = attrs_length(&attrs);
