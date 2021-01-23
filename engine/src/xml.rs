@@ -116,25 +116,32 @@ impl XMLElem {
     fn pp_impl(&self, indent: &str) -> Vec<String> {
         const WRAP_WIDTH: usize = 120;
         const INDENT: &'static str = "  ";
+        let stringify_attrs = |attrs: &[(String, String)]| {
+            attrs
+                .iter()
+                .map(|(attr, val)| format!("{}=\"{}\"", attr, val))
+                .collect::<Vec<String>>()
+        };
+        let attrs_length =
+            |attrs: &[String]| attrs.iter().map(|s| s.len()).fold(0, |l, acc| l + acc + 1);
+        let add_indent_per_attrs = |attrs: Vec<String>| {
+            attrs
+                .into_iter()
+                .map(|line| INDENT.to_owned() + indent + &line)
+                .collect()
+        };
         match self {
             // UTF-8を適切に区切るのは無理なのでここはwrappingしません
             XMLElem::Text(txt) => txt.split('\n').map(|s| indent.to_owned() + s).collect(),
             XMLElem::Single(name, attrs) => {
-                let attrs = attrs
-                    .iter()
-                    .map(|(attr, val)| format!("{}=\"{}\"", attr, val))
-                    .collect::<Vec<String>>();
-                let attrs_length = attrs.iter().map(|s| s.len()).fold(0, |l, acc| l + acc + 1);
+                let attrs = stringify_attrs(attrs);
+                let attrs_length = attrs_length(&attrs);
                 // < + tag        + /> + attrs
-                if attrs.len() > 0 && 1 + name.len() + 2 + attrs_length > WRAP_WIDTH {
+                if attrs.len() > 0 && indent.len() + 1 + name.len() + attrs_length + 2 > WRAP_WIDTH
+                {
                     let mut lines = Vec::new();
                     lines.push(format!("{}<{}", indent, name));
-                    lines.append(
-                        &mut attrs
-                            .into_iter()
-                            .map(|line| INDENT.to_owned() + indent + &line)
-                            .collect(),
-                    );
+                    lines.append(&mut add_indent_per_attrs(attrs));
                     lines.push(format!("{}/>", indent));
                     lines
                 } else if attrs.len() > 0 {
@@ -145,9 +152,44 @@ impl XMLElem {
             }
             XMLElem::Raw(raw) => vec![indent.to_owned() + raw],
             XMLElem::WithElem(name, attrs, inner) => {
-                unimplemented!()
+                let stringify_inners = |indent: &str, inner: &[XMLElem]| {
+                    inner
+                        .iter()
+                        .map(|xml| xml.pp_impl(indent))
+                        .flatten()
+                        .collect::<Vec<String>>()
+                };
+                let attrs = stringify_attrs(attrs);
+                let attrs_length = attrs_length(&attrs);
+                // < + tag        + > + attrs
+                let mut lines = Vec::new();
+                // attributes行分割
+                let inners_head =
+                    if attrs.len() > 0 && 1 + name.len() + 1 + attrs_length > WRAP_WIDTH {
+                        lines.push(format!("{}<{}", indent, name));
+                        lines.append(&mut add_indent_per_attrs(attrs));
+                        format!("{}>", indent)
+                    } else if attrs.len() > 0 {
+                        format!("{}<{} {}>", indent, name, attrs.join(" "))
+                    } else {
+                        format!("{}<{}>", indent, name)
+                    };
+                let inners = stringify_inners("", inner);
+                if inners_head.len()
+                    + inners.iter().map(|l| l.len()).fold(0, |l, acc| l + acc)
+                    + 1
+                    + name.len()
+                    + 2
+                    < WRAP_WIDTH
+                {
+                    lines.push(format!("{}{}</{}>", inners_head, inners.join(""), name));
+                } else {
+                    lines.push(inners_head);
+                    lines.append(&mut stringify_inners(&(indent.to_owned() + INDENT), inner));
+                    lines.push(format!("{}</{}>", indent, name));
+                }
+                lines
             }
-            _ => unimplemented!(),
         }
     }
 
@@ -185,6 +227,66 @@ mod test_pp {
                 "    ja=\"人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない\"",
                 "    en=\"Wheres recognition of the inherent dignity and of the equal and\"",
                 "  />"
+            ]
+        );
+    }
+
+    #[test]
+    fn test_withelem() {
+        let xml = xml!(udhr [] [
+            xml!(ja [] [xml!("人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない".to_owned())]),
+            xml!(en [] [xml!("Wheres recognition of the inherent dignity and of the equal and".to_owned())])
+        ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec![
+                "  <udhr>",
+                "    <ja>人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない</ja>",
+                "    <en>Wheres recognition of the inherent dignity and of the equal and</en>",
+                "  </udhr>"
+            ]
+        );
+        let xml = xml!(text [] [
+            xml!(span [] [xml!("あいう".to_owned())]),
+            xml!(span [] [xml!("えおか".to_owned())])
+        ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec!["  <text><span>あいう</span><span>えおか</span></text>".to_owned()],
+        );
+        let xml = xml!(udhr [
+            ja="人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない",
+            en="Wheres recognition of the inherent dignity and of the equal and"
+        ] [
+            xml!(ja [] [xml!("人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない".to_owned())]),
+            xml!(en [] [xml!("Wheres recognition of the inherent dignity and of the equal and".to_owned())])
+        ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec![
+                "  <udhr",
+                "    ja=\"人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない\"",
+                "    en=\"Wheres recognition of the inherent dignity and of the equal and\"",
+                "  >",
+                "    <ja>人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない</ja>",
+                "    <en>Wheres recognition of the inherent dignity and of the equal and</en>",
+                "  </udhr>"
+            ]
+        );
+        let xml = xml!(udhr [
+            ja="人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない",
+            en="Wheres recognition of the inherent dignity and of the equal and"
+        ] [
+            xml!(span [] [xml!("あいう".to_owned())]),
+            xml!(span [] [xml!("えおか".to_owned())])
+        ]);
+        assert_eq!(
+            xml.pp_impl("  "),
+            vec![
+                "  <udhr",
+                "    ja=\"人類社会のすべての構成員の固有の尊厳と平等で譲ることの出来ない\"",
+                "    en=\"Wheres recognition of the inherent dignity and of the equal and\"",
+                "  ><span>あいう</span><span>えおか</span></udhr>"
             ]
         );
     }
