@@ -115,7 +115,7 @@ impl fmt::Display for XMLElem {
 impl XMLElem {
     fn pp_impl(&self, indent: &str) -> Vec<String> {
         const WRAP_WIDTH: usize = 120;
-        const INDENT: &'static str = "  ";
+        const INDENT: &str = "  ";
         let stringify_attrs = |attrs: &[(String, String)]| {
             attrs
                 .iter()
@@ -133,25 +133,28 @@ impl XMLElem {
         match self {
             // UTF-8を適切に区切るのは無理なのでここはwrappingしません
             XMLElem::Text(txt) => {
-                if txt.trim().len() == 0 {
+                if txt.trim().is_empty() {
                     vec![]
-                }
-                else {
-                    txt.trim().split('\n').map(|s| indent.to_owned() + s.trim_start()).collect()
+                } else {
+                    txt.trim()
+                        .split('\n')
+                        .map(|s| indent.to_owned() + s.trim_start())
+                        .collect()
                 }
             }
             XMLElem::Single(name, attrs) => {
                 let attrs = stringify_attrs(attrs);
                 let attrs_length = attrs_length(&attrs);
                 // < + tag        + /> + attrs
-                if attrs.len() > 0 && indent.len() + 1 + name.len() + attrs_length + 2 > WRAP_WIDTH
+                if !attrs.is_empty()
+                    && indent.len() + 1 + name.len() + attrs_length + 2 > WRAP_WIDTH
                 {
                     let mut lines = Vec::new();
                     lines.push(format!("{}<{}", indent, name));
                     lines.append(&mut add_indent_per_attrs(attrs));
                     lines.push(format!("{}/>", indent));
                     lines
-                } else if attrs.len() > 0 {
+                } else if !attrs.is_empty() {
                     vec![format!("{}<{} {}/>", indent, name, attrs.join(" "))]
                 } else {
                     vec![format!("{}<{}/>", indent, name)]
@@ -172,18 +175,18 @@ impl XMLElem {
                 let mut lines = Vec::new();
                 // attributes行分割
                 let inners_head =
-                    if attrs.len() > 0 && 1 + name.len() + 1 + attrs_length > WRAP_WIDTH {
+                    if !attrs.is_empty() && 1 + name.len() + 1 + attrs_length > WRAP_WIDTH {
                         lines.push(format!("{}<{}", indent, name));
                         lines.append(&mut add_indent_per_attrs(attrs));
                         format!("{}>", indent)
-                    } else if attrs.len() > 0 {
+                    } else if !attrs.is_empty() {
                         format!("{}<{} {}>", indent, name, attrs.join(" "))
                     } else {
                         format!("{}<{}>", indent, name)
                     };
                 let inners = stringify_inners("", inner);
                 if inners_head.len()
-                    + inners.iter().map(|l| l.len()).fold(0, |l, acc| l + acc)
+                    + inners.iter().map(|l| l.len()).sum::<usize>()
                     + 1
                     + name.len()
                     + 2
@@ -311,7 +314,13 @@ impl fmt::Display for XML {
 
 impl XML {
     pub fn pretty_print(&self) -> String {
-        format!("<?xml version=\"{}\" encoding=\"{}\" ?>\n<!DOCTYPE {}>\n{}", self.ver, self.encoding, self.dtd, self.body.pretty_print())
+        format!(
+            "<?xml version=\"{}\" encoding=\"{}\" ?>\n<!DOCTYPE {}>\n{}",
+            self.ver,
+            self.encoding,
+            self.dtd,
+            self.body.pretty_print()
+        )
     }
 }
 
