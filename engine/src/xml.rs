@@ -166,6 +166,9 @@ impl XMLElem {
                     vec![]
                 } else {
                     txt.trim()
+                        .replace("&", "&amp;")
+                        .replace(">", "&gt;")
+                        .replace("<", "&lt;")
                         .split('\n')
                         .map(|s| indent.to_owned() + s.trim_start())
                         .collect()
