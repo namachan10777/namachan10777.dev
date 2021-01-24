@@ -77,7 +77,7 @@ jobs:
               -H 'Content-Type: application/zip' \
               -H 'Authorization: Bearer '$NETLIFY_TOKEN \
               --data-binary @public.zip \
-              https://api.netlify.com/api/v1/sites/namachan10777.netlify.com/deploys
+              https://api.netlify.com/api/v1/sites/namachan10777.netlify.com/deploys | jq
 
 workflows:
   version: 2.1
