@@ -217,10 +217,13 @@ impl XMLElem {
                         format!("{}<{}>", indent, name)
                     };
                 if name == "pre" {
-                    let code = inner.iter().map(|e| format!("{}", e)).collect::<Vec<String>>().join("");
+                    let code = inner
+                        .iter()
+                        .map(|e| format!("{}", e))
+                        .collect::<Vec<String>>()
+                        .join("");
                     lines.push(format!("{}{}</pre>", inners_head, code));
-                }
-                else {
+                } else {
                     let inners = stringify_inners("", inner);
                     if inners_head.len()
                         + inners.iter().map(|l| l.len()).sum::<usize>()
