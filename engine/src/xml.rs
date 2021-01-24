@@ -216,19 +216,25 @@ impl XMLElem {
                     } else {
                         format!("{}<{}>", indent, name)
                     };
-                let inners = stringify_inners("", inner);
-                if inners_head.len()
-                    + inners.iter().map(|l| l.len()).sum::<usize>()
-                    + 1
-                    + name.len()
-                    + 2
-                    < WRAP_WIDTH
-                {
-                    lines.push(format!("{}{}</{}>", inners_head, inners.join(""), name));
-                } else {
-                    lines.push(inners_head);
-                    lines.append(&mut stringify_inners(&(indent.to_owned() + INDENT), inner));
-                    lines.push(format!("{}</{}>", indent, name));
+                if name == "pre" {
+                    let code = inner.iter().map(|e| format!("{}", e)).collect::<Vec<String>>().join("");
+                    lines.push(format!("{}{}</pre>", inners_head, code));
+                }
+                else {
+                    let inners = stringify_inners("", inner);
+                    if inners_head.len()
+                        + inners.iter().map(|l| l.len()).sum::<usize>()
+                        + 1
+                        + name.len()
+                        + 2
+                        < WRAP_WIDTH
+                    {
+                        lines.push(format!("{}{}</{}>", inners_head, inners.join(""), name));
+                    } else {
+                        lines.push(inners_head);
+                        lines.append(&mut stringify_inners(&(indent.to_owned() + INDENT), inner));
+                        lines.push(format!("{}</{}>", indent, name));
+                    }
                 }
                 lines
             }
