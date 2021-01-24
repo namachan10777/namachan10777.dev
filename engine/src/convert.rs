@@ -540,7 +540,7 @@ fn execute_figure(
         .collect::<EResult<Vec<XMLElem>>>()?;
     let inner = vec![
         xml!(div [class="images"] figures),
-        xml!(figurecaption [] process_text(ctx, caption)?),
+        xml!(figcaption [] process_text(ctx, caption)?),
     ];
     if let Some(id) = id {
         Ok(xml!(figure [id=id] inner))
