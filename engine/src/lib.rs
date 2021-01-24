@@ -774,18 +774,6 @@ where
     paths
 }
 
-pub fn generate_syntect_css() -> (PathBuf, Vec<u8>) {
-    let ts = syntect::highlighting::ThemeSet::load_defaults();
-    let light_theme = &ts.themes["base16-eighties.dark"];
-    let css_light = syntect::html::css_for_theme(light_theme);
-    let mut buf = Vec::new();
-    {
-        let mut writer = io::BufWriter::new(io::Cursor::new(&mut buf));
-        write!(writer, "{}", css_light).unwrap();
-    }
-    (PathBuf::from("syntect.css"), buf)
-}
-
 pub fn compile_and_write<W: Write + Seek, P>(writer: &mut W, dir_path: P) -> Result<(), Error>
 where
     P: AsRef<Path>,
@@ -826,7 +814,7 @@ where
         }
     }
     let report = analysis::analyze(&files)?;
-    let generated_files = convert::generate_category_pages(&report)?
+    let generated_files = convert::generate_category_pages(&report, &report.css)?
         .into_iter()
         .map(|(p, xml)| (p, xml.to_string().into_bytes()));
     let mut out = files
@@ -840,7 +828,6 @@ where
         })
         .collect::<Result<HashMap<_, _>, Error>>()?;
     out.extend(generated_files);
-    out.extend(vec![generate_syntect_css()].into_iter());
     let dist_writer = io::BufWriter::new(writer);
     let mut dist_zip = zip::ZipWriter::new(dist_writer);
     let options = zip::write::FileOptions::default()

@@ -68,6 +68,11 @@ pub struct XML {
     body: XMLElem,
 }
 
+pub struct Html {
+    dtd: String,
+    body: XMLElem,
+}
+
 impl XML {
     pub fn new(ver: &str, encoding: &str, dtd: &str, body: XMLElem) -> Self {
         XML {
@@ -90,6 +95,15 @@ impl XMLElem {
                 .join(""),
             XMLElem::Raw(_) => String::new(),
             XMLElem::Text(s) => s.to_owned(),
+        }
+    }
+}
+
+impl Html {
+    pub fn new(dtd: &str, body: XMLElem) -> Self {
+        Self {
+            body,
+            dtd: dtd.to_owned(),
         }
     }
 }
@@ -336,6 +350,12 @@ impl XML {
             self.dtd,
             self.body.pretty_print()
         )
+    }
+}
+
+impl Html {
+    pub fn pretty_print(&self) -> String {
+        format!("<!DOCTYPE {}>\n{}", self.dtd, self.body.pretty_print())
     }
 }
 

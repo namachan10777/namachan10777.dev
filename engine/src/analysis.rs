@@ -21,6 +21,7 @@ pub struct Report {
     titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
     ss: SyntaxSet,
     pub category_pages: HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
+    pub css: String,
 }
 
 impl Report {
@@ -36,6 +37,7 @@ impl Report {
                 ss: &self.ss,
                 sha256: Some(sha256),
                 path: p,
+                css: &self.css,
             })
         } else {
             None
@@ -53,8 +55,15 @@ impl Report {
             ss: &self.ss,
             sha256: None,
             path: p,
+            css: &self.css,
         }
     }
+}
+
+pub fn generate_syntect_css() -> String {
+    let ts = syntect::highlighting::ThemeSet::load_defaults();
+    let light_theme = &ts.themes["base16-eighties.dark"];
+    syntect::html::css_for_theme(light_theme)
 }
 
 fn extract_title(cmd: &(Cmd, Location)) -> Result<Vec<TextElemAst>, Error> {
@@ -186,10 +195,17 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
             );
         }
     }
+    let index_css = parsed.get(Path::new("index.css")).map(|file| {
+        match file {
+            super::File::Blob(css) => String::from_utf8_lossy(css).to_string(),
+            _ => String::new(),
+        }
+    }).unwrap_or_else(String::new);
     Ok(Report {
         category_pages,
         per_article,
         ss: SyntaxSet::load_defaults_nonewlines(),
         titles,
+        css: index_css + &generate_syntect_css(),
     })
 }

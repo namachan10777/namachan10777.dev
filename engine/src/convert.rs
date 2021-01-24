@@ -1,6 +1,6 @@
 use super::value_utils;
 use super::xml;
-use super::xml::{XMLElem, XML};
+use super::xml::{XMLElem, Html};
 use super::{Cmd, Error, Location, TextElem, TextElemAst, ValueAst};
 use log::warn;
 use std::collections::HashMap;
@@ -21,6 +21,7 @@ pub struct Context<'a> {
     pub ss: &'a SyntaxSet,
     pub sha256: Option<&'a str>,
     pub path: &'a std::path::Path,
+    pub css: &'a str,
 }
 
 impl<'a> Context<'a> {
@@ -32,8 +33,8 @@ impl<'a> Context<'a> {
     }
 }
 
-pub fn root(ctx: Context, cmd: Cmd) -> EResult<XML> {
-    Ok(XML::new("1.0", "UTF-8", "html", process_cmd(ctx, cmd)?))
+pub fn root(ctx: Context, cmd: Cmd) -> EResult<Html> {
+    Ok(Html::new("html", process_cmd(ctx, cmd)?))
 }
 
 fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
@@ -117,7 +118,7 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
-    let mut header = gen_headers(&ctx.path, body.clone(), title, ctx.path.to_str().unwrap());
+    let mut header = gen_headers(&ctx.path, body.clone(), title, ctx.path.to_str().unwrap(), ctx.css);
     header.push(xml!(meta [property="og:type", content="profile"]));
     Ok(html(body, header))
 }
@@ -127,6 +128,7 @@ fn gen_headers(
     body_xml: Vec<XMLElem>,
     title_xml: Vec<XMLElem>,
     page_name: &str,
+    css: &str,
 ) -> Vec<XMLElem> {
     let url = "https://namachan10777.dev/".to_owned() + path.to_str().unwrap();
     let amp_boilerplate = concat!(
@@ -158,9 +160,11 @@ fn gen_headers(
             Vec::new(),
         ),
         xml!(link [rel="canonical", href=("https://namachan10777.dev/".to_owned() + page_name)]),
-        xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
-        xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
+        xml!(link [rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
+        XMLElem::WithElem("style".to_owned(), vec![xml::Attr::Single("amp-custom".to_owned())], vec![
+            XMLElem::Text(css.to_owned())
+        ]),
         xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.webp"]),
         xml!(meta [name="twitter:site", content="@namachan10777"]),
         xml!(meta [name="twitter:card", content="summary"]),
@@ -228,10 +232,6 @@ fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
         "html".to_owned(),
         vec![
             xml::Attr::Single("amp".to_owned()).to_owned(),
-            xml::Attr::Pair(
-                "xmlns".to_owned(),
-                "http://www.w3.org/1999/xhtml".to_owned(),
-            ),
             xml::Attr::Pair("lang".to_owned(), "ja".to_owned()),
         ],
         vec![
@@ -296,6 +296,7 @@ fn execute_article(
         body_xml.clone(),
         title_xml,
         ctx.path.to_str().unwrap(),
+        ctx.css,
     );
     header.push(xml!(meta [name="og:type", content="article"]));
     body.append(&mut body_xml);
@@ -334,10 +335,28 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
+    // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
-        Ok(xml!(img [src=url, class=classes, alt=alt]))
+        Ok(XMLElem::Single(
+                "amp-img".to_owned(),
+                vec![
+                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                    xml::Attr::Pair("class".to_owned(), classes.to_owned()),
+                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                    xml::Attr::Pair("width".to_owned(), "100".to_owned()),
+                    xml::Attr::Pair("height".to_owned(), "100".to_owned()),
+                ]
+        ))
     } else {
-        Ok(xml!(img [src=url, alt=alt]))
+        Ok(XMLElem::Single(
+                "amp-img".to_owned(),
+                vec![
+                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                    xml::Attr::Pair("width".to_owned(), "100".to_owned()),
+                    xml::Attr::Pair("height".to_owned(), "100".to_owned()),
+                ]
+        ))
     }
 }
 
@@ -576,6 +595,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
 
 pub fn generate_category_pages(
     report: &super::analysis::Report,
+    css: &str,
 ) -> EResult<Vec<(PathBuf, XMLElem)>> {
     report
         .category_pages
@@ -605,6 +625,7 @@ pub fn generate_category_pages(
                 body.clone(),
                 title,
                 &format!("categori/{}.html,", category_name),
+                css,
             );
             // TODO: add og:type metatag
             Ok((output_path, html(body, header)))
