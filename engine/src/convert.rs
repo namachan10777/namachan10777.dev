@@ -137,16 +137,27 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
         xml!(meta [name="viewport", content="width=device-width,initial-scale=1"]),
     ];
-    let title_str = title_xml
-        .iter()
-        .map(|xml| xml.extract_string())
-        .collect::<Vec<_>>()
-        .join("");
-    let body_str = body_xml
-        .iter()
-        .map(|xml| xml.extract_string())
-        .collect::<Vec<_>>()
-        .join("");
+    let empty_re = regex::Regex::new("[ \r\n\t]+").unwrap();
+    let title_str = empty_re
+        .replace_all(
+            &title_xml
+                .iter()
+                .map(|xml| xml.extract_string())
+                .collect::<Vec<_>>()
+                .join(""),
+            " ",
+        )
+        .to_string();
+    let body_str = empty_re
+        .replace_all(
+            &body_xml
+                .iter()
+                .map(|xml| xml.extract_string())
+                .collect::<Vec<_>>()
+                .join(""),
+            " ",
+        )
+        .to_string();
     let chars = body_str.chars();
     let body_str = if chars.clone().count() > 64 {
         chars
