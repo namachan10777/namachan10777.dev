@@ -128,13 +128,13 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
         xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
-        xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.jpg"]),
+        xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.webp"]),
         xml!(meta [name="twitter:site", content="@namachan10777"]),
         xml!(meta [name="twitter:card", content="summary"]),
         xml!(meta [name="twitter:creator", content="@namachan10777"]),
         xml!(meta [property="og:url", content=&url]),
         xml!(meta [property="og:site_name", content="namachan10777"]),
-        xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
+        xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.webp"]),
         xml!(meta [name="viewport", content="width=device-width,initial-scale=1"]),
     ];
     let empty_re = regex::Regex::new("[ \r\n\t]+").unwrap();
