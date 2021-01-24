@@ -116,7 +116,8 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
-    let header = gen_headers(&ctx.path, body.clone(), title);
+    let mut header = gen_headers(&ctx.path, body.clone(), title);
+    header.push(xml!(meta [property="og:type", content="profile"]));
     Ok(html(body, header))
 }
 
@@ -127,13 +128,13 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
         xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
-        xml!(meta [name="twitter:card", content="summary"]),
+        xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.jpg"]),
         xml!(meta [name="twitter:site", content="@namachan10777"]),
+        xml!(meta [name="twitter:card", content="summary"]),
         xml!(meta [name="twitter:creator", content="@namachan10777"]),
         xml!(meta [property="og:url", content=&url]),
         xml!(meta [property="og:site_name", content="namachan10777"]),
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.jpg"]),
-        xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.jpg"]),
         xml!(meta [name="viewport", content="width=device-width,initial-scale=1"]),
     ];
     let title_str = title_xml
@@ -160,7 +161,6 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
     header.push(xml!(title [] title_xml));
     header.push(xml!(meta [property="og:title", content=&title_str]));
     header.push(xml!(meta [name="twitter:title", content=&title_str]));
-    header.push(xml!(meta [property="og:type", content="article"]));
     header.push(xml!(meta [property="og:description", content=body_str]));
     header.push(xml!(meta [name="description", content=body_str]));
     header.push(xml!(meta [name="twitter:description", content=body_str]));
@@ -224,7 +224,8 @@ fn execute_article(
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
         .collect::<EResult<Vec<_>>>()?;
-    let header = gen_headers(&ctx.path, body_xml.clone(), title_xml);
+    let mut header = gen_headers(&ctx.path, body_xml.clone(), title_xml);
+    header.push(xml!(meta [name="og:type", content="article"]));
     body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
 
@@ -528,6 +529,7 @@ pub fn generate_category_pages(
                 xml!(ul [] titles)
             ])];
             let header = gen_headers(&output_path, body.clone(), title);
+            // TODO: add og:type metatag
             Ok((output_path, html(body, header)))
         })
         .collect::<EResult<Vec<(PathBuf, XMLElem)>>>()
