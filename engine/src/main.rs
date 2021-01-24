@@ -46,12 +46,7 @@ fn handle_error(e: Error) -> ! {
             desc,
             because,
         } => {
-            error!(
-                "{} at {:?} because {:?}",
-                desc,
-                path,
-                because
-            );
+            error!("{} at {:?} because {:?}", desc, path, because);
             exit(-1);
         }
         Error::ZipError { desc, because } => {

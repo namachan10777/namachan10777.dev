@@ -2,11 +2,11 @@ use super::convert::Context;
 use super::{Cmd, Location, Parsed, TextElemAst};
 use super::{Error, Value};
 use chrono::{DateTime, FixedOffset, NaiveDate, TimeZone};
+use image::GenericImageView;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::parsing::SyntaxSet;
-use image::GenericImageView;
 
 type ArticleHeading = (PathBuf, Vec<TextElemAst>);
 
@@ -198,17 +198,20 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
                     calc_sha256(path, src),
                 ),
             );
-        }
-        else if let super::File::Image(img, _) = file {
-            aspects.insert(path.to_owned(), (img.width() as usize, img.height() as usize));
+        } else if let super::File::Image(img, _) = file {
+            aspects.insert(
+                path.to_owned(),
+                (img.width() as usize, img.height() as usize),
+            );
         }
     }
-    let index_css = parsed.get(Path::new("index.css")).map(|file| {
-        match file {
+    let index_css = parsed
+        .get(Path::new("index.css"))
+        .map(|file| match file {
             super::File::Blob(css) => String::from_utf8_lossy(css).to_string(),
             _ => String::new(),
-        }
-    }).unwrap_or_else(String::new);
+        })
+        .unwrap_or_else(String::new);
     Ok(Report {
         aspects,
         category_pages,

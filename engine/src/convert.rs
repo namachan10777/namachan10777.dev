@@ -1,6 +1,6 @@
 use super::value_utils;
 use super::xml;
-use super::xml::{XMLElem, Html};
+use super::xml::{Html, XMLElem};
 use super::{Cmd, Error, Location, TextElem, TextElemAst, ValueAst};
 use log::warn;
 use std::collections::HashMap;
@@ -119,7 +119,13 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
-    let mut header = gen_headers(&ctx.path, body.clone(), title, ctx.path.to_str().unwrap(), ctx.css);
+    let mut header = gen_headers(
+        &ctx.path,
+        body.clone(),
+        title,
+        ctx.path.to_str().unwrap(),
+        ctx.css,
+    );
     header.push(xml!(meta [property="og:type", content="profile"]));
     Ok(html(body, header))
 }
@@ -163,9 +169,11 @@ fn gen_headers(
         xml!(link [rel="canonical", href=("https://namachan10777.dev/".to_owned() + page_name)]),
         xml!(link [rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
-        XMLElem::WithElem("style".to_owned(), vec![xml::Attr::Single("amp-custom".to_owned())], vec![
-            XMLElem::Text(css.to_owned())
-        ]),
+        XMLElem::WithElem(
+            "style".to_owned(),
+            vec![xml::Attr::Single("amp-custom".to_owned())],
+            vec![XMLElem::Text(css.to_owned())],
+        ),
         xml!(meta [name="twitter:image:src", content="https://namachan10777.dev/res/icon.webp"]),
         xml!(meta [name="twitter:site", content="@namachan10777"]),
         xml!(meta [name="twitter:card", content="summary"]),
@@ -232,7 +240,7 @@ fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
     XMLElem::WithElem(
         "html".to_owned(),
         vec![
-            xml::Attr::Single("amp".to_owned()).to_owned(),
+            xml::Attr::Single("amp".to_owned()),
             xml::Attr::Pair("lang".to_owned(), "ja".to_owned()),
         ],
         vec![
@@ -336,28 +344,32 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
-    let (w, h) = ctx.aspects.get(Path::new(url)).copied().unwrap_or((100, 100));
+    let (w, h) = ctx
+        .aspects
+        .get(Path::new(url))
+        .copied()
+        .unwrap_or((100, 100));
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
         Ok(XMLElem::Single(
-                "amp-img".to_owned(),
-                vec![
-                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
-                    xml::Attr::Pair("class".to_owned(), classes.to_owned()),
-                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                    xml::Attr::Pair("width".to_owned(), w.to_string()),
-                    xml::Attr::Pair("height".to_owned(), h.to_string()),
-                ]
+            "amp-img".to_owned(),
+            vec![
+                xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                xml::Attr::Pair("class".to_owned(), classes.to_owned()),
+                xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                xml::Attr::Pair("width".to_owned(), w.to_string()),
+                xml::Attr::Pair("height".to_owned(), h.to_string()),
+            ],
         ))
     } else {
         Ok(XMLElem::Single(
-                "amp-img".to_owned(),
-                vec![
-                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
-                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                    xml::Attr::Pair("width".to_owned(), w.to_string()),
-                    xml::Attr::Pair("height".to_owned(), h.to_string()),
-                ]
+            "amp-img".to_owned(),
+            vec![
+                xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                xml::Attr::Pair("width".to_owned(), w.to_string()),
+                xml::Attr::Pair("height".to_owned(), h.to_string()),
+            ],
         ))
     }
 }
