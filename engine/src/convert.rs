@@ -1,4 +1,5 @@
 use super::value_utils;
+use super::xml;
 use super::xml::{XMLElem, XML};
 use super::{Cmd, Error, Location, TextElem, TextElemAst, ValueAst};
 use log::warn;
@@ -6,7 +7,6 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
-use super::xml;
 
 type EResult<T> = Result<T, Error>;
 
@@ -117,15 +117,47 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
-    let mut header = gen_headers(&ctx.path, body.clone(), title);
+    let mut header = gen_headers(&ctx.path, body.clone(), title, ctx.path.to_str().unwrap());
     header.push(xml!(meta [property="og:type", content="profile"]));
     Ok(html(body, header))
 }
 
-fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> Vec<XMLElem> {
+fn gen_headers(
+    path: &Path,
+    body_xml: Vec<XMLElem>,
+    title_xml: Vec<XMLElem>,
+    page_name: &str,
+) -> Vec<XMLElem> {
     let url = "https://namachan10777.dev/".to_owned() + path.to_str().unwrap();
+    let amp_boilerplate = concat!(
+        "body{",
+        "-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;",
+        "-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;",
+        "-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;",
+        "animation:-amp-start 8s steps(1,end) 0s 1 normal both}",
+        "@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}",
+        "@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}",
+        "@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}",
+        "@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}",
+        "@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}",
+    );
+    let amp_boilerplate_noscript = concat!(
+        "body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}"
+    );
     let mut header = vec![
         xml!(meta[charset = "UTF-8"]),
+        XMLElem::WithElem(
+            "script".to_owned(),
+            vec![
+                xml::Attr::Single("async".to_owned()),
+                xml::Attr::Pair(
+                    "src".to_owned(),
+                    "https://cdn.ampproject.org/v0.js".to_owned(),
+                ),
+            ],
+            Vec::new(),
+        ),
+        xml!(link [rel="canonical", href=("https://namachan10777.dev/".to_owned() + page_name)]),
         xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
@@ -137,6 +169,18 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
         xml!(meta [property="og:site_name", content="namachan10777"]),
         xml!(meta [property="og:image", content="https://namachan10777.dev/res/icon.webp"]),
         xml!(meta [name="viewport", content="width=device-width,initial-scale=1"]),
+        XMLElem::WithElem(
+            "style".to_string(),
+            vec![xml::Attr::Single("amp-boilerplate".to_string())],
+            vec![XMLElem::Text(amp_boilerplate.to_string())],
+        ),
+        xml!(noscript [] [
+            XMLElem::WithElem(
+                "style".to_string(),
+                vec![xml::Attr::Single("amp-boilerplate".to_string())],
+                vec![XMLElem::Text(amp_boilerplate_noscript.to_string())],
+            )
+        ]),
     ];
     let empty_re = regex::Regex::new("[ \r\n\t]+").unwrap();
     let title_str = empty_re
@@ -180,10 +224,21 @@ fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> 
 }
 
 fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
-    xml!(html [xmlns="http://www.w3.org/1999/xhtml", lang="ja"] [
-         xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
-         xml!(body [] [xml!(div [id="root"] body)])
-    ])
+    XMLElem::WithElem(
+        "html".to_owned(),
+        vec![
+            xml::Attr::Single("amp".to_owned()).to_owned(),
+            xml::Attr::Pair(
+                "xmlns".to_owned(),
+                "http://www.w3.org/1999/xhtml".to_owned(),
+            ),
+            xml::Attr::Pair("lang".to_owned(), "ja".to_owned()),
+        ],
+        vec![
+            xml!(head [prefix="og: http://ogp.me/ns# object: http://ogp.me/ns/object#"] header),
+            xml!(body [] [xml!(div [id="root"] body)]),
+        ],
+    )
 }
 
 fn execute_article(
@@ -236,7 +291,12 @@ fn execute_article(
         .into_iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
         .collect::<EResult<Vec<_>>>()?;
-    let mut header = gen_headers(&ctx.path, body_xml.clone(), title_xml);
+    let mut header = gen_headers(
+        &ctx.path,
+        body_xml.clone(),
+        title_xml,
+        ctx.path.to_str().unwrap(),
+    );
     header.push(xml!(meta [name="og:type", content="article"]));
     body.append(&mut body_xml);
     body.push(xml!(footer [] footer_inner));
@@ -540,7 +600,12 @@ pub fn generate_category_pages(
                 xml!(h1 [] title.clone()),
                 xml!(ul [] titles)
             ])];
-            let header = gen_headers(&output_path, body.clone(), title);
+            let header = gen_headers(
+                &output_path,
+                body.clone(),
+                title,
+                &format!("categori/{}.html,", category_name),
+            );
             // TODO: add og:type metatag
             Ok((output_path, html(body, header)))
         })
