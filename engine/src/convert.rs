@@ -21,6 +21,7 @@ pub struct Context<'a> {
     pub ss: &'a SyntaxSet,
     pub sha256: Option<&'a str>,
     pub path: &'a std::path::Path,
+    pub aspects: &'a HashMap<PathBuf, (usize, usize)>,
     pub css: &'a str,
 }
 
@@ -335,6 +336,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
+    let (w, h) = ctx.aspects.get(Path::new(url)).copied().unwrap_or((100, 100));
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
         Ok(XMLElem::Single(
@@ -343,8 +345,8 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                     xml::Attr::Pair("src".to_owned(), url.to_owned()),
                     xml::Attr::Pair("class".to_owned(), classes.to_owned()),
                     xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                    xml::Attr::Pair("width".to_owned(), "100".to_owned()),
-                    xml::Attr::Pair("height".to_owned(), "100".to_owned()),
+                    xml::Attr::Pair("width".to_owned(), w.to_string()),
+                    xml::Attr::Pair("height".to_owned(), h.to_string()),
                 ]
         ))
     } else {
@@ -353,8 +355,8 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 vec![
                     xml::Attr::Pair("src".to_owned(), url.to_owned()),
                     xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                    xml::Attr::Pair("width".to_owned(), "100".to_owned()),
-                    xml::Attr::Pair("height".to_owned(), "100".to_owned()),
+                    xml::Attr::Pair("width".to_owned(), w.to_string()),
+                    xml::Attr::Pair("height".to_owned(), h.to_string()),
                 ]
         ))
     }

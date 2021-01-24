@@ -6,6 +6,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::parsing::SyntaxSet;
+use image::GenericImageView;
 
 type ArticleHeading = (PathBuf, Vec<TextElemAst>);
 
@@ -19,6 +20,7 @@ type ArticleInfo = (
 pub struct Report {
     per_article: HashMap<PathBuf, ArticleInfo>,
     titles: HashMap<PathBuf, Vec<(PathBuf, Vec<TextElemAst>)>>,
+    aspects: HashMap<PathBuf, (usize, usize)>,
     ss: SyntaxSet,
     pub category_pages: HashMap<String, Vec<(PathBuf, Vec<TextElemAst>)>>,
     pub css: String,
@@ -37,6 +39,7 @@ impl Report {
                 ss: &self.ss,
                 sha256: Some(sha256),
                 path: p,
+                aspects: &self.aspects,
                 css: &self.css,
             })
         } else {
@@ -55,6 +58,7 @@ impl Report {
             ss: &self.ss,
             sha256: None,
             path: p,
+            aspects: &self.aspects,
             css: &self.css,
         }
     }
@@ -176,6 +180,7 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
     let (prevs, nexts, titles) = prevs_and_nexts(parsed)?;
     let mut per_article = HashMap::new();
     let mut category_pages = HashMap::new();
+    let mut aspects = HashMap::new();
     for (path, file) in parsed {
         if let super::File::Tml(cmd, src) = file {
             for category in extract_category(cmd)? {
@@ -194,6 +199,9 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
                 ),
             );
         }
+        else if let super::File::Image(img, _) = file {
+            aspects.insert(path.to_owned(), (img.width() as usize, img.height() as usize));
+        }
     }
     let index_css = parsed.get(Path::new("index.css")).map(|file| {
         match file {
@@ -202,6 +210,7 @@ pub fn analyze(parsed: &Parsed) -> Result<Report, Error> {
         }
     }).unwrap_or_else(String::new);
     Ok(Report {
+        aspects,
         category_pages,
         per_article,
         ss: SyntaxSet::load_defaults_nonewlines(),

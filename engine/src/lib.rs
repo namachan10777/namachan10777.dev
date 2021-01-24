@@ -56,6 +56,11 @@ pub enum Error {
         desc: String,
         because: io::Error,
     },
+    ImageFmtError {
+        path: PathBuf,
+        desc: String,
+        because: image::ImageError,
+    },
     CannotInterpretPathAsUTF8(PathBuf),
     ZipError {
         desc: String,
@@ -747,9 +752,9 @@ pub enum TextElem {
 
 type TextElemAst = (TextElem, Location);
 
-#[derive(Debug)]
 pub enum File {
     Tml((Cmd, Location), String),
+    Image(image::DynamicImage, Vec<u8>),
     Blob(Vec<u8>),
 }
 
@@ -800,6 +805,18 @@ where
                     .to_owned(),
                 File::Tml(ast, source),
             );
+        } else if p.extension() == Some(OsStr::new("webp")) {
+            let binary = fs::read(p).map_err(|e| Error::FsError {
+                path: p.to_owned(),
+                desc: "Cannot read blob file".to_owned(),
+                because: e,
+            })?;
+            let img = image::load_from_memory(binary.as_slice()).map_err(|e| Error::ImageFmtError {
+                path: p.to_owned(),
+                desc: "Cannot load image".to_owned(),
+                because: e,
+            })?;
+            files.insert(p.strip_prefix(&dir_path).unwrap().to_owned(), File::Image(img, binary));
         } else {
             info!("add blob {:?}", p);
             let binary = fs::read(p).map_err(|e| Error::FsError {
@@ -825,6 +842,7 @@ where
                 let xml = convert::root(report.get_context(&p).unwrap(), cmd.0)?;
                 Ok((p, xml.pretty_print().into_bytes()))
             }
+            File::Image(_, binary) => Ok((p, binary))
         })
         .collect::<Result<HashMap<_, _>, Error>>()?;
     out.extend(generated_files);

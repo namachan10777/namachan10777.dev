@@ -41,6 +41,19 @@ fn handle_error(e: Error) -> ! {
             );
             exit(because.raw_os_error().unwrap_or(-1));
         }
+        Error::ImageFmtError {
+            path,
+            desc,
+            because,
+        } => {
+            error!(
+                "{} at {:?} because {:?}",
+                desc,
+                path,
+                because
+            );
+            exit(-1);
+        }
         Error::ZipError { desc, because } => {
             error!("zip operation error. {} because {}", desc, because);
             // FIXME
