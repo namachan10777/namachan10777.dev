@@ -123,7 +123,7 @@ fn execute_index(
 fn gen_headers(path: &Path, body_xml: Vec<XMLElem>, title_xml: Vec<XMLElem>) -> Vec<XMLElem> {
     let url = "https://namachan10777.dev/".to_owned() + path.to_str().unwrap();
     let mut header = vec![
-        xml!(meta [charset="UTF-8"]),
+        xml!(meta[charset = "UTF-8"]),
         xml!(link [href=resolve("index.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("syntect.css", &path).to_str().unwrap(), rel="stylesheet", type="text/css"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
