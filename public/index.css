@@ -36,7 +36,7 @@ p{
 }
 
 body {
-	font-family: 'Noto Sans JP', sans-serif;
+	font-family: sans-serif;
 	font-size: large;
 	display: flex;
 	justify-content: center;
@@ -75,7 +75,7 @@ img.landscape {
 	}
 
 	code {
-		font-family: 'Fira Mono', monospace;
+		font-family: monospace;
 		font-size: 100%;
 	}
 
@@ -99,7 +99,7 @@ img.landscape {
 
 	code {
 		font-size: 50%;
-		font-family: 'Fira Mono', monospace;
+		font-family: monospace;
 	}
 
 	pre {

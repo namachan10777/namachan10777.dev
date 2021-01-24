@@ -167,7 +167,6 @@ fn gen_headers(
             Vec::new(),
         ),
         xml!(link [rel="canonical", href=("https://namachan10777.dev/".to_owned() + page_name)]),
-        xml!(link [rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Noto+Sans+JP&display=swap"]),
         xml!(link [href=resolve("res/favicon.ico", &path).to_str().unwrap(), rel="icon", type="image/vnd.microsoft.icon"]),
         XMLElem::WithElem(
             "style".to_owned(),
