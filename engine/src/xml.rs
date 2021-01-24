@@ -4,14 +4,14 @@ macro_rules! xml {
     ($tag:ident [ $( $prop:ident=$value:expr ),* ]) => {
         XMLElem::Single(format!("{}", stringify!($tag)), vec![
             $(
-                (format!("{}", stringify!($prop)), $value.to_owned()),
+                crate::xml::Attr::Pair(format!("{}", stringify!($prop)), $value.to_owned()),
             )*
         ])
     };
     ($tag:ident [ $( $prop:ident=$value:expr ),* ] [ $( $inner:expr ),* ]) => {
         XMLElem::WithElem(format!("{}", stringify!($tag)), vec![
             $(
-                (format!("{}", stringify!($prop)), $value.to_owned()),
+                crate::xml::Attr::Pair(format!("{}", stringify!($prop)), $value.to_owned()),
             )*
         ],
         vec![
@@ -24,7 +24,7 @@ macro_rules! xml {
     ($tag:ident [$( $prop:ident=$value:expr ),*] $inner:expr) => {
         XMLElem::WithElem(format!("{}", stringify!($tag)), vec![
             $(
-                (format!("{}", stringify!($prop)), $value.to_owned()),
+                crate::xml::Attr::Pair(format!("{}", stringify!($prop)), $value.to_owned()),
             )*
         ],
         $inner
@@ -39,9 +39,24 @@ macro_rules! xml {
 }
 
 #[derive(Clone)]
+pub enum Attr {
+    Pair(String, String),
+    Single(String),
+}
+
+impl ToString for Attr {
+    fn to_string(&self) -> String {
+        match self {
+            Attr::Pair(attr, val) => format!("{}=\"{}\"", attr, val),
+            Attr::Single(attr) => attr.to_owned(),
+        }
+    }
+}
+
+#[derive(Clone)]
 pub enum XMLElem {
-    Single(String, Vec<(String, String)>),
-    WithElem(String, Vec<(String, String)>, Vec<XMLElem>),
+    Single(String, Vec<Attr>),
+    WithElem(String, Vec<Attr>, Vec<XMLElem>),
     Text(String),
     Raw(String),
 }
@@ -84,15 +99,15 @@ impl fmt::Display for XMLElem {
         match self {
             XMLElem::Single(name, attrs) => {
                 write!(f, "<{} ", name)?;
-                for (name, value) in attrs {
-                    write!(f, "{}=\"{}\" ", name, value)?;
+                for attr in attrs {
+                    write!(f, "{} ", attr.to_string())?;
                 }
                 write!(f, "/>")
             }
             XMLElem::WithElem(name, attrs, inner) => {
                 write!(f, "<{} ", name)?;
-                for (name, value) in attrs {
-                    write!(f, "{}=\"{}\" ", name, value)?;
+                for attr in attrs {
+                    write!(f, "{} ", attr.to_string())?;
                 }
                 write!(f, ">")?;
                 for inner in inner {
@@ -116,10 +131,10 @@ impl XMLElem {
     fn pp_impl(&self, indent: &str) -> Vec<String> {
         const WRAP_WIDTH: usize = 120;
         const INDENT: &str = "  ";
-        let stringify_attrs = |attrs: &[(String, String)]| {
+        let stringify_attrs = |attrs: &[Attr]| {
             attrs
                 .iter()
-                .map(|(attr, val)| format!("{}=\"{}\"", attr, val))
+                .map(|attr| attr.to_string())
                 .collect::<Vec<String>>()
         };
         let attrs_length =
@@ -340,8 +355,8 @@ mod test {
                 XMLElem::Single(
                     "img".to_owned(),
                     vec![
-                        ("src".to_owned(), "sample.png".to_owned()),
-                        ("alt".to_owned(), "sample image".to_owned())
+                        Attr::Pair("src".to_owned(), "sample.png".to_owned()),
+                        Attr::Pair("alt".to_owned(), "sample image".to_owned())
                     ]
                 )
             ),
@@ -352,7 +367,7 @@ mod test {
                 "{}",
                 XMLElem::WithElem(
                     "p".to_owned(),
-                    vec![("class".to_owned(), "hoge fuga".to_owned())],
+                    vec![Attr::Pair("class".to_owned(), "hoge fuga".to_owned())],
                     vec![
                         XMLElem::Text("inner1".to_owned()),
                         XMLElem::Single("br".to_owned(), vec![])
@@ -370,7 +385,7 @@ mod test {
                     dtd: "html".to_owned(),
                     body: XMLElem::WithElem(
                         "p".to_owned(),
-                        vec![("class".to_owned(), "hoge fuga".to_owned())],
+                        vec![Attr::Pair("class".to_owned(), "hoge fuga".to_owned())],
                         vec![
                             XMLElem::Text("inner1".to_owned()),
                             XMLElem::Single("br".to_owned(), vec![])

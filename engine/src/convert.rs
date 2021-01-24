@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use syntect::html::ClassedHTMLGenerator;
 use syntect::parsing::SyntaxSet;
+use super::xml;
 
 type EResult<T> = Result<T, Error>;
 
@@ -423,9 +424,9 @@ fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XML
     .filter_map(|(name, value)| {
         value
             .as_ref()
-            .map(|value| (name.to_owned().to_owned(), value.to_owned()))
+            .map(|value| xml::Attr::Pair(name.to_owned().to_owned(), value.to_owned()))
     })
-    .collect::<Vec<(String, String)>>();
+    .collect::<Vec<xml::Attr>>();
     Ok(XMLElem::Single("iframe".to_owned(), attrs))
 }
 
