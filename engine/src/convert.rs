@@ -466,11 +466,15 @@ fn execute_section(
     Ok(xml!(section [] header))
 }
 
+fn constraint_img_size(size: (usize, usize), w: usize) -> (usize, usize) {
+    (w, (w as f64 * (size.1 as f64 / size.0 as f64)) as usize)
+}
+
 fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
-    let (w, h) = if is_http_url(url) {
+    let raw_size = if is_http_url(url) {
         // TODO: try get image with reqwest
         (100, 100)
     } else {
@@ -483,6 +487,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 link: PathBuf::from(url),
             })?
     };
+    let (w, h) = constraint_img_size(raw_size, 70);
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
         Ok(XMLElem::Single(
@@ -491,8 +496,8 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
                 xml::Attr::Pair("class".to_owned(), classes.to_owned()),
                 xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), w.to_string()),
-                xml::Attr::Pair("height".to_owned(), h.to_string()),
+                xml::Attr::Pair("width".to_owned(), format!("{}vw", w)),
+                xml::Attr::Pair("height".to_owned(), format!("{}vw", h)),
             ],
         ))
     } else {
@@ -501,8 +506,8 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
             vec![
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
                 xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), w.to_string()),
-                xml::Attr::Pair("height".to_owned(), h.to_string()),
+                xml::Attr::Pair("width".to_owned(), format!("{}vw", w)),
+                xml::Attr::Pair("height".to_owned(), format!("{}vw", h)),
             ],
         ))
     }
