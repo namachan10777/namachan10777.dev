@@ -404,7 +404,9 @@ fn execute_ul(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
                         .collect::<EResult<Vec<_>>>()?;
                     Ok(xml!(li [class="list-elem"] inner))
                 }
-                _ => Ok(xml!(li [class="list-elem"] [process_cmd(ctx.fork_with_loc(loc), cmd)?])),
+                _ => Ok(xml!(
+                    li[class = "list-elem"][process_cmd(ctx.fork_with_loc(loc), cmd)?]
+                )),
             },
             _ => unreachable!(),
         })
