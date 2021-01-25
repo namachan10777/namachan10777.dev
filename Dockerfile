@@ -1,8 +1,7 @@
-FROM rust:1.43 AS build-env
+FROM rust:1.49-alpine
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y curl git jq
+RUN apk update && \
+    apk add curl git jq
 
 RUN rustup component add clippy-preview rustfmt
 
