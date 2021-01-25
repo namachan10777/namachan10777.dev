@@ -15,7 +15,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-test-{{ checksum "engine/Cargo.lock" }}
+            - v3-test-{{ checksum "engine/Cargo.lock" }}
       - run:
           name: Test engine
           command: cd engine && cargo test
@@ -26,7 +26,7 @@ jobs:
           name: Cargo fmt
           command: cd engine && cargo fmt -- --check
       - save_cache:
-          key: v2-test-{{ checksum "engine/Cargo.lock" }}
+          key: v3-test-{{ checksum "engine/Cargo.lock" }}
           paths:
             - /usr/local/cargo/registry
             - engine/target
@@ -38,7 +38,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-build-{{ checksum "engine/Cargo.lock" }}
+            - v3-build-{{ checksum "engine/Cargo.lock" }}
       - run:
           name: Build engine
           command: |
@@ -54,7 +54,7 @@ jobs:
           paths:
             - engine
       - save_cache:
-          key: v2-build-{{ checksum "engine/Cargo.lock" }}
+          key: v3-build-{{ checksum "engine/Cargo.lock" }}
           paths:
             - /usr/local/cargo/registry
             - engine/target
