@@ -490,7 +490,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let (w, h) = constraint_img_size(raw_size, 70);
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
-        Ok(XMLElem::Single(
+        Ok(xml!(div [class="amp-img-container", style="width:70vw"] [XMLElem::Single(
             "amp-img".to_owned(),
             vec![
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
@@ -500,9 +500,9 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 xml::Attr::Pair("height".to_owned(), format!("{}", h)),
                 xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
             ],
-        ))
+        )]))
     } else {
-        Ok(XMLElem::Single(
+        Ok(xml!(div [class="amp-img-container", style="width:70vw"] [XMLElem::Single(
             "amp-img".to_owned(),
             vec![
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
@@ -511,7 +511,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 xml::Attr::Pair("height".to_owned(), format!("{}", h)),
                 xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
             ],
-        ))
+        )]))
     }
 }
 
@@ -694,7 +694,7 @@ fn execute_figure(
         })
         .collect::<EResult<Vec<XMLElem>>>()?;
     let inner = vec![
-        xml!(div [class="images"] figures),
+        xml!(div [] figures),
         xml!(figcaption [] process_text(ctx, caption)?),
     ];
     if let Some(id) = id {
