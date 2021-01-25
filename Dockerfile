@@ -1,7 +1,7 @@
 FROM rust:1.49-alpine
 
 RUN apk update && \
-    apk add curl git jq
+    apk add --no-cache curl git jq
 
 RUN rustup component add clippy-preview rustfmt
 
