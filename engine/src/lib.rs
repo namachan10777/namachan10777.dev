@@ -33,6 +33,12 @@ pub struct Position {
 #[derive(Debug)]
 pub enum Error {
     SyntaxError(Location),
+    Internal(String),
+    InvalidLink {
+        link: PathBuf,
+        msg: String,
+        loc: Location,
+    },
     MissingAttribute {
         name: String,
         loc: Location,

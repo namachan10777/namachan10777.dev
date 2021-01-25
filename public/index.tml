@@ -1,6 +1,6 @@
 \index title={namachan10777} {
   \section title={About} {
-    \img url="./res/icon.webp" alt="icon" class="icon";
+    \img url="res/icon.webp" alt="icon" class="icon";
     \p {
       \img url="https://img.shields.io/badge/life-failing-red.svg?style=plastic" alt="life: failing";
       Masaki Nakano

@@ -41,6 +41,14 @@ fn handle_error(e: Error) -> ! {
             );
             exit(because.raw_os_error().unwrap_or(-1));
         }
+        Error::Internal(msg) => {
+            error!("internal error ({})", msg);
+            exit(-1);
+        }
+        Error::InvalidLink { link, msg, loc } => {
+            error!("{} InvalidLink {:?} ({})", loc, link, msg);
+            exit(-1);
+        }
         Error::ImageFmtError {
             path,
             desc,
