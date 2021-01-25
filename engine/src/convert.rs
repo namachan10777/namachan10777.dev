@@ -402,9 +402,9 @@ fn execute_ul(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
                         .into_iter()
                         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
                         .collect::<EResult<Vec<_>>>()?;
-                    Ok(xml!(li [] inner))
+                    Ok(xml!(li [class="list-elem"] inner))
                 }
-                _ => Ok(xml!(li [] [process_cmd(ctx.fork_with_loc(loc), cmd)?])),
+                _ => Ok(xml!(li [class="list-elem"] [process_cmd(ctx.fork_with_loc(loc), cmd)?])),
             },
             _ => unreachable!(),
         })
@@ -440,7 +440,7 @@ fn execute_articles(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<X
             .iter()
             .map(|(path, title)| {
                 let href_path = resolve_link(Path::new(path), ctx.path);
-                Ok(xml!(li [] [xml!(a
+                Ok(xml!(li [class="articles-elem"] [xml!(a
                     [href=href_path.to_str().unwrap()]
                     title.iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.clone())).collect::<EResult<Vec<_>>>()?
                 )]))

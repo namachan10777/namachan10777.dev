@@ -65,6 +65,14 @@ img.landscape {
 	width: 70%;
 }
 
+li.list-elem {
+	margin-top: 0.7rem;
+}
+
+li.articles-elem {
+	margin-top: 0.7rem;
+}
+
 @media(orientation: landscape) {
 	#root {
 		width: 55%;
