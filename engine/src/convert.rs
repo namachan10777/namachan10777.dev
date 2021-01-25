@@ -99,13 +99,13 @@ fn verify_link(link: &str) -> Option<String> {
         return None;
     }
     let dot_re = regex::Regex::new(r"^[\.]+$").unwrap();
-    for elem in base.strip_prefix("../").unwrap_or(base).split("/") {
-        if dot_re.is_match(elem) || elem == "" {
+    for elem in base.strip_prefix("../").unwrap_or(base).split('/') {
+        if dot_re.is_match(elem) || elem.is_empty() {
             println!("{:?}", elem);
             return None;
         }
     }
-    return Some(base.to_owned());
+    Some(base.to_owned())
 }
 
 fn absolute(loc: &Location, target: &str, from: &std::path::Path) -> Result<String, Error> {
@@ -117,7 +117,7 @@ fn absolute(loc: &Location, target: &str, from: &std::path::Path) -> Result<Stri
         loc: loc.to_owned(),
         msg: "invalid link".to_owned(),
     })?;
-    let mut target_rev = target.split("/").collect::<Vec<_>>();
+    let mut target_rev = target.split('/').collect::<Vec<_>>();
     target_rev.reverse();
     // 親を取れない = root
     let mut from_dir = from.parent().unwrap_or_else(|| Path::new(""));
@@ -130,23 +130,21 @@ fn absolute(loc: &Location, target: &str, from: &std::path::Path) -> Result<Stri
                 msg: "Cannot retrive parent directory".to_owned(),
                 loc: loc.to_owned(),
             })?;
+        } else if target_rev.is_empty() {
+            return Ok(from_dir
+                .join(Path::new(target_top))
+                .to_str()
+                .unwrap()
+                .to_owned());
         } else {
-            if target_rev.is_empty() {
-                return Ok(from_dir
-                    .join(Path::new(target_top))
-                    .to_str()
-                    .unwrap()
-                    .to_owned());
-            } else {
-                target_rev.reverse();
-                return Ok(from_dir
-                    .join(Path::new(target_top))
-                    .to_str()
-                    .unwrap()
-                    .to_owned()
-                    + "/"
-                    + &target_rev.join("/"));
-            }
+            target_rev.reverse();
+            return Ok(from_dir
+                .join(Path::new(target_top))
+                .to_str()
+                .unwrap()
+                .to_owned()
+                + "/"
+                + &target_rev.join("/"));
         }
     }
     Err(Error::Internal(
@@ -475,16 +473,15 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let (w, h) = if is_http_url(url) {
         // TODO: try get image with reqwest
         (100, 100)
-    }
-    else {
+    } else {
         ctx.aspects
-        .get(Path::new(&absolute(&ctx.location, url, ctx.path)?))
-        .copied()
-        .ok_or_else(|| Error::InvalidLink {
-            msg: "local image not found".to_owned(),
-            loc: ctx.location,
-            link: PathBuf::from(url),
-        })?
+            .get(Path::new(&absolute(&ctx.location, url, ctx.path)?))
+            .copied()
+            .ok_or_else(|| Error::InvalidLink {
+                msg: "local image not found".to_owned(),
+                loc: ctx.location,
+                link: PathBuf::from(url),
+            })?
     };
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
