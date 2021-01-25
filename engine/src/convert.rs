@@ -466,8 +466,8 @@ fn execute_section(
     Ok(xml!(section [] header))
 }
 
-fn constraint_img_size(size: (usize, usize), w: usize) -> (usize, usize) {
-    (w, (w as f64 * (size.1 as f64 / size.0 as f64)) as usize)
+fn constraint_img_size(size: (usize, usize), w: usize) -> (f64, f64) {
+    (w as f64, (w as f64 * (size.1 as f64 / size.0 as f64)))
 }
 
 fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
@@ -496,8 +496,9 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
                 xml::Attr::Pair("class".to_owned(), classes.to_owned()),
                 xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), format!("{}vw", w)),
-                xml::Attr::Pair("height".to_owned(), format!("{}vw", h)),
+                xml::Attr::Pair("width".to_owned(), format!("{}", w)),
+                xml::Attr::Pair("height".to_owned(), format!("{}", h)),
+                xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
             ],
         ))
     } else {
@@ -506,8 +507,9 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
             vec![
                 xml::Attr::Pair("src".to_owned(), url.to_owned()),
                 xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), format!("{}vw", w)),
-                xml::Attr::Pair("height".to_owned(), format!("{}vw", h)),
+                xml::Attr::Pair("width".to_owned(), format!("{}", w)),
+                xml::Attr::Pair("height".to_owned(), format!("{}", h)),
+                xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
             ],
         ))
     }
