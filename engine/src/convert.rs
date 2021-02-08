@@ -446,12 +446,23 @@ fn execute_section(
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
     let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
+    let title = Some((TextElem::Plain("#".repeat(ctx.level)), ctx.location.clone()))
+        .iter()
+        .chain(title.iter())
+        .map(|(e, loc)| {
+            process_text_elem(
+                Context {
+                    location: loc.to_owned(),
+                    level: ctx.level + 1,
+                    ..ctx.clone()
+                },
+                e.to_owned(),
+            )
+        })
+        .collect::<EResult<Vec<_>>>()?;
     let mut header = vec![xml!(header [] [
         XMLElem::WithElem(format!("h{}", ctx.level), vec![],
             title
-            .iter()
-            .map(|(e, loc)| process_text_elem(Context {location: loc.to_owned(), level: ctx.level+1, ..ctx.clone()}, e.to_owned()))
-            .collect::<EResult<Vec<_>>>()?
         )
     ])];
     let ctx_child = Context {
