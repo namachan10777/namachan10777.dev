@@ -49,6 +49,11 @@ pub enum Error {
         found: ValueType,
         loc: Location,
     },
+    InvalidAttribute {
+        name: String,
+        reason: String,
+        loc: Location,
+    },
     NoSuchCmd {
         name: String,
         loc: Location,

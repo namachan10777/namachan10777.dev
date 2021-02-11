@@ -1,5 +1,6 @@
 .icon {
 	border-radius: 2%;
+	max-width: 30%;
 }
 
 .inline-code {
@@ -28,6 +29,11 @@ h1 {
 
 div.hash {
 	color: #222222;
+}
+
+.inline-img {
+	display: inline;
+	max-height: 1em;
 }
 
 p{

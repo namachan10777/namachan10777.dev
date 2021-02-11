@@ -96,6 +96,10 @@ fn handle_error(e: Error) -> ! {
             );
             exit(-1);
         }
+        Error::InvalidAttribute { name, loc, reason } => {
+            error!("{} invalid attribute at {}. {}", loc, name, reason);
+            exit(-1);
+        }
         Error::CannotInterpretPathAsUTF8(path) => {
             error!(
                 "cannot interpret path {:?}. all paths must be encoded by UTF-8",
