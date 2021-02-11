@@ -1,9 +1,10 @@
 .icon-container {
-	width: 30%;
+	width: 20%;
+	margin-right: 3em;
 }
 
 .icon {
-	border-radius: 2%;
+	border-radius: 50%;
 }
 
 .inline-code {
@@ -41,6 +42,11 @@ div.hash {
 	color: #444444;
 	font-family: monospace;
 	font-size: large;
+}
+
+.profile {
+	display: flex;
+	flex-direction: row;
 }
 
 .inline-img {
@@ -96,10 +102,6 @@ li.articles-elem {
 		width: 55%;
 	}
 
-	img.icon {
-		width: 40%;
-	}
-
 	code {
 		font-family: monospace;
 		font-size: medium;
@@ -117,10 +119,6 @@ li.articles-elem {
 @media(orientation: portrait) {
 	#root {
 		width: 90%;
-	}
-
-	img.icon {
-		width: 60%;
 	}
 
 	code {

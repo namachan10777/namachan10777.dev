@@ -1,19 +1,18 @@
 \index title={namachan10777} {
   \section title={About} {
-    \center [
-      \img url="res/icon.webp" alt="icon" class="icon-container" img-class="icon";
-    ]
-    \p {
-      \img url="https://img.shields.io/badge/life-failing-red.svg?style=plastic" alt="life: failing" w=4 h=1;
-      Masaki Nakano
-    }
-    \p {
-      B3, College of computer and information science, University of Tsukuba.
-    }
-  }
-  \address {
-    \ul [
-      \link url="mailto:namachan10777@gmail.com" { namachan10777@gmail.com }
+    \profile icon="res/icon.webp" icon-alt="icon" [
+      \p {
+        \img url="https://img.shields.io/badge/life-failing-red.svg?style=plastic" alt="life: failing" w=4 h=1;
+        Masaki Nakano
+      }
+      \p {
+        B3, College of computer and information science, University of Tsukuba.
+      }
+      \address {
+        \ul [
+          \link url="mailto:namachan10777@gmail.com" { namachan10777@gmail.com }
+        ]
+      }
     ]
   }
   \section title={Navigation} {

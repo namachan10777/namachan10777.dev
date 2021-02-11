@@ -678,6 +678,39 @@ fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
     Ok(xml!(span[class = "inline-code"][xml!(s)]))
 }
 
+fn execute_profile(
+    ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
+    let icon_url = value_utils::get_str(&attrs, "icon", &ctx.location)?;
+    let icon_alt = value_utils::get_str(&attrs, "icon-alt", &ctx.location)?;
+    let inner = inner
+        .into_iter()
+        .map(|(e, loc)| match e {
+            TextElem::Cmd(cmd) => Ok(process_cmd(ctx.fork_with_loc(loc), cmd)?),
+            _ => unreachable!(),
+        })
+        .collect::<EResult<Vec<_>>>()?;
+    let icon = xml!(
+        div[class = "icon-container"][XMLElem::Single(
+            "amp-img".to_owned(),
+            vec![
+                xml::Attr::Pair("src".to_owned(), icon_url.to_owned()),
+                xml::Attr::Pair("alt".to_owned(), icon_alt.to_owned()),
+                xml::Attr::Pair("class".to_owned(), "icon".to_owned()),
+                xml::Attr::Pair("width".to_owned(), "100".to_owned()),
+                xml::Attr::Pair("height".to_owned(), "100".to_owned()),
+                xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
+            ],
+        )]
+    );
+    Ok(xml!(div [class="profile"] [
+        icon,
+        xml!(div [] inner)
+    ]))
+}
+
 fn execute_iframe(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLElem> {
     let attrs = [
         (
@@ -775,6 +808,7 @@ fn process_text(ctx: Context, textelems: Vec<TextElemAst>) -> EResult<Vec<XMLEle
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
         "center" => execute_center(ctx, cmd.attrs, cmd.inner),
+        "profile" => execute_profile(ctx, cmd.attrs, cmd.inner),
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
         "article" => execute_article(ctx, cmd.attrs, cmd.inner),
         "articles" => execute_articles(ctx, cmd.attrs),
