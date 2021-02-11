@@ -1,11 +1,4 @@
-.icon-container {
-	width: 20%;
-	margin-right: 3em;
-}
 
-.icon {
-	border-radius: 50%;
-}
 
 .inline-code {
 	color: #000040;
@@ -44,10 +37,6 @@ div.hash {
 	font-size: large;
 }
 
-.profile {
-	display: flex;
-	flex-direction: row;
-}
 
 .inline-img {
 	display: inline;
@@ -97,33 +86,32 @@ li.articles-elem {
 	margin-top: 0.7rem;
 }
 
-@media(orientation: landscape) {
-	#root {
-		width: 55%;
-	}
-
-	code {
-		font-family: monospace;
-		font-size: medium;
-	}
-
-	pre {
-		padding: 1vh;
-		border-radius: 0.5%;
-		overflow-x: scroll;
-		background-color: #F0F0F0;
-		color: #0F0F0F;
-	}
+code {
+	font-size: medium;
+	font-family: monospace;
 }
 
-@media(orientation: portrait) {
-	#root {
-		width: 90%;
+@media screen and (max-aspect-ratio: 3/2) and (max-width: 480px) {
+	.profile {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 
-	code {
-		font-size: medium;
-		font-family: monospace;
+	.icon-container {
+		width: 40%;
+	}
+
+	.icon {
+		border-radius: 50%;
+	}
+
+	#root {
+		width: 85%;
+	}
+
+	ul {
+		padding-inline-start: 1.5em;
 	}
 
 	pre {
@@ -132,5 +120,59 @@ li.articles-elem {
 		overflow-x: scroll;
 		background-color: #F0F0F0;
 		color: #0F0F0F;
+	}
+}
+
+@media screen and (min-aspect-ratio: 3/2) {
+	.profile {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.icon-container {
+		width: 20%;
+		margin-right: 3em;
+	}
+
+	.icon {
+		border-radius: 50%;
+	}
+
+	#root {
+		width: 55%;
+	}
+
+	pre {
+		padding: 1vh;
+		border-radius: 0.5%;
+		overflow-x: scroll;
+		background-color: #F0F0F0;
+	}
+}
+
+@media screen and (min-width: 480px) {
+	.profile {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.icon-container {
+		width: 20%;
+		margin-right: 3em;
+	}
+
+	.icon {
+		border-radius: 50%;
+	}
+
+	#root {
+		width: 55%;
+	}
+
+	pre {
+		padding: 1vh;
+		border-radius: 0.5%;
+		overflow-x: scroll;
+		background-color: #F0F0F0;
 	}
 }
