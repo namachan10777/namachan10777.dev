@@ -244,6 +244,7 @@ fn execute_index(
             .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc), e))
             .collect::<EResult<Vec<_>>>()?,
     );
+    body.push(const_footer());
     let mut header = gen_headers(
         &ctx.path,
         body.clone(),
@@ -374,6 +375,15 @@ fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
     )
 }
 
+fn const_footer() -> XMLElem {
+    xml!(footer [class="article-footer"] [
+         xml!(div [class="copyright-container"] [
+              xml!(span [class="copyright-span"] [XMLElem::Text("Masaki Nakano".to_owned())]),
+              xml!(span [class="copyright-span"] [XMLElem::Text("<masaki.nakano.sj@alumni.tsukuba.ac.jp>".to_owned())])
+        ])
+    ])
+}
+
 fn execute_article(
     ctx: Context,
     attrs: HashMap<String, ValueAst>,
@@ -435,7 +445,8 @@ fn execute_article(
     )?;
     header.push(xml!(meta [name="og:type", content="article"]));
     body.append(&mut body_xml);
-    body.push(xml!(footer [] footer_inner));
+    body.push(xml!(div [] footer_inner));
+    body.push(const_footer());
 
     Ok(html(body, header))
 }

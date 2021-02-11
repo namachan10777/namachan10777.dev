@@ -121,6 +121,10 @@ code {
 		background-color: #F0F0F0;
 		color: #0F0F0F;
 	}
+
+	.copyright-container {
+		text-align: center;
+	}
 }
 
 @media screen and (min-aspect-ratio: 3/2) {
@@ -175,4 +179,17 @@ code {
 		overflow-x: scroll;
 		background-color: #F0F0F0;
 	}
+}
+
+.copyright-span {
+	font-size: smaller;
+	color: #505050;
+}
+
+.article-footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	height: 6em;
 }
