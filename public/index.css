@@ -11,7 +11,7 @@
 	background-color: #F0F0F0;
 	margin: 0px 2px 0px 2px;
 	font-family: monospace;
-	padding: 0.2em 0.2em 0.2em 0.2em;
+	padding: 0.3em 0.3em 0.3em 0.3em;
 }
 
 .centering {
@@ -21,7 +21,8 @@
 	align-items: center;
 }
 
-h1 {
+.sharp {
+	margin-right: 0.2em;
 }
 
 .article-footer {
@@ -37,7 +38,9 @@ h1 {
 }
 
 div.hash {
-	color: #222222;
+	color: #444444;
+	font-family: monospace;
+	font-size: large;
 }
 
 .inline-img {

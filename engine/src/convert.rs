@@ -237,7 +237,7 @@ fn execute_index(
         .iter()
         .map(|(e, loc)| process_text_elem(ctx.fork_with_loc(loc.to_owned()), e.to_owned()))
         .collect::<EResult<Vec<_>>>()?;
-    let mut body = vec![xml!(header [] [xml!(h1 [] title.clone())])];
+    let mut body = vec![xml!(header [] [xml!(h1 [style="font-weight: 500"] title.clone())])];
     body.append(
         &mut inner
             .into_iter()
@@ -401,7 +401,7 @@ fn execute_article(
         xml!(a [href=index_path.to_str().unwrap().to_owned()] [xml!("戻る".to_owned())]),
         xml!(div [class="hash"] [xml!(hashed_short.to_owned())]),
         xml!(div [class="categories"] category),
-        xml!(h1 [] title_xml.clone())
+        xml!(h1 [style="font-weight: 500"] title_xml.clone())
     ])];
     let mut footer_inner = Vec::new();
     if let Some((prev_path, prev_title)) = ctx.prev {
@@ -445,10 +445,10 @@ fn execute_section(
     attrs: HashMap<String, ValueAst>,
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
-    let title = value_utils::get_text(&attrs, "title", &ctx.location)?;
-    let title = Some((TextElem::Plain("#".repeat(ctx.level)), ctx.location.clone()))
+    let title_body = value_utils::get_text(&attrs, "title", &ctx.location)?;
+    let mut title = vec![xml!(span[class = "sharp"][XMLElem::Text("#".to_owned())])];
+    let mut title_body = title_body
         .iter()
-        .chain(title.iter())
         .map(|(e, loc)| {
             process_text_elem(
                 Context {
@@ -460,8 +460,11 @@ fn execute_section(
             )
         })
         .collect::<EResult<Vec<_>>>()?;
+    title.append(&mut title_body);
     let mut header = vec![xml!(header [] [
-        XMLElem::WithElem(format!("h{}", ctx.level), vec![],
+        XMLElem::WithElem(format!("h{}", ctx.level), vec![
+            xml::Attr::Pair("style".to_owned(), "font-weight: 500".to_owned())
+        ],
             title
         )
     ])];
@@ -558,22 +561,22 @@ fn execute_address(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     )
 }
 
-fn execute_center(ctx: Context,
+fn execute_center(
+    ctx: Context,
     attrs: HashMap<String, ValueAst>,
-                  inner: Vec<TextElemAst>) -> EResult<XMLElem> {
+    inner: Vec<TextElemAst>,
+) -> EResult<XMLElem> {
     let class = value_utils::verify_str(&attrs, "classes", &ctx.location)?;
     let inner = inner
-    .into_iter()
-    .map(|(e, loc)| match e {
-        TextElem::Cmd(cmd) => Ok(
-                process_cmd(ctx.fork_with_loc(loc), cmd)?),
-        _ => unreachable!(),
-    })
-    .collect::<EResult<Vec<_>>>()?;
+        .into_iter()
+        .map(|(e, loc)| match e {
+            TextElem::Cmd(cmd) => Ok(process_cmd(ctx.fork_with_loc(loc), cmd)?),
+            _ => unreachable!(),
+        })
+        .collect::<EResult<Vec<_>>>()?;
     let class = if let Some(class) = class {
         format!("centering {}", class)
-    }
-    else {
+    } else {
         "centering".to_owned()
     };
     Ok(xml!(div [class=class] inner))
