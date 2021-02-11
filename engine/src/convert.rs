@@ -376,12 +376,12 @@ fn html(body: Vec<XMLElem>, header: Vec<XMLElem>) -> XMLElem {
 }
 
 fn const_footer() -> XMLElem {
-    xml!(footer [class="article-footer"] [
-         xml!(div [class="copyright-container"] [
+    xml!(
+        footer[class = "article-footer"][xml!(div [class="copyright-container"] [
               xml!(span [class="copyright-span"] [XMLElem::Text("Masaki Nakano".to_owned())]),
               xml!(span [class="copyright-span"] [XMLElem::Text("<masaki.nakano.sj@alumni.tsukuba.ac.jp>".to_owned())])
-        ])
-    ])
+        ])]
+    )
 }
 
 fn execute_article(
