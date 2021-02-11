@@ -1,7 +1,7 @@
 .PHONY: all preview clean test
 
 ENGINE_DIR = engine
-RUST_SOURCES = $(shell find $(ENGINE_DIR)/src -type f -name *.rs) $(ENGINE_DIR)/Cargo.lock $(ENGINE_DIR)/Cargo.toml
+RUST_SOURCES = $(shell find $(ENGINE_DIR)/src -type f -name *.rs) $(ENGINE_DIR)/Cargo.lock $(ENGINE_DIR)/Cargo.toml $(ENGINE_DIR)/src/grammar.pest
 ENGINE_EXE = $(ENGINE_DIR)/target/release/engine
 DIST = dist
 PUBLIC_DIR = public

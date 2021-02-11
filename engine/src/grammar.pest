@@ -1,6 +1,6 @@
 WHITESPACE  = _{ " " | "\t" | "\n" | "\r" }
 
-symbol        = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+symbol        = @{ ASCII_ALPHA ~ ("_" | "-" | ASCII_ALPHANUMERIC)* }
 cmd_name      = ${ "\\" ~ symbol }
 attribute     =  { symbol ~ "=" ~ value }
 attributes    =  { attribute* }

@@ -485,6 +485,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
+    let img_classes = value_utils::verify_str(&attrs, "img-class", &ctx.location)?;
     let w = value_utils::verify_int(&attrs, "w", &ctx.location)?;
     let h = value_utils::verify_int(&attrs, "h", &ctx.location)?;
     let raw_size = if is_http_url(url) {
@@ -506,12 +507,14 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
         .unwrap_or_else(|| "".to_owned());
     let w = w.map(|n| n as f64).unwrap_or(aspect.0);
     let h = h.map(|n| n as f64).unwrap_or(aspect.1);
+    let img_class = img_classes.unwrap_or("");
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
         Ok(
             xml!(div [class=(classes.to_owned() + " amp-img-container"), style=width_spec] [XMLElem::Single(
                 "amp-img".to_owned(),
                 vec![
+                    xml::Attr::Pair("class".to_owned(), img_class.to_owned()),
                     xml::Attr::Pair("src".to_owned(), url.to_owned()),
                     xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
                     xml::Attr::Pair("width".to_owned(), format!("{}", w)),
@@ -525,6 +528,7 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
             xml!(div [class="amp-img-container", style=width_spec] [XMLElem::Single(
                 "amp-img".to_owned(),
                 vec![
+                    xml::Attr::Pair("class".to_owned(), img_class.to_owned()),
                     xml::Attr::Pair("src".to_owned(), url.to_owned()),
                     xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
                     xml::Attr::Pair("width".to_owned(), format!("{}", w)),
@@ -552,6 +556,27 @@ fn execute_address(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
     Ok(
         xml!(address [] inner.into_iter().map(|(e,loc)| process_text_elem(ctx.fork_with_loc(loc), e)).collect::<EResult<Vec<_>>>()?),
     )
+}
+
+fn execute_center(ctx: Context,
+    attrs: HashMap<String, ValueAst>,
+                  inner: Vec<TextElemAst>) -> EResult<XMLElem> {
+    let class = value_utils::verify_str(&attrs, "classes", &ctx.location)?;
+    let inner = inner
+    .into_iter()
+    .map(|(e, loc)| match e {
+        TextElem::Cmd(cmd) => Ok(
+                process_cmd(ctx.fork_with_loc(loc), cmd)?),
+        _ => unreachable!(),
+    })
+    .collect::<EResult<Vec<_>>>()?;
+    let class = if let Some(class) = class {
+        format!("centering {}", class)
+    }
+    else {
+        "centering".to_owned()
+    };
+    Ok(xml!(div [class=class] inner))
 }
 
 fn execute_ul(ctx: Context, inner: Vec<TextElemAst>) -> EResult<XMLElem> {
@@ -746,6 +771,7 @@ fn process_text(ctx: Context, textelems: Vec<TextElemAst>) -> EResult<Vec<XMLEle
 
 fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
     match cmd.name.as_str() {
+        "center" => execute_center(ctx, cmd.attrs, cmd.inner),
         "index" => execute_index(ctx, cmd.attrs, cmd.inner),
         "article" => execute_article(ctx, cmd.attrs, cmd.inner),
         "articles" => execute_articles(ctx, cmd.attrs),
