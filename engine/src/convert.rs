@@ -474,6 +474,8 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
     let url = value_utils::get_str(&attrs, "url", &ctx.location)?;
     let alt = value_utils::get_str(&attrs, "alt", &ctx.location)?;
     let classes = value_utils::verify_str(&attrs, "class", &ctx.location)?;
+    let w = value_utils::verify_int(&attrs, "w", &ctx.location)?;
+    let h = value_utils::verify_int(&attrs, "h", &ctx.location)?;
     let raw_size = if is_http_url(url) {
         // TODO: try get image with reqwest
         (100, 100)
@@ -483,35 +485,43 @@ fn execute_img(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<XMLEle
             .copied()
             .ok_or_else(|| Error::InvalidLink {
                 msg: "local image not found".to_owned(),
-                loc: ctx.location,
+                loc: ctx.location.clone(),
                 link: PathBuf::from(url),
             })?
     };
-    let (w, h) = constraint_img_size(raw_size, 70);
+    let aspect = constraint_img_size(raw_size, 70);
+    let width_spec = w
+        .map(|w| format!("max-width: {}em", w))
+        .unwrap_or_else(|| "".to_owned());
+    let w = w.map(|n| n as f64).unwrap_or(aspect.0);
+    let h = h.map(|n| n as f64).unwrap_or(aspect.1);
     // FIXME determine width and height by reading actual image.
     if let Some(classes) = classes {
-        Ok(xml!(div [class="amp-img-container", style="width:70vw"] [XMLElem::Single(
-            "amp-img".to_owned(),
-            vec![
-                xml::Attr::Pair("src".to_owned(), url.to_owned()),
-                xml::Attr::Pair("class".to_owned(), classes.to_owned()),
-                xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), format!("{}", w)),
-                xml::Attr::Pair("height".to_owned(), format!("{}", h)),
-                xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
-            ],
-        )]))
+        Ok(
+            xml!(div [class=(classes.to_owned() + " amp-img-container"), style=width_spec] [XMLElem::Single(
+                "amp-img".to_owned(),
+                vec![
+                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                    xml::Attr::Pair("width".to_owned(), format!("{}", w)),
+                    xml::Attr::Pair("height".to_owned(), format!("{}", h)),
+                    xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
+                ],
+            )]),
+        )
     } else {
-        Ok(xml!(div [class="amp-img-container", style="width:70vw"] [XMLElem::Single(
-            "amp-img".to_owned(),
-            vec![
-                xml::Attr::Pair("src".to_owned(), url.to_owned()),
-                xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
-                xml::Attr::Pair("width".to_owned(), format!("{}", w)),
-                xml::Attr::Pair("height".to_owned(), format!("{}", h)),
-                xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
-            ],
-        )]))
+        Ok(
+            xml!(div [class="amp-img-container", style=width_spec] [XMLElem::Single(
+                "amp-img".to_owned(),
+                vec![
+                    xml::Attr::Pair("src".to_owned(), url.to_owned()),
+                    xml::Attr::Pair("alt".to_owned(), alt.to_owned()),
+                    xml::Attr::Pair("width".to_owned(), format!("{}", w)),
+                    xml::Attr::Pair("height".to_owned(), format!("{}", h)),
+                    xml::Attr::Pair("layout".to_owned(), "responsive".to_owned()),
+                ],
+            )]),
+        )
     }
 }
 

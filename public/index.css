@@ -30,6 +30,11 @@ div.hash {
 	color: #222222;
 }
 
+.inline-img {
+	display: inline;
+	max-height: 1em;
+}
+
 p{
 	color: #202020;
 	line-height: 180%;
