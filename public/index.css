@@ -53,7 +53,7 @@ p{
 
 body {
 	font-family: sans-serif;
-	font-size: large;
+	font-size: medium;
 	display: flex;
 	justify-content: center;
 	text-size-adjust: none;
@@ -100,15 +100,15 @@ li.articles-elem {
 
 	code {
 		font-family: monospace;
-		font-size: 100%;
+		font-size: medium;
 	}
 
 	pre {
 		padding: 1vh;
 		border-radius: 0.5%;
 		overflow-x: scroll;
-		background-color: #000000;
-		color: #f0f0f0;
+		background-color: #F0F0F0;
+		color: #0F0F0F;
 	}
 }
 
@@ -122,7 +122,7 @@ li.articles-elem {
 	}
 
 	code {
-		font-size: 70%;
+		font-size: medium;
 		font-family: monospace;
 	}
 
@@ -130,7 +130,7 @@ li.articles-elem {
 		padding: 1vw;
 		border-radius: 0.5%;
 		overflow-x: scroll;
-		background-color: #000000;
-		color: #f0f0f0;
+		background-color: #F0F0F0;
+		color: #0F0F0F;
 	}
 }

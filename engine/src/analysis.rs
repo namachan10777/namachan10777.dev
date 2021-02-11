@@ -66,7 +66,7 @@ impl Report {
 
 pub fn generate_syntect_css() -> String {
     let ts = syntect::highlighting::ThemeSet::load_defaults();
-    let light_theme = &ts.themes["base16-eighties.dark"];
+    let light_theme = &ts.themes["InspiredGitHub"];
     syntect::html::css_for_theme(light_theme)
 }
 
