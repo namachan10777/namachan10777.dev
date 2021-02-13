@@ -1,0 +1,196 @@
+\article title={Misskeyの運用を初めた} date="2021-2-14" category = ("tech") {
+  \p{
+    Twitterが一部機能の有料化を検討しているらしい（何回目だろう）。
+    当然マネタイズしなければ運用できないのでそれ自体には反対ではないが、
+    SNSを一企業の代替不可能なインフラに頼り切るのは少し不安ではあるし、
+    第三者が任意でポリシーを変更できるサービスの中は自由に欠ける。
+    私が普段使っているTweetdeckが続くかどうかも怪しい気がしている
+    （数秒毎にポーリングする驚きの設計なのでTwitter社としては普通止めたくもなると思う）
+    一時期Mastodonを使っていたこともあったが、
+    結局他人の鯖に間借りさせてもらっているのではあまり変わらない。
+  }
+  \p{
+    最近までは手元に鯖が無い状況だったのだが、
+    \link url="https://access.cloudflare.com" {Cloudflare Access}と宿舎の安価な電気代とある程度安定したインターネット回線があれば
+    自宅鯖が出来ることに気づきヤフオクで安いOptiplexを買ったことで何でもホスティング出来るようになった。
+    中古でCPUは`Intel(R) Core(TM) i5-4590S CPU @ 3.00GHz`と若干古くSSDもSATA接続なものの、RAM 8GBとSSD 512GBを独占的に使えるのは嬉しい。VPSでも結構安いんですけどね。
+  }
+  \p{
+    Mastodonを入れても良かったのだがRuby on Railsは個人的に気持ちがあったので\link url="https://misskey.io" {Misskey}にした。
+    \link url="https://pleroma.social" {Pleroma}はなんかUIが上手く動かなかったのでやめた。
+    鯖にはsshdのプロキシとMisskeyのプロキシ用の\link url="https://github.com/cloudflare/cloudflared" {cloudflared}を起動するsystemdサービスを入れている。
+  }
+  \blockcode lang="service" src=###`
+    [Unit]
+    Description="cloudflare misskey"
+    After=misskey.service
+
+    [Service]
+    ExecStart=/usr/local/bin/cloudflared tunnel --hostname social.namachan10777.dev --url http://localhost:3000
+    ExecReload=/bin/kill -HUP $MAINPID
+    KillMOde=process
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+  `###;
+  \blockcode lang="service" src=###`
+    [Unit]
+    Description="Provides ssh via Cloudflare Argo Tunnel"
+    After=sshd.service
+
+    [Service]
+    ExecStart=/usr/local/bin/cloudflared tunnel --hostname ssh.namachan10777.dev --url ssh://localhost:22
+    ExecReload=/bin/kill -HUP $MAINPID
+    KillMOde=process
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+  `###;
+  \p{
+    SSHはemail認証を噛ませてかつYubikeyの秘密鍵を使わないと接続出来ないようしてある。
+    連合するので当然鯖はBypassに設定。
+  }
+  \p{
+    Misskeyの`Dockerfile`と`docker-compose.yml`は以下の通り。
+    `docker-compose.yml`は公式リポジトリそのまんまだった気がする。
+    `Dockerfile`は若干改変。
+  }
+  \blockcode lang="yml" src=###`
+    version: '3.2'
+    services:
+      web:
+        build: docker/
+        restart: always
+        links:
+          - db
+          - redis
+          - es
+        ports:
+          - "127.0.0.1:3000:3000"
+        networks:
+          - internal_network
+          - external_network
+        env_file:
+          - .config/docker.env
+        volumes:
+          - ./files:/misskey/files
+      db:
+        image: postgres:13.2-alpine
+        restart: always
+        networks:
+          - internal_network
+        env_file:
+          - .config/docker.env
+        volumes:
+          - ./db:/var/lib/postgresql/data
+      redis:
+        image: redis:6.2-rc3
+        restart: always
+        networks:
+          - internal_network
+        volumes:
+          - ./redis:/data
+      es:
+        restart: always
+        image: elasticsearch:7.10.1
+        networks:
+          - internal_network
+        env_file:
+          - .config/docker.env
+        environment:
+          - "discovery.type=single-node"
+        networks:
+          - internal_network
+        volumes:
+          - ./es:/usr/share/elasticsearch/data
+
+    networks:
+      internal_network:
+        internal: true
+      external_network:
+  `###;
+  \blockcode lang="Dockerfile" src=###`
+    FROM node:14.15.1-alpine AS base
+
+    ENV NODE_ENV=production
+
+    RUN addgroup -S -g 911 misskey && \
+      adduser -S -h /misskey -s /bin/false -D -u 911 misskey misskey
+    WORKDIR /misskey
+
+    FROM base AS builder
+
+    RUN apk add --no-cache \
+      autoconf \
+      automake \
+      file \
+      git \
+      g++ \
+      gcc \
+      libc-dev \
+      libtool \
+      make \
+      nasm \
+      pkgconfig \
+      python \
+      zlib-dev
+
+    USER misskey
+
+    RUN git clone -b master --depth=1 https://github.com/syuilo/misskey.git /misskey
+    RUN yarn install && yarn build
+
+    FROM base AS runner
+
+    RUN apk add --no-cache \
+      ffmpeg \
+      tini
+    RUN npm i -g web-push
+    ENTRYPOINT ["/sbin/tini", "--"]
+
+    USER misskey
+
+    COPY generate_default.sh .
+    COPY --from=builder /misskey .
+
+    CMD [ "/bin/sh", "-c", "sh generate_default.sh && npm run migrateandstart" ]
+  `###;
+  \blockcode lang="sh" src=###`
+    #!/bin/sh
+
+    if [ ! -e .config/default.yml ]; then
+      echo "url: https://social.namachan10777.dev" >> .config/default.yml
+      echo "port: 3000" >> .config/default.yml
+      echo "db:" >> .config/default.yml
+      echo "  host: db" >> .config/default.yml
+      echo "  port: 5432" >> .config/default.yml
+      echo "  db: "$POSTGRES_DB >> .config/default.yml
+      echo "  user: "$POSTGRES_USER >> .config/default.yml
+      echo "  pass: "$POSTGRES_PASSWORD >> .config/default.yml
+      echo "redis:" >> .config/default.yml
+      echo "  host: redis" >> .config/default.yml
+      echo "  port: 6379" >> .config/default.yml
+      echo "elasticsearch:" >> .config/default.yml
+      echo "  host: es" >> .config/default.yml
+      echo "  port: 9200" >> .config/default.yml
+      echo "  ssl: false" >> .config/default.yml
+      echo "  user: elastic">> .config/default.yml
+      echo "  pass: "$ELASTICSEARCH_PASSWORD >> .config/default.yml
+      echo "id: aid" >> .config/default.yml
+    fi
+  `###;
+  \p{
+    最後のシェルスクリプトは環境変数から`.config/default.yml`を生成するためのもの。
+    `.config/docker.env`以外にパスワードを書きたくなかったので。
+    ビルドもDockerでやっているので`docker-compose`と`docker`がインストールされていればパッケージのインストール等は不要だが、
+    ホストの方でElasticsearchを動かすために`sysctl`を使い`vm.max_map_count=262144`の設定と
+    Docker volumeの権限変更を行っておく必要がある。PostgresSQLとRedisは勝手にパーミッションを書き換えてくれるようだが
+    MisskeyとElasticsearchはそれをやらない（Misskeyはrootでないので当然無理だが）のでホスト側で`./files`と`./es`
+    のuidを911と1000に書き換えておく。
+  }
+  \p{
+    もっともTwitterを捨てる気にはならないので適当なBotを生やして投稿や通知をプロキシさせたい。
+  }
+}
