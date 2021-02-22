@@ -42,7 +42,7 @@ fn process_text_elem(ctx: Context, elem: TextElem) -> EResult<XMLElem> {
     match elem {
         TextElem::Plain(s) => Ok(xml!(s)),
         TextElem::Cmd(cmd) => process_cmd(ctx, cmd),
-        TextElem::Str(s) => process_inlinestr(ctx, s),
+        TextElem::Str(s) => Ok(process_inlinestr(ctx, s)),
     }
 }
 
@@ -457,7 +457,9 @@ fn execute_section(
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
     let title_body = value_utils::get_text(&attrs, "title", &ctx.location)?;
-    let mut title = vec![xml!(span[class = "sharp"][XMLElem::Text("#".repeat(ctx.level))])];
+    let mut title = vec![xml!(
+        span[class = "sharp"][XMLElem::Text("#".repeat(ctx.level))]
+    )];
     let mut title_body = title_body
         .iter()
         .map(|(e, loc)| {
@@ -685,8 +687,8 @@ fn execute_blockcode(ctx: Context, attrs: HashMap<String, ValueAst>) -> EResult<
     }
 }
 extern crate hex;
-fn process_inlinestr(_: Context, s: String) -> EResult<XMLElem> {
-    Ok(xml!(span[class = "inline-code"][xml!(s)]))
+fn process_inlinestr(_: Context, s: String) -> XMLElem {
+    xml!(span[class = "inline-code"][xml!(s)])
 }
 
 fn execute_profile(
