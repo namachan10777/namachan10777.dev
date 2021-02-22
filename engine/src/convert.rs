@@ -457,7 +457,7 @@ fn execute_section(
     inner: Vec<TextElemAst>,
 ) -> EResult<XMLElem> {
     let title_body = value_utils::get_text(&attrs, "title", &ctx.location)?;
-    let mut title = vec![xml!(span[class = "sharp"][XMLElem::Text("#".to_owned())])];
+    let mut title = vec![xml!(span[class = "sharp"][XMLElem::Text("#".repeat(ctx.level))])];
     let mut title_body = title_body
         .iter()
         .map(|(e, loc)| {
