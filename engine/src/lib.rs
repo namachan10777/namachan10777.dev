@@ -848,7 +848,7 @@ where
     let report = analysis::analyze(&files)?;
     let generated_files = convert::generate_category_pages(&report, &report.css)?
         .into_iter()
-        .map(|(p, xml)| (p, xml.to_string().into_bytes()));
+        .map(|(p, xml)| (p, xml.pretty_print().into_bytes()));
     let mut out = files
         .into_iter()
         .map(|(p, file)| match file {
