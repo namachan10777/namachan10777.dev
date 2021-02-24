@@ -847,7 +847,7 @@ fn process_cmd(ctx: Context, cmd: Cmd) -> EResult<XMLElem> {
 pub fn generate_category_pages(
     report: &super::analysis::Report,
     css: &str,
-) -> EResult<Vec<(PathBuf, XMLElem)>> {
+) -> EResult<Vec<(PathBuf, Html)>> {
     report
         .category_pages
         .iter()
@@ -879,7 +879,7 @@ pub fn generate_category_pages(
                 css,
             )?;
             // TODO: add og:type metatag
-            Ok((output_path, html(body, header)))
+            Ok((output_path, Html::new("html", html(body, header))))
         })
-        .collect::<EResult<Vec<(PathBuf, XMLElem)>>>()
+        .collect::<EResult<Vec<(PathBuf, Html)>>>()
 }
