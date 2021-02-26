@@ -8,24 +8,19 @@
       Luaへコンパイル可能な言語には有名どころだと\link url="https://moonscript.org" {MoonScript}や\link url="https://haxe.org" {Haxe}があるが、
       \link url="https://fennel-lang.org" {Fennel}というLisp方言もある。
       最新版の`0.8.1`のリリースも2021年2月と更新も盛んなようだ。
+    }
+    \p{
       基本的にはLexical scopeを持つシンプルなLispだが、
       Luaとの互換性を重視して設計されているようで手で書いたLuaと近い形にコンパイルされるのを利点としている。
       Lispなので強力なマクロ機能が使えるのが素のLuaに対する利点と言える。
-    }
-    \p{
-      配列も連想配列（Luaでは配列と連想配列は同じ扱いだが）もLuaでは`{}`を使って書くが、
-      Fennelでは配列は`[]`、連想配列は`{}`を使って書く。
-      Fennelのatom（`:abc`のように書く）を使えばLuaの`{a = 42, b = "alpha"}`は`{:a 42 :b "alpha"}`と書ける。
-      また`each`を使うには素の配列ではダメで、`pairs`または`ipairs`を使う必要がある。
-      モジュールの宣言時に必要なパッケージを`require`出来る（Luaのパッケージも直接`require`出来る）が、
-      パッケージマネージャの設定より先にパッケージの`require`を書くとブートストラップが出来なくなるので
-      その場合は個別に`def`と`require`を使ってパッケージを読み込むべき。
     }
   }
   \section title={Aniseed} {
     \p{
       このFennelを使ってNeovimの設定を書けるプラグインとして\link url="https://github.com/Olical/aniseed" {Aniseed}がある。
       余談だがAniseedはアニスの果実の意味でフェンネルと同じ香り（アネトール）がする。
+    }
+    \p{
       このプラグインは`$XDG_HOME_CONFIG/nvim/fnl/*`を`$XDG_HOME_CONFIG/nvim/lua/*`のコンフィグへとコンパイルする機能と
       Fennelを使ってプラグインを書くための機能の2種類の機能があり、
       またNeovimのapiのうち`lsp`と`treesitter`を除いたものへの薄いラッパー、
@@ -35,9 +30,11 @@
       ユーティリティ関数については\link url="https://github.com/Olical/aniseed/blob/master/doc/aniseed.txt" {`:help aniseed`}
       に全て書かれているがラッパーAPIの詳細は\link url="https://github.com/norcalli/nvim.lua" {`nvim.lua`}に準拠しているため
       ここのドキュメントを参照する必要がある。
+    }
+    \p{
       また当然ながらブートストラップのためのLuaは書く必要がある。
       私はパッケージマネージャに\link url="https://github.com/wbthomason/packer.nvim" {`packer`}を使っているため
-      `$HOME/.local/share/nvim/site/pack/packer/opt/`にインストールする以下のスクリプトを`init.lua`としている。
+      `packer.nvim`と`aniseed`をインストールする以下のスクリプトを`init.lua`としている。
     }
     \blockcode lang="lua" src=###`
     -- Bootstrap
@@ -61,6 +58,21 @@
     vim.cmd 'packadd aniseed'
     vim.api.nvim_set_var('aniseed#env', true)
     `###;
+  }
+  \section title={注意点} {
+    \p{
+      配列も連想配列（Luaでは配列と連想配列は同じ扱いだが）もLuaでは`{}`を使って書くが、
+      Fennelでは配列は`[]`、連想配列は`{}`を使って書く。
+      Fennelのatom（`:abc`のように書く）を使えばLuaの`{a = 42, b = "alpha"}`は`{:a 42 :b "alpha"}`と書ける。
+    }
+    \p{
+      また`each`を使うには素の配列ではダメで、`pairs`または`ipairs`を使う必要がある。
+    }
+    \p{
+      モジュールの宣言時に必要なパッケージを`require`出来る（Luaのパッケージも直接`require`出来る）が、
+      パッケージマネージャの設定より先にパッケージの`require`を書くとブートストラップが出来なくなるので
+      その場合は個別に`def`と`require`を使ってパッケージを読み込むべき。
+    }
   }
   \section title={設定のサンプル} {
     \p{
