@@ -71,14 +71,14 @@ jobs:
           command: |
             /tmp/workspace/engine ./public/ public.zip
       - run: |
-        git checkout deploy
-        git config user.email "namachan10777+circleci@users.noreply.github.com"
-        git config user.name "namachan10777+circleci"
-        mkdir dist
-        mv public.zip dist && cd dist && unzip -o public.zip && rm public.zip
-        git add --all
-        git commit -m "deploy"
-        git push origin deploy
+          git checkout deploy
+          git config user.email "namachan10777+circleci@users.noreply.github.com"
+          git config user.name "namachan10777+circleci"
+          mkdir dist
+          mv public.zip dist && cd dist && unzip -o public.zip && rm public.zip
+          git add --all
+          git commit -m "deploy"
+          git push origin deploy
 
 workflows:
   version: 2.1
