@@ -74,7 +74,7 @@ jobs:
           git checkout deploy
           git config user.email "namachan10777+circleci@users.noreply.github.com"
           git config user.name "namachan10777+circleci"
-          mkdir dist
+          mkdir -p dist
           mv public.zip dist && cd dist && unzip -o public.zip && rm public.zip
           git add --all
           git commit -m "deploy"
