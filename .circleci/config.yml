@@ -70,15 +70,12 @@ jobs:
           name: Build pages
           command: |
             /tmp/workspace/engine ./public/ public.zip
-      - run: |
-          git checkout deploy
-          git config user.email "namachan10777+circleci@users.noreply.github.com"
-          git config user.name "namachan10777+circleci"
-          mkdir -p dist
-          mv public.zip dist && cd dist && unzip -o public.zip && rm public.zip
-          git add --all
-          git commit -m "deploy"
-          git push origin deploy
+      - run:
+          name: Deploy
+          command: |
+            curl -H 'User-Agent: namachan10777 (namachan10777@gmail.com)' \
+                 -H 'Authorization: Bearer ${NETLIFY_TOKEN}' \
+                 https://api.netlify.com/api/v1/sites
 
 workflows:
   version: 2.1
