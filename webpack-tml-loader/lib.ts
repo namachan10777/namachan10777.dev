@@ -1,24 +1,24 @@
 type Text = TextElem[];
 
 type Arg = {
-  type: "text";
+  type: 'text';
   text: Text;
 };
 
 type Command =
   | {
-      type: "simple";
+      type: 'simple';
       name: string;
       args: { name: string; value: Arg }[];
     }
   | {
-      type: "with-text";
+      type: 'with-text';
       name: string;
       args: { name: string; value: Arg }[];
       text: Text;
     }
   | {
-      type: "with-cmds";
+      type: 'with-cmds';
       name: string;
       args: { name: string; value: Arg }[];
       cmds: Command[];
@@ -39,24 +39,24 @@ type ParseResult<T> =
 
 type TextElem =
   | {
-      type: "cmd";
+      type: 'cmd';
       cmd: Command;
     }
   | {
-      type: "plaintext";
+      type: 'plaintext';
       plaintext: string;
     };
 
-export function parse(_: string): ParseResult<Command> {
+export function parse (_: string): ParseResult<Command> {
   return {
     success: false,
     position: {
       line: 0,
-      col: 0,
-    },
-  };
+      col: 0
+    }
+  }
 }
 
-export function hello() {
-  return "Hello";
+export function hello () {
+  return 'Hello'
 }

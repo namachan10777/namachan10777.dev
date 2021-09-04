@@ -9,7 +9,9 @@
     "tsc-loader": "tsc --project webpack-tml-loader",
     "test": "jest",
     "fmt": "prettier -w --ignore-path node_modules/**/*.js --ignore-path .next/**/*.js **/*.ts **/*.tsx **/*.js",
-    "fmt-chk": "prettier --check --ignore-path node_modules/**/*.js --ignore-path .next/**/*.js **/*.ts **/*.tsx **/*.js"
+    "fmt-chk": "prettier --check --ignore-path node_modules/**/*.js --ignore-path .next/**/*.js **/*.ts **/*.tsx **/*.js",
+    "lint": "eslint pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts",
+    "lint-fix": "eslint --fix pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts"
   },
   "dependencies": {
     "next": "11.1.0",
@@ -22,6 +24,11 @@
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
     "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-react": "^7.25.1",
     "jest": "^27.1.0",
     "prettier": "^2.3.2",
     "ts-jest": "^27.0.5",
