@@ -12,3 +12,6 @@ dist/*
 
 # Local Netlify folder
 .netlify
+
+.next
+/webpack-tml-loader/*.js

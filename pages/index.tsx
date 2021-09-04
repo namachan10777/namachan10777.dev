@@ -1,8 +1,10 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import tml from '../tml/index.tml';
 
 export default function Home() {
+  console.log(tml);
   return (
     <div className={styles.container}>
       <Head>
