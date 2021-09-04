@@ -1,15 +1,34 @@
-# namachan10777.dev
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-[![CircleCI](https://circleci.com/gh/namachan10777/namachan10777.dev.svg?style=svg)](https://circleci.com/gh/namachan10777/namachan10777.dev)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/d7d5a281-4def-427b-bc63-9087b9bbf4c9/deploy-status)](https://app.netlify.com/sites/namachan10777/deploys)
+## Getting Started
 
-# License & Credit
-## Code
-[![BSL-1.0](https://img.shields.io/badge/License-BSL%201.0-blue.svg)](https://opensource.org/licenses/BSL-1.0)
+First, run the development server:
 
-[BSL-License](https://opensource.org/licenses/BSL-1.0)
-## Icon
-[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-[CC-BY-NC-ND](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-Made by [@hsm_hx](https://github.com/hsm-hx)
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
