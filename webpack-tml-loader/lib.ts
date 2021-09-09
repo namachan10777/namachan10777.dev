@@ -1,7 +1,7 @@
 type Text = TextElem[];
 
 type Arg = {
-  type: 'text';
+  type: "text";
   text: Text;
 };
 
@@ -13,18 +13,18 @@ type Position = {
 
 type Command =
   | {
-      type: 'simple';
+      type: "simple";
       name: string;
       args: { name: string; value: Arg }[];
     }
   | {
-      type: 'with-text';
+      type: "with-text";
       name: string;
       args: { name: string; value: Arg }[];
       text: Text;
     }
   | {
-      type: 'with-cmds';
+      type: "with-cmds";
       name: string;
       args: { name: string; value: Arg }[];
       cmds: Command[];
@@ -43,15 +43,19 @@ type ParseResult<T> =
 
 type TextElem =
   | {
-      type: 'cmd';
+      type: "cmd";
       cmd: Command;
     }
   | {
-      type: 'plaintext';
+      type: "plaintext";
       plaintext: string;
     };
 
-function count_line_and_col(src: string, p_init: Position, n: number): Position {
+function count_line_and_col(
+  src: string,
+  p_init: Position,
+  n: number
+): Position {
   let line = p_init.line;
   let col = p_init.col;
   let abs = p_init.abs;
@@ -75,8 +79,7 @@ export function eat_space(p: Position, src: string): ParseResult<null> {
       next: p_next,
       result: null,
     };
-  }
-  else {
+  } else {
     return {
       success: false,
       position: p,
@@ -84,18 +87,18 @@ export function eat_space(p: Position, src: string): ParseResult<null> {
   }
 }
 
-export function parse (p: Position, src: string): ParseResult<Command> {
+export function parse(p: Position, src: string): ParseResult<Command> {
   const name = /^\\(\w+)\s*/.exec(src);
   if (name) {
-    if (src.length > name[0].length && src[name[0].length] == ';') {
+    if (src.length > name[0].length && src[name[0].length] == ";") {
       return {
         success: true,
         next: count_line_and_col(src, p, name[0].length + 1),
         result: {
-          type: 'simple',
+          type: "simple",
           name: name[1],
           args: [],
-        }
+        },
       };
     }
   }
@@ -105,6 +108,6 @@ export function parse (p: Position, src: string): ParseResult<Command> {
   };
 }
 
-export function hello () {
-  return 'Hello'
+export function hello() {
+  return "Hello";
 }

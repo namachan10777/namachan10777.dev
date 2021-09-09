@@ -8,8 +8,8 @@
     "start": "next start",
     "tsc-loader": "tsc --project webpack-tml-loader",
     "test": "jest",
-    "fmt": "prettier -w --ignore-path node_modules/**/*.js --ignore-path .next/**/*.js **/*.ts **/*.tsx **/*.js",
-    "fmt-chk": "prettier --check --ignore-path node_modules/**/*.js --ignore-path .next/**/*.js **/*.ts **/*.tsx **/*.js",
+    "fmt": "prettier -w pages/*.tsx webpack-tml-loader/*.ts",
+    "fmt-check": "prettier --check pages/*.tsx webpack-tml-loader/*.ts",
     "lint": "eslint pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts",
     "lint-fix": "eslint --fix pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts"
   },
