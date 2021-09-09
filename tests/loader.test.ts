@@ -61,8 +61,8 @@ describe("parse", (): void => {
         ],
       },
       next: {
-        abs: 31,
-        col: 31,
+        abs: 22,
+        col: 22,
         line: 0,
       },
     });
@@ -80,8 +80,34 @@ describe("parse", (): void => {
         ],
       },
       next: {
-        abs: 31,
-        col: 31,
+        abs: 19,
+        col: 19,
+        line: 0,
+      },
+    });
+  });
+  test("with-text in with-text", (): void => {
+    expect(Lib.parse(p, "\\index {\\foo { b }}")).toStrictEqual({
+      success: true,
+      result: {
+        type: "with-text",
+        name: "index",
+        args: [],
+        text: [
+          {
+            type: "cmd",
+            cmd: {
+              type: "with-text",
+              name: "foo",
+              args: [],
+              text: [{ type: "plaintext", plaintext: " b " }],
+            },
+          },
+        ],
+      },
+      next: {
+        abs: 19,
+        col: 19,
         line: 0,
       },
     });

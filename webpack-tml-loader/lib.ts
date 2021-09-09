@@ -135,6 +135,22 @@ function parse_value(p: Position, src: string): ParseResult<Arg> {
         };
       }
     }
+  } else if (src[0] == "{") {
+    const text_result = parse_text(count_line_and_col(src, p, 1), src.slice(1));
+    if (text_result.success && src[text_result.next.abs - p.abs] == "}") {
+      return {
+        success: true,
+        next: count_line_and_col(
+          src.slice(text_result.next.abs - p.abs),
+          text_result.next,
+          1
+        ),
+        result: {
+          type: "text",
+          text: text_result.result,
+        },
+      };
+    }
   }
   return {
     success: false,
@@ -146,7 +162,7 @@ function parse_arg(
   p: Position,
   src: string
 ): ParseResult<{ name: string; value: Arg }> {
-  const argname = /^([a-zA-Z]\w*)\s*\=\s*/.exec(src);
+  const argname = /^([a-zA-Z][-\w]*)\s*\=\s*/.exec(src);
   if (argname) {
     const p_next = count_line_and_col(src, p, argname[0].length);
     const value_result = parse_value(p_next, src.slice(argname[0].length));
@@ -172,12 +188,12 @@ export function parse_text(p: Position, src: string): ParseResult<Text> {
   let next = p;
   let elems: TextElem[] = [];
   let text = "";
-  for (let i = 0; i < src.length; ) {
-    if (/^\\[\\\}]$/.test(src.slice(i))) {
-      i += 2;
+  while (next.abs - p.abs < src.length) {
+    if (/^\\[\\\}]$/.test(src.slice(next.abs - p.abs))) {
+      next = count_line_and_col(src, next, 2);
       continue;
     }
-    if (src[i] == "\\") {
+    if (src[next.abs - p.abs] == "\\") {
       if (text) {
         elems.push({ type: "plaintext", plaintext: text });
         text = "";
@@ -188,7 +204,6 @@ export function parse_text(p: Position, src: string): ParseResult<Text> {
           type: "cmd",
           cmd: result.result,
         });
-        i += result.next.abs - next.abs;
         next = result.next;
       } else {
         return {
@@ -196,12 +211,11 @@ export function parse_text(p: Position, src: string): ParseResult<Text> {
           position: next,
         };
       }
-    } else if (src[i] == "}") {
+    } else if (src[next.abs - p.abs] == "}") {
       break;
     } else {
-      text += src[i];
+      text += src[next.abs - p.abs];
       next = count_line_and_col(src, next, 1);
-      i += 1;
     }
   }
   if (text) {
@@ -241,7 +255,7 @@ export function parse_cmds(p: Position, src: string): ParseResult<Command[]> {
 }
 
 export function parse(p: Position, src: string): ParseResult<Command> {
-  const name = /^\\(\w+)\s*/.exec(src);
+  const name = /^\\([-\w]+)\s*/.exec(src);
   if (name) {
     let args = [];
     let p_next = count_line_and_col(src, p, name[0].length);
@@ -280,7 +294,7 @@ export function parse(p: Position, src: string): ParseResult<Command> {
           next: count_line_and_col(
             src.slice(p_next.abs - p.abs),
             text_result.next,
-            text_result.next.abs - p_next.abs + 1
+            1
           ),
           result: {
             type: "with-text",
@@ -290,6 +304,10 @@ export function parse(p: Position, src: string): ParseResult<Command> {
           },
         };
       }
+      return {
+        success: false,
+        position: text_result.success ? text_result.next : text_result.position,
+      };
     } else if (closing && closing[1] == "[") {
       const cmds_result = parse_cmds(
         count_line_and_col(src, p_next, closing[0].length),
@@ -301,7 +319,7 @@ export function parse(p: Position, src: string): ParseResult<Command> {
           next: count_line_and_col(
             src.slice(p_next.abs - p.abs),
             cmds_result.next,
-            cmds_result.next.abs - p_next.abs + 1
+            1
           ),
           result: {
             type: "with-cmds",
