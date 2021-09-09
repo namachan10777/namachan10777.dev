@@ -62,7 +62,8 @@ type TextElem =
   | {
       type: "plaintext";
       plaintext: string;
-    };
+    }
+  | { type: "code"; code: string };
 
 function count_line_and_col(
   src: string,
@@ -92,6 +93,7 @@ export function eat_space(p: Position, src: string): Position {
   }
 }
 
+// TODO: blockquote
 function parse_value(p: Position, src: string): ParseResult<Arg> {
   const int_matched = /^\d+/.exec(src);
   // TODO: relax syntax
@@ -184,6 +186,7 @@ function parse_arg(
   };
 }
 
+// TODO: inline code
 export function parse_text(p: Position, src: string): ParseResult<Text> {
   let next = p;
   let elems: TextElem[] = [];
