@@ -1,6 +1,6 @@
-type Text = TextElem[];
+export type Text = TextElem[];
 
-type Arg =
+export type Arg =
   | {
       type: "text";
       text: Text;
@@ -18,13 +18,13 @@ type Arg =
       str: string;
     };
 
-type Position = {
+export type Position = {
   abs: number;
   line: number;
   col: number;
 };
 
-type Command =
+export type Command =
   | {
       type: "simple";
       name: string;
@@ -54,7 +54,7 @@ type ParseResult<T> =
       position: Position;
     };
 
-type TextElem =
+export type TextElem =
   | {
       type: "cmd";
       cmd: Command;
@@ -98,6 +98,7 @@ function parse_value(p: Position, src: string): ParseResult<Arg> {
   const int_matched = /^\d+/.exec(src);
   // TODO: relax syntax
   const float_matched = /^\d+\.\d+/.exec(src);
+  const blockquote_matched = /^(###+)`/.exec(src);
   if (float_matched) {
     return {
       success: true,
@@ -116,6 +117,24 @@ function parse_value(p: Position, src: string): ParseResult<Arg> {
         int: parseInt(int_matched[0], 10),
       },
     };
+  } else if (blockquote_matched) {
+    const idx = src.indexOf(`\`${blockquote_matched[1]}`);
+    if (idx > 0) {
+      const inner = src.slice(blockquote_matched[1].length + 1, idx);
+      const next = count_line_and_col(
+        src,
+        p,
+        idx + blockquote_matched[1].length + 1
+      );
+      return {
+        success: true,
+        result: {
+          type: "string",
+          str: inner,
+        },
+        next,
+      };
+    }
   } else if (src[0] == '"') {
     for (let i = 1; i < src.length; ++i) {
       if (

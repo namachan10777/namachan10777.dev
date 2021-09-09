@@ -86,6 +86,29 @@ describe("parse", (): void => {
       },
     });
   });
+  test("blockquote", (): void => {
+    expect(Lib.parse(p, "\\code str=###`block`###;")).toStrictEqual({
+      success: true,
+      result: {
+        type: "simple",
+        name: "code",
+        args: [
+          {
+            name: "str",
+            value: {
+              type: "string",
+              str: "block",
+            },
+          },
+        ],
+      },
+      next: {
+        abs: 24,
+        col: 24,
+        line: 0,
+      },
+    });
+  });
   test("with-text in with-text", (): void => {
     expect(Lib.parse(p, "\\index {\\foo { b }}")).toStrictEqual({
       success: true,

@@ -2,10 +2,14 @@ import React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
+import * as LoaderLib from "../webpack-tml-loader/lib";
 import tml from "../tml/index.tml";
+import tml2 from "../tml/change-docker-data-root.tml";
 
 export default function Home() {
-  console.log(tml);
+  const t: LoaderLib.Command = tml;
+  console.log(t);
+  console.log(tml2);
   return (
     <div className={styles.container}>
       <Head>

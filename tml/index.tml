@@ -76,4 +76,7 @@
   \section title={PGP public key} {
     Import `Masaki Nakano (Master)` from a gpg server (e.g `keys.gnupg.net`).
   }
+  \code str=###`
+    hoge
+  `###;
 }
