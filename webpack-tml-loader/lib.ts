@@ -210,8 +210,9 @@ export function parse_text(p: Position, src: string): ParseResult<Text> {
   let next = p;
   let elems: TextElem[] = [];
   let text = "";
+  let processing_inline = false;
   while (next.abs - p.abs < src.length) {
-    if (/^\\[\\\}]$/.test(src.slice(next.abs - p.abs))) {
+    if (/^\\[\\\}`]$/.test(src.slice(next.abs - p.abs))) {
       next = count_line_and_col(src, next, 2);
       continue;
     }
@@ -232,6 +233,18 @@ export function parse_text(p: Position, src: string): ParseResult<Text> {
           success: false,
           position: next,
         };
+      }
+    } else if (src[next.abs - p.abs] == '`' && processing_inline) {
+      elems.push({type: 'code', code: text});
+      processing_inline = false;
+      text = '';
+      next = count_line_and_col(src, next, 1);
+    } else if (src[next.abs - p.abs] == '`' && !processing_inline) {
+      if (text) {
+        elems.push({type: 'plaintext', plaintext: text});
+        processing_inline = true;
+        text = '';
+        next = count_line_and_col(src, next, 1);
       }
     } else if (src[next.abs - p.abs] == "}") {
       break;
