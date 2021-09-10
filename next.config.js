@@ -5,7 +5,7 @@ module.exports = {
       test: /\.md$/,
       use: [
         {
-          loader: path.resolve(__dirname, 'webpack-md-loader/loader.js')
+          loader: 'text-loader'
         }
       ]
     });

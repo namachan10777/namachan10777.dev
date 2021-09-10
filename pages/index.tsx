@@ -1,15 +1,19 @@
 import React from "react";
 import Head from "next/head";
 import Image from "next/image";
+import readme from "../README.md";
 import styles from "../styles/Home.module.css";
-import * as LoaderLib from "../webpack-tml-loader/lib";
-import tml from "../tml/index.tml";
-import tml2 from "../tml/change-docker-data-root.tml";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import * as MdAst from 'mdast';
 
-export default function Home() {
-  const t: LoaderLib.Command = tml;
-  console.log(t);
-  console.log(tml2);
+type Props = {
+  mdast: MdAst.Root,
+}
+
+export default function Home(props: Props) {
+  console.log(props.mdast)
   return (
     <div className={styles.container}>
       <Head>
@@ -73,4 +77,14 @@ export default function Home() {
       </footer>
     </div>
   );
+}
+
+export async function getStaticProps(_) {
+  const md = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .parse(readme);
+  return {
+    props: {mdast: md},
+  };
 }

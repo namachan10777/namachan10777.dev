@@ -16,10 +16,13 @@
   "dependencies": {
     "next": "11.1.0",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "remark-parse": "^10.0.0",
+    "unified": "^10.1.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
+    "@types/mdast": "^3.0.10",
     "@types/react": "17.0.19",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
@@ -31,6 +34,11 @@
     "eslint-plugin-react": "^7.25.1",
     "jest": "^27.1.0",
     "prettier": "^2.3.2",
+    "rehype-stringify": "^9.0.2",
+    "remark-gfm": "^2.0.0",
+    "remark-rehype": "^9.0.0",
+    "remark-stringify": "^10.0.0",
+    "text-loader": "^0.0.1",
     "ts-jest": "^27.0.5",
     "typescript": "4.4.2"
   },
