@@ -6,12 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "tsc-loader": "tsc --project webpack-tml-loader",
+    "tsc-loader": "tsc --project webpack-md-loader",
     "test": "jest",
-    "fmt": "prettier -w pages/*.tsx webpack-tml-loader/*.ts tests/*.ts",
-    "fmt-check": "prettier --check pages/*.tsx webpack-tml-loader/*.ts tests/*.ts",
-    "lint": "eslint pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts",
-    "lint-fix": "eslint --fix pages/**/*.ts pages/**/*.tsx webpack-tml-loader/*.ts tests/*.ts"
+    "fmt": "prettier -w pages/*.tsx webpack-md-loader/*.ts tests/*.ts",
+    "fmt-check": "prettier --check pages/*.tsx webpack-md-loader/*.ts tests/*.ts",
+    "lint": "eslint pages/**/*.ts pages/**/*.tsx webpack-md-loader/*.ts tests/*.ts",
+    "lint-fix": "eslint --fix pages/**/*.ts pages/**/*.tsx webpack-md-loader/*.ts tests/*.ts"
   },
   "dependencies": {
     "next": "11.1.0",

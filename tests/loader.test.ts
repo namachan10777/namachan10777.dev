@@ -1,12 +1,6 @@
 import "jest";
 
-import * as Lib from "../webpack-tml-loader/lib";
-
-describe("greet", (): void => {
-  test("should say hello.", (): void => {
-    expect(Lib.hello()).toBe("Hello");
-  });
-});
+import * as Lib from "../webpack-md-loader/lib";
 
 describe("parse", (): void => {
   const p = {
@@ -14,124 +8,14 @@ describe("parse", (): void => {
     col: 0,
     abs: 0,
   };
-  test("parse simple command", (): void => {
-    expect(Lib.parse(p, "\\hoge;")).toStrictEqual({
+  test("parse as raw string", (): void => {
+    expect(Lib.parse(p, "Hello World!")).toStrictEqual({
       success: true,
-      result: {
-        type: "simple",
-        name: "hoge",
-        args: [],
-      },
-      next: {
-        abs: 6,
-        col: 6,
+      value: "Hello World!",
+      pos: {
         line: 0,
-      },
-    });
-  });
-  test("parse simple command with args", (): void => {
-    expect(Lib.parse(p, '\\hoge foo=1 bar=3.14 hoge="hoge";')).toStrictEqual({
-      success: true,
-      result: {
-        type: "simple",
-        name: "hoge",
-        args: [
-          { name: "foo", value: { type: "int", int: 1 } },
-          { name: "bar", value: { type: "float", float: 3.14 } },
-          { name: "hoge", value: { type: "string", str: "hoge" } },
-        ],
-      },
-      next: {
-        abs: 33,
-        col: 33,
-        line: 0,
-      },
-    });
-  });
-  test("parse with-text command with args", (): void => {
-    expect(Lib.parse(p, "\\hoge foo=1 {oh \\bar;}")).toStrictEqual({
-      success: true,
-      result: {
-        type: "with-text",
-        name: "hoge",
-        args: [{ name: "foo", value: { type: "int", int: 1 } }],
-        text: [
-          { type: "plaintext", plaintext: "oh " },
-          { type: "cmd", cmd: { type: "simple", name: "bar", args: [] } },
-        ],
-      },
-      next: {
-        abs: 22,
-        col: 22,
-        line: 0,
-      },
-    });
-  });
-  test("parse with-cmds command without args", (): void => {
-    expect(Lib.parse(p, "\\hoge [\\bar; \\foo;]")).toStrictEqual({
-      success: true,
-      result: {
-        type: "with-cmds",
-        name: "hoge",
-        args: [],
-        cmds: [
-          { type: "simple", name: "bar", args: [] },
-          { type: "simple", name: "foo", args: [] },
-        ],
-      },
-      next: {
-        abs: 19,
-        col: 19,
-        line: 0,
-      },
-    });
-  });
-  test("blockquote", (): void => {
-    expect(Lib.parse(p, "\\code str=###`block`###;")).toStrictEqual({
-      success: true,
-      result: {
-        type: "simple",
-        name: "code",
-        args: [
-          {
-            name: "str",
-            value: {
-              type: "string",
-              str: "block",
-            },
-          },
-        ],
-      },
-      next: {
-        abs: 24,
-        col: 24,
-        line: 0,
-      },
-    });
-  });
-  test("with-text in with-text", (): void => {
-    expect(Lib.parse(p, "\\index {\\foo { b }}")).toStrictEqual({
-      success: true,
-      result: {
-        type: "with-text",
-        name: "index",
-        args: [],
-        text: [
-          {
-            type: "cmd",
-            cmd: {
-              type: "with-text",
-              name: "foo",
-              args: [],
-              text: [{ type: "plaintext", plaintext: " b " }],
-            },
-          },
-        ],
-      },
-      next: {
-        abs: 19,
-        col: 19,
-        line: 0,
+        col: 12,
+        abs: 12,
       },
     });
   });

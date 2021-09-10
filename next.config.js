@@ -1,13 +1,11 @@
-const path = require('path');
-
 module.exports = {
   webpack(config) {
-    config.resolve.extensions.push(".tml");
+    config.resolve.extensions.push(".md");
     config.module.rules.push({
-      test: /\.tml/,
+      test: /\.md$/,
       use: [
         {
-          loader: path.resolve(__dirname, 'webpack-tml-loader/loader.js')
+          loader: path.resolve(__dirname, 'webpack-md-loader/loader.js')
         }
       ]
     });
