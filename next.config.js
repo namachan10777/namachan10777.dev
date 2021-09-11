@@ -1,4 +1,7 @@
 module.exports = {
+  images: {
+    domains: ['img.shields.io']
+  },
   webpack(config) {
     config.resolve.extensions.push(".md");
     config.module.rules.push({
