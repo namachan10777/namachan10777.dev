@@ -8,12 +8,13 @@ export type Props = {
 };
 
 function isIncludeImage(ast: Unist.Node): boolean {
-  if (ast.type == 'image') return true;
+  if (ast.type === "image") return true;
   switch (ast.type) {
-    case 'heading':
-    case 'paragraph':
+    case "heading":
+    case "paragraph": {
       const parent = ast as MdAst.Parent;
       return parent.children.some(isIncludeImage);
+    }
     default:
       return false;
   }
@@ -66,14 +67,15 @@ function constructDom(ast: Unist.Node, key = 0) {
     case "image": {
       const img = ast as MdAst.Image;
       const alt = img.alt ? img.alt : "";
-      const altMatched = /(\d+),(\d+)\:/.exec(alt);
+      const altMatched = /(\d+),(\d+):/.exec(alt);
       if (altMatched) {
         const w = parseInt(altMatched[1], 10);
-        const h = parseInt(altMatched[2], 10)
+        const h = parseInt(altMatched[2], 10);
         return <Image key={key} src={img.url} width={w} height={h} alt={alt} />;
-      }
-      else {
-        return <Image key={key} src={img.url} width={100} height={100} alt={alt} />;
+      } else {
+        return (
+          <Image key={key} src={img.url} width={100} height={100} alt={alt} />
+        );
       }
     }
     case "text": {
@@ -83,32 +85,50 @@ function constructDom(ast: Unist.Node, key = 0) {
     case "paragraph": {
       const paragraph = ast as MdAst.Paragraph;
       if (isIncludeImage(paragraph)) {
-        return <div key={key} className="my-2">{paragraph.children.map(constructDom)}</div>;
-      }
-      else {
-        return <p key={key} className="my-2">{paragraph.children.map(constructDom)}</p>;
+        return (
+          <div key={key} className="my-2">
+            {paragraph.children.map(constructDom)}
+          </div>
+        );
+      } else {
+        return (
+          <p key={key} className="my-2">
+            {paragraph.children.map(constructDom)}
+          </p>
+        );
       }
     }
     case "list": {
       const list = ast as MdAst.List;
       if (list.ordered) {
-        return <ol key={key}>{list.children.map(constructDom)}</ol>
-      }
-      else {
-        return <ul key={key}>{list.children.map(constructDom)}</ul>
+        return <ol key={key}>{list.children.map(constructDom)}</ol>;
+      } else {
+        return <ul key={key}>{list.children.map(constructDom)}</ul>;
       }
     }
     case "listItem": {
       const listitem = ast as MdAst.ListItem;
-      return <li key={key}>{listitem.children.map(constructDom)}</li>
+      return <li key={key}>{listitem.children.map(constructDom)}</li>;
     }
     case "link": {
       const link = ast as MdAst.Link;
-      return <a className="underline text-gray-700 hover:text-black hover:font-medium" key={key} href={link.url}>{link.children.map(constructDom)}</a>
+      return (
+        <a
+          className="underline text-gray-700 hover:text-black hover:font-medium"
+          key={key}
+          href={link.url}
+        >
+          {link.children.map(constructDom)}
+        </a>
+      );
     }
     case "inlineCode": {
       const inlineCode = ast as MdAst.InlineCode;
-      return <span key={key} className="font-mono bg-yellow-50 p-1 rounded-sm">{inlineCode.value}</span>
+      return (
+        <span key={key} className="font-mono bg-yellow-50 p-1 rounded-sm">
+          {inlineCode.value}
+        </span>
+      );
     }
     case "toml":
       return null;
