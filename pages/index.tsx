@@ -1,20 +1,20 @@
-import React from 'react'
-import Head from 'next/head'
-import Md from '../components/md'
-import readme from '../articles/nextjs-blog.md'
-import styles from '../styles/Home.module.css'
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkGfm from 'remark-gfm'
-import remarkFrontmatter from 'remark-frontmatter'
-import * as MdAst from 'mdast'
+import React from "react";
+import Head from "next/head";
+import Md from "../components/md";
+import readme from "../articles/nextjs-blog.md";
+import styles from "../styles/Home.module.css";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkFrontmatter from "remark-frontmatter";
+import * as MdAst from "mdast";
 
 type Props = {
   mdast: MdAst.Root;
 };
 
-export default function Home (props: Props) {
-  console.log(props.mdast)
+export default function Home(props: Props) {
+  console.log(props.mdast);
   return (
     <div className={styles.container}>
       <Head>
@@ -27,16 +27,16 @@ export default function Home (props: Props) {
         <Md mdast={props.mdast} />
       </main>
     </div>
-  )
+  );
 }
 
-export async function getStaticProps (_) {
+export async function getStaticProps(_) {
   const md = unified()
     .use(remarkParse)
-    .use(remarkFrontmatter, ['toml', 'yaml'])
+    .use(remarkFrontmatter, ["toml", "yaml"])
     .use(remarkGfm)
-    .parse(readme)
+    .parse(readme);
   return {
-    props: { mdast: md }
-  }
+    props: { mdast: md },
+  };
 }
