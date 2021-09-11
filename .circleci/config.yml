@@ -6,8 +6,27 @@ executors:
       - image: namachan10777/namachan10777.dev:latest
         environment:
           RUST_LOG: Info
+  nodejs:
+    docker:
+      - image: public.ecr.aws/lambda/nodejs:12
 
 jobs:
+  test_js:
+    executor: nodejs
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: npm ci
+      - run:
+          name: format
+          command: npm run fmt-check 
+      - run:
+          name: lint
+          command: npm run lint
+      - run:
+          name: build
+          command: npm run build
   test:
     executor:
       name: default
@@ -81,16 +100,18 @@ workflows:
   version: 2.1
   build_and_deploy:
     jobs:
+      - test_js:
+          filters:
+            branches:
+              only: [next]
       - build_engine:
           filters:
             branches:
-              ignore:
-                deploy
+              ignore: [deploy, next]
       - test:
           filters:
             branches:
-              ignore:
-                deploy
+              ignore: [deploy, next]
       - build:
           requires:
             - build_engine
