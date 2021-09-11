@@ -103,15 +103,15 @@ workflows:
       - test_js:
           filters:
             branches:
-              only: [next, parse-md]
+              only: [next]
       - build_engine:
           filters:
             branches:
-              ignore: [deploy, next, parse-md]
+              ignore: [deploy, next]
       - test:
           filters:
             branches:
-              ignore: [deploy, next, parse-md]
+              ignore: [deploy, next]
       - build:
           requires:
             - build_engine
