@@ -8,6 +8,8 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import * as MdAst from "mdast";
 
+export const config = { amp: true };
+
 type Props = {
   mdast: MdAst.Root;
 };
