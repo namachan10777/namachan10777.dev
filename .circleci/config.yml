@@ -24,6 +24,9 @@ jobs:
       - run:
           name: lint
           command: npm run lint
+      - run:
+          name: build
+          command: npm run build
   test:
     executor:
       name: default

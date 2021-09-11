@@ -31,7 +31,7 @@ export default function Home(props: Props) {
   );
 }
 
-export async function getStaticProps(_) {
+export async function getStaticProps() {
   const md = unified()
     .use(remarkParse)
     .use(remarkFrontmatter, ["toml", "yaml"])

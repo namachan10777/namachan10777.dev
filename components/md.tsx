@@ -6,7 +6,7 @@ export type Props = {
   mdast: MdAst.Root;
 };
 
-function calcHash(ast: Unist.Node) {
+function calcHash(ast: Unist.Node): string {
   switch (ast.type) {
     case "heading": {
       const heading = ast as MdAst.Heading;
@@ -21,7 +21,7 @@ function calcHash(ast: Unist.Node) {
       return `<p>${paragraph.children.map(calcHash)}</p>`;
     }
     default:
-      throw `unsupported ast type ${ast.type}`;
+      throw new Error(`unsupported ast type ${ast.type}`);
   }
 }
 
