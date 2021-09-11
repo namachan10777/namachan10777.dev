@@ -19,8 +19,11 @@ jobs:
           name: install dependencies
           command: npm ci
       - run:
-          name: test
-          command: npm run test
+          name: format
+          command: npm run fmt-check 
+      - run:
+          name: lint
+          command: npm run lint
   test:
     executor:
       name: default
@@ -97,15 +100,15 @@ workflows:
       - test_js:
           filters:
             branches:
-              only: [next]
+              only: [next, parse-md]
       - build_engine:
           filters:
             branches:
-              ignore: [deploy, next]
+              ignore: [deploy, next, parse-md]
       - test:
           filters:
             branches:
-              ignore: [deploy, next]
+              ignore: [deploy, next, parse-md]
       - build:
           requires:
             - build_engine
