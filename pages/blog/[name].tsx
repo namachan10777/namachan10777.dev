@@ -17,25 +17,27 @@ export default function Home(props: Props) {
         <meta name="description" content="namachan10777 profile page" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className="lg:w-1/2">
-        <Link href="/" passHref={true}>
-          <a className="m-1 text-lg underline text-gray-700 hover:text-black">
-            namachan10777.dev
-          </a>
-        </Link>{" "}
-        {">"}
-        <Link href="/blog" passHref={true}>
-          <a className="m-1 text-lg underline text-gray-700 hover:text-black">
-            Blog
-          </a>
-        </Link>
-      </header>
-      <main className="p-5 lg:w-1/2">
-        <h1 className="text-4xl font-bold m-4">
-          {props.article.frontmatter.title}
-        </h1>
-        <Md mdast={props.article.ast} />
-      </main>
+      <div className="lg:w-1/2">
+        <header>
+          <Link href="/" passHref={true}>
+            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+              namachan10777.dev
+            </a>
+          </Link>{" "}
+          {">"}
+          <Link href="/blog" passHref={true}>
+            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+              Blog
+            </a>
+          </Link>
+        </header>
+        <main>
+          <h1 className="text-4xl font-bold m-4">
+            {props.article.frontmatter.title}
+          </h1>
+          <Md mdast={props.article.ast} />
+        </main>
+      </div>
     </div>
   );
 }
