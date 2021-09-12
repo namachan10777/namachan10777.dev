@@ -25,7 +25,7 @@ export default function Home(props: Props) {
         <meta property="twitter:card" content="summary_large_image" />
         <meta
           property="og:image"
-          content={`namachan10777.dev/api/ogp?title="${props.article.frontmatter.title}"`}
+          content={`https://namachan10777.dev/api/ogp?title="${props.article.frontmatter.title}"`}
         />
         <meta
           property="og:url"
