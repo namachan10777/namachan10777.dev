@@ -19,7 +19,7 @@ const Blog: React.FC<Props> = (props: Props) => {
             <h1 className="text-4xl font-bold m-3">Blog</h1>
             <ul className="pl-5 list-disc text-lg">
                 {props.frontmatters.map((frontmatter) =>
-                  <li key={frontmatter.name} className="text-blue-800 underline hover:text-blue-500" >
+                  <li key={frontmatter.name} className="underline text-gray-700 hover:text-black hover:font-medium text-lg" >
                     <Link href={`/blog/${frontmatter.name}`}>{frontmatter.title}</Link>
                   </li>)
                 }
