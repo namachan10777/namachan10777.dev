@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Md from "../components/md";
+import * as MdAst from 'mdast';
 import * as Parser from '../lib/parser';
 import index from "../articles/index.md";
 

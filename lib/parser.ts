@@ -20,7 +20,7 @@ type TomlInMd = {
     value: string,
 }
 
-export async function parse(src: string): Article {
+export async function parse(src: string): Promise<Article> {
     const md = unified()
     .use(remarkParse)
     .use(remarkFrontmatter, ["toml"])
