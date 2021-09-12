@@ -1,4 +1,5 @@
 import * as Canvas from "node-canvas";
+import * as path from 'path';
 import { NextApiRequest, NextApiResponse } from "next";
 
 function getRows(
@@ -30,14 +31,14 @@ function renderTexts(
   H: number
 ) {
   ctx.fillStyle = "black";
-  ctx.font = `${lineHeight}px sans-seif`;
+  ctx.font = `${lineHeight}px "Noto"`;
   for (let i = 0; i < rows.length; ++i) {
     const textWidth = ctx.measureText(rows[i]).width;
     const x = (W - textWidth) / 2;
     const y = (H - rows.length * lineHeight) / 2 + lineHeight * i;
     ctx.fillText(rows[i], x, y);
   }
-  ctx.font = `${Math.ceil((lineHeight / 3) * 2)}px sans-serif`;
+  ctx.font = `${Math.ceil((lineHeight / 3) * 2)}px "Noto"`;
   const siteNameWidth = ctx.measureText("namachan10777.dev").width;
   ctx.fillText(
     "namachan10777.dev",
@@ -51,6 +52,7 @@ function createOGP(title: string): Buffer {
   const H = 630;
   const canvas = Canvas.createCanvas(W, H);
   const ctx = canvas.getContext("2d");
+  Canvas.registerFont(path.resolve('./fonts/NotoSansCJKjp-Regular.otf'), {family: "Noto"});
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, W, H);
   renderTexts(ctx, getRows(ctx, title, W), 40, W, H);
