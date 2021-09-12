@@ -1,12 +1,8 @@
 import React from "react";
 import Head from "next/head";
 import Md from "../components/md";
+import * as Parser from '../lib/parser';
 import index from "../articles/index.md";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-import * as MdAst from "mdast";
 
 type Props = {
   mdast: MdAst.Root;
@@ -28,12 +24,8 @@ export default function Home(props: Props) {
 }
 
 export async function getStaticProps() {
-  const md = unified()
-    .use(remarkParse)
-    .use(remarkFrontmatter, ["toml", "yaml"])
-    .use(remarkGfm)
-    .parse(index);
+  const md = await Parser.parse(index);
   return {
-    props: { mdast: md },
+    props: { mdast: md.ast },
   };
 }

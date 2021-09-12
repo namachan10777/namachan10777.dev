@@ -14,12 +14,13 @@ title = "namachan10777"
 
 ## Navigation
 
+* [Blog](/blog)
 * [Keybase](https://keybase.io/namachan10777)
 * [GitHub](https://github.com/namachan10777)
 * [Twitter](https://twitter.com/namachan10777)
 * [AtCoder](https://atcoder.jp/users/namachan10777)
 * [ActivityPub](https://social.namachan10777.dev)
-* [Blog](https://blog.namachan10777.dev)
+* [HatenaBlog](https://blog.namachan10777.dev)
 * [Pixiv](https://www.pixiv.net/users/16972899)
 * [Amazon Wishlit](https://www.amazon.jp/hz/wishlist/ls/7N5AKQ9XX3HY?ref_=wl_share)
 

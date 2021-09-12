@@ -46,6 +46,7 @@
     "sharp": "^0.29.1",
     "tailwindcss": "^2.2.15",
     "text-loader": "^0.0.1",
+    "toml": "^3.0.0",
     "ts-jest": "^27.0.5",
     "typescript": "4.4.2"
   },

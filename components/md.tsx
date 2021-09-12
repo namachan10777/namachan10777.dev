@@ -101,9 +101,17 @@ function constructDom(ast: Unist.Node, key = 0) {
     case "list": {
       const list = ast as MdAst.List;
       if (list.ordered) {
-        return <ol key={key} className="pl-2 list-decimal">{list.children.map(constructDom)}</ol>;
+        return (
+          <ol key={key} className="pl-2 list-decimal">
+            {list.children.map(constructDom)}
+          </ol>
+        );
       } else {
-        return <ul key={key} className="pl-2 list-disc">{list.children.map(constructDom)}</ul>;
+        return (
+          <ul key={key} className="pl-2 list-disc">
+            {list.children.map(constructDom)}
+          </ul>
+        );
       }
     }
     case "listItem": {
