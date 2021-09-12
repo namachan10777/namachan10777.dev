@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Md from "../../components/md";
+import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import blogOnNextJs from "../../articles/blog/blog-on-nextjs.md";
 
@@ -16,6 +17,19 @@ export default function Home(props: Props) {
         <meta name="description" content="namachan10777 profile page" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <header>
+        <Link href="/" passHref={true}>
+          <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            namachan10777.dev
+          </a>
+        </Link>{" "}
+        {">"}
+        <Link href="/blog" passHref={true}>
+          <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            Blog
+          </a>
+        </Link>
+      </header>
       <main className="p-5">
         <h1 className="text-4xl font-bold m-4">
           {props.article.frontmatter.title}
