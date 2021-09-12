@@ -11,13 +11,13 @@ type Props = {
 
 export default function Home(props: Props) {
   return (
-    <div>
+    <div className="flex items-center flex-col">
       <Head>
         <title>{props.article.frontmatter.title}</title>
         <meta name="description" content="namachan10777 profile page" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header>
+      <header className="lg:w-1/2">
         <Link href="/" passHref={true}>
           <a className="m-1 text-lg underline text-gray-700 hover:text-black">
             namachan10777.dev
@@ -30,7 +30,7 @@ export default function Home(props: Props) {
           </a>
         </Link>
       </header>
-      <main className="p-5">
+      <main className="p-5 lg:w-1/2">
         <h1 className="text-4xl font-bold m-4">
           {props.article.frontmatter.title}
         </h1>

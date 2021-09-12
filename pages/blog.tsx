@@ -9,16 +9,16 @@ export type Props = {
 };
 
 const Blog: React.FC<Props> = (props: Props) => {
-    return <div>
+    return <div className="flex items-center flex-col">
         <Head>
             <title>blog</title>
             <meta name="description" content="namachan10777 profile page" />
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <header>
+        <header className="lg:w-1/2">
             <Link href="/" passHref={true}><a className="underline text-gray-700 hover:text-black text-lg m-1">namachan10777.dev</a></Link>
         </header>
-        <main>
+        <main className="lg:w-1/2">
             <h1 className="text-4xl font-bold m-3">Blog</h1>
             <ul className="pl-5 list-disc text-lg">
                 {props.frontmatters.map((frontmatter) =>

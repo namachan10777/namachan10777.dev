@@ -11,13 +11,13 @@ type Props = {
 
 export default function Home(props: Props) {
   return (
-    <div>
+    <div className="flex justify-center">
       <Head>
         <title>namachan10777</title>
         <meta name="description" content="namachan10777 profile page" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="p-5">
+      <main className="p-5 lg:w-1/2">
         <Md mdast={props.mdast} />
       </main>
     </div>
