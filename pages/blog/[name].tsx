@@ -25,7 +25,7 @@ export default function Home(props: Props) {
         <meta property="twitter:card" content="summary_large_image" />
         <meta
           property="og:image"
-          content={`https://namachan10777.dev/api/ogp?title="${props.article.frontmatter.title}"`}
+          content={`https://og-image-two-azure.vercel.app/${encodeURI(props.article.frontmatter.title)}.png?theme=dark&md=1&fontSize=100px`}
         />
         <meta
           property="og:url"
