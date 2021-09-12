@@ -123,10 +123,10 @@ function constructDom(ast: Unist.Node, key = 0) {
       const link = ast as MdAst.Link;
       if (link.url.startsWith("/")) {
         return (
-          <Link key={key} href={link.url}>
-            <span className="underline text-gray-700 hover:text-black hover:font-medium">
+          <Link key={key} href={link.url} passHref={true}>
+            <a className="underline text-gray-700 hover:text-black hover:font-medium">
               {link.children.map(constructDom)}
-            </span>
+            </a>
           </Link>
         );
       } else {
