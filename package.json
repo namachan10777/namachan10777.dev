@@ -43,6 +43,7 @@
     "remark-gfm": "^2.0.0",
     "remark-rehype": "^9.0.0",
     "remark-stringify": "^10.0.0",
+    "sharp": "^0.29.1",
     "tailwindcss": "^2.2.15",
     "text-loader": "^0.0.1",
     "ts-jest": "^27.0.5",
