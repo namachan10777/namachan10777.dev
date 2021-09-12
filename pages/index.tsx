@@ -16,12 +16,12 @@ export default function Home(props: Props) {
         <title>namachan10777</title>
         <meta name="description" content="namachan10777 profile page" />
         <link rel="icon" href="/favicon.ico" />
-        <meta property="twitter:image" content="/icon.webp" />
+        <meta property="twitter:image" content="https://www.namachan10777.dev/icon.webp" />
         <meta property="twitter:site" content="@namachan10777" />
         <meta property="twitter:creator" content="@namachan10777" />
         <meta property="twitter:card" content="summary" />
-        <meta property="og:image" content="/icon.webp" />
-        <meta property="og:url" content="namachan10777.dev" />
+        <meta property="og:image" content="https://www.namachan10777.dev/icon.webp" />
+        <meta property="og:url" content="https://www.namachan10777.dev" />
         <meta property="og:title" content="namachan10777.dev" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="namachan10777.dev" />

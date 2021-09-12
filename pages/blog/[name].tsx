@@ -18,7 +18,7 @@ export default function Home(props: Props) {
         <link rel="icon" href="/favicon.ico" />
         <meta
           property="twitter:image"
-          content={`namachan10777.dev/api/ogp?title="${props.article.frontmatter.title}"`}
+          content={`https://og-image-two-azure.vercel.app/${encodeURI(props.article.frontmatter.title)}.png?theme=dark&md=1&fontSize=100px`}
         />
         <meta property="twitter:site" content="@namachan10777" />
         <meta property="twitter:creator" content="@namachan10777" />
@@ -29,7 +29,7 @@ export default function Home(props: Props) {
         />
         <meta
           property="og:url"
-          content={`namachan10777.dev/blog/${props.article.frontmatter.name}`}
+          content={`https://www.namachan10777.dev/blog/${props.article.frontmatter.name}`}
         />
         <meta property="og:title" content={props.article.frontmatter.title} />
         <meta property="og:type" content="article" />

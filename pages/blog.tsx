@@ -14,12 +14,12 @@ const Blog: React.FC<Props> = (props: Props) => {
             <title>blog</title>
             <meta name="description" content="namachan10777 blog page" />
             <link rel="icon" href="/favicon.ico" />
-            <meta property="twitter:image" content="/icon.webp" />
+            <meta property="twitter:image" content="https://www.namachan10777.dev/icon.webp" />
             <meta property="twitter:site" content="@namachan10777" />
             <meta property="twitter:creator" content="@namachan10777" />
             <meta property="twitter:card" content="summary" />
-            <meta property="og:image" content="/icon.webp" />
-            <meta property="og:url" content="namachan10777.dev/blog" />
+            <meta property="og:image" content="https://www.namachan10777.dev/icon.webp" />
+            <meta property="og:url" content="https://www.namachan10777.dev/blog" />
             <meta property="og:title" content="Blog" />
             <meta property="og:type" content="article" />
             <meta property="og:site_name" content="namachan10777.dev" />
