@@ -2,6 +2,7 @@ import * as Unist from "unist";
 import * as MdAst from "mdast";
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export type Props = {
   mdast: MdAst.Root;
@@ -120,15 +121,25 @@ function constructDom(ast: Unist.Node, key = 0) {
     }
     case "link": {
       const link = ast as MdAst.Link;
-      return (
-        <a
-          className="underline text-gray-700 hover:text-black hover:font-medium"
-          key={key}
-          href={link.url}
-        >
-          {link.children.map(constructDom)}
-        </a>
-      );
+      if (link.url.startsWith("/")) {
+        return (
+          <Link key={key} href={link.url}>
+            <span className="underline text-gray-700 hover:text-black hover:font-medium">
+              {link.children.map(constructDom)}
+            </span>
+          </Link>
+        );
+      } else {
+        return (
+          <a
+            className="underline text-gray-700 hover:text-black hover:font-medium"
+            key={key}
+            href={link.url}
+          >
+            {link.children.map(constructDom)}
+          </a>
+        );
+      }
     }
     case "inlineCode": {
       const inlineCode = ast as MdAst.InlineCode;
