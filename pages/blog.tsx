@@ -9,13 +9,13 @@ export type Props = {
 };
 
 const Blog: React.FC<Props> = (props: Props) => {
-    return <div className="flex items-center flex-col">
+    return <div className="flex items-center flex-col w-screen">
         <Head>
             <title>blog</title>
             <meta name="description" content="namachan10777 profile page" />
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="lg:w-1/2">
+        <div className="w-full lg:w-1/2 p-5">
             <header>
                 <Link href="/" passHref={true}><a className="underline text-gray-700 hover:text-black text-lg m-1">namachan10777.dev</a></Link>
             </header>
