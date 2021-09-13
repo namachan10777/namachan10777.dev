@@ -3,7 +3,8 @@ import Head from "next/head";
 import Md from "../../components/md";
 import Link from "next/link";
 import * as Parser from "../../lib/parser";
-import blogOnNextJs from "../../articles/blog/blog-on-nextjs.md";
+import Articles from '../../lib/articles';
+import {GetStaticPropsContext} from "next";
 
 type Props = {
   article: Parser.Article;
@@ -62,15 +63,24 @@ export default function Home(props: Props) {
 }
 
 export async function getStaticPaths() {
+  const articles = await Articles();
   return {
-    paths: ["/blog/blog-on-nextjs"],
+    paths: Object.keys(articles.blogs).map((name) => `/blog/${name}`),
     fallback: false,
   };
 }
 
-export async function getStaticProps() {
-  const md = await Parser.parse(blogOnNextJs);
-  return {
-    props: { article: md },
-  };
+export async function getStaticProps(ctx: GetStaticPropsContext) {
+  const articles = await Articles();
+  const params = ctx.params;
+  if (params) {
+    return {
+      props: { article: articles.blogs[params.name as string] },
+    };
+  }
+  else {
+    return {
+      notFound: true,
+    }
+  }
 }

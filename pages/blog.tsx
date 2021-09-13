@@ -1,8 +1,8 @@
 import React from "react";
 import Head from "next/head";
 import Link from 'next/link';
+import Articles from "../lib/articles";
 import * as Parser from '../lib/parser';
-import blogOnNextJs from '../articles/blog/blog-on-nextjs.md';
 
 export type Props = {
     frontmatters: Parser.Frontmatter[]
@@ -43,13 +43,11 @@ const Blog: React.FC<Props> = (props: Props) => {
     </div>;
 };
 
-const markdowns = [blogOnNextJs];
-
 export async function getStaticProps() {
-    const blogs = await Promise.all(markdowns.map(Parser.parse));
+    const articles = await Articles();
     return {
         props: {
-            frontmatters: blogs.map(blog => blog.frontmatter)
+            frontmatters: Object.values(articles.blogs).map(blog => blog.frontmatter)
         }
     }
 }
