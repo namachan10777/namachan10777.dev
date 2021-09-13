@@ -46,11 +46,11 @@ Lambda Functionの実行環境にChromiumが入っているのは驚きだ。マ
 
 ## CSS
 
-いつもどおり[Tailwind.css](tailwindcss.com)です。
+いつもどおり[Tailwind.css](https://tailwindcss.com)です。
 大分慣れてきてドキュメントを引かなくてもわりと書けるようになってきた。
 ここ最近ReactとTailwindでしか書いてないので普通のCSSの書き方を忘却してきている。
 
-そう言えば[Chakra UI](chakra-ui.com)というのもあり、
+そう言えば[Chakra UI](https://chakra-ui.com)というのもあり、
 こちらはReactべったりのライブラリだがモノとしてはTailwindっぽいユーティリティ志向らしい。
 コンポーネントもある程度あるらしく便利かもしれない。
 次改修するときがあったら使いたい。
