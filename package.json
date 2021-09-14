@@ -8,10 +8,10 @@
     "start": "next start",
     "tsc-loader": "tsc --project webpack-md-loader",
     "test": "jest",
-    "fmt": "prettier -w pages/**/*.ts pages/**/*.tsx components/**/*.tsx",
-    "fmt-check": "prettier --check pages/**/*.ts pages/**/*.tsx components/**/*.tsx",
-    "lint": "eslint pages/**/*.ts pages/**/*.tsx components/**/*.tsx",
-    "lint-fix": "eslint --fix pages/**/*.ts pages/**/*.tsx components/**/*.tsx"
+    "fmt": "prettier -w 'pages/**/*.tsx' 'components/**/*.tsx'",
+    "fmt-check": "prettier --check 'pages/**/*.tsx' 'components/**/*.tsx'",
+    "lint": "eslint 'pages/**/*.tsx' 'components/**/*.tsx'",
+    "lint-fix": "eslint --fix 'pages/**/*.tsx' 'components/**/*.tsx'"
   },
   "dependencies": {
     "next": "11.1.1",

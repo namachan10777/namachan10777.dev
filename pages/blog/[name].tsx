@@ -59,7 +59,13 @@ export default function Home(props: Props) {
           <h1 className="text-4xl font-bold m-4">
             {props.article.frontmatter.title}
           </h1>
-          <div>{props.article.frontmatter.category.map((tag) => <Link href={`/blog/tag/${tag}`} passHref={true}><a>#{tag}</a></Link>)}</div>
+          <div>
+            {props.article.frontmatter.category.map((tag) => (
+              <Link key={tag} href={`/blog/tag/${tag}`} passHref={true}>
+                <a>#{tag}</a>
+              </Link>
+            ))}
+          </div>
           <Md mdast={props.article.ast} />
         </main>
       </div>
