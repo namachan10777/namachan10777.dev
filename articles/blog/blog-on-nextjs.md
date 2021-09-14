@@ -28,6 +28,17 @@ SSGなので高速だし`<Link>`を使って遷移するのでSPAの速度感が
 headingのレベルを見て`<section>`でうまくまとめるような処理も入れてない。
 そのうち対応したい。
 
+## Syntaxhighlight
+
+`react-refractor`を使用した。楽〜。
+以下のような感じでシンタックスハイライトが出来る。
+テーマは後で自分好みに変えようと思う。
+あと行番号表示も実装したい。
+
+```js
+console.log('Hello World!');
+```
+
 ## OGP
 
 OGPも対応させた。元々はNext.jsで使える`/pages/api`で[node-canvas](https://https://github.com/Automattic/node-canvas)を使って

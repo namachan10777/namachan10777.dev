@@ -3,6 +3,7 @@ import * as MdAst from "mdast";
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Refractor from "react-refractor";
 
 export type Props = {
   mdast: MdAst.Root;
@@ -148,6 +149,11 @@ function constructDom(ast: Unist.Node, key = 0) {
           {inlineCode.value}
         </span>
       );
+    }
+    case "code": {
+      const code = ast as MdAst.Code;
+      const lang = code.lang ? code.lang : "text";
+      return <Refractor language={lang} value={code.value} />;
     }
     case "toml":
       return null;
