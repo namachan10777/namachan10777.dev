@@ -1,5 +1,16 @@
 # namachan10777.dev
 
+## Build
+
+```sh
+npm i
+npm run build
+```
+
+## Add an article
+
+Create a new article in `/article` and edit `/lib/articles.ts`.
+
 ## License
 
 |file|author|license|
