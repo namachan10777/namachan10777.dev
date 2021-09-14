@@ -9,6 +9,7 @@ export type Props = {
 };
 
 const Blog: React.FC<Props> = (props: Props) => {
+    const tags = Array.from(new Set(props.frontmatters.map((frontmatter) => frontmatter.category).flat()));
     return <div className="flex items-center flex-col w-screen">
         <Head>
             <title>blog</title>
@@ -31,13 +32,23 @@ const Blog: React.FC<Props> = (props: Props) => {
             </header>
             <main>
                 <h1 className="text-4xl font-bold m-3">Blog</h1>
-                <ul className="pl-5 list-disc text-lg">
-                    {props.frontmatters.map((frontmatter) =>
-                    <li key={frontmatter.name} className="underline text-gray-700 hover:text-black hover:font-medium text-lg" >
-                        <Link href={`/blog/${frontmatter.name}`} passHref={true}>{frontmatter.title}</Link>
-                    </li>)
-                    }
-                </ul>
+                <section>
+                  <h2 className="text-2xl font-bold m-3">tag</h2>
+                  <ul className="pl-5 list-disc text-lg">
+                    {tags.map((tag) => <li key={tag} className="underline text-gray-700 hover:text-black hover:font-medium text-lg">
+                      <Link href={`/blog/tag/${tag}`} passHref={true}><a>#{tag}</a></Link></li>)}
+                  </ul>
+                </section>
+                <section>
+                  <h2 className="text-2xl font-bold m-3">page</h2>
+                  <ul className="pl-5 list-disc text-lg">
+                      {props.frontmatters.map((frontmatter) =>
+                      <li key={frontmatter.name} className="underline text-gray-700 hover:text-black hover:font-medium text-lg" >
+                          <Link href={`/blog/${frontmatter.name}`} passHref={true}>{frontmatter.title}</Link>
+                      </li>)
+                      }
+                  </ul>
+                </section>
             </main>
         </div>
     </div>;
