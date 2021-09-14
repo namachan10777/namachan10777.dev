@@ -40,7 +40,7 @@ const Blog: React.FC<Props> = (props: Props) => {
       <div className="w-full lg:w-1/2 p-5">
         <header>
           <Link href="/" passHref={true}>
-            <a className="underline text-gray-700 hover:text-black text-lg m-1">
+            <a className="underline text-gray-700 hover:text-black text-lg mx-1">
               namachan10777.dev
             </a>
           </Link>
@@ -53,7 +53,7 @@ const Blog: React.FC<Props> = (props: Props) => {
               {tags.map((tag) => (
                 <li
                   key={tag}
-                  className="underline text-gray-700 hover:text-black hover:font-medium text-lg"
+                  className="underline text-gray-700 hover:text-black hover:font-medium text-lg my-2"
                 >
                   <Link href={`/blog/tag/${tag}`} passHref={true}>
                     <a>#{tag}</a>
@@ -68,7 +68,7 @@ const Blog: React.FC<Props> = (props: Props) => {
               {props.frontmatters.map((frontmatter) => (
                 <li
                   key={frontmatter.name}
-                  className="underline text-gray-700 hover:text-black hover:font-medium text-lg"
+                  className="underline text-gray-700 hover:text-black hover:font-medium text-lg my-2"
                 >
                   <Link href={`/blog/${frontmatter.name}`} passHref={true}>
                     {frontmatter.title}

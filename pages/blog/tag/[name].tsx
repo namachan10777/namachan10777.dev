@@ -58,7 +58,7 @@ const Blog: React.FC<Props> = (props: Props) => {
             {props.frontmatters.map((frontmatter) => (
               <li
                 key={frontmatter.name}
-                className="underline text-gray-700 hover:text-black hover:font-medium text-lg"
+                className="underline text-gray-700 hover:text-black hover:font-medium text-lg my-2"
               >
                 <Link href={`/blog/${frontmatter.name}`} passHref={true}>
                   {frontmatter.title}

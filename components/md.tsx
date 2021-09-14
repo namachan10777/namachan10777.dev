@@ -93,7 +93,7 @@ function constructDom(ast: Unist.Node, key = 0) {
         );
       } else {
         return (
-          <p key={key} className="my-2">
+          <p key={key} className="my-2 leading-7">
             {paragraph.children.map(constructDom)}
           </p>
         );
