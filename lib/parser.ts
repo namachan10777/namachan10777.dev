@@ -11,9 +11,18 @@ export type Frontmatter = {
     name: string,
 }
 
+export type DiaryFrontmatter = {
+    date: Date,
+}
+
 export type Article = {
     ast: MdAst.Root,
     frontmatter: Frontmatter,
+}
+
+export type Diary = {
+  ast: MdAst.Root,
+  frontmatter: DiaryFrontmatter,
 }
 
 type TomlInMd = {
@@ -30,5 +39,18 @@ export async function parse(src: string): Promise<Article> {
     return {
         ast: md,
         frontmatter: Toml.parse((md.children[0] as TomlInMd).value) as Frontmatter,
+    }
+}
+
+export async function parse_diary(src: string): Promise<Diary> {
+    const md = unified()
+    .use(remarkParse)
+    .use(remarkFrontmatter, ["toml"])
+    .use(remarkGfm)
+    .parse(src);
+
+    return {
+        ast: md,
+        frontmatter: Toml.parse((md.children[0] as TomlInMd).value) as DiaryFrontmatter 
     }
 }

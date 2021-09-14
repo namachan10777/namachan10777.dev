@@ -15,6 +15,7 @@ title = "namachan10777"
 ## Navigation
 
 * [Blog](/blog)
+* [Diary](/diary)
 * [Keybase](https://keybase.io/namachan10777)
 * [GitHub](https://github.com/namachan10777)
 * [Twitter](https://twitter.com/namachan10777)
