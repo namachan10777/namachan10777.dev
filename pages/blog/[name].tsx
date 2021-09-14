@@ -11,27 +11,20 @@ type Props = {
 };
 
 export default function Home(props: Props) {
+  const ogImageUrl = `https://og-image-two-azure.vercel.app/${encodeURI(
+    props.article.frontmatter.title
+  )}.png?theme=dark&md=1&fontSize=100px`;
   return (
     <div className="flex items-center flex-col w-screen">
       <Head>
         <title>{props.article.frontmatter.title}</title>
         <meta name="description" content="namachan10777 blog page" />
         <link rel="icon" href="/favicon.ico" />
-        <meta
-          property="twitter:image"
-          content={`https://og-image-two-azure.vercel.app/${encodeURI(
-            props.article.frontmatter.title
-          )}.png?theme=dark&md=1&fontSize=100px`}
-        />
+        <meta property="twitter:image" content={ogImageUrl} />
         <meta property="twitter:site" content="@namachan10777" />
         <meta property="twitter:creator" content="@namachan10777" />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta
-          property="og:image"
-          content={`https://og-image-two-azure.vercel.app/${encodeURI(
-            props.article.frontmatter.title
-          )}.png?theme=dark&md=1&fontSize=100px`}
-        />
+        <meta property="og:image" content={ogImageUrl} />
         <meta
           property="og:url"
           content={`https://www.namachan10777.dev/blog/${props.article.frontmatter.name}`}
