@@ -49,8 +49,8 @@ export default function Home(props: Props) {
           </Link>
         </header>
         <main>
-          <h1 className="text-4xl font-bold m-4">
-            {props.article.frontmatter.title}
+          <h1 className="text-4xl font-bold my-4 font-mono">
+            # {props.article.frontmatter.title}
           </h1>
           <div>
             {props.article.frontmatter.category.map((tag) => (
