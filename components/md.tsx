@@ -29,19 +29,28 @@ function constructDom(ast: Unist.Node, key = 0) {
       switch (heading.depth) {
         case 1:
           return (
-            <h1 key={key} className="text-4xl mb-2 mt-4 font-semibold font-mono">
+            <h1
+              key={key}
+              className="text-4xl mb-2 mt-4 font-semibold font-mono"
+            >
               # {heading.children.map(constructDom)}
             </h1>
           );
         case 2:
           return (
-            <h2 key={key} className="text-3xl mb-2 mt-6 font-semibold font-mono">
+            <h2
+              key={key}
+              className="text-3xl mb-2 mt-6 font-semibold font-mono"
+            >
               # {heading.children.map(constructDom)}
             </h2>
           );
         case 3:
           return (
-            <h3 key={key} className="text-2xl mb-2 mt-5 font-semibold font-mono">
+            <h3
+              key={key}
+              className="text-2xl mb-2 mt-5 font-semibold font-mono"
+            >
               # {heading.children.map(constructDom)}
             </h3>
           );
@@ -59,7 +68,10 @@ function constructDom(ast: Unist.Node, key = 0) {
           );
         case 6:
           return (
-            <h6 key={key} className="text-base mb-2 mt-4 font-semibold font-mono">
+            <h6
+              key={key}
+              className="text-base mb-2 mt-4 font-semibold font-mono"
+            >
               # {heading.children.map(constructDom)}
             </h6>
           );
