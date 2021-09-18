@@ -10,7 +10,7 @@ title = "namachan10777"
 
 * Masaki Nakano
 * B3, College of computer and information science, University of Tsukuba.
-* [namachan10777@gmail.com](mailto:namachan10777@gmail.com)
+* [admin@namachan10777.dev](mailto:admin@namachan10777.dev)
 
 ## Navigation
 
