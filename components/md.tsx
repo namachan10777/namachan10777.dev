@@ -167,7 +167,7 @@ function constructDom(ast: Unist.Node, key = 0) {
       const lang = code.lang ? code.lang : "text";
       return <Refractor language={lang} value={code.value} />;
     }
-    case "toml":
+    case "yaml":
       return null;
     default:
       return <span key={key}>UNSUPPORTED TYPE {ast.type}</span>;
