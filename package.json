@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "tsc-loader": "tsc --project webpack-md-loader",
-    "test": "jest",
     "fmt": "prettier -w 'pages/**/*.tsx' 'components/**/*.tsx'",
     "fmt-check": "prettier --check 'pages/**/*.tsx' 'components/**/*.tsx'",
     "lint": "eslint 'pages/**/*.tsx' 'components/**/*.tsx'",
@@ -43,7 +42,6 @@
     "eslint-plugin-import": "2.24.2",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.0",
-    "jest": "27.2.1",
     "eslint-plugin-react": "7.25.2",
     "postcss": "8.3.6",
     "prettier": "2.4.1",
@@ -65,9 +63,6 @@
       "ts-jest": {
         "tsconfig": "tsconfig.json"
       }
-    },
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ]
+    }
   }
 }
