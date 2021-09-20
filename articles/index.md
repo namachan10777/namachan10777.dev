@@ -1,6 +1,6 @@
-+++
-title = "namachan10777"
-+++
+---
+title: "namachan10777"
+---
 
 ## About
 
