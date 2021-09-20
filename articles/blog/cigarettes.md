@@ -1,8 +1,8 @@
-+++
-title = "煙草について"
-name = "cigarettes"
-category = ["life"]
-+++
+---
+title: "煙草について"
+name: "cigarettes"
+category: ["life"]
+---
 
 最近は酒を控えてもっぱら煙草を吸っている。
 身内に喫煙者少なく、

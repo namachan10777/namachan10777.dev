@@ -1,8 +1,8 @@
-+++
-title = "個人サイトをNext.jsで書き直した"
-name = "blog-on-nextjs"
-category = ["tech"]
-+++
+---
+title: "個人サイトをNext.jsで書き直した"
+name: "blog-on-nextjs"
+category: ["tech"]
+---
 
 今まではRustを使った自作静的サイトジェネレータを使っていたが、
 どうにも設計が行き詰まっていたので根本から作り直した。

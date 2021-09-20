@@ -1,6 +1,6 @@
 import * as MdAst from 'mdast';
 import { unified } from "unified";
-import Toml from 'toml';
+import Yaml from 'js-yaml';
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
@@ -25,32 +25,33 @@ export type Diary = {
   frontmatter: DiaryFrontmatter,
 }
 
-type TomlInMd = {
+type YamlInMd = {
     value: string,
 }
 
 export async function parse(src: string): Promise<Article> {
     const md = unified()
     .use(remarkParse)
-    .use(remarkFrontmatter, ["toml"])
+    .use(remarkFrontmatter, ["yaml"])
     .use(remarkGfm)
     .parse(src);
+    console.log(Yaml.load((md.children[0] as YamlInMd).value));
 
     return {
         ast: md,
-        frontmatter: Toml.parse((md.children[0] as TomlInMd).value) as Frontmatter,
+        frontmatter: Yaml.load((md.children[0] as YamlInMd).value) as Frontmatter,
     }
 }
 
 export async function parse_diary(src: string): Promise<Diary> {
     const md = unified()
     .use(remarkParse)
-    .use(remarkFrontmatter, ["toml"])
+    .use(remarkFrontmatter, ["yaml"])
     .use(remarkGfm)
     .parse(src);
 
     return {
         ast: md,
-        frontmatter: Toml.parse((md.children[0] as TomlInMd).value) as DiaryFrontmatter 
+        frontmatter: Yaml.load((md.children[0] as YamlInMd).value) as DiaryFrontmatter 
     }
 }
