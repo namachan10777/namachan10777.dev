@@ -1,5 +1,8 @@
 # namachan10777.dev
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnamachan10777%2Fnamachan10777.dev)
+[![namachan10777.dev](https://circleci.com/gh/namachan10777/namachan10777.dev.svg?style=shield)](https://circleci.com/gh/namachan10777/namachan10777.dev)
+
 ## Build
 
 ```sh
