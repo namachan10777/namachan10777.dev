@@ -3,11 +3,12 @@ import blogOnNextJs from '../articles/blog/blog-on-nextjs.md';
 import cigarettes from '../articles/blog/cigarettes.md';
 import { Article, Diary, parse, parse_diary } from './parser';
 import diary2021_09_14 from '../articles/diary/2021-09-14.md';
+import diary2021_09_21 from '../articles/diary/2021-09-21.md';
 
 export const rawArticles = {
   index,
   blogs: [blogOnNextJs, cigarettes],
-  diaries: [diary2021_09_14],
+  diaries: [diary2021_09_14, diary2021_09_21],
 };
 
 export type Articles = {
