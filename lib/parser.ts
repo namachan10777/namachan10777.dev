@@ -35,7 +35,6 @@ export async function parse(src: string): Promise<Article> {
     .use(remarkFrontmatter, ["yaml"])
     .use(remarkGfm)
     .parse(src);
-    console.log(Yaml.load((md.children[0] as YamlInMd).value));
 
     return {
         ast: md,
