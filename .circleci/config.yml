@@ -3,7 +3,7 @@ version: 2.1
 executors:
   nodejs:
     docker:
-      - image: public.ecr.aws/lambda/nodejs:12
+      - image: public.ecr.aws/lambda/nodejs:14
 
 jobs:
   test_js:
