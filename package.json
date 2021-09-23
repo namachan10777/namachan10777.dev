@@ -23,7 +23,7 @@
     "unified": "10.1.0",
     "rehype-stringify": "9.0.2",
     "remark-gfm": "2.0.0",
-    "remark-rehype": "9.0.0",
+    "remark-rehype": "9.1.0",
     "remark-stringify": "10.0.0"
   },
   "devDependencies": {
