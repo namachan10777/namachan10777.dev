@@ -31,7 +31,7 @@
     "@types/jest": "27.0.2",
     "@types/js-yaml": "4.0.3",
     "@types/mdast": "3.0.10",
-    "@types/react": "17.0.24",
+    "@types/react": "17.0.25",
     "@types/unist": "2.0.6",
     "@typescript-eslint/eslint-plugin": "4.32.0",
     "@typescript-eslint/parser": "4.32.0",
