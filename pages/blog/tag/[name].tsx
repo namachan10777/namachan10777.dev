@@ -4,6 +4,7 @@ import Link from "next/link";
 import Articles from "../../../lib/articles";
 import * as Parser from "../../../lib/parser";
 import { GetStaticPropsContext } from "next";
+import { chakra } from "@chakra-ui/react";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];
@@ -15,7 +16,7 @@ const Blog: React.FC<Props> = (props: Props) => {
     `#${props.tag}`
   )}.png?theme=dark&md=1&fontSize=100px`;
   return (
-    <div className="flex items-center flex-col w-screen">
+    <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
         <title>blog #{props.tag}</title>
         <meta name="description" content="namachan10777 blog page" />
@@ -38,37 +39,55 @@ const Blog: React.FC<Props> = (props: Props) => {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 blog page" />
       </Head>
-      <div className="w-full lg:w-1/2 p-5">
+      <chakra.div w="full" fontSize={{ base: "base", lg: "lg" }} p={5}>
         <header>
           <Link href="/" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              fontSize="lg"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black", fontWeight: "meduim" }}
+            >
               namachan10777.dev
-            </a>
+            </chakra.a>
           </Link>{" "}
           {">"}
           <Link href="/blog" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              fontSize="lg"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black", fontWeight: "meduim" }}
+            >
               Blog
-            </a>
+            </chakra.a>
           </Link>
         </header>
         <main>
-          <h1 className="text-4xl font-bold m-3">#{props.tag}</h1>
-          <ul className="pl-5 list-disc text-lg">
+          <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
+            #{props.tag}
+          </chakra.h1>
+          <chakra.ul fontSize="lg" listStyleType="disc" pl={5}>
             {props.frontmatters.map((frontmatter) => (
-              <li
+              <chakra.li
                 key={frontmatter.name}
-                className="underline text-gray-700 hover:text-black hover:font-medium text-lg my-2"
+                textDecor="underline"
+                fontSize="lg"
+                color="gray.700"
+                my={2}
+                _hover={{ color: "black", fontWeight: "meduim" }}
               >
                 <Link href={`/blog/${frontmatter.name}`} passHref={true}>
                   {frontmatter.title}
                 </Link>
-              </li>
+              </chakra.li>
             ))}
-          </ul>
+          </chakra.ul>
         </main>
-      </div>
-    </div>
+      </chakra.div>
+    </chakra.div>
   );
 };
 

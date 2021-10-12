@@ -1,6 +1,7 @@
 import * as Unist from "unist";
 import * as MdAst from "mdast";
 import * as React from "react";
+import { chakra } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import Refractor from "react-refractor";
@@ -29,51 +30,81 @@ function constructDom(ast: Unist.Node, key = 0) {
       switch (heading.depth) {
         case 1:
           return (
-            <h1
+            <chakra.h1
               key={key}
-              className="text-4xl mb-2 mt-4 font-semibold font-mono"
+              fontSize="4xl"
+              mb={2}
+              mt={4}
+              fontWeight="semibold"
+              fontFamily="mono"
             >
               # {heading.children.map(constructDom)}
-            </h1>
+            </chakra.h1>
           );
         case 2:
           return (
-            <h2
+            <chakra.h2
               key={key}
-              className="text-3xl mb-2 mt-6 font-semibold font-mono"
+              fontSize="3xl"
+              mb={2}
+              mt={6}
+              fontWeight="semibold"
+              fontFamily="mono"
             >
               # {heading.children.map(constructDom)}
-            </h2>
+            </chakra.h2>
           );
         case 3:
           return (
-            <h3
+            <chakra.h3
               key={key}
-              className="text-2xl mb-2 mt-5 font-semibold font-mono"
+              fontSize="2xl"
+              mb={2}
+              mt={5}
+              fontWeight="semibold"
+              fontFamily="mono"
             >
               # {heading.children.map(constructDom)}
-            </h3>
+            </chakra.h3>
           );
         case 4:
           return (
-            <h4 key={key} className="text-xl mb-2 mt-4 font-semibold font-mono">
+            <chakra.h4
+              key={key}
+              fontSize="xl"
+              mb={2}
+              mt={4}
+              fontWeight="semibold"
+              fontFamily="mono"
+            >
               # {heading.children.map(constructDom)}
-            </h4>
+            </chakra.h4>
           );
         case 5:
           return (
-            <h5 key={key} className="text-lg mb-2 mt-4 font-semibold font-mono">
+            <chakra.h5
+              key={key}
+              fontSize="lg"
+              mb={2}
+              mt={4}
+              fontWeight="semibold"
+              fontFamily="mono"
+            >
               # {heading.children.map(constructDom)}
-            </h5>
+            </chakra.h5>
           );
         case 6:
           return (
-            <h6
+            <chakra.h6
               key={key}
-              className="text-base mb-2 mt-4 font-semibold font-mono"
+              fontSize="base"
+              mb={2}
+              mt={4}
+              fontWeight="semibold"
+              fontFamily="mono"
             >
               # {heading.children.map(constructDom)}
-            </h6>
+            </chakra.h6>
           );
       }
       break;
@@ -100,15 +131,15 @@ function constructDom(ast: Unist.Node, key = 0) {
       const paragraph = ast as MdAst.Paragraph;
       if (isIncludeImage(paragraph)) {
         return (
-          <div key={key} className="my-2">
+          <chakra.div key={key} my={2}>
             {paragraph.children.map(constructDom)}
-          </div>
+          </chakra.div>
         );
       } else {
         return (
-          <p key={key} className="my-2 leading-7">
+          <chakra.p key={key} my={2} lineHeight={7}>
             {paragraph.children.map(constructDom)}
-          </p>
+          </chakra.p>
         );
       }
     }
@@ -116,15 +147,15 @@ function constructDom(ast: Unist.Node, key = 0) {
       const list = ast as MdAst.List;
       if (list.ordered) {
         return (
-          <ol key={key} className="pl-2 list-decimal">
+          <chakra.ol key={key} pl={2} listStyleType="decimal">
             {list.children.map(constructDom)}
-          </ol>
+          </chakra.ol>
         );
       } else {
         return (
-          <ul key={key} className="pl-2 list-disc">
+          <chakra.ul key={key} pl={2} listStyleType="disc">
             {list.children.map(constructDom)}
-          </ul>
+          </chakra.ul>
         );
       }
     }
@@ -137,29 +168,47 @@ function constructDom(ast: Unist.Node, key = 0) {
       if (link.url.startsWith("/")) {
         return (
           <Link key={key} href={link.url} passHref={true}>
-            <a className="underline text-gray-700 hover:text-black hover:font-medium">
+            <chakra.a
+              textDecor="underline"
+              color="gray.700"
+              _hover={{
+                color: "black",
+                fontsize: "medium",
+              }}
+            >
               {link.children.map(constructDom)}
-            </a>
+            </chakra.a>
           </Link>
         );
       } else {
         return (
-          <a
-            className="underline text-gray-700 hover:text-black hover:font-medium"
+          <chakra.a
+            textDecor="underline"
+            color="gray.700"
+            _hover={{
+              color: "black",
+              fontsize: "medium",
+            }}
             key={key}
             href={link.url}
           >
             {link.children.map(constructDom)}
-          </a>
+          </chakra.a>
         );
       }
     }
     case "inlineCode": {
       const inlineCode = ast as MdAst.InlineCode;
       return (
-        <span key={key} className="font-mono bg-yellow-50 p-1 rounded-sm">
+        <chakra.span
+          key={key}
+          fontFamily="mono"
+          bgColor="yellow.50"
+          p={1}
+          rounded="sm"
+        >
           {inlineCode.value}
-        </span>
+        </chakra.span>
       );
     }
     case "code": {

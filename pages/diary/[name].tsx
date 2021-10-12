@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
+import { chakra } from "@chakra-ui/react";
 
 type Props = {
   article: Parser.Diary;
@@ -12,7 +13,7 @@ type Props = {
 
 export default function Home(props: Props) {
   return (
-    <div className="flex items-center flex-col w-screen">
+    <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
         <title>{props.article.frontmatter.date.toString()}</title>
         <meta name="description" content="namachan10777 diary page" />
@@ -44,28 +45,38 @@ export default function Home(props: Props) {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 diary page" />
       </Head>
-      <div className="w-full lg:w-1/2 p-5">
+      <chakra.div w="full" fontSize={{ base: "base", lg: "lg" }} p={5}>
         <header>
           <Link href="/" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              fontSize="lg"
+              m={1}
+              _hover={{ color: "black" }}
+            >
               namachan10777.dev
-            </a>
+            </chakra.a>
           </Link>{" "}
           {">"}
           <Link href="/diary" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black" }}
+            >
               Diary
-            </a>
+            </chakra.a>
           </Link>
         </header>
         <main>
-          <h1 className="text-4xl font-bold m-4">
+          <chakra.h1 fontSize="4xl" fontWeight="bold" m={4}>
             {props.article.frontmatter.date.toString()}
-          </h1>
+          </chakra.h1>
           <Md mdast={props.article.ast} />
         </main>
-      </div>
-    </div>
+      </chakra.div>
+    </chakra.div>
   );
 }
 

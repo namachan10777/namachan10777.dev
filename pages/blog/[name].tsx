@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
+import { chakra } from "@chakra-ui/react";
 
 type Props = {
   article: Parser.Article;
@@ -15,7 +16,7 @@ export default function Home(props: Props) {
     props.article.frontmatter.title
   )}.png?theme=dark&md=1&fontSize=100px`;
   return (
-    <div className="flex items-center flex-col w-screen">
+    <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
         <title>{props.article.frontmatter.title}</title>
         <meta name="description" content="namachan10777 blog page" />
@@ -34,24 +35,36 @@ export default function Home(props: Props) {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 blog page" />
       </Head>
-      <div className="w-full lg:w-1/2 p-5">
+      <chakra.div w="full" p={5} fontSize={{ base: "base", lg: "lg" }}>
         <header>
           <Link href="/" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              fontSize="lg"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black", fontWeight: "meduim" }}
+            >
               namachan10777.dev
-            </a>
+            </chakra.a>
           </Link>{" "}
           {">"}
           <Link href="/blog" passHref={true}>
-            <a className="m-1 text-lg underline text-gray-700 hover:text-black">
+            <chakra.a
+              textDecor="underline"
+              fontSize="lg"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black", fontWeight: "meduim" }}
+            >
               Blog
-            </a>
+            </chakra.a>
           </Link>
         </header>
         <main>
-          <h1 className="text-4xl font-bold my-4 font-mono">
+          <chakra.h1 fontSize="4xl" fontFamily="mono" fontWeight="bold" my={4}>
             # {props.article.frontmatter.title}
-          </h1>
+          </chakra.h1>
           <div>
             {props.article.frontmatter.category.map((tag) => (
               <Link key={tag} href={`/blog/tag/${tag}`} passHref={true}>
@@ -61,8 +74,8 @@ export default function Home(props: Props) {
           </div>
           <Md mdast={props.article.ast} />
         </main>
-      </div>
-    </div>
+      </chakra.div>
+    </chakra.div>
   );
 }
 

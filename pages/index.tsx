@@ -4,6 +4,7 @@ import Md from "../components/md";
 import * as MdAst from "mdast";
 import * as Parser from "../lib/parser";
 import index from "../articles/index.md";
+import { chakra } from "@chakra-ui/react";
 
 type Props = {
   mdast: MdAst.Root;
@@ -11,7 +12,7 @@ type Props = {
 
 export default function Home(props: Props) {
   return (
-    <div className="flex justify-center">
+    <chakra.div display="flex" justifyItems="center">
       <Head>
         <title>namachan10777</title>
         <meta name="description" content="namachan10777 profile page" />
@@ -36,10 +37,10 @@ export default function Home(props: Props) {
           content="namachan10777 personal website"
         />
       </Head>
-      <main className="p-5 lg:w-1/2">
+      <chakra.main p={5} fontSize={{ base: "md", md: "lg" }}>
         <Md mdast={props.mdast} />
-      </main>
-    </div>
+      </chakra.main>
+    </chakra.div>
   );
 }
 

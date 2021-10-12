@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import Articles from "../lib/articles";
 import * as Parser from "../lib/parser";
+import { chakra } from "@chakra-ui/react";
 
 export type Props = {
   frontmatters: Parser.DiaryFrontmatter[];
@@ -10,7 +11,7 @@ export type Props = {
 
 const Diary: React.FC<Props> = (props: Props) => {
   return (
-    <div className="flex items-center flex-col w-screen">
+    <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
         <title>diary</title>
         <meta name="description" content="namachan10777 diary page" />
@@ -32,21 +33,31 @@ const Diary: React.FC<Props> = (props: Props) => {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 diary page" />
       </Head>
-      <div className="w-full lg:w-1/2 p-5">
+      <chakra.div fontSize={{ base: "base", lg: "lg" }} p={5} w="full">
         <header>
           <Link href="/" passHref={true}>
-            <a className="underline text-gray-700 hover:text-black text-lg m-1">
+            <chakra.a
+              textDecor="underline"
+              color="gray.700"
+              m={1}
+              _hover={{ color: "black", fontWeight: "medium" }}
+            >
               namachan10777.dev
-            </a>
+            </chakra.a>
           </Link>
         </header>
         <main>
-          <h1 className="text-4xl font-bold m-3">Diary</h1>
-          <ul className="pl-5 list-disc text-lg">
+          <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
+            Diary
+          </chakra.h1>
+          <chakra.ul fontSize="lg" listStyleType="disc" pl={5}>
             {props.frontmatters.map((frontmatter) => (
-              <li
+              <chakra.li
                 key={frontmatter.date.toString()}
-                className="underline text-gray-700 hover:text-black hover:font-medium text-lg"
+                textDecor="underline"
+                fontSize="lg"
+                color="gray.700"
+                _hover={{ color: "black", fontWeight: "medium" }}
               >
                 <Link
                   href={`/diary/${frontmatter.date.toString()}`}
@@ -54,12 +65,12 @@ const Diary: React.FC<Props> = (props: Props) => {
                 >
                   {frontmatter.date.toString()}
                 </Link>
-              </li>
+              </chakra.li>
             ))}
-          </ul>
+          </chakra.ul>
         </main>
-      </div>
-    </div>
+      </chakra.div>
+    </chakra.div>
   );
 };
 
