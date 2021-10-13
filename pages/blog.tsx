@@ -70,7 +70,7 @@ const Blog: React.FC<Props> = (props: Props) => {
                   my={2}
                   _hover={{
                     color: "black",
-                    fontFamily: "medium",
+                    fontWeight: "medium",
                   }}
                 >
                   <Link href={`/blog/tag/${tag}`} passHref={true}>
