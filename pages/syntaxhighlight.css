@@ -9,7 +9,6 @@ code[class*="language-"],
 pre[class*="language-"] {
 	color: white;
 	background: none;
-	text-shadow: 0 -.1em .2em black;
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	font-size: 1em;
 	text-align: left;
@@ -38,7 +37,8 @@ pre[class*="language-"] {
 
 pre[class*="language-"],
 :not(pre) > code[class*="language-"] {
-	background: hsl(30, 20%, 25%);
+	background: rgb(37, 43, 41);
+	border-left: solid rgb(0, 179, 45) 0.3rem;
 }
 
 /* Code blocks */
@@ -46,9 +46,6 @@ pre[class*="language-"] {
 	padding: 1em;
 	margin: .5em 0;
 	overflow: auto;
-	border: .3em solid hsl(30, 20%, 40%);
-	border-radius: .5em;
-	box-shadow: 1px 1px .5em black inset;
 }
 
 /* Inline code */
