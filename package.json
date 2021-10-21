@@ -46,7 +46,7 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.1",
     "eslint-plugin-react": "7.26.1",
-    "postcss": "8.3.10",
+    "postcss": "8.3.11",
     "prettier": "2.4.1",
     "sharp": "0.29.2",
     "text-loader": "0.0.1",
