@@ -21,7 +21,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: node_modules
-        key: node-v1-${{ hashFiles('package-lock.json') }}
+        key: node-v1-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
