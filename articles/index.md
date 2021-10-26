@@ -47,6 +47,14 @@ title: "namachan10777"
 * `2020-09` 株式会社ACCESS 2day インターン
 * `2021-03` クックパッド株式会社 spring internship 最優秀賞
 
+## Projects
+
+* [`scad-ml`](https://github.com/namachan10777/scad-ml)
+  * OpenSCAD DSL for OCaml
+  * https://opam.ocaml.org/packages/scad_ml/
+* [`dotman`](https://github.com/namachan10777/dotman)
+  * Dotfiles manager like ansible
+
 ## Papers
 
 ### 1st author
