@@ -5,7 +5,6 @@ import * as MdAst from "mdast";
 import * as Parser from "../lib/parser";
 import index from "../articles/index.md";
 import { chakra } from "@chakra-ui/react";
-import { Flex } from "@chakra-ui/react";
 
 type Props = {
   mdast: MdAst.Root;
