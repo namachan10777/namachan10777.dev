@@ -35,7 +35,12 @@ export default function Home(props: Props) {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 blog page" />
       </Head>
-      <chakra.div w="full" p={5} fontSize={{ base: "base", lg: "lg" }}>
+      <chakra.div
+        w="full"
+        p={5}
+        fontSize={{ base: "base", lg: "lg" }}
+        width={{ base: "90%", md: "60%" }}
+      >
         <header>
           <Link href="/" passHref={true}>
             <chakra.a

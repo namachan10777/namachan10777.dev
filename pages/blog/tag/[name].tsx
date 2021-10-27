@@ -39,7 +39,12 @@ const Blog: React.FC<Props> = (props: Props) => {
         <meta property="og:site_name" content="namachan10777.dev" />
         <meta property="og:description" content="namachan10777 blog page" />
       </Head>
-      <chakra.div w="full" fontSize={{ base: "base", lg: "lg" }} p={5}>
+      <chakra.div
+        w="full"
+        fontSize={{ base: "base", lg: "lg" }}
+        p={5}
+        width={{ base: "90%", md: "60%" }}
+      >
         <header>
           <Link href="/" passHref={true}>
             <chakra.a

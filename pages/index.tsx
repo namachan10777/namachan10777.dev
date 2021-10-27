@@ -5,6 +5,7 @@ import * as MdAst from "mdast";
 import * as Parser from "../lib/parser";
 import index from "../articles/index.md";
 import { chakra } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 
 type Props = {
   mdast: MdAst.Root;
@@ -12,7 +13,12 @@ type Props = {
 
 export default function Home(props: Props) {
   return (
-    <chakra.div display="flex" justifyItems="center">
+    <chakra.div
+      display="flex"
+      alignItems="center"
+      width={"100%"}
+      flexDir={"column"}
+    >
       <Head>
         <title>namachan10777</title>
         <meta name="description" content="namachan10777 profile page" />
@@ -37,7 +43,11 @@ export default function Home(props: Props) {
           content="namachan10777 personal website"
         />
       </Head>
-      <chakra.main p={5} fontSize={{ base: "md", md: "lg" }}>
+      <chakra.main
+        p={5}
+        fontSize={{ base: "md", md: "lg" }}
+        width={{ base: "90%", md: "60%" }}
+      >
         <Md mdast={props.mdast} />
       </chakra.main>
     </chakra.div>
