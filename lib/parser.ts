@@ -42,7 +42,7 @@ export async function parse(src: string): Promise<Article> {
     }
 }
 
-export async function parse_diary(src: string): Promise<Diary> {
+export async function parseDiary(src: string): Promise<Diary> {
     const md = unified()
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
