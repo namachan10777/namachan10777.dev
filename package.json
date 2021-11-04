@@ -1,72 +1,49 @@
 {
   "name": "namachan10777.dev",
-  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "tsc-loader": "tsc --project webpack-md-loader",
-    "fmt": "prettier -w 'pages/**/*.tsx' 'components/**/*.tsx'",
-    "fmt-check": "prettier --check 'pages/**/*.tsx' 'components/**/*.tsx'",
-    "lint": "eslint 'pages/**/*.tsx' 'components/**/*.tsx'",
-    "lint-fix": "eslint --fix 'pages/**/*.tsx' 'components/**/*.tsx'"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "1.6.10",
-    "@emotion/react": "11.5.0",
-    "@emotion/styled": "11.3.0",
-    "framer-motion": "5.1.0",
-    "js-yaml": "4.1.0",
+    "@chakra-ui/react": "^1.6.12",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "framer-motion": "^4",
+    "js-yaml": "^4.1.0",
     "next": "12.0.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-refractor": "2.1.5",
-    "rehype-stringify": "9.0.2",
-    "remark-frontmatter": "4.0.1",
-    "remark-gfm": "3.0.0",
-    "remark-parse": "10.0.0",
-    "remark-rehype": "10.0.0",
-    "remark-stringify": "10.0.1",
-    "unified": "10.1.0"
+    "react-refractor": "^2.1.5",
+    "remark-frontmatter": "^4.0.1",
+    "remark-gfm": "^3.0.1",
+    "remark-parse": "^10.0.0",
+    "remark-rehype": "^10.0.0",
+    "remark-stringify": "^10.0.1",
+    "unified": "^10.1.0"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "12.0.2",
-    "@types/jest": "27.0.2",
-    "@types/js-yaml": "4.0.4",
-    "@types/mdast": "3.0.10",
-    "@types/node": "^16.11.6",
+    "@next/eslint-plugin-next": "^12.0.2",
+    "@types/js-yaml": "^4.0.4",
+    "@types/mdast": "^3.0.10",
+    "@types/node": "16.11.6",
     "@types/react": "17.0.34",
-    "@types/unist": "2.0.6",
-    "@typescript-eslint/eslint-plugin": "5.3.0",
-    "@typescript-eslint/parser": "5.3.0",
-    "eslint": "7.32.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-config-standard": "16.0.3",
-    "eslint-plugin-import": "2.25.2",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.1",
-    "eslint-plugin-react": "7.26.1",
-    "postcss": "8.3.11",
-    "prettier": "2.4.1",
-    "sharp": "0.29.2",
-    "text-loader": "0.0.1",
-    "ts-jest": "27.0.7",
+    "@types/unist": "^2.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
+    "eslint": "7",
+    "eslint-config-next": "12.0.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.1",
+    "eslint-plugin-react": "^7.26.1",
+    "prettier": "^2.4.1",
+    "sharp": "^0.29.2",
+    "text-loader": "^0.0.1",
     "typescript": "4.4.4"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "tsconfig.json"
-      }
-    }
-  },
-  "packageManager": "yarn@3.1.0"
+  }
 }

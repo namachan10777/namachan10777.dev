@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 module.exports = {
   images: {
     domains: ['img.shields.io']
@@ -13,5 +14,6 @@ module.exports = {
       ]
     });
     return config;
-  }
+  },
+  reactStrictMode: true,
 }
