@@ -75,7 +75,14 @@ export default function Home(props: Props) {
           <div>
             {props.article.frontmatter.category.map((tag) => (
               <Link key={tag} href={`/blog/tag/${tag}`} passHref={true}>
-                <a>#{tag}</a>
+                <chakra.a
+                  textDecor="underline"
+                  color={colorLinkUnselected}
+                  m={1}
+                  _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
+                >
+                  #{tag}
+                </chakra.a>
               </Link>
             ))}
           </div>
