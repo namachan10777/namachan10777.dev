@@ -4,7 +4,7 @@ import Link from "next/link";
 import Articles from "../../../lib/articles";
 import * as Parser from "../../../lib/parser";
 import { GetStaticPropsContext } from "next";
-import { chakra } from "@chakra-ui/react";
+import { chakra,useColorModeValue } from "@chakra-ui/react";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];
@@ -15,6 +15,8 @@ const Blog: React.FC<Props> = (props: Props) => {
   const ogImageUrl = `https://og-image-two-azure.vercel.app/${encodeURI(
     `#${props.tag}`
   )}.png?theme=dark&md=1&fontSize=100px`;
+  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
+  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -50,9 +52,9 @@ const Blog: React.FC<Props> = (props: Props) => {
             <chakra.a
               textDecor="underline"
               fontSize="lg"
-              color="gray.700"
+              color={colorLinkUnselected}
               m={1}
-              _hover={{ color: "black", fontWeight: "meduim" }}
+              _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
             >
               namachan10777.dev
             </chakra.a>
@@ -62,9 +64,9 @@ const Blog: React.FC<Props> = (props: Props) => {
             <chakra.a
               textDecor="underline"
               fontSize="lg"
-              color="gray.700"
+              color={colorLinkUnselected}
               m={1}
-              _hover={{ color: "black", fontWeight: "meduim" }}
+              _hover={{ color: colorLinkUnselected, fontWeight: "meduim" }}
             >
               Blog
             </chakra.a>
@@ -80,9 +82,9 @@ const Blog: React.FC<Props> = (props: Props) => {
                 key={frontmatter.name}
                 textDecor="underline"
                 fontSize="lg"
-                color="gray.700"
+                color={colorLinkUnselected}
                 my={2}
-                _hover={{ color: "black", fontWeight: "meduim" }}
+                _hover={{ color: colorLinkUnselected, fontWeight: "meduim" }}
               >
                 <Link href={`/blog/${frontmatter.name}`} passHref={true}>
                   {frontmatter.title}

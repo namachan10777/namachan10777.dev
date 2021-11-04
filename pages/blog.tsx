@@ -2,7 +2,7 @@ import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Articles from "../lib/articles";
-import { chakra } from "@chakra-ui/react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 import * as Parser from "../lib/parser";
 
 export type Props = {
@@ -15,6 +15,8 @@ const Blog: React.FC<Props> = (props: Props) => {
       props.frontmatters.map((frontmatter) => frontmatter.category).flat()
     )
   );
+  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
+  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -48,8 +50,8 @@ const Blog: React.FC<Props> = (props: Props) => {
           <Link href="/" passHref={true}>
             <chakra.a
               textDecor="underline"
-              color="gray.700"
-              _hover={{ color: "black" }}
+              color={colorLinkUnselected}
+              _hover={{ color: colorLinkSelected }}
               fontSize="lg"
               mx={1}
             >
@@ -71,10 +73,10 @@ const Blog: React.FC<Props> = (props: Props) => {
                   key={tag}
                   textDecor="underline"
                   fontSize="lg"
-                  color="gray.700"
+                  color={colorLinkUnselected}
                   my={2}
                   _hover={{
-                    color: "black",
+                    color: colorLinkSelected,
                     fontWeight: "medium",
                   }}
                 >
@@ -95,9 +97,9 @@ const Blog: React.FC<Props> = (props: Props) => {
                   key={frontmatter.name}
                   textDecor="underline"
                   fontSize="lg"
-                  color="gray.700"
+                  color={colorLinkUnselected}
                   my={2}
-                  _hover={{ color: "black", fontWeight: "medium" }}
+                  _hover={{ color: colorLinkSelected, fontWeight: "medium" }}
                 >
                   <Link href={`/blog/${frontmatter.name}`} passHref={true}>
                     {frontmatter.title}
