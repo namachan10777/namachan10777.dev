@@ -5,6 +5,9 @@ elm.js
 *.html
 *.xhtml
 !index.xhtml
+/.yarn/
+/.pnp.cjs
+/.pnp.loader.mjs
 
 dist/*
 
