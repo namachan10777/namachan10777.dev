@@ -217,7 +217,7 @@ function constructDom(ast: Unist.Node, key = 0) {
     case "code": {
       const code = ast as MdAst.Code;
       const lang = code.lang ? code.lang : "text";
-      return <Refractor language={lang} value={code.value} />;
+      return <Refractor key={key} language={lang} value={code.value} />;
     }
     case "yaml":
       return null;
