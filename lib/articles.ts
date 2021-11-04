@@ -1,15 +1,10 @@
-import index from "../articles/index.md";
-import blogOnNextJs from "../articles/blog/blog-on-nextjs.md";
-import cigarettes from "../articles/blog/cigarettes.md";
 import { Article, Diary, parse, parseDiary } from "./parser";
-import diary20210914 from "../articles/diary/2021-09-14.md";
-import diary20210921 from "../articles/diary/2021-09-21.md";
-import diary20211104 from "../articles/diary/2021-11-04.md";
+import { index, blogs, diaries } from "./generated/articles";
 
 export const rawArticles = {
   index,
-  blogs: [blogOnNextJs, cigarettes],
-  diaries: [diary20210914, diary20210921, diary20211104],
+  blogs,
+  diaries,
 };
 
 export type Articles = {

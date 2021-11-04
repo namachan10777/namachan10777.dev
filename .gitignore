@@ -6,6 +6,7 @@ elm.js
 *.xhtml
 !index.xhtml
 /.yarn/
+/lib/generated/
 
 dist/*
 

@@ -2,12 +2,12 @@
   "name": "namachan10777.dev",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node listup-article.mjs && next dev",
+    "build": "node listup-article.mjs && next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier -w **/*.ts **/*.tsx **/*.js",
-    "check-format": "prettier --check **/*.ts **/*.tsx **/*.js"
+    "format": "prettier -w **/*.ts **/*.tsx **/*.js **/*.mjs ",
+    "check-format": "prettier --check **/*.ts **/*.tsx **/*.js **/*.mjs"
   },
   "dependencies": {
     "@chakra-ui/react": "1.6.12",
