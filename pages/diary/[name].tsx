@@ -1,11 +1,11 @@
 import React from "react";
 import Head from "next/head";
 import Md from "../../components/md";
-import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
 import { chakra } from "@chakra-ui/react";
+import NormalLink from "../../components/normalLink";
 
 type Props = {
   article: Parser.Diary;
@@ -52,27 +52,13 @@ export default function Home(props: Props) {
         width={{ base: "90%", md: "60%" }}
       >
         <header>
-          <Link href="/" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              fontSize="lg"
-              m={1}
-              _hover={{ color: "black" }}
-            >
-              namachan10777.dev
-            </chakra.a>
-          </Link>{" "}
+          <NormalLink href="/" fontSize="lg">
+            namachan10777.dev
+          </NormalLink>{" "}
           {">"}
-          <Link href="/diary" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              color="gray.700"
-              m={1}
-              _hover={{ color: "black" }}
-            >
-              Diary
-            </chakra.a>
-          </Link>
+          <NormalLink href="/diary" fontSize="lg">
+            Diary
+          </NormalLink>
         </header>
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={4}>

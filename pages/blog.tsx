@@ -1,9 +1,9 @@
 import React from "react";
 import Head from "next/head";
-import Link from "next/link";
 import Articles from "../lib/articles";
-import { chakra, useColorModeValue } from "@chakra-ui/react";
+import { chakra } from "@chakra-ui/react";
 import * as Parser from "../lib/parser";
+import NormalLink from "../components/normalLink";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];
@@ -15,8 +15,6 @@ const Blog: React.FC<Props> = (props: Props) => {
       props.frontmatters.map((frontmatter) => frontmatter.category).flat()
     )
   );
-  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
-  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -47,17 +45,9 @@ const Blog: React.FC<Props> = (props: Props) => {
         width={{ base: "90%", md: "60%" }}
       >
         <header>
-          <Link href="/" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              color={colorLinkUnselected}
-              _hover={{ color: colorLinkSelected }}
-              fontSize="lg"
-              mx={1}
-            >
-              namachan10777.dev
-            </chakra.a>
-          </Link>
+          <NormalLink href="/" fontSize="lg">
+            namachan10777.dev
+          </NormalLink>
         </header>
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
@@ -69,20 +59,10 @@ const Blog: React.FC<Props> = (props: Props) => {
             </chakra.h2>
             <chakra.ul fontSize="lg" pl={5} listStyleType="disc">
               {tags.map((tag) => (
-                <chakra.li
-                  key={tag}
-                  textDecor="underline"
-                  fontSize="lg"
-                  color={colorLinkUnselected}
-                  my={2}
-                  _hover={{
-                    color: colorLinkSelected,
-                    fontWeight: "medium",
-                  }}
-                >
-                  <Link href={`/blog/tag/${tag}`} passHref={true}>
-                    <a>#{tag}</a>
-                  </Link>
+                <chakra.li key={tag}>
+                  <NormalLink href={`/blog/tag/${tag}`} fontSize="lg">
+                    #{tag}
+                  </NormalLink>
                 </chakra.li>
               ))}
             </chakra.ul>
@@ -93,17 +73,10 @@ const Blog: React.FC<Props> = (props: Props) => {
             </chakra.h2>
             <chakra.ul fontSize="lg" pl={5} listStyleType="disc">
               {props.frontmatters.map((frontmatter) => (
-                <chakra.li
-                  key={frontmatter.name}
-                  textDecor="underline"
-                  fontSize="lg"
-                  color={colorLinkUnselected}
-                  my={2}
-                  _hover={{ color: colorLinkSelected, fontWeight: "medium" }}
-                >
-                  <Link href={`/blog/${frontmatter.name}`} passHref={true}>
+                <chakra.li key={frontmatter.name}>
+                  <NormalLink href={`/blog/${frontmatter.name}`} fontSize="lg">
                     {frontmatter.title}
-                  </Link>
+                  </NormalLink>
                 </chakra.li>
               ))}
             </chakra.ul>

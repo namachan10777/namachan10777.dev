@@ -1,11 +1,11 @@
 import React from "react";
 import Head from "next/head";
 import Md from "../../components/md";
-import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
-import { chakra, useColorModeValue } from "@chakra-ui/react";
+import { chakra } from "@chakra-ui/react";
+import NormalLink from "../../components/normalLink";
 
 type Props = {
   article: Parser.Article;
@@ -15,8 +15,6 @@ export default function Home(props: Props) {
   const ogImageUrl = `https://og-image-two-azure.vercel.app/${encodeURI(
     props.article.frontmatter.title
   )}.png?theme=dark&md=1&fontSize=100px`;
-  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
-  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -44,29 +42,13 @@ export default function Home(props: Props) {
         width={{ base: "90%", md: "60%" }}
       >
         <header>
-          <Link href="/" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              fontSize="lg"
-              color={colorLinkUnselected}
-              m={1}
-              _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
-            >
-              namachan10777.dev
-            </chakra.a>
-          </Link>{" "}
-          {">"}
-          <Link href="/blog" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              fontSize="lg"
-              color={colorLinkUnselected}
-              m={1}
-              _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
-            >
-              Blog
-            </chakra.a>
-          </Link>
+          <NormalLink href="/" fontSize="lg">
+            namachan10777.dev
+          </NormalLink>
+          {" >"}
+          <NormalLink href="/blog" fontSize="lg">
+            Blog
+          </NormalLink>
         </header>
         <main>
           <chakra.h1 fontSize="4xl" fontFamily="mono" fontWeight="bold" my={4}>
@@ -74,16 +56,9 @@ export default function Home(props: Props) {
           </chakra.h1>
           <div>
             {props.article.frontmatter.category.map((tag) => (
-              <Link key={tag} href={`/blog/tag/${tag}`} passHref={true}>
-                <chakra.a
-                  textDecor="underline"
-                  color={colorLinkUnselected}
-                  m={1}
-                  _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
-                >
-                  #{tag}
-                </chakra.a>
-              </Link>
+              <NormalLink key={tag} href={`/blog/tag/${tag}`} fontSize="lg">
+                #{tag}
+              </NormalLink>
             ))}
           </div>
           <Md mdast={props.article.ast} />

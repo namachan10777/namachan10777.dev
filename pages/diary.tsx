@@ -1,17 +1,15 @@
 import React from "react";
 import Head from "next/head";
-import Link from "next/link";
 import Articles from "../lib/articles";
 import * as Parser from "../lib/parser";
-import { chakra, useColorModeValue } from "@chakra-ui/react";
+import { chakra } from "@chakra-ui/react";
+import NormalLink from "../components/normalLink";
 
 export type Props = {
   frontmatters: Parser.DiaryFrontmatter[];
 };
 
 const Diary: React.FC<Props> = (props: Props) => {
-  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
-  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -42,16 +40,9 @@ const Diary: React.FC<Props> = (props: Props) => {
         width={{ base: "90%", md: "60%" }}
       >
         <header>
-          <Link href="/" passHref={true}>
-            <chakra.a
-              textDecor="underline"
-              color={colorLinkUnselected}
-              m={1}
-              _hover={{ color: colorLinkSelected, fontWeight: "medium" }}
-            >
-              namachan10777.dev
-            </chakra.a>
-          </Link>
+          <NormalLink href="/" fontSize="lg">
+            namachan10777.dev
+          </NormalLink>
         </header>
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
@@ -59,19 +50,13 @@ const Diary: React.FC<Props> = (props: Props) => {
           </chakra.h1>
           <chakra.ul fontSize="lg" listStyleType="disc" pl={5}>
             {props.frontmatters.map((frontmatter) => (
-              <chakra.li
-                key={frontmatter.date.toString()}
-                textDecor="underline"
-                fontSize="lg"
-                color={colorLinkSelected}
-                _hover={{ color: colorLinkUnselected, fontWeight: "medium" }}
-              >
-                <Link
+              <chakra.li key={frontmatter.date.toString()}>
+                <NormalLink
                   href={`/diary/${frontmatter.date.toString()}`}
-                  passHref={true}
+                  fontSize="lg"
                 >
                   {frontmatter.date.toString()}
-                </Link>
+                </NormalLink>
               </chakra.li>
             ))}
           </chakra.ul>
