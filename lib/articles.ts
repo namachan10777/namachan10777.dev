@@ -1,14 +1,14 @@
 import index from '../articles/index.md';
 import blogOnNextJs from '../articles/blog/blog-on-nextjs.md';
 import cigarettes from '../articles/blog/cigarettes.md';
-import { Article, Diary, parse, parse_diary } from './parser';
-import diary2021_09_14 from '../articles/diary/2021-09-14.md';
-import diary2021_09_21 from '../articles/diary/2021-09-21.md';
+import { Article, Diary, parse, parseDiary } from './parser';
+import diary20210914 from '../articles/diary/2021-09-14.md';
+import diary20210921 from '../articles/diary/2021-09-21.md';
 
 export const rawArticles = {
   index,
   blogs: [blogOnNextJs, cigarettes],
-  diaries: [diary2021_09_14, diary2021_09_21],
+  diaries: [diary20210914, diary20210921],
 };
 
 export type Articles = {
@@ -23,7 +23,7 @@ export default async function articles(): Promise<Articles> {
   blogs.forEach((article) => {
     ret.blogs[article.frontmatter.name] = article;
   });
-  const diaries = await Promise.all(rawArticles.diaries.map(parse_diary));
+  const diaries = await Promise.all(rawArticles.diaries.map(parseDiary));
   diaries.forEach((diary) => {
     ret.diaries[diary.frontmatter.date.toString()] = diary;
   });
