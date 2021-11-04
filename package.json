@@ -6,8 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier -w */**.ts */**.tsx",
-    "check-format": "prettier --check */**.ts */**.tsx"
+    "format": "prettier -w **/*.ts **/*.tsx **/*.js",
+    "check-format": "prettier --check **/*.ts **/*.tsx **/*.js"
   },
   "dependencies": {
     "@chakra-ui/react": "1.6.12",

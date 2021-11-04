@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   images: {
-    domains: ['img.shields.io']
+    domains: ["img.shields.io"],
   },
   webpack(config) {
     config.resolve.extensions.push(".md");
@@ -9,11 +9,11 @@ module.exports = {
       test: /\.md$/,
       use: [
         {
-          loader: 'text-loader'
-        }
-      ]
+          loader: "text-loader",
+        },
+      ],
     });
     return config;
   },
   reactStrictMode: true,
-}
+};

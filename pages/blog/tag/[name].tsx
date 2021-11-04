@@ -4,7 +4,7 @@ import Link from "next/link";
 import Articles from "../../../lib/articles";
 import * as Parser from "../../../lib/parser";
 import { GetStaticPropsContext } from "next";
-import { chakra,useColorModeValue } from "@chakra-ui/react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];
