@@ -5,7 +5,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier -w */**.ts */**.tsx",
+    "check-format": "prettier --check */**.ts */**.tsx"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.6.12",
