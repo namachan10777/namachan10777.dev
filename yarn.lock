@@ -627,7 +627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chakra-ui/react@npm:^1.6.12":
+"@chakra-ui/react@npm:1.6.12":
   version: 1.6.12
   resolution: "@chakra-ui/react@npm:1.6.12"
   dependencies:
@@ -1031,7 +1031,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11":
+"@emotion/react@npm:11.5.0":
   version: 11.5.0
   resolution: "@emotion/react@npm:11.5.0"
   dependencies:
@@ -1074,7 +1074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/styled@npm:^11":
+"@emotion/styled@npm:11.3.0":
   version: 11.3.0
   resolution: "@emotion/styled@npm:11.3.0"
   dependencies:
@@ -1199,7 +1199,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/eslint-plugin-next@npm:12.0.2, @next/eslint-plugin-next@npm:^12.0.2":
+"@next/eslint-plugin-next@npm:12.0.2":
   version: 12.0.2
   resolution: "@next/eslint-plugin-next@npm:12.0.2"
   dependencies:
@@ -1459,7 +1459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-yaml@npm:^4.0.4":
+"@types/js-yaml@npm:4.0.4":
   version: 4.0.4
   resolution: "@types/js-yaml@npm:4.0.4"
   checksum: de38075a6bde3efdd27415714f3bfd2fe43b62bb655cb1d6b89976557c18db3f468d33767857c9627b29bf185c575093e535c9a6e3b215559b715a9dc520f878
@@ -1496,7 +1496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdast@npm:^3.0.0, @types/mdast@npm:^3.0.10, @types/mdast@npm:^3.0.3":
+"@types/mdast@npm:3.0.10, @types/mdast@npm:^3.0.0, @types/mdast@npm:^3.0.3":
   version: 3.0.10
   resolution: "@types/mdast@npm:3.0.10"
   dependencies:
@@ -1558,7 +1558,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/unist@npm:*, @types/unist@npm:^2.0.0, @types/unist@npm:^2.0.6":
+"@types/unist@npm:*, @types/unist@npm:2.0.6, @types/unist@npm:^2.0.0":
   version: 2.0.6
   resolution: "@types/unist@npm:2.0.6"
   checksum: 25cb860ff10dde48b54622d58b23e66214211a61c84c0f15f88d38b61aa1b53d4d46e42b557924a93178c501c166aa37e28d7f6d994aba13d24685326272d5db
@@ -1572,7 +1572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.3.0":
+"@typescript-eslint/eslint-plugin@npm:5.3.0":
   version: 5.3.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.3.0"
   dependencies:
@@ -1610,6 +1610,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/parser@npm:5.3.0":
+  version: 5.3.0
+  resolution: "@typescript-eslint/parser@npm:5.3.0"
+  dependencies:
+    "@typescript-eslint/scope-manager": 5.3.0
+    "@typescript-eslint/types": 5.3.0
+    "@typescript-eslint/typescript-estree": 5.3.0
+    debug: ^4.3.2
+  peerDependencies:
+    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 7f523a32f4f44b87a1f907ae6206b47f6bfa892211fea0e670939b55aed3c027bc11e087979d0b798b12bc045dd2c7205035449caecc14b0810b38f44942bbb8
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/parser@npm:^4.20.0":
   version: 4.33.0
   resolution: "@typescript-eslint/parser@npm:4.33.0"
@@ -1624,23 +1641,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 102457eae1acd516211098fea081c8a2ed728522bbda7f5a557b6ef23d88970514f9a0f6285d53fca134d3d4d7d17822b5d5e12438d5918df4d1f89cc9e67d57
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/parser@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "@typescript-eslint/parser@npm:5.3.0"
-  dependencies:
-    "@typescript-eslint/scope-manager": 5.3.0
-    "@typescript-eslint/types": 5.3.0
-    "@typescript-eslint/typescript-estree": 5.3.0
-    debug: ^4.3.2
-  peerDependencies:
-    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 7f523a32f4f44b87a1f907ae6206b47f6bfa892211fea0e670939b55aed3c027bc11e087979d0b798b12bc045dd2c7205035449caecc14b0810b38f44942bbb8
   languageName: node
   linkType: hard
 
@@ -3087,7 +3087,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^8.3.0":
+"eslint-config-prettier@npm:8.3.0":
   version: 8.3.0
   resolution: "eslint-config-prettier@npm:8.3.0"
   peerDependencies:
@@ -3098,7 +3098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-standard@npm:^16.0.3":
+"eslint-config-standard@npm:16.0.3":
   version: 16.0.3
   resolution: "eslint-config-standard@npm:16.0.3"
   peerDependencies:
@@ -3110,7 +3110,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-import-resolver-node@npm:^0.3.4, eslint-import-resolver-node@npm:^0.3.6":
+"eslint-import-resolver-node@npm:0.3.6, eslint-import-resolver-node@npm:^0.3.4, eslint-import-resolver-node@npm:^0.3.6":
   version: 0.3.6
   resolution: "eslint-import-resolver-node@npm:0.3.6"
   dependencies:
@@ -3159,7 +3159,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.22.1, eslint-plugin-import@npm:^2.25.2":
+"eslint-plugin-import@npm:2.25.2, eslint-plugin-import@npm:^2.22.1":
   version: 2.25.2
   resolution: "eslint-plugin-import@npm:2.25.2"
   dependencies:
@@ -3203,7 +3203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-node@npm:^11.1.0":
+"eslint-plugin-node@npm:11.1.0":
   version: 11.1.0
   resolution: "eslint-plugin-node@npm:11.1.0"
   dependencies:
@@ -3219,7 +3219,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-promise@npm:^5.1.1":
+"eslint-plugin-promise@npm:5.1.1":
   version: 5.1.1
   resolution: "eslint-plugin-promise@npm:5.1.1"
   peerDependencies:
@@ -3237,7 +3237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.23.1, eslint-plugin-react@npm:^7.26.1":
+"eslint-plugin-react@npm:7.26.1, eslint-plugin-react@npm:^7.23.1":
   version: 7.26.1
   resolution: "eslint-plugin-react@npm:7.26.1"
   dependencies:
@@ -3312,7 +3312,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:7":
+"eslint@npm:7.32.0":
   version: 7.32.0
   resolution: "eslint@npm:7.32.0"
   dependencies:
@@ -3608,7 +3608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^4":
+"framer-motion@npm:4.1.17":
   version: 4.1.17
   resolution: "framer-motion@npm:4.1.17"
   dependencies:
@@ -4469,6 +4469,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-yaml@npm:4.1.0":
+  version: 4.1.0
+  resolution: "js-yaml@npm:4.1.0"
+  dependencies:
+    argparse: ^2.0.1
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
+  languageName: node
+  linkType: hard
+
 "js-yaml@npm:^3.13.1":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
@@ -4478,17 +4489,6 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "js-yaml@npm:4.1.0"
-  dependencies:
-    argparse: ^2.0.1
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
   languageName: node
   linkType: hard
 
@@ -5421,42 +5421,42 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "namachan10777.dev@workspace:."
   dependencies:
-    "@chakra-ui/react": ^1.6.12
-    "@emotion/react": ^11
-    "@emotion/styled": ^11
-    "@next/eslint-plugin-next": ^12.0.2
-    "@types/js-yaml": ^4.0.4
-    "@types/mdast": ^3.0.10
+    "@chakra-ui/react": 1.6.12
+    "@emotion/react": 11.5.0
+    "@emotion/styled": 11.3.0
+    "@next/eslint-plugin-next": 12.0.2
+    "@types/js-yaml": 4.0.4
+    "@types/mdast": 3.0.10
     "@types/node": 16.11.6
     "@types/react": 17.0.34
-    "@types/unist": ^2.0.6
-    "@typescript-eslint/eslint-plugin": ^5.3.0
-    "@typescript-eslint/parser": ^5.3.0
-    eslint: 7
+    "@types/unist": 2.0.6
+    "@typescript-eslint/eslint-plugin": 5.3.0
+    "@typescript-eslint/parser": 5.3.0
+    eslint: 7.32.0
     eslint-config-next: 12.0.2
-    eslint-config-prettier: ^8.3.0
-    eslint-config-standard: ^16.0.3
-    eslint-import-resolver-node: ^0.3.6
-    eslint-plugin-import: ^2.25.2
-    eslint-plugin-node: ^11.1.0
-    eslint-plugin-promise: ^5.1.1
-    eslint-plugin-react: ^7.26.1
-    framer-motion: ^4
-    js-yaml: ^4.1.0
+    eslint-config-prettier: 8.3.0
+    eslint-config-standard: 16.0.3
+    eslint-import-resolver-node: 0.3.6
+    eslint-plugin-import: 2.25.2
+    eslint-plugin-node: 11.1.0
+    eslint-plugin-promise: 5.1.1
+    eslint-plugin-react: 7.26.1
+    framer-motion: 4.1.17
+    js-yaml: 4.1.0
     next: 12.0.2
-    prettier: ^2.4.1
+    prettier: 2.4.1
     react: 17.0.2
     react-dom: 17.0.2
-    react-refractor: ^2.1.5
-    remark-frontmatter: ^4.0.1
-    remark-gfm: ^3.0.1
-    remark-parse: ^10.0.0
-    remark-rehype: ^10.0.0
-    remark-stringify: ^10.0.1
-    sharp: ^0.29.2
-    text-loader: ^0.0.1
+    react-refractor: 2.1.5
+    remark-frontmatter: 4.0.1
+    remark-gfm: 3.0.1
+    remark-parse: 10.0.0
+    remark-rehype: 10.0.0
+    remark-stringify: 10.0.1
+    sharp: 0.29.2
+    text-loader: 0.0.1
     typescript: 4.4.4
-    unified: ^10.1.0
+    unified: 10.1.0
   languageName: unknown
   linkType: soft
 
@@ -6095,7 +6095,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.4.1":
+"prettier@npm:2.4.1":
   version: 2.4.1
   resolution: "prettier@npm:2.4.1"
   bin:
@@ -6329,7 +6329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-refractor@npm:^2.1.5":
+"react-refractor@npm:2.1.5":
   version: 2.1.5
   resolution: "react-refractor@npm:2.1.5"
   dependencies:
@@ -6489,7 +6489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-frontmatter@npm:^4.0.1":
+"remark-frontmatter@npm:4.0.1":
   version: 4.0.1
   resolution: "remark-frontmatter@npm:4.0.1"
   dependencies:
@@ -6501,7 +6501,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-gfm@npm:^3.0.1":
+"remark-gfm@npm:3.0.1":
   version: 3.0.1
   resolution: "remark-gfm@npm:3.0.1"
   dependencies:
@@ -6513,7 +6513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-parse@npm:^10.0.0":
+"remark-parse@npm:10.0.0":
   version: 10.0.0
   resolution: "remark-parse@npm:10.0.0"
   dependencies:
@@ -6524,7 +6524,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-rehype@npm:^10.0.0":
+"remark-rehype@npm:10.0.0":
   version: 10.0.0
   resolution: "remark-rehype@npm:10.0.0"
   dependencies:
@@ -6536,7 +6536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-stringify@npm:^10.0.1":
+"remark-stringify@npm:10.0.1":
   version: 10.0.1
   resolution: "remark-stringify@npm:10.0.1"
   dependencies:
@@ -6747,7 +6747,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.29.2":
+"sharp@npm:0.29.2":
   version: 0.29.2
   resolution: "sharp@npm:0.29.2"
   dependencies:
@@ -7234,7 +7234,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"text-loader@npm:^0.0.1":
+"text-loader@npm:0.0.1":
   version: 0.0.1
   resolution: "text-loader@npm:0.0.1"
   checksum: e8131024df8312bf123930215617dcaa2c8d002e416655c08d5ba3b11f9bca915fff42af23b4395870848b20ff4265be4c3d970c1a43a36ef18374a114f1f32d
@@ -7425,7 +7425,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unified@npm:^10.0.0, unified@npm:^10.1.0":
+"unified@npm:10.1.0, unified@npm:^10.0.0":
   version: 10.1.0
   resolution: "unified@npm:10.1.0"
   dependencies:
