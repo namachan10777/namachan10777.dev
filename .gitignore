@@ -5,6 +5,7 @@ elm.js
 *.html
 *.xhtml
 !index.xhtml
+/.yarn/
 
 dist/*
 

@@ -20,8 +20,10 @@ jobs:
     - name: Cache node_modules
       uses: actions/cache@v2
       with:
-        path: node_modules
-        key: node-v1-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+        path: |
+          node_modules
+          .yarn
+        key: node-v1-${{ matrix.node-version }}-${{ hashFiles('yarn.lock') }}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
