@@ -1,7 +1,7 @@
 import * as Unist from "unist";
 import * as MdAst from "mdast";
 import * as React from "react";
-import { chakra } from "@chakra-ui/react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import Refractor from "react-refractor";
@@ -164,15 +164,17 @@ function constructDom(ast: Unist.Node, key = 0) {
       return <li key={key}>{listitem.children.map(constructDom)}</li>;
     }
     case "link": {
+      const colorUnselected = useColorModeValue("gray.700", "gray.300");
+      const colorSelected = useColorModeValue("black", "white");
       const link = ast as MdAst.Link;
       if (link.url.startsWith("/")) {
         return (
           <Link key={key} href={link.url} passHref={true}>
             <chakra.a
               textDecor="underline"
-              color="gray.700"
+              color={colorUnselected}
               _hover={{
-                color: "black",
+                color: colorSelected,
                 fontsize: "medium",
               }}
             >
@@ -184,9 +186,9 @@ function constructDom(ast: Unist.Node, key = 0) {
         return (
           <chakra.a
             textDecor="underline"
-            color="gray.700"
+            color={colorUnselected}
             _hover={{
-              color: "black",
+              color: colorSelected,
               fontsize: "medium",
             }}
             key={key}
@@ -199,11 +201,12 @@ function constructDom(ast: Unist.Node, key = 0) {
     }
     case "inlineCode": {
       const inlineCode = ast as MdAst.InlineCode;
+      const bgColor = useColorModeValue("yellow.50", "yellow.800");
       return (
         <chakra.span
           key={key}
           fontFamily="mono"
-          bgColor="yellow.50"
+          bgColor={bgColor}
           p={1}
           rounded="sm"
         >

@@ -3,13 +3,15 @@ import Head from "next/head";
 import Link from "next/link";
 import Articles from "../lib/articles";
 import * as Parser from "../lib/parser";
-import { chakra } from "@chakra-ui/react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 
 export type Props = {
   frontmatters: Parser.DiaryFrontmatter[];
 };
 
 const Diary: React.FC<Props> = (props: Props) => {
+  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
+  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -43,9 +45,9 @@ const Diary: React.FC<Props> = (props: Props) => {
           <Link href="/" passHref={true}>
             <chakra.a
               textDecor="underline"
-              color="gray.700"
+              color={colorLinkUnselected}
               m={1}
-              _hover={{ color: "black", fontWeight: "medium" }}
+              _hover={{ color: colorLinkSelected, fontWeight: "medium" }}
             >
               namachan10777.dev
             </chakra.a>
@@ -61,8 +63,8 @@ const Diary: React.FC<Props> = (props: Props) => {
                 key={frontmatter.date.toString()}
                 textDecor="underline"
                 fontSize="lg"
-                color="gray.700"
-                _hover={{ color: "black", fontWeight: "medium" }}
+                color={colorLinkSelected}
+                _hover={{ color: colorLinkUnselected, fontWeight: "medium" }}
               >
                 <Link
                   href={`/diary/${frontmatter.date.toString()}`}
