@@ -5,7 +5,7 @@ import Link from "next/link";
 import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
-import { chakra } from "@chakra-ui/react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 
 type Props = {
   article: Parser.Article;
@@ -15,6 +15,8 @@ export default function Home(props: Props) {
   const ogImageUrl = `https://og-image-two-azure.vercel.app/${encodeURI(
     props.article.frontmatter.title
   )}.png?theme=dark&md=1&fontSize=100px`;
+  const colorLinkUnselected = useColorModeValue("gray.700", "gray.300");
+  const colorLinkSelected = useColorModeValue("black", "white");
   return (
     <chakra.div display="flex" alignItems="center" flexDir="column" w="full">
       <Head>
@@ -46,9 +48,9 @@ export default function Home(props: Props) {
             <chakra.a
               textDecor="underline"
               fontSize="lg"
-              color="gray.700"
+              color={colorLinkUnselected}
               m={1}
-              _hover={{ color: "black", fontWeight: "meduim" }}
+              _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
             >
               namachan10777.dev
             </chakra.a>
@@ -58,9 +60,9 @@ export default function Home(props: Props) {
             <chakra.a
               textDecor="underline"
               fontSize="lg"
-              color="gray.700"
+              color={colorLinkUnselected}
               m={1}
-              _hover={{ color: "black", fontWeight: "meduim" }}
+              _hover={{ color: colorLinkSelected, fontWeight: "meduim" }}
             >
               Blog
             </chakra.a>
