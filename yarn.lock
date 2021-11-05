@@ -5451,7 +5451,7 @@ __metadata:
     remark-frontmatter: 4.0.1
     remark-gfm: 3.0.1
     remark-parse: 10.0.0
-    remark-rehype: 10.0.0
+    remark-rehype: 10.0.1
     remark-stringify: 10.0.1
     sharp: 0.29.2
     text-loader: 0.0.1
@@ -6524,15 +6524,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-rehype@npm:10.0.0":
-  version: 10.0.0
-  resolution: "remark-rehype@npm:10.0.0"
+"remark-rehype@npm:10.0.1":
+  version: 10.0.1
+  resolution: "remark-rehype@npm:10.0.1"
   dependencies:
     "@types/hast": ^2.0.0
     "@types/mdast": ^3.0.0
     mdast-util-to-hast: ^12.0.0
     unified: ^10.0.0
-  checksum: ccec620ceafa66e2720ff0146b08b33e33601434bd7ef421a3fbe2f37a5bbcc90598e26808bfcf89417f06357bf6daf5cdaef3f4ad414718c24994886a8de5e5
+  checksum: 8b5b78c54080ceea7a49976a0d600a538c61311302640e1ebc09c60858065d6a5743add7fe1d820efd6bb5934ff202271c30cb512ab68bf78cf13ef6927d694d
   languageName: node
   linkType: hard
 
