@@ -1,1 +1,3 @@
 lib/generated/*
+.yarn/*
+node_modules/*
