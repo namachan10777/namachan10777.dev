@@ -5,7 +5,6 @@ import * as Parser from "../../lib/parser";
 import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
 import { chakra } from "@chakra-ui/react";
-import NormalLink from "../../components/normalLink";
 import Header from "../../components/header";
 
 type Props = {
