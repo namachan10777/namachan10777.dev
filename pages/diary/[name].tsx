@@ -6,6 +6,8 @@ import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
 import { chakra } from "@chakra-ui/react";
 import Header from "../../components/header";
+import Footer from "../../components/footer";
+import metadata from "../../lib/generated/metadata";
 
 type Props = {
   article: Parser.Diary;
@@ -67,6 +69,13 @@ export default function Home(props: Props) {
           </chakra.h1>
           <Md mdast={props.article.ast} />
         </main>
+        <Footer
+          metadata={
+            metadata.diaries[
+              `articles/diary/${props.article.frontmatter.date}.md`
+            ]
+          }
+        />
       </chakra.div>
     </chakra.div>
   );
