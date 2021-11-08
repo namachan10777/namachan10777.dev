@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "node listup-article.mjs && next dev",
-    "build": "git fetch --all && node listup-article.mjs && next build",
+    "build": "git fetch --unshallow && node listup-article.mjs && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier -w **/*.ts **/*.tsx **/*.js **/*.mjs ",
