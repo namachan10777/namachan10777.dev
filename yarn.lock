@@ -5457,7 +5457,7 @@ __metadata:
     text-loader: 0.0.1
     typescript: 4.4.4
     unified: 10.1.0
-    xml-writer: ^1.7.0
+    xml-writer: 1.7.0
   languageName: unknown
   linkType: soft
 
@@ -7788,7 +7788,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-writer@npm:^1.7.0":
+"xml-writer@npm:1.7.0":
   version: 1.7.0
   resolution: "xml-writer@npm:1.7.0"
   checksum: 1d41f4efdd2fc8c92dea877b930fd6bb1fb44543c7459d28c64d514ef6a4a4bfddaef343939bc91b323503dc0293a2de2d2644df05d7b769a13e194b73391527
