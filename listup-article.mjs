@@ -1,5 +1,9 @@
 import glob from "glob";
 import fs from "fs";
+import { exec, execSync } from "child_process";
+import XMLWriter from "xml-writer";
+
+// TODO analyze frontmatter and create sitemap for tags
 
 const articles = {
   index: "articles/index.md",
@@ -31,23 +35,89 @@ function generateImport(varName, file) {
   return importStmt + "\n" + variable;
 }
 
+function generateArticleSource(articles) {
+  return [
+    "/* eslint camelcase: 0 */",
+    "/* eslint import/first: 0 */",
+    generateImports("blogs", articles.blogs),
+    generateImports("diaries", articles.diaries),
+    generateImport("index", articles.index),
+  ].join("\n");
+}
+
+function getLastUpdatedTime(path) {
+  return execSync(
+    `git log --date=iso --date=format:"%Y/%m/%d" --pretty=format:"%ad" -1 ${path}`
+  ).toString();
+}
+
+function getCreatedTime(path) {
+  return execSync(
+    `git log --date=iso --date=format:"%Y/%m/%d" --pretty=format:"%ad" ${path} | tail -n 1`
+  ).toString();
+}
+
+function compareDate(a, b) {
+  const splitedA = a.split("/");
+  const splitedB = b.split("/");
+  for (let i = 0; i < 3; ++i) {
+    if (splitedA[i] > splitedB[i]) {
+      return true;
+    } else if (splitedA[i] < splitedB[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function getIndexUpdatedTime(articles) {
+  let last = getCreatedTime(articles[0]);
+  for (let i = 0; i < articles.length; ++i) {
+    if (compareDate(getLastUpdatedTime(articles[i]), last)) {
+      last = getLastUpdatedTime(articles[i]);
+    }
+  }
+  return last;
+}
+
+function addPage(xml, path, date) {
+  xml.startElement("url");
+  xml.startElement("loc");
+  xml.text(`https://www.namachan10777.dev/${path}`);
+  xml.endElement();
+  xml.startElement("lastmod");
+  xml.text(date);
+  xml.endElement();
+  xml.endElement();
+}
+
+function generateSiteMap(articles) {
+  const xml = new XMLWriter();
+  xml.startDocument();
+  xml.startElement("urlset");
+  xml.writeAttribute("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9");
+  addPage(xml, "", getLastUpdatedTime(articles.index));
+  addPage(xml, "blog", getIndexUpdatedTime(articles.blogs));
+  addPage(xml, "diary", getIndexUpdatedTime(articles.diaries));
+  for (let i = 0; i < articles.blogs.length; ++i) {
+    addPage(xml, articles.blogs[i], getLastUpdatedTime(articles.blogs[i]));
+  }
+  for (let i = 0; i < articles.diaries.length; ++i) {
+    addPage(xml, articles.diaries[i], getLastUpdatedTime(articles.diaries[i]));
+  }
+  xml.endElement();
+  xml.endDocument();
+  return xml.toString();
+}
+
 export function generate() {
-  glob("articles/blog/*.md", (_, files) => {
-    articles.blogs = files;
-    glob("articles/diary/*.md", (_, files) => {
-      articles.diaries = files;
-      fs.writeFileSync(
-        "lib/generated/articles.ts",
-        [
-          "/* eslint camelcase: 0 */",
-          "/* eslint import/first: 0 */",
-          generateImports("blogs", articles.blogs),
-          generateImports("diaries", articles.diaries),
-          generateImport("index", articles.index),
-        ].join("\n")
-      );
-    });
-  });
+  articles.blogs = glob.sync("articles/blog/*.md");
+  articles.diaries = glob.sync("articles/diary/*.md");
+  fs.writeFileSync(
+    "lib/generated/articles.ts",
+    generateArticleSource(articles)
+  );
+  fs.writeFileSync("public/sitemap.xml", generateSiteMap(articles));
 }
 
 generate();

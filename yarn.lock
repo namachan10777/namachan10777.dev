@@ -5457,6 +5457,7 @@ __metadata:
     text-loader: 0.0.1
     typescript: 4.4.4
     unified: 10.1.0
+    xml-writer: ^1.7.0
   languageName: unknown
   linkType: soft
 
@@ -7784,6 +7785,13 @@ __metadata:
   version: 1.0.2
   resolution: "wrappy@npm:1.0.2"
   checksum: 159da4805f7e84a3d003d8841557196034155008f817172d4e986bd591f74aa82aa7db55929a54222309e01079a65a92a9e6414da5a6aa4b01ee44a511ac3ee5
+  languageName: node
+  linkType: hard
+
+"xml-writer@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "xml-writer@npm:1.7.0"
+  checksum: 1d41f4efdd2fc8c92dea877b930fd6bb1fb44543c7459d28c64d514ef6a4a4bfddaef343939bc91b323503dc0293a2de2d2644df05d7b769a13e194b73391527
   languageName: node
   linkType: hard
 

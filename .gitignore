@@ -7,6 +7,7 @@ elm.js
 !index.xhtml
 /.yarn/
 /lib/generated/
+public/sitemap.xml
 
 dist/*
 
