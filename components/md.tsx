@@ -1,10 +1,10 @@
-import * as Unist from "unist";
-import * as MdAst from "mdast";
-import * as React from "react";
 import { chakra, useColorModeValue } from "@chakra-ui/react";
+import * as MdAst from "mdast";
 import Image from "next/image";
 import Link from "next/link";
+import * as React from "react";
 import Refractor from "react-refractor";
+import * as Unist from "unist";
 
 export type Props = {
   mdast: MdAst.Root;

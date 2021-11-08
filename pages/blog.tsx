@@ -1,10 +1,11 @@
-import React from "react";
-import Head from "next/head";
-import Articles from "../lib/articles";
 import { chakra } from "@chakra-ui/react";
-import * as Parser from "../lib/parser";
-import NormalLink from "../components/normalLink";
+import Head from "next/head";
+import React from "react";
+
 import Header from "../components/header";
+import NormalLink from "../components/normalLink";
+import Articles from "../lib/articles";
+import * as Parser from "../lib/parser";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];

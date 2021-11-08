@@ -1,6 +1,6 @@
-import * as React from "react";
-import Link from "next/link";
 import { chakra, useColorModeValue } from "@chakra-ui/react";
+import Link from "next/link";
+import * as React from "react";
 
 export interface NormalLinkProps {
   href: string;

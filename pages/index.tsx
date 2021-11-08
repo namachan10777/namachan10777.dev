@@ -1,13 +1,14 @@
-import React from "react";
-import Head from "next/head";
-import Md from "../components/md";
-import * as MdAst from "mdast";
-import * as Parser from "../lib/parser";
-import index from "../articles/index.md";
 import { chakra } from "@chakra-ui/react";
-import Header from "../components/header";
+import * as MdAst from "mdast";
+import Head from "next/head";
+import React from "react";
+
+import index from "../articles/index.md";
 import Footer from "../components/footer";
+import Header from "../components/header";
+import Md from "../components/md";
 import metadata from "../lib/generated/metadata";
+import * as Parser from "../lib/parser";
 
 type Props = {
   mdast: MdAst.Root;

@@ -1,10 +1,11 @@
-import * as React from "react";
 import {
-  useColorMode,
   Button,
   chakra,
+  useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
+import * as React from "react";
+
 import NormalLink from "./normalLink";
 
 export type HeaderProps = {

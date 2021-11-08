@@ -1,6 +1,7 @@
+import { ListItem, UnorderedList, chakra } from "@chakra-ui/react";
 import * as React from "react";
+
 import { Metadata } from "../lib/generated/metadata";
-import { UnorderedList, ListItem, chakra } from "@chakra-ui/react";
 import NormalLink from "./normalLink";
 
 interface FooterProps {

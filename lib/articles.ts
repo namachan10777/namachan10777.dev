@@ -1,5 +1,5 @@
+import { blogs, diaries, index } from "./generated/articles";
 import { Article, Diary, parse, parseDiary } from "./parser";
-import { index, blogs, diaries } from "./generated/articles";
 
 export const rawArticles = {
   index,
