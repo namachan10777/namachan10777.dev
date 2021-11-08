@@ -4,6 +4,7 @@ import Articles from "../lib/articles";
 import * as Parser from "../lib/parser";
 import { chakra } from "@chakra-ui/react";
 import NormalLink from "../components/normalLink";
+import Header from "../components/header";
 
 export type Props = {
   frontmatters: Parser.DiaryFrontmatter[];
@@ -39,11 +40,12 @@ const Diary: React.FC<Props> = (props: Props) => {
         w="full"
         width={{ base: "90%", md: "60%" }}
       >
-        <header>
-          <NormalLink href="/" fontSize="lg">
-            namachan10777.dev
-          </NormalLink>
-        </header>
+        <Header
+          path={[
+            ["namachan10777.dev", "/"],
+            ["diary", "/diary"],
+          ]}
+        />
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
             Diary

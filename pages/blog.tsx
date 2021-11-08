@@ -4,6 +4,7 @@ import Articles from "../lib/articles";
 import { chakra } from "@chakra-ui/react";
 import * as Parser from "../lib/parser";
 import NormalLink from "../components/normalLink";
+import Header from "../components/header";
 
 export type Props = {
   frontmatters: Parser.Frontmatter[];
@@ -44,11 +45,12 @@ const Blog: React.FC<Props> = (props: Props) => {
         p={5}
         width={{ base: "90%", md: "60%" }}
       >
-        <header>
-          <NormalLink href="/" fontSize="lg">
-            namachan10777.dev
-          </NormalLink>
-        </header>
+        <Header
+          path={[
+            ["namachan10777.dev", "/"],
+            ["blog", "/blog"],
+          ]}
+        />
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={3}>
             Blog

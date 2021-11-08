@@ -5,6 +5,7 @@ import * as MdAst from "mdast";
 import * as Parser from "../lib/parser";
 import index from "../articles/index.md";
 import { chakra } from "@chakra-ui/react";
+import Header from "../components/header";
 
 type Props = {
   mdast: MdAst.Root;
@@ -47,6 +48,7 @@ export default function Home(props: Props) {
         fontSize={{ base: "md", md: "lg" }}
         width={{ base: "90%", md: "60%" }}
       >
+        <Header path={[["namachan10777.dev", "/"]]} />
         <Md mdast={props.mdast} />
       </chakra.main>
     </chakra.div>

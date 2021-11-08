@@ -6,6 +6,7 @@ import Articles from "../../lib/articles";
 import { GetStaticPropsContext } from "next";
 import { chakra } from "@chakra-ui/react";
 import NormalLink from "../../components/normalLink";
+import Header from "../../components/header";
 
 type Props = {
   article: Parser.Diary;
@@ -51,15 +52,16 @@ export default function Home(props: Props) {
         p={5}
         width={{ base: "90%", md: "60%" }}
       >
-        <header>
-          <NormalLink href="/" fontSize="lg">
-            namachan10777.dev
-          </NormalLink>{" "}
-          {">"}
-          <NormalLink href="/diary" fontSize="lg">
-            Diary
-          </NormalLink>
-        </header>
+        <Header
+          path={[
+            ["namachan10777.dev", "/"],
+            ["diary", "/diary"],
+            [
+              `${props.article.frontmatter.date}`,
+              `/diary/${props.article.frontmatter.date}`,
+            ],
+          ]}
+        />
         <main>
           <chakra.h1 fontSize="4xl" fontWeight="bold" m={4}>
             {props.article.frontmatter.date.toString()}
