@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ path }) => {
   const buttonFgColor = useColorModeValue("gray.100", "gray.800");
   return (
     <chakra.header display="flex" flexDir="row" justifyContent="space-between">
-      {navigation}
+      <chakra.span>{navigation}</chakra.span>
       <Button
         onClick={toggleColorMode}
         h={7}
