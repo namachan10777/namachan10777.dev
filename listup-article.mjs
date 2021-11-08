@@ -47,13 +47,13 @@ function generateArticleSource(articles) {
 
 function getLastUpdatedTime(path) {
   return execSync(
-    `git log --date=iso --date=format:"%Y/%m/%d" --pretty=format:"%ad" -1 ${path}`
+    `git log --date=iso --date=format:"%Y-%m-%d" --pretty=format:"%ad" -1 ${path}`
   ).toString();
 }
 
 function getCreatedTime(path) {
   return execSync(
-    `git log --date=iso --date=format:"%Y/%m/%d" --pretty=format:"%ad" ${path} | tail -n 1`
+    `git log --date=iso --date=format:"%Y-%m-%d" --pretty=format:"%ad" ${path} | tail -n 1`
   ).toString();
 }
 
