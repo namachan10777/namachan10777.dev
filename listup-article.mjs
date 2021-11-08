@@ -117,6 +117,18 @@ function addPage(xml, path, date) {
   xml.endElement();
 }
 
+const RANDOM_SEPARATOR = "'lbQ1lasdmA";
+
+function getDateAndHash(path) {
+  const dateAndHash = execSync(
+    `git log --date=iso --date=format:"%Y-%m-%d" --pretty=format:"%ad${RANDOM_SEPARATOR}%h${RANDOM_SEPARATOR}%s" ${path}`
+  ).toString();
+  return dateAndHash.split("\n").map((line) => {
+    const [date, hash, msg] = line.split(RANDOM_SEPARATOR);
+    return { date, hash, msg };
+  });
+}
+
 function generateSiteMap(articles) {
   const xml = new XMLWriter();
   xml.startDocument();
@@ -140,6 +152,45 @@ function generateSiteMap(articles) {
   return xml.toString();
 }
 
+function historyToJsSrc(hist) {
+  return (
+    "[" +
+    hist
+      .map(
+        (line) =>
+          `{date: "${line.date}", hash: "${line.hash}", msg: "${line.msg}"}`
+      )
+      .join(",") +
+    "]"
+  );
+}
+
+function historiesToJsSrc(histories) {
+  return (
+    "{" +
+    histories
+      .map((hist) => `"${hist[0]}": ${historyToJsSrc(hist[1])}`)
+      .join(",") +
+    "}"
+  );
+}
+
+function generateHistory(articles) {
+  const blogs = historiesToJsSrc(
+    articles.blogs.map((file) => [file, getDateAndHash(file)])
+  );
+  const diaries = historiesToJsSrc(
+    articles.diaries.map((file) => [file, getDateAndHash(file)])
+  );
+  const index = historyToJsSrc(getDateAndHash(articles.index));
+  const metadataTypeDef =
+    "export type Metadata = Array<{date: string,hash: string,msg: string}>;\n";
+  const exportTypeDef =
+    "{blogs: {[key: string]: Metadata}, diaries: {[key: string]: Metadata}, index: Metadata}";
+  const defStmt = `const metadata: ${exportTypeDef} = {blogs: ${blogs}, diaries: ${diaries}, index: ${index}};\n`;
+  return metadataTypeDef + defStmt + `export default metadata;`;
+}
+
 export function generate() {
   articles.blogs = glob.sync("articles/blog/*.md");
   articles.diaries = glob.sync("articles/diary/*.md");
@@ -148,6 +199,8 @@ export function generate() {
     generateArticleSource(articles)
   );
   fs.writeFileSync("public/sitemap.xml", generateSiteMap(articles));
+  fs.writeFileSync("lib/generated/metadata.ts", generateHistory(articles));
+  execSync(`npx prettier -w lib/generated/metadata.ts`);
 }
 
 generate();

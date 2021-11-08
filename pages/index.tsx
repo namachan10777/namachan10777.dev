@@ -6,6 +6,8 @@ import * as Parser from "../lib/parser";
 import index from "../articles/index.md";
 import { chakra } from "@chakra-ui/react";
 import Header from "../components/header";
+import Footer from "../components/footer";
+import metadata from "../lib/generated/metadata";
 
 type Props = {
   mdast: MdAst.Root;
@@ -50,6 +52,7 @@ export default function Home(props: Props) {
       >
         <Header path={[["namachan10777.dev", "/"]]} />
         <Md mdast={props.mdast} />
+        <Footer metadata={metadata.index}></Footer>
       </chakra.main>
     </chakra.div>
   );
