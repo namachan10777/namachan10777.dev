@@ -4,7 +4,7 @@ module.exports = {
   "trailingComma": "es5",
   "singleQuote": false,
   "semi": true,
-  "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  //"importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+  //"importOrderSeparation": true,
+  //"importOrderSortSpecifiers": true
 }
