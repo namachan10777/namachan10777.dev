@@ -2,6 +2,11 @@ import glob from "glob";
 import fs from "fs";
 import { exec, execSync } from "child_process";
 import XMLWriter from "xml-writer";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkFrontmatter from "remark-frontmatter";
+import Yaml from "js-yaml";
 
 // TODO analyze frontmatter and create sitemap for tags
 
@@ -80,6 +85,27 @@ function getIndexUpdatedTime(articles) {
   return last;
 }
 
+function getTags(blogs) {
+  const tags = {};
+  for (let i = 0; i < blogs.length; ++i) {
+    const src = fs.readFileSync(blogs[i], "utf-8");
+    const md = unified()
+      .use(remarkParse)
+      .use(remarkFrontmatter, ["yaml"])
+      .use(remarkGfm)
+      .parse(src);
+    const yaml = Yaml.load(md.children[0].value);
+    for (let j = 0; j < yaml.category.length; ++j) {
+      if (tags[yaml.category[j]] === undefined) {
+        tags[yaml.category[j]] = [blogs[i]];
+      } else {
+        tags[yaml.category[j]].push(blogs[i]);
+      }
+    }
+  }
+  return tags;
+}
+
 function addPage(xml, path, date) {
   xml.startElement("url");
   xml.startElement("loc");
@@ -104,6 +130,10 @@ function generateSiteMap(articles) {
   }
   for (let i = 0; i < articles.diaries.length; ++i) {
     addPage(xml, articles.diaries[i], getLastUpdatedTime(articles.diaries[i]));
+  }
+  const tags = getTags(articles.blogs);
+  for (const tag in tags) {
+    addPage(xml, `tag/${tag}`, getIndexUpdatedTime(tags[tag]));
   }
   xml.endElement();
   xml.endDocument();
