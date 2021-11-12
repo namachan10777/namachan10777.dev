@@ -10,7 +10,7 @@
     "check-format": "prettier --check **/*.ts **/*.tsx **/*.js **/*.mjs"
   },
   "dependencies": {
-    "@chakra-ui/react": "1.7.0",
+    "@chakra-ui/react": "1.7.1",
     "@emotion/react": "11.5.0",
     "@emotion/styled": "11.3.0",
     "framer-motion": "4.1.17",
