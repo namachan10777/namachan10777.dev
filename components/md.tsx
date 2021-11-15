@@ -5,8 +5,8 @@ import Link from "next/link";
 import * as React from "react";
 import Refractor from "react-refractor";
 import * as Unist from "unist";
-import js from 'refractor/lang/javascript';
-import sh from 'refractor/lang/bash';
+import js from "refractor/lang/javascript";
+import sh from "refractor/lang/bash";
 
 export type Props = {
   mdast: MdAst.Root;
