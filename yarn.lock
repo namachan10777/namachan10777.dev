@@ -5538,7 +5538,7 @@ __metadata:
     react: 17.0.2
     react-dom: 17.0.2
     react-refractor: 2.1.5
-    refractor: ^4.2.2
+    refractor: 4.2.2
     remark-frontmatter: 4.0.1
     remark-gfm: 3.0.1
     remark-parse: 10.0.0
@@ -6546,18 +6546,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"refractor@npm:^3.3.0":
-  version: 3.5.0
-  resolution: "refractor@npm:3.5.0"
-  dependencies:
-    hastscript: ^6.0.0
-    parse-entities: ^2.0.0
-    prismjs: ~1.25.0
-  checksum: e8e8bfe8fc035fb6b0a9427ba19abbd2ec1ad78197dcb0027fca95c94fa046ed14f253682b2dcee42e87591300c9237924714ccddf18173a21a18622521a20b7
-  languageName: node
-  linkType: hard
-
-"refractor@npm:^4.2.2":
+"refractor@npm:4.2.2":
   version: 4.2.2
   resolution: "refractor@npm:4.2.2"
   dependencies:
@@ -6567,6 +6556,17 @@ __metadata:
     parse-entities: ^3.0.0
     prismjs: ~1.25.0
   checksum: 0e5f1476ab9273a290589d8c448d63e59344139ed5be0035ac04da28d57b29ca59d8b47ac4f8d8c4bc8721918ed8bada529c681e00053ab0e0103fc0073797dd
+  languageName: node
+  linkType: hard
+
+"refractor@npm:^3.3.0":
+  version: 3.5.0
+  resolution: "refractor@npm:3.5.0"
+  dependencies:
+    hastscript: ^6.0.0
+    parse-entities: ^2.0.0
+    prismjs: ~1.25.0
+  checksum: e8e8bfe8fc035fb6b0a9427ba19abbd2ec1ad78197dcb0027fca95c94fa046ed14f253682b2dcee42e87591300c9237924714ccddf18173a21a18622521a20b7
   languageName: node
   linkType: hard
 
