@@ -5541,9 +5541,9 @@ __metadata:
     refractor: 4.2.2
     remark-frontmatter: 4.0.1
     remark-gfm: 3.0.1
-    remark-parse: 10.0.0
+    remark-parse: 10.0.1
     remark-rehype: 10.0.1
-    remark-stringify: 10.0.1
+    remark-stringify: 10.0.2
     sharp: 0.29.3
     text-loader: 0.0.1
     typescript: 4.5.2
@@ -6625,14 +6625,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-parse@npm:10.0.0":
-  version: 10.0.0
-  resolution: "remark-parse@npm:10.0.0"
+"remark-parse@npm:10.0.1":
+  version: 10.0.1
+  resolution: "remark-parse@npm:10.0.1"
   dependencies:
     "@types/mdast": ^3.0.0
     mdast-util-from-markdown: ^1.0.0
     unified: ^10.0.0
-  checksum: cebd0d8f95b7b0b827277773ddafd05d295a450a2a712f085ccedad2572678712785869b7a0dea53c215f124c22dad5b5247c29d461729933565ed7b5f262e6d
+  checksum: 505088e564ab53ff054433368adbb7b551f69240c7d9768975529837a86f1d0f085e72d6211929c5c42db315273df4afc94f3d3a8662ffdb69468534c6643d29
   languageName: node
   linkType: hard
 
@@ -6648,14 +6648,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-stringify@npm:10.0.1":
-  version: 10.0.1
-  resolution: "remark-stringify@npm:10.0.1"
+"remark-stringify@npm:10.0.2":
+  version: 10.0.2
+  resolution: "remark-stringify@npm:10.0.2"
   dependencies:
     "@types/mdast": ^3.0.0
     mdast-util-to-markdown: ^1.0.0
     unified: ^10.0.0
-  checksum: 984f0ad3bb3e6143295b457739e762a02c9dd4c8e27c25f7fef7ae13e269af239f858b0a1c6d8767d01b49894f2329cb6028964e3446186fcb977170187602b2
+  checksum: 25424201e698353f6c0afc9ec29a8cac1dac8c06750d92214e3216bd76ac37902a0ba3702ac2a11c1040938a667b3bc22d6949af1d35e8fc81a3572643cdc263
   languageName: node
   linkType: hard
 
