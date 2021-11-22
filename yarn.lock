@@ -2786,6 +2786,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"decode-named-character-reference@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "decode-named-character-reference@npm:1.0.0"
+  dependencies:
+    character-entities: ^2.0.0
+  checksum: cb48c0a2b343b54d96944221374c2815a722945ae2db38edfbca2511f74061e37a81dc8aaf4dcf66c4ee01cb91242e656ef391d3bd589f82ac1f5c951e4ed9a3
+  languageName: node
+  linkType: hard
+
 "decompress-response@npm:^6.0.0":
   version: 6.0.0
   resolution: "decompress-response@npm:6.0.0"
@@ -5538,7 +5547,7 @@ __metadata:
     react: 17.0.2
     react-dom: 17.0.2
     react-refractor: 2.1.5
-    refractor: 4.2.2
+    refractor: 4.3.0
     remark-frontmatter: 4.0.1
     remark-gfm: 3.0.1
     remark-parse: 10.0.1
@@ -6025,6 +6034,22 @@ __metadata:
     is-decimal: ^2.0.0
     is-hexadecimal: ^2.0.0
   checksum: 6986b75052d4ce79cfb422650dfc9bbc2e3c18f25980fa97b764b927156a6dc7d7a9c592f98fec0279522109575beb67a98a6fb533edfbf102f887e02489ca4e
+  languageName: node
+  linkType: hard
+
+"parse-entities@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "parse-entities@npm:4.0.0"
+  dependencies:
+    "@types/unist": ^2.0.0
+    character-entities: ^2.0.0
+    character-entities-legacy: ^3.0.0
+    character-reference-invalid: ^2.0.0
+    decode-named-character-reference: ^1.0.0
+    is-alphanumerical: ^2.0.0
+    is-decimal: ^2.0.0
+    is-hexadecimal: ^2.0.0
+  checksum: cd9fa53bc056ad8cf8a45494bfd7ce65e8bf6f1b12dcc9a6343376fa529c2012041303c5d0f86babf70afbd13b71c2f219fc3a76fb97d9d559b66578e19cdaf0
   languageName: node
   linkType: hard
 
@@ -6546,16 +6571,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"refractor@npm:4.2.2":
-  version: 4.2.2
-  resolution: "refractor@npm:4.2.2"
+"refractor@npm:4.3.0":
+  version: 4.3.0
+  resolution: "refractor@npm:4.3.0"
   dependencies:
     "@types/hast": ^2.0.0
     "@types/prismjs": ^1.0.0
     hastscript: ^7.0.0
-    parse-entities: ^3.0.0
+    parse-entities: ^4.0.0
     prismjs: ~1.25.0
-  checksum: 0e5f1476ab9273a290589d8c448d63e59344139ed5be0035ac04da28d57b29ca59d8b47ac4f8d8c4bc8721918ed8bada529c681e00053ab0e0103fc0073797dd
+  checksum: e9dbe1e68ee49499efae96c354bb7b2f4267b37609381e2898a5998e97a05467776f7c0356c5ba7d384cb6cd98df91291ff7a9273688547b5da799086935c49d
   languageName: node
   linkType: hard
 
