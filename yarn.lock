@@ -1201,10 +1201,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/env@npm:12.0.5"
-  checksum: 6bdb4a893a56ce624be312613629e8d5a40a713e2dec9ee237682a44051f755232f6e9a4a379ba2bb5e955a7b98488aadb2ad746a70ad8458fd01b3dc836e8d1
+"@next/env@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/env@npm:12.0.6"
+  checksum: 982607ab1c446b22cb9539d8a65b2e23cfe5e6c54a22a59a13b875c35036955ab4ab0c1ec2cf7e264ed6c50078dbc278363c6c69a9bd066fb9562a2d374aeee5
   languageName: node
   linkType: hard
 
@@ -1217,16 +1217,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/polyfill-module@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/polyfill-module@npm:12.0.5"
-  checksum: 3e0d52af231c6605d2e40a6c25ca1f9d014f71287577e120e47cc8d7c9ec6b14f8d0841d26c2dc1bc045c8e90538e4a1be02e90e9d3d818a7a44921d434c15fe
+"@next/polyfill-module@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/polyfill-module@npm:12.0.6"
+  checksum: f1b116b9685431e3474243c2a02cf8b67187eefcce4c5094e1eaab5dae850b45f3c816d3170efd7988f46284b986adeae5514c590313f5932dd6187fb58ee773
   languageName: node
   linkType: hard
 
-"@next/react-dev-overlay@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/react-dev-overlay@npm:12.0.5"
+"@next/react-dev-overlay@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/react-dev-overlay@npm:12.0.6"
   dependencies:
     "@babel/code-frame": 7.12.11
     anser: 1.4.9
@@ -1246,96 +1246,96 @@ __metadata:
   peerDependenciesMeta:
     webpack:
       optional: true
-  checksum: cc40a53b1b6a65c4f5d13cb92513b605a68910df2e479b149a49ee159325e776369f8f53fd961f02c3769d4478ff473a6bb380b6ff3f07448d9e91fa1dd1998a
+  checksum: 9189ae8a31f1fbabc08cccef83da9048582cf117ff32a96fa99d5bcea4b8b7e5e984710d4f9bbcd998ddd9eb5e45c887735ea3454bc62970c20d979c9cc6c2ed
   languageName: node
   linkType: hard
 
-"@next/react-refresh-utils@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/react-refresh-utils@npm:12.0.5"
+"@next/react-refresh-utils@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/react-refresh-utils@npm:12.0.6"
   peerDependencies:
     react-refresh: 0.8.3
     webpack: ^4 || ^5
   peerDependenciesMeta:
     webpack:
       optional: true
-  checksum: 512ac59186a3004485f84045d25e309516caf2118643e8bb854c3249cff45538c3f3ee3801ee698977c55967ae77813e1341a46132d4d7c15a5237ac273539b8
+  checksum: cc479e6761ec2010a0403d6b67b1403d2305edc797c45016d46ea0fc999ae0534fa2a8453b29220511ae308137eb1bf7b9b72eacac551978399acf5c689284d5
   languageName: node
   linkType: hard
 
-"@next/swc-android-arm64@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-android-arm64@npm:12.0.5"
+"@next/swc-android-arm64@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-android-arm64@npm:12.0.6"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-darwin-arm64@npm:12.0.5"
+"@next/swc-darwin-arm64@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-darwin-arm64@npm:12.0.6"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-darwin-x64@npm:12.0.5"
+"@next/swc-darwin-x64@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-darwin-x64@npm:12.0.6"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm-gnueabihf@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-linux-arm-gnueabihf@npm:12.0.5"
+"@next/swc-linux-arm-gnueabihf@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-linux-arm-gnueabihf@npm:12.0.6"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-linux-arm64-gnu@npm:12.0.5"
+"@next/swc-linux-arm64-gnu@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-linux-arm64-gnu@npm:12.0.6"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-linux-arm64-musl@npm:12.0.5"
+"@next/swc-linux-arm64-musl@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-linux-arm64-musl@npm:12.0.6"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-linux-x64-gnu@npm:12.0.5"
+"@next/swc-linux-x64-gnu@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-linux-x64-gnu@npm:12.0.6"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-linux-x64-musl@npm:12.0.5"
+"@next/swc-linux-x64-musl@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-linux-x64-musl@npm:12.0.6"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-win32-arm64-msvc@npm:12.0.5"
+"@next/swc-win32-arm64-msvc@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-win32-arm64-msvc@npm:12.0.6"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-win32-ia32-msvc@npm:12.0.5"
+"@next/swc-win32-ia32-msvc@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-win32-ia32-msvc@npm:12.0.6"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:12.0.5":
-  version: 12.0.5
-  resolution: "@next/swc-win32-x64-msvc@npm:12.0.5"
+"@next/swc-win32-x64-msvc@npm:12.0.6":
+  version: 12.0.6
+  resolution: "@next/swc-win32-x64-msvc@npm:12.0.6"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -5443,7 +5443,7 @@ __metadata:
     eslint-plugin-react: 7.27.1
     framer-motion: 4.1.17
     js-yaml: 4.1.0
-    next: 12.0.5
+    next: 12.0.6
     prettier: 2.5.1
     react: 17.0.2
     react-dom: 17.0.2
@@ -5492,28 +5492,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:12.0.5":
-  version: 12.0.5
-  resolution: "next@npm:12.0.5"
+"next@npm:12.0.6":
+  version: 12.0.6
+  resolution: "next@npm:12.0.6"
   dependencies:
     "@babel/runtime": 7.15.4
     "@hapi/accept": 5.0.2
     "@napi-rs/triples": 1.0.3
-    "@next/env": 12.0.5
-    "@next/polyfill-module": 12.0.5
-    "@next/react-dev-overlay": 12.0.5
-    "@next/react-refresh-utils": 12.0.5
-    "@next/swc-android-arm64": 12.0.5
-    "@next/swc-darwin-arm64": 12.0.5
-    "@next/swc-darwin-x64": 12.0.5
-    "@next/swc-linux-arm-gnueabihf": 12.0.5
-    "@next/swc-linux-arm64-gnu": 12.0.5
-    "@next/swc-linux-arm64-musl": 12.0.5
-    "@next/swc-linux-x64-gnu": 12.0.5
-    "@next/swc-linux-x64-musl": 12.0.5
-    "@next/swc-win32-arm64-msvc": 12.0.5
-    "@next/swc-win32-ia32-msvc": 12.0.5
-    "@next/swc-win32-x64-msvc": 12.0.5
+    "@next/env": 12.0.6
+    "@next/polyfill-module": 12.0.6
+    "@next/react-dev-overlay": 12.0.6
+    "@next/react-refresh-utils": 12.0.6
+    "@next/swc-android-arm64": 12.0.6
+    "@next/swc-darwin-arm64": 12.0.6
+    "@next/swc-darwin-x64": 12.0.6
+    "@next/swc-linux-arm-gnueabihf": 12.0.6
+    "@next/swc-linux-arm64-gnu": 12.0.6
+    "@next/swc-linux-arm64-musl": 12.0.6
+    "@next/swc-linux-x64-gnu": 12.0.6
+    "@next/swc-linux-x64-musl": 12.0.6
+    "@next/swc-win32-arm64-msvc": 12.0.6
+    "@next/swc-win32-ia32-msvc": 12.0.6
+    "@next/swc-win32-x64-msvc": 12.0.6
     acorn: 8.5.0
     assert: 2.0.0
     browserify-zlib: 0.2.0
@@ -5594,7 +5594,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 616235e3941bc6071847a6f34a466cf03aedfec6c64c13ac1ea57775fa9bf0b2188e53fdec4a0c0d33f14be894f53721f9866ea0baa1bea7c6ca555b1223d652
+  checksum: 04d4fc5e01310b75b831889de52a52ae23712b7be1c0b1d9c238d51c3bb6e4a997909fbefd532454f24d5e62a47fdf13a6330b3aa6b9f164597874927c176ef0
   languageName: node
   linkType: hard
 
