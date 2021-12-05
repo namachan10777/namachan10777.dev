@@ -29,6 +29,6 @@ jobs:
         version: 6.23.6
     - run: npm i -g pnpm
     - run: pnpm install
-    - run: pnpm run build
     - run: pnpm run check-format
+    - run: pnpm run build
     - run: test -z "$(git diff)"
