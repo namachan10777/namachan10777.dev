@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "node listup-article.mjs && next dev",
+    "prebuild": "node listup-article.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
