@@ -27,4 +27,3 @@ jobs:
     - run: pnpm run check-format
     - run: pnpm run prebuild
     - run: pnpm run build
-    - run: test -z "$(git diff)"
