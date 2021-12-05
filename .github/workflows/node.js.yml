@@ -24,11 +24,9 @@ jobs:
           node_modules
           .yarn
         key: node-v1-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+    - uses: pnpm/action-setup@v2.0.1
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        version: 6.23.6
     - run: npm i -g pnpm
     - run: pnpm install
     - run: pnpm run build
