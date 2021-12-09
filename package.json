@@ -11,7 +11,7 @@
     "check-format": "prettier --check **/*.ts **/*.tsx **/*.js **/*.mjs"
   },
   "dependencies": {
-    "@chakra-ui/react": "1.7.2",
+    "@chakra-ui/react": "1.7.3",
     "@emotion/react": "11.7.0",
     "@emotion/styled": "11.6.0",
     "framer-motion": "4.1.17",
