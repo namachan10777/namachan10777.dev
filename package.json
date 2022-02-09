@@ -48,7 +48,7 @@
     "eslint-plugin-promise": "6.0.0",
     "eslint-plugin-react": "7.28.0",
     "prettier": "2.5.1",
-    "sharp": "0.30.0",
+    "sharp": "0.30.1",
     "text-loader": "0.0.1",
     "typescript": "4.5.5",
     "xml-writer": "1.7.0"
