@@ -14,7 +14,7 @@ specifiers:
   '@typescript-eslint/parser': 5.13.0
   eslint: 8.10.0
   eslint-config-next: 12.1.0
-  eslint-config-prettier: 8.4.0
+  eslint-config-prettier: 8.5.0
   eslint-config-standard: 16.0.3
   eslint-import-resolver-node: 0.3.6
   eslint-plugin-import: 2.25.4
@@ -71,7 +71,7 @@ devDependencies:
   '@typescript-eslint/parser': 5.13.0_eslint@8.10.0+typescript@4.6.2
   eslint: 8.10.0
   eslint-config-next: 12.1.0_91b99ef72d19920d7e6dded71447bf77
-  eslint-config-prettier: 8.4.0_eslint@8.10.0
+  eslint-config-prettier: 8.5.0_eslint@8.10.0
   eslint-config-standard: 16.0.3_8f50d7c1b6c57306b9c9430e4ac9cf2e
   eslint-import-resolver-node: 0.3.6
   eslint-plugin-import: 2.25.4_eslint@8.10.0
@@ -2021,8 +2021,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-config-prettier/8.4.0_eslint@8.10.0:
-    resolution: {integrity: sha512-CFotdUcMY18nGRo5KGsnNxpznzhkopOcOo0InID+sgQssPrzjvsyKZPvOgymTFeHrFuC3Tzdf2YndhXtULK9Iw==}
+  /eslint-config-prettier/8.5.0_eslint@8.10.0:
+    resolution: {integrity: sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
