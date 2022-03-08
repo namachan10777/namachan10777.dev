@@ -38,7 +38,7 @@ specifiers:
   sharp: 0.30.2
   text-loader: 0.0.1
   typescript: 4.6.2
-  unified: 10.1.1
+  unified: 10.1.2
   xml-writer: 1.7.0
 
 dependencies:
@@ -58,7 +58,7 @@ dependencies:
   remark-parse: 10.0.1
   remark-rehype: 10.1.0
   remark-stringify: 10.0.2
-  unified: 10.1.1
+  unified: 10.1.2
 
 devDependencies:
   '@next/eslint-plugin-next': 12.1.0
@@ -3898,7 +3898,7 @@ packages:
       '@types/mdast': 3.0.10
       mdast-util-frontmatter: 1.0.0
       micromark-extension-frontmatter: 1.0.0
-      unified: 10.1.1
+      unified: 10.1.2
     dev: false
 
   /remark-gfm/3.0.1:
@@ -3907,7 +3907,7 @@ packages:
       '@types/mdast': 3.0.10
       mdast-util-gfm: 2.0.0
       micromark-extension-gfm: 2.0.0
-      unified: 10.1.1
+      unified: 10.1.2
     dev: false
 
   /remark-parse/10.0.1:
@@ -3915,7 +3915,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.10
       mdast-util-from-markdown: 1.2.0
-      unified: 10.1.1
+      unified: 10.1.2
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3926,7 +3926,7 @@ packages:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
       mdast-util-to-hast: 12.1.0
-      unified: 10.1.1
+      unified: 10.1.2
     dev: false
 
   /remark-stringify/10.0.2:
@@ -3934,7 +3934,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.10
       mdast-util-to-markdown: 1.2.6
-      unified: 10.1.1
+      unified: 10.1.2
     dev: false
 
   /resolve-from/4.0.0:
@@ -4324,8 +4324,8 @@ packages:
       which-boxed-primitive: 1.0.2
     dev: true
 
-  /unified/10.1.1:
-    resolution: {integrity: sha512-v4ky1+6BN9X3pQrOdkFIPWAaeDsHPE1svRDxq7YpTc2plkIqFMwukfqM+l0ewpP9EfwARlt9pPFAeWYhHm8X9w==}
+  /unified/10.1.2:
+    resolution: {integrity: sha512-pUSWAi/RAnVy1Pif2kAoeWNBa3JVrx0MId2LASj8G+7AiHWoKZNTomq6LG326T68U7/e263X6fTdcXIy7XnF7Q==}
     dependencies:
       '@types/unist': 2.0.6
       bail: 2.0.2
