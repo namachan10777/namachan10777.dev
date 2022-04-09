@@ -28,7 +28,7 @@ specifiers:
   prettier: 2.6.2
   react: 17.0.2
   react-dom: 17.0.2
-  react-refractor: 2.1.6
+  react-refractor: 2.1.7
   refractor: 4.5.0
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
@@ -51,7 +51,7 @@ dependencies:
   next: 12.1.4_react-dom@17.0.2+react@17.0.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
-  react-refractor: 2.1.6_react@17.0.2
+  react-refractor: 2.1.7_react@17.0.2
   refractor: 4.5.0
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
@@ -3896,8 +3896,8 @@ packages:
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
-  /react-refractor/2.1.6_react@17.0.2:
-    resolution: {integrity: sha512-8TwzzzucB38YApaT6A5VEeNJ8e5Zr1CH+JHnsu9gTiNaiavceNeV8BlLSGoCRnkbK6ZRbpsZ72A1Z2YR86jBpw==}
+  /react-refractor/2.1.7_react@17.0.2:
+    resolution: {integrity: sha512-avNxSSsnjYg+BKpO8LVCK14KRn5pLZ+8DInMiUEeZPL6hs0SN0zafl3mJIxavGQPKyihqbXqzq4CYNflJQjaaw==}
     peerDependencies:
       react: '>=15.0.0'
     dependencies:
