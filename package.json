@@ -50,7 +50,7 @@
     "prettier": "2.6.2",
     "sharp": "0.30.4",
     "text-loader": "0.0.1",
-    "typescript": "4.6.3",
+    "typescript": "4.6.4",
     "xml-writer": "1.7.0"
   }
 }
