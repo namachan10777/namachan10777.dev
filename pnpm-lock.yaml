@@ -22,7 +22,7 @@ specifiers:
   eslint-plugin-promise: 6.0.0
   eslint-plugin-react: 7.29.4
   framer-motion: 6.3.3
-  glob: 7.2.0
+  glob: 7.2.2
   js-yaml: 4.1.0
   next: 12.1.6
   prettier: 2.6.2
@@ -46,7 +46,7 @@ dependencies:
   '@emotion/react': 11.9.0_3df41e700a554c2356b362be396a0af4
   '@emotion/styled': 11.8.1_31d80bc91c74ae0a9661f552e3e346b1
   framer-motion: 6.3.3_react-dom@17.0.2+react@17.0.2
-  glob: 7.2.0
+  glob: 7.2.2
   js-yaml: 4.1.0
   next: 12.1.6_react-dom@17.0.2+react@17.0.2
   react: 17.0.2
@@ -2096,7 +2096,7 @@ packages:
       debug: 4.3.4
       eslint: 8.15.0
       eslint-plugin-import: 2.26.0_4ed8263ddf733b35ce1fff5683d50a0f
-      glob: 7.2.0
+      glob: 7.2.2
       is-glob: 4.0.3
       resolve: 1.22.0
       tsconfig-paths: 3.14.1
@@ -2636,13 +2636,13 @@ packages:
       path-is-absolute: 1.0.1
     dev: true
 
-  /glob/7.2.0:
-    resolution: {integrity: sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==}
+  /glob/7.2.2:
+    resolution: {integrity: sha512-NzDgHDiJwKYByLrL5lONmQFpK/2G78SMMfo+E9CuGlX4IkvfKDsiQSNPwAYxEy+e6p7ZQ3uslSLlwlJcqezBmQ==}
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -3461,12 +3461,12 @@ packages:
     resolution: {integrity: sha512-yJHVQEhyqPLUTgt9B83PXu6W3rx4MvvHvSUvToogpwoGDOUQ+yDrR0HRot+yOCdCO7u4hX3pWft6kWBBcqh0UA==}
     dependencies:
       brace-expansion: 1.1.11
+    dev: true
 
   /minimatch/3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
       brace-expansion: 1.1.11
-    dev: true
 
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
@@ -4086,7 +4086,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.2.0
+      glob: 7.2.2
     dev: true
 
   /run-parallel/1.2.0:
