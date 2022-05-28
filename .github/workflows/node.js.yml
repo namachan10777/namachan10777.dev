@@ -19,7 +19,7 @@ jobs:
           node_modules
           .yarn
         key: node-v1-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
-    - uses: pnpm/action-setup@v2.2.1
+    - uses: pnpm/action-setup@v2.2.2
       with:
         version: 6.23.6
     - run: npm i -g pnpm
