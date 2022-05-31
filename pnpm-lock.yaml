@@ -7,7 +7,7 @@ specifiers:
   '@next/eslint-plugin-next': 12.1.6
   '@types/js-yaml': 4.0.5
   '@types/mdast': 3.0.10
-  '@types/node': 16.11.36
+  '@types/node': 16.11.38
   '@types/react': 17.0.45
   '@types/unist': 2.0.6
   '@typescript-eslint/eslint-plugin': 5.27.0
@@ -64,7 +64,7 @@ devDependencies:
   '@next/eslint-plugin-next': 12.1.6
   '@types/js-yaml': 4.0.5
   '@types/mdast': 3.0.10
-  '@types/node': 16.11.36
+  '@types/node': 16.11.38
   '@types/react': 17.0.45
   '@types/unist': 2.0.6
   '@typescript-eslint/eslint-plugin': 5.27.0_1cb21ecc3f04eca4a509631d5e40e8fa
@@ -1330,8 +1330,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: false
 
-  /@types/node/16.11.36:
-    resolution: {integrity: sha512-FR5QJe+TaoZ2GsMHkjuwoNabr+UrJNRr2HNOo+r/7vhcuntM6Ee/pRPOnRhhL2XE9OOvX9VLEq+BcXl3VjNoWA==}
+  /@types/node/16.11.38:
+    resolution: {integrity: sha512-hjO/0K140An3GWDw2HJfq7gko3wWeznbjXgg+rzPdVzhe198hp4x2i1dgveAOEiFKd8sOilAxzoSJiVv5P/CUg==}
     dev: true
 
   /@types/parse-json/4.0.0:
