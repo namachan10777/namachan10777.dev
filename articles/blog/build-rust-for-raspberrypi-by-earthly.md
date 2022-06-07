@@ -1,7 +1,7 @@
 ---
 title: EarthlyでRaspberryPi向けにビルドする
 name: build-rust-for-raspberry-pi-earthly
-categoly: ["tech"]
+category: ["tech"]
 ---
 
 RaspberryPi向けのビルドとなると依存管理とかが面倒なのでmuslを使いたい。
