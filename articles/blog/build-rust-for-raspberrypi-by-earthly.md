@@ -1,6 +1,6 @@
 ---
-title: EarthlyでRaspberryPi向けにビルドする
-name: build-rust-for-raspberry-pi-earthly
+title: "EarthlyでRaspberryPi向けにビルドする"
+name: "build-rust-for-raspberry-pi-earthly"
 category: ["tech"]
 ---
 
@@ -22,7 +22,7 @@ Rustをビルドする時はからの`main.rs`を作成してビルドしてか�
 `FROM`文で`aarch64`向けのイメージのDigestを指定してクロスコンパイルさせている。この例だとバイナリをそのまま出しているが、
 大抵の場合はここからDockerイメージをビルドするだろう。
 
-```earthly
+```text
 VERSION 0.6
 FROM rust:latest@sha256:97fa23369c500e6b41bf9091b4af614e6728498c81a0c1717c73480085eefb9e
 WORKDIR /work
