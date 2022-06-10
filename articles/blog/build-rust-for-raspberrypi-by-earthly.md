@@ -1,6 +1,6 @@
 ---
 title: "EarthlyでRaspberryPi向けにビルドする"
-name: "build-rust-for-raspberry-pi-earthly"
+name: "build-rust-for-raspberrypi-by-earthly"
 category: ["tech"]
 ---
 

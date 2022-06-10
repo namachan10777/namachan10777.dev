@@ -9,6 +9,7 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = (props) => {
+  console.log(props);
   return (
     <chakra.footer>
       <chakra.h2 fontSize="xl" fontWeight="bold">
