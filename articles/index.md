@@ -46,6 +46,8 @@ title: "namachan10777"
 * `2020-08` 株式会社はてな サマーインターン
 * `2020-09` 株式会社ACCESS 2day インターン
 * `2021-03` クックパッド株式会社 spring internship 最優秀賞
+* `2021-09` クックパッド株式会社 就業型インターン(SRE) (現在退職)
+* `2021-12` Taiwan Now! 蘭の舟ロボット製作（制御、電源回路、通信）
 
 ## Projects
 
@@ -54,6 +56,11 @@ title: "namachan10777"
   * https://opam.ocaml.org/packages/scad_ml/
 * [`dotman`](https://github.com/namachan10777/dotman)
   * Dotfiles manager like ansible
+
+## Works
+
+* [Taiwan Now! 蘭の舟](https://taiwannow.org/jp/program?id=10)
+  * 舞台上で演者を乗せて動くロボットの基板、制御ソフトウェアを担当
 
 ## Papers
 
