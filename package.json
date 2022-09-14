@@ -30,7 +30,7 @@
     "unified": "10.1.2"
   },
   "devDependencies": {
-    "@babel/core": "7",
+    "@babel/core": "7.19.1",
     "@next/eslint-plugin-next": "12.1.6",
     "@types/js-yaml": "4.0.5",
     "@types/mdast": "3.0.10",
