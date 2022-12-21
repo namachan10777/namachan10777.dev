@@ -46,7 +46,7 @@
     "eslint-import-resolver-node": "0.3.6",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "6.0.0",
+    "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.30.0",
     "prettier": "2.6.2",
     "sharp": "0.30.6",
