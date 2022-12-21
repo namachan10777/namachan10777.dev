@@ -20,7 +20,7 @@ specifiers:
   eslint-import-resolver-node: 0.3.6
   eslint-plugin-import: 2.26.0
   eslint-plugin-node: 11.1.0
-  eslint-plugin-promise: 6.0.0
+  eslint-plugin-promise: 6.1.1
   eslint-plugin-react: 7.30.0
   framer-motion: 6.5.1
   glob: 8.0.3
@@ -74,11 +74,11 @@ devDependencies:
   eslint: 8.30.0
   eslint-config-next: 12.1.6_jf5mlqrou3qhxl2xkgdjklzvsi
   eslint-config-prettier: 8.5.0_eslint@8.30.0
-  eslint-config-standard: 17.0.0_gtyww73cze5b2l4m3pnz6373qu
+  eslint-config-standard: 17.0.0_74x72jf5rlpnctbcmupcxvrrrm
   eslint-import-resolver-node: 0.3.6
   eslint-plugin-import: 2.26.0_j54p5ah76ovfxykzbj7jfhne7y
   eslint-plugin-node: 11.1.0_eslint@8.30.0
-  eslint-plugin-promise: 6.0.0_eslint@8.30.0
+  eslint-plugin-promise: 6.1.1_eslint@8.30.0
   eslint-plugin-react: 7.30.0_eslint@8.30.0
   prettier: 2.6.2
   sharp: 0.30.6
@@ -2359,7 +2359,7 @@ packages:
       eslint: 8.30.0
     dev: true
 
-  /eslint-config-standard/17.0.0_gtyww73cze5b2l4m3pnz6373qu:
+  /eslint-config-standard/17.0.0_74x72jf5rlpnctbcmupcxvrrrm:
     resolution: {integrity: sha512-/2ks1GKyqSOkH7JFvXJicu0iMpoojkwB+f5Du/1SC0PtBL+s8v30k9njRZ21pm2drKYm2342jFnGWzttxPmZVg==}
     peerDependencies:
       eslint: ^8.0.1
@@ -2369,7 +2369,7 @@ packages:
     dependencies:
       eslint: 8.30.0
       eslint-plugin-import: 2.26.0_j54p5ah76ovfxykzbj7jfhne7y
-      eslint-plugin-promise: 6.0.0_eslint@8.30.0
+      eslint-plugin-promise: 6.1.1_eslint@8.30.0
     dev: true
 
   /eslint-import-resolver-node/0.3.6:
@@ -2561,8 +2561,8 @@ packages:
       semver: 6.3.0
     dev: true
 
-  /eslint-plugin-promise/6.0.0_eslint@8.30.0:
-    resolution: {integrity: sha512-7GPezalm5Bfi/E22PnQxDWH2iW9GTvAlUNTztemeHb6c1BniSyoeTrM87JkC0wYdi6aQrZX9p2qEiAno8aTcbw==}
+  /eslint-plugin-promise/6.1.1_eslint@8.30.0:
+    resolution: {integrity: sha512-tjqWDwVZQo7UIPMeDReOpUgHCmCiH+ePnVT+5zVapL0uuHnegBUs2smM13CzOs2Xb5+MHMRFTs9v24yjba4Oig==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0
