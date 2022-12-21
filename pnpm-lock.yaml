@@ -31,7 +31,7 @@ specifiers:
   react: 18.2.0
   react-dom: 18.2.0
   react-refractor: 2.1.7
-  refractor: 4.7.0
+  refractor: 4.8.0
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
   remark-parse: 10.0.1
@@ -54,7 +54,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-refractor: 2.1.7_react@18.2.0
-  refractor: 4.7.0
+  refractor: 4.8.0
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
   remark-parse: 10.0.1
@@ -4455,8 +4455,8 @@ packages:
       prismjs: 1.27.0
     dev: false
 
-  /refractor/4.7.0:
-    resolution: {integrity: sha512-X3JUDE7nq1csWs7Etg5v7hW10RzF4lYesEn/KDbllocj0itZrs3paO2ZEgYUXrlgXzY3IN+eDRByyIvzcfF9Tg==}
+  /refractor/4.8.0:
+    resolution: {integrity: sha512-SVOnWUJiEBFNiBlHbudSpSpDfDhDY1UHF0CMKgdvPsMYNQQ4rnqFxyGvP07UmteNC8V12mTF2c0lEsGS7lKaGw==}
     dependencies:
       '@types/hast': 2.3.4
       '@types/prismjs': 1.26.0
