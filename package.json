@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "2.4.4",
-    "@emotion/react": "11.9.0",
-    "@emotion/styled": "11.8.1",
+    "@emotion/react": "11.10.5",
+    "@emotion/styled": "11.10.5",
     "framer-motion": "6.5.1",
     "glob": "8.0.3",
     "js-yaml": "4.1.0",
