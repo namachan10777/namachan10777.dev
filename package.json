@@ -34,7 +34,7 @@
     "@next/eslint-plugin-next": "12.3.4",
     "@types/js-yaml": "4.0.5",
     "@types/mdast": "3.0.10",
-    "@types/node": "16.18.10",
+    "@types/node": "18.11.17",
     "@types/react": "18.0.26",
     "@types/unist": "2.0.6",
     "@typescript-eslint/eslint-plugin": "5.27.1",
