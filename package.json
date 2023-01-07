@@ -49,7 +49,7 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.31.11",
-    "prettier": "2.8.1",
+    "prettier": "2.8.2",
     "sharp": "0.31.3",
     "text-loader": "0.0.1",
     "typescript": "4.9.4",
