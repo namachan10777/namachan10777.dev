@@ -48,7 +48,7 @@
     "eslint-plugin-n": "^15.6.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "6.1.1",
-    "eslint-plugin-react": "7.31.11",
+    "eslint-plugin-react": "7.32.0",
     "prettier": "2.8.2",
     "sharp": "0.31.3",
     "text-loader": "0.0.1",
