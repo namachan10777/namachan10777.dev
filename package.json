@@ -50,7 +50,7 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-react": "7.32.2",
     "prettier": "2.8.7",
-    "sharp": "0.31.3",
+    "sharp": "0.32.0",
     "text-loader": "0.0.1",
     "typescript": "4.9.5",
     "xml-writer": "1.7.0"
