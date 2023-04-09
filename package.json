@@ -15,7 +15,7 @@
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
     "framer-motion": "9.1.7",
-    "glob": "8.1.0",
+    "glob": "9.3.5",
     "js-yaml": "4.1.0",
     "next": "13.2.4",
     "react": "18.2.0",
