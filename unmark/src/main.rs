@@ -1,20 +1,13 @@
 use clap::Parser;
+use comrak::Arena;
 use frontmatter::Article;
-use pulldown_cmark::Event;
 use std::path::PathBuf;
 use tokio::fs;
-use tracing::debug;
 use tracing_subscriber::{fmt, EnvFilter};
 
 #[derive(Parser)]
 struct Opts {
     src: PathBuf,
-}
-
-fn process_html<'a, Parser: Iterator<Item = Event<'a>>>(parser: Parser) {
-    for event in parser {
-        debug!("{:?}", event);
-    }
 }
 
 mod frontmatter {
@@ -35,9 +28,8 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let opts = Opts::parse();
-    let mut options = pulldown_cmark::Options::empty();
-    options.insert(pulldown_cmark::Options::ENABLE_STRIKETHROUGH);
     let src = fs::read_to_string(opts.src).await?;
-    let (frontmatter, dom) = unmark::parser::parse::<Article>(&src).unwrap();
+    let arena = Arena::new();
+    let (_frontmatter, _dom) = unmark::parser::parse::<Article>(&arena, &src).unwrap();
     Ok(())
 }

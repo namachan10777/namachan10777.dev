@@ -1,7 +1,5 @@
 use std::{collections::HashMap, fmt::Display};
 
-use pulldown_cmark::CowStr;
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Language {
     Rust,
@@ -60,18 +58,19 @@ impl TryFrom<&str> for Language {
 }
 
 #[derive(Debug)]
-pub enum Dom<'a> {
-    P(Vec<Dom<'a>>),
+pub enum Dom {
+    Root(Vec<Dom>),
+    Paragraph(Vec<Dom>),
     Section {
-        title: Box<Dom<'a>>,
+        title: Box<Dom>,
         level: u8,
-        contents: Vec<Dom<'a>>,
+        contents: Vec<Dom>,
     },
-    Text(CowStr<'a>),
-    Code(CowStr<'a>),
+    Text(String),
+    Code(String),
     CodeBlock {
         language: Language,
-        content: Vec<CowStr<'a>>,
+        content: Vec<String>,
     },
     Link {
         title: String,
@@ -88,6 +87,6 @@ pub enum Dom<'a> {
     Custom {
         name: String,
         attributes: HashMap<String, String>,
-        children: Vec<Dom<'a>>,
+        children: Vec<Dom>,
     },
 }

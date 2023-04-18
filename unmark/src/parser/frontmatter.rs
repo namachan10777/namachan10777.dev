@@ -1,6 +1,5 @@
 use std::ops::Range;
 
-use pulldown_cmark::{BrokenLinkCallback, Event, Options, Parser};
 use serde::Deserialize;
 
 #[derive(Debug, thiserror::Error)]
@@ -24,11 +23,6 @@ struct Src<'a> {
     src: &'a str,
     bytes: &'a [u8],
     current_pos: usize,
-}
-
-pub struct ParserWithFrontMatter<'input, 'callback, T> {
-    pub parser: pulldown_cmark::Parser<'input, 'callback>,
-    pub frontmatter: T,
 }
 
 impl<'a> Src<'a> {
@@ -127,44 +121,6 @@ pub fn parse_frontmatter<'de, T: Deserialize<'de>>(text: &'de str) -> Result<(T,
         FrontMatterType::Yaml => serde_yaml::from_str(frontmatter_src).map_err(Error::YamlParse),
     }?;
     Ok((frontmatter, markdown_src))
-}
-
-impl<'input, 'callback, T: Deserialize<'input>> ParserWithFrontMatter<'input, 'callback, T> {
-    pub fn new(text: &'input str) -> Result<Self, Error> {
-        let (frontmatter, text) = parse_frontmatter(text)?;
-        Ok(Self {
-            parser: Parser::new(text),
-            frontmatter,
-        })
-    }
-
-    pub fn new_ext(text: &'input str, options: Options) -> Result<Self, Error> {
-        let (frontmatter, text) = parse_frontmatter(text)?;
-        Ok(Self {
-            parser: Parser::new_ext(text, options),
-            frontmatter,
-        })
-    }
-
-    pub fn new_with_broken_link_callback(
-        text: &'input str,
-        options: Options,
-        broken_link_callback: BrokenLinkCallback<'input, 'callback>,
-    ) -> Result<Self, Error> {
-        let (frontmatter, text) = parse_frontmatter(text)?;
-        Ok(Self {
-            parser: Parser::new_with_broken_link_callback(text, options, broken_link_callback),
-            frontmatter,
-        })
-    }
-}
-
-impl<'input, 'callback, T> Iterator for ParserWithFrontMatter<'input, 'callback, T> {
-    type Item = Event<'input>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.parser.next()
-    }
 }
 
 #[cfg(test)]
