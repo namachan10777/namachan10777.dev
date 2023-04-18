@@ -86,7 +86,7 @@ fn parse_fragment<'a>(input: &'a str) -> IResult<&'a str, Fragment<'a>> {
         pair(tag("\\"), escape_char).map(|(_, escape_char)| Fragment::Escaped(escape_char));
     let text = take_while(|ch| ch != '"' && ch != '\\');
     let text = map_res(text, |text: &str| {
-        if text.len() > 0 {
+        if !text.is_empty() {
             Ok(Fragment::Text(text))
         } else {
             Err(nom::Err::Failure(anyhow!("empty text")))

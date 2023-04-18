@@ -22,6 +22,6 @@ pub fn parse<'a, 'b, T: 'a + Deserialize<'a>>(
 ) -> Result<(T, &'b Node<'b, RefCell<Ast>>), Error> {
     let (frontmatter, src): (T, &str) =
         frontmatter::parse_frontmatter(src).map_err(Error::Frontmatter)?;
-    let root = comrak::parse_document(&arena, src, &comrak::ComrakOptions::default());
+    let root = comrak::parse_document(arena, src, &comrak::ComrakOptions::default());
     Ok((frontmatter, root))
 }

@@ -92,7 +92,7 @@ fn check_frontmatter_line(mark: &str) -> Result<FrontMatterType, Error> {
 pub fn parse_frontmatter<'de, T: Deserialize<'de>>(text: &'de str) -> Result<(T, &str), Error> {
     let mut src = Src::new(text);
     let mut frontmatter_start_line = None;
-    while let Some(line) = src.next() {
+    for line in src.by_ref() {
         let mut chars = line.content.chars();
         frontmatter_start_line = Some(line);
         if !chars.all(|c| c.is_whitespace()) {
@@ -104,7 +104,7 @@ pub fn parse_frontmatter<'de, T: Deserialize<'de>>(text: &'de str) -> Result<(T,
     let frontmatter_start_mark = check_frontmatter_line(frontmatter_start_line.content)?;
     let frontmatter_start = frontmatter_start_line.range.end;
     let mut frontmatter_end = frontmatter_start_line.range;
-    while let Some(line) = src.next() {
+    for line in src {
         frontmatter_end = line.range;
         if let Ok(frontmatter_end_mark) = check_frontmatter_line(line.content) {
             if frontmatter_end_mark == frontmatter_start_mark {
