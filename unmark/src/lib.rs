@@ -10,6 +10,12 @@ use comrak::{
     nodes::{Ast, NodeCodeBlock, NodeHeading, NodeHtmlBlock, NodeValue},
 };
 use itertools::Itertools;
+use syntect::{
+    easy::HighlightLines,
+    highlighting::{FontStyle, Style, Theme, ThemeSet},
+    parsing::SyntaxSet,
+    util::LinesWithEndings,
+};
 
 use crate::parser::custom_component;
 pub mod parser;
@@ -18,6 +24,8 @@ pub mod parser;
 pub struct Context<'a> {
     pub title: &'a str,
     pub section_level: u8,
+    pub syntax_set: &'a SyntaxSet,
+    pub theme_set: &'a ThemeSet,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -30,22 +38,61 @@ pub enum Error {
         line: usize,
         literal: String,
     },
+    #[error("syntax not found: {0}")]
+    SyntaxNotFound(String),
+    #[error("theme({0}) has no background color")]
+    ThemeHasNoBackgroundColor(String),
 }
 
-// 自分より高いlevelに当たったら処理を終了
-// 自分と同じレベルに当たったら内部のパースを行い、継続
-/*
-### Foo
-bar
-hoge
+// TODO: use css
+fn syntax_highlight(
+    ctx: Context,
+    source: &str,
+    theme: &Theme,
+    syntax: &syntect::parsing::SyntaxReference,
+) -> Result<Vec<Box<dyn PhrasingContent<String>>>, Error> {
+    let mut styled = Vec::new();
+    let mut h = HighlightLines::new(syntax, theme);
+    for line in LinesWithEndings::from(source) {
+        let ranges: Vec<(Style, &str)> = h.highlight_line(line, &ctx.syntax_set).unwrap();
+        for (style, token) in ranges {
+            let italic = style.font_style.contains(FontStyle::ITALIC);
+            let bold = style.font_style.contains(FontStyle::BOLD);
+            let underline = style.font_style.contains(FontStyle::UNDERLINE);
+            let html_style = format!(
+                "color: rgba({}, {}, {}, {}); background-color: rgba({}, {}, {}, {});",
+                style.foreground.r,
+                style.foreground.g,
+                style.foreground.b,
+                style.foreground.a,
+                style.background.r,
+                style.background.g,
+                style.background.b,
+                style.background.a,
+            );
+            let html_style = if italic {
+                format!("{html_style} font-stylet: italic;")
+            } else {
+                html_style
+            };
+            let html_style = if bold {
+                format!("{html_style} font-weight: bold;")
+            } else {
+                html_style
+            };
+            let html_style = if underline {
+                format!("{html_style} text-decoration: underline;")
+            } else {
+                html_style
+            };
 
-#### hoge
-poo
-
-# bar
-
-
-*/
+            let styled_token: Box<dyn PhrasingContent<String>> =
+                html!(<span style=html_style>{text!(token)}</span>);
+            styled.push(styled_token);
+        }
+    }
+    Ok(styled)
+}
 
 fn phrasing_content<'a>(
     ctx: Context,
@@ -61,7 +108,7 @@ fn phrasing_content<'a>(
 }
 
 fn section_content<'a>(
-    _ctx: Context,
+    ctx: Context,
     md: &'a Node<'a, RefCell<Ast>>,
 ) -> Result<Box<dyn FlowContent<String>>, Error> {
     match &md.data.borrow().value {
@@ -76,9 +123,29 @@ fn section_content<'a>(
             })?;
             Ok(text!("custom_tag"))
         }
-        NodeValue::CodeBlock(NodeCodeBlock { literal, .. }) => Ok(html!(
-            <pre><code>{text!(literal)}</code></pre>
-        )),
+        NodeValue::CodeBlock(NodeCodeBlock { literal, info, .. }) => {
+            let info = info.trim();
+            let syntax = ctx
+                .syntax_set
+                .find_syntax_by_name(info)
+                .or_else(|| ctx.syntax_set.find_syntax_by_extension(info))
+                .ok_or_else(|| Error::SyntaxNotFound(info.to_owned()))?;
+            let theme = &ctx.theme_set.themes["InspiredGitHub"];
+            let background_color =
+                theme
+                    .settings
+                    .background
+                    .ok_or(Error::ThemeHasNoBackgroundColor(
+                        theme.name.clone().unwrap_or_else(|| "<unknown>".to_owned()),
+                    ))?;
+            let code_style = format!(
+                "background-color: rgba({}, {}, {}, {}); padding: 0.3em 0.6em; width: fit-content;",
+                background_color.r, background_color.g, background_color.b, background_color.a
+            );
+            Ok(html!(
+                <pre style=code_style><code>{syntax_highlight(ctx, literal, theme, syntax)?}</code></pre>
+            ))
+        }
         node => panic!("not implemented: {node:?}"),
     }
 }
