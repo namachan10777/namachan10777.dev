@@ -4,6 +4,7 @@ use frontmatter::Article;
 use std::path::PathBuf;
 use tokio::fs;
 use tracing_subscriber::{fmt, EnvFilter};
+use unmark::{document, Context};
 
 #[derive(Parser)]
 struct Opts {
@@ -30,6 +31,12 @@ async fn main() -> anyhow::Result<()> {
     let opts = Opts::parse();
     let src = fs::read_to_string(opts.src).await?;
     let arena = Arena::new();
-    let (_frontmatter, _dom) = unmark::parser::parse::<Article>(&arena, &src).unwrap();
+    let (_frontmatter, md) = unmark::parser::parse::<Article>(&arena, &src).unwrap();
+    let ctx = Context {
+        title: "Hello World!",
+        section_level: 0,
+    };
+    let tree = document(ctx, md)?;
+    println!("{tree}");
     Ok(())
 }

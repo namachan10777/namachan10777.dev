@@ -73,7 +73,7 @@ impl<'a> ToString for Fragment<'a> {
     }
 }
 
-fn parse_fragment<'a>(input: &'a str) -> IResult<&'a str, Fragment<'a>> {
+fn parse_fragment(input: &str) -> IResult<&str, Fragment<'_>> {
     let escape_char = alt((tag("t"), tag("r"), tag("n"), tag("\"")));
     let escape_char = map_res(escape_char, |ch| match ch {
         "t" => Ok(EscapeType::Tab),
@@ -95,7 +95,7 @@ fn parse_fragment<'a>(input: &'a str) -> IResult<&'a str, Fragment<'a>> {
     alt((escape, text))(input)
 }
 
-fn parse_string<'a>(input: &'a str) -> IResult<&'a str, Vec<Fragment<'a>>> {
+fn parse_string(input: &str) -> IResult<&str, Vec<Fragment<'_>>> {
     let (input, _) = tag("\"")(input)?;
     let (input, fragments) = many0(|input| {
         let (input, fragment) = parse_fragment(input)?;
@@ -105,7 +105,7 @@ fn parse_string<'a>(input: &'a str) -> IResult<&'a str, Vec<Fragment<'a>>> {
     Ok((input, fragments))
 }
 
-fn parse_attribute<'a>(input: &'a str) -> IResult<&str, (&'a str, String)> {
+fn parse_attribute(input: &str) -> IResult<&str, (&str, String)> {
     let (input, attribute) = alphanumeric1(input)?;
     let (input, _) = space0(input)?;
     let (input, _) = tag("=")(input)?;
@@ -124,13 +124,13 @@ fn parse_attribute<'a>(input: &'a str) -> IResult<&str, (&'a str, String)> {
     ))
 }
 
-fn parse_attributes<'a>(input: &'a str) -> IResult<&str, HashMap<&str, String>> {
+fn parse_attributes(input: &str) -> IResult<&str, HashMap<&str, String>> {
     let (input, attributes) =
         many0(pair(space0, parse_attribute).map(|(_, attribute)| attribute))(input)?;
     Ok((input, attributes.into_iter().collect()))
 }
 
-fn parse_tag_single<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
+fn parse_tag_single(input: &str) -> IResult<&str, CustomTag<'_>> {
     let (input, _) = tag("<")(input)?;
     let (input, _) = space0(input)?;
     let (input, name) = alphanumeric1(input)?;
@@ -140,7 +140,7 @@ fn parse_tag_single<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
     Ok((input, CustomTag::Single { name, attributes }))
 }
 
-fn parse_tag_open<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
+fn parse_tag_open(input: &str) -> IResult<&str, CustomTag<'_>> {
     let (input, _) = tag("<")(input)?;
     let (input, _) = space0(input)?;
     let (name, _) = alphanumeric1(input)?;
@@ -150,7 +150,7 @@ fn parse_tag_open<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
     Ok((input, CustomTag::Start { name, attributes }))
 }
 
-fn parse_tag_close<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
+fn parse_tag_close(input: &str) -> IResult<&str, CustomTag<'_>> {
     let (input, _) = tag("</")(input)?;
     let (input, _) = space0(input)?;
     let (input, name) = alphanumeric1(input)?;
@@ -159,7 +159,7 @@ fn parse_tag_close<'a>(input: &'a str) -> IResult<&str, CustomTag<'a>> {
     Ok((input, CustomTag::End { name }))
 }
 
-pub fn parse_html<'a>(src: &'a str) -> Result<CustomTag<'a>, Error> {
+pub fn parse_html(src: &str) -> Result<CustomTag<'_>, Error> {
     let (input, tag) =
         alt((parse_tag_open, parse_tag_close, parse_tag_single))(src).map_err(Error::Parse)?;
     let (_, _) = eof(input).map_err(Error::Parse)?;
