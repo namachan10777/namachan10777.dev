@@ -36,6 +36,7 @@ async fn main() -> anyhow::Result<()> {
     let ss = SyntaxSet::load_defaults_newlines();
     let ts = ThemeSet::load_defaults();
     let ctx = Context {
+        // FIXME
         title: "Hello World!",
         theme_set: &ts,
         syntax_set: &ss,
