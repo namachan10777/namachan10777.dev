@@ -7,7 +7,10 @@ use axohtml::{
 };
 use comrak::{
     arena_tree::Node,
-    nodes::{Ast, NodeCodeBlock, NodeHeading, NodeHtmlBlock, NodeValue},
+    nodes::{
+        Ast, ListType, NodeCode, NodeCodeBlock, NodeHeading, NodeHtmlBlock, NodeLink, NodeList,
+        NodeValue,
+    },
 };
 use itertools::Itertools;
 use syntect::{
@@ -42,6 +45,8 @@ pub enum Error {
     SyntaxNotFound(String),
     #[error("theme({0}) has no background color")]
     ThemeHasNoBackgroundColor(String),
+    #[error("list item must be parsed as ListItem")]
+    ListItemMustBeItem,
 }
 
 // TODO: use css
@@ -101,8 +106,21 @@ fn phrasing_content<'a>(
     match &md.data.borrow().value {
         NodeValue::Text(text) => Ok(text!(text)),
         NodeValue::Emph => Ok(html!(
-            <strong>{md.children().map(|node| phrasing_content(ctx, node)).collect::<Result<Vec<_>, _>>()?}</strong>
+            <strong class="emphasis">{md.children().map(|node| phrasing_content(ctx, node)).collect::<Result<Vec<_>, _>>()?}</strong>
         )),
+        NodeValue::Image(NodeLink { url, title }) => Ok(html!(
+            <img src=url alt=title class="image"/>
+        )),
+        NodeValue::Link(NodeLink { url, .. }) => {
+            let contents = md
+                .children()
+                .map(|md| section_content(ctx, md))
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(html!(<a href=url class="link">{contents}</a>))
+        }
+        NodeValue::Code(NodeCode { literal, .. }) => {
+            Ok(html!(<code class="inline-code">{text!(literal)}</code>))
+        }
         _ => panic!("unimplemented: {md:?}"),
     }
 }
@@ -112,6 +130,7 @@ fn section_content<'a>(
     md: &'a Node<'a, RefCell<Ast>>,
 ) -> Result<Box<dyn FlowContent<String>>, Error> {
     match &md.data.borrow().value {
+        NodeValue::Text(text) => Ok(text!(text)),
         NodeValue::HtmlBlock(NodeHtmlBlock { literal, .. }) => {
             let sourcerepp = md.data.borrow().sourcepos;
             let _custom_component = custom_component::parse_html(literal.trim()).map_err(|_| {
@@ -131,20 +150,41 @@ fn section_content<'a>(
                 .or_else(|| ctx.syntax_set.find_syntax_by_extension(info))
                 .ok_or_else(|| Error::SyntaxNotFound(info.to_owned()))?;
             let theme = &ctx.theme_set.themes["InspiredGitHub"];
-            let background_color =
-                theme
-                    .settings
-                    .background
-                    .ok_or(Error::ThemeHasNoBackgroundColor(
-                        theme.name.clone().unwrap_or_else(|| "<unknown>".to_owned()),
-                    ))?;
-            let code_style = format!(
-                "background-color: rgba({}, {}, {}, {}); padding: 0.3em 0.6em; width: fit-content;",
-                background_color.r, background_color.g, background_color.b, background_color.a
-            );
             Ok(html!(
-                <pre style=code_style><code>{syntax_highlight(ctx, literal, theme, syntax)?}</code></pre>
+                <pre class="codebox"><code>{syntax_highlight(ctx, literal, theme, syntax)?}</code></pre>
             ))
+        }
+        NodeValue::Paragraph => {
+            let inner = md
+                .children()
+                .map(|node| phrasing_content(ctx, node))
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(html!(
+                <p class="paragraph">{inner}</p>
+            ))
+        }
+        NodeValue::List(NodeList { list_type, .. }) => {
+            let inner = md
+                .children()
+                .map(|md| {
+                    if let NodeValue::Item(_) = md.data.borrow().value {
+                        let contents = md
+                            .children()
+                            .map(|md| section_content(ctx, md))
+                            .collect::<Result<Vec<_>, _>>()?;
+                        Ok(html!(<li class="list-item">{contents}</li>))
+                    } else {
+                        Err(Error::ListItemMustBeItem)
+                    }
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            match list_type {
+                ListType::Bullet => Ok(html!(<ul class="unordered-list">{inner}</ul>)),
+                ListType::Ordered => Ok(html!(<ol class="ordered-list">{inner}</ol>)),
+            }
+        }
+        NodeValue::Code(NodeCode { literal, .. }) => {
+            Ok(html!(<code class="inline-code">{text!(literal)}</code>))
         }
         node => panic!("not implemented: {node:?}"),
     }
@@ -173,12 +213,12 @@ fn sections<'a>(ctx: Context, md: &[&'a Node<'a, RefCell<Ast>>]) -> Result<Secti
                     .map(|node| phrasing_content(ctx, node))
                     .collect::<Result<Vec<_>, _>>()?;
                 let title: Box<dyn FlowContent<String>> = match level {
-                    1 => html!(<h1>{title_inner}</h1>),
-                    2 => html!(<h2>{title_inner}</h2>),
-                    3 => html!(<h3>{title_inner}</h3>),
-                    4 => html!(<h4>{title_inner}</h4>),
-                    5 => html!(<h5>{title_inner}</h5>),
-                    6 => html!(<h6>{title_inner}</h6>),
+                    1 => html!(<h1 class="heading">{title_inner}</h1>),
+                    2 => html!(<h2 class="heading">{title_inner}</h2>),
+                    3 => html!(<h3 class="heading">{title_inner}</h3>),
+                    4 => html!(<h4 class="heading">{title_inner}</h4>),
+                    5 => html!(<h5 class="heading">{title_inner}</h5>),
+                    6 => html!(<h6 class="heading">{title_inner}</h6>),
                     _ => unreachable!(),
                 };
                 contents.push(html!(
@@ -216,6 +256,7 @@ pub fn document<'a>(
             <html>
                 <head>
                     <title>{text!(ctx.title)}</title>
+                    <link rel="stylesheet" href="./styles/index.css"/>
                 </head>
                 <body>{body(ctx, md.children())?}</body>
             </html>

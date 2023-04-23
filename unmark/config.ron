@@ -1,0 +1,4 @@
+(
+    syntect_theme: "InspiredGitHub",
+    root: "../articles/index.md",
+)
