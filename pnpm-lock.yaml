@@ -27,7 +27,7 @@ specifiers:
   glob: 8.1.0
   js-yaml: 4.1.0
   next: 13.2.4
-  prettier: 2.8.7
+  prettier: 2.8.8
   react: 18.2.0
   react-dom: 18.2.0
   react-refractor: 2.1.7
@@ -82,7 +82,7 @@ devDependencies:
   eslint-plugin-node: 11.1.0_eslint@8.36.0
   eslint-plugin-promise: 6.1.1_eslint@8.36.0
   eslint-plugin-react: 7.32.2_eslint@8.36.0
-  prettier: 2.8.7
+  prettier: 2.8.8
   sharp: 0.32.0
   text-loader: 0.0.1
   typescript: 4.9.5
@@ -4350,8 +4350,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier/2.8.7:
-    resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
+  /prettier/2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
