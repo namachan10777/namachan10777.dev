@@ -78,7 +78,12 @@ fn block_code(
     // FIXME
     let theme = &helper::THEME_SET.themes["InspiredGitHub"];
     if matches!(info, "plaintext" | "text" | "txt") {
-        Ok(html!(<div><pre><code>{text!(literal)}</code></pre></div>))
+        Ok(html!(
+            <div>
+                <button class="code-copy">"copy"</button>
+                <pre><code class="plaintext-code">{text!(literal)}</code></pre>
+            </div>
+        ))
     } else {
         let syntax = helper::SYNTAX_SET
             .find_syntax_by_name(info)
@@ -86,7 +91,9 @@ fn block_code(
             .ok_or_else(|| Error::NoSyntaxFound(info.to_owned()))?;
         Ok(html!(
             <div>
-            <pre><code>{helper::syntax_highlight(literal, theme, syntax)}</code></pre>
+                <button class="code-copy">"copy"</button>
+                <pre class="invisible-code-repo"><code class="plaintext-code">{text!(literal)}</code></pre>
+                <pre><code>{helper::syntax_highlight(literal, theme, syntax)}</code></pre>
             </div>
         ))
     }

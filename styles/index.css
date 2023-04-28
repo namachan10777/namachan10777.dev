@@ -15,3 +15,7 @@
     content: "#";
     margin-right: 0.1em;
 }
+
+.invisible-code-repo {
+    display: none;
+}

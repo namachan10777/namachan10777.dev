@@ -1,11 +1,14 @@
+use anyhow::anyhow;
 use axohtml::{dom::DOMTree, html, text};
-use axum::{
-    extract::FromRequestParts, headers::ContentType, http::StatusCode, Router, TypedHeader,
-};
+use axum::{extract::FromRequestParts, headers::ContentType, http::StatusCode};
+use chrono::NaiveDate;
 use clap::Parser;
 
+use comrak::{arena_tree::Node, nodes::Ast, Arena};
 use serde::{Deserialize, Serialize};
 use std::{
+    borrow::Borrow,
+    cell::RefCell,
     collections::HashMap,
     net::SocketAddr,
     path::{Path, PathBuf},
@@ -15,6 +18,9 @@ use tokio::fs;
 use tokio_stream::StreamExt;
 use tracing::info;
 use tracing_subscriber::{fmt, EnvFilter};
+use unmark::dev_server::{
+    self, DirectoryLayer, FileProcessor, Filter, ProcessorEventType, ProcessorOut, Visibility,
+};
 
 #[derive(Parser)]
 struct Opts {
@@ -63,38 +69,6 @@ impl Config {
     }
 }
 
-#[async_recursion::async_recursion]
-async fn listup_articles<P: AsRef<Path> + Send>(
-    root: P,
-) -> anyhow::Result<HashMap<PathBuf, String>> {
-    let mut stack = vec![root.as_ref().to_owned()];
-    let mut articles = HashMap::new();
-    while let Some(path) = stack.pop() {
-        let ftype = fs::metadata(&path).await?.file_type();
-        if ftype.is_dir() {
-            let entries = fs::read_dir(&path).await?;
-            let mut entries = tokio_stream::wrappers::ReadDirStream::new(entries);
-            while let Some(entry) = entries.next().await {
-                stack.push(entry?.path());
-            }
-        } else if ftype.is_file() {
-            let content = fs::read_to_string(&path).await?;
-            articles.insert(path, content);
-        }
-    }
-    Ok(articles)
-}
-
-fn rel_path_from_root<P1: AsRef<Path>, P2: AsRef<Path>>(
-    root: P1,
-    path: P2,
-) -> anyhow::Result<PathBuf> {
-    let path = path.as_ref().canonicalize()?;
-    let root = root.as_ref().canonicalize()?;
-    let path = path.strip_prefix(root)?;
-    Ok(path.to_owned())
-}
-
 struct AnyPath(String);
 
 #[async_trait::async_trait]
@@ -114,23 +88,149 @@ struct State {
     files: Files,
 }
 
-async fn http_handler(
-    axum::extract::State(state): axum::extract::State<Arc<State>>,
-    AnyPath(path): AnyPath,
-) -> (StatusCode, TypedHeader<ContentType>, Vec<u8>) {
-    let path: &Path = path.strip_prefix("/").unwrap().as_ref();
-    if let Some((content, content_type)) = state.files.get(path) {
-        return (
-            StatusCode::OK,
-            TypedHeader(content_type.clone()),
-            content.clone(),
+#[derive(Deserialize)]
+struct BlogMetadata {
+    #[allow(dead_code)]
+    name: String,
+    #[allow(dead_code)]
+    category: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct DiaryMetadata {}
+
+struct Context;
+
+struct BlogProcessor;
+#[async_trait::async_trait]
+impl FileProcessor for BlogProcessor {
+    type Context = Context;
+    type Error = anyhow::Error;
+
+    async fn process(
+        &self,
+        ctx: &Self::Context,
+        event: ProcessorOut,
+    ) -> Result<Vec<ProcessorOut>, Self::Error> {
+        let Some(basename) =
+            event.path.strip_suffix(".md") else {
+                return Ok(Vec::new())
+            };
+        let Some(basename) = basename.strip_prefix("/blog/") else {
+            return Ok(Vec::new())
+        };
+        if let ProcessorOut {
+            event: ProcessorEventType::Removed,
+            ..
+        } = &event
+        {
+            return Ok(vec![ProcessorOut {
+                tag: "transpiler:diary".into(),
+                event: ProcessorEventType::Removed,
+                path: event.path.clone(),
+                real_path: event.real_path.clone(),
+            }]);
+        }
+        let ProcessorOut { real_path, event: ProcessorEventType::Inserted(_mime, src, _), ..} = &event else {
+            return Ok(Vec::new())
+        };
+        let src = std::str::from_utf8(&src)?;
+        let arena = Arena::new();
+        let (_meta, md): (BlogMetadata, _) = unmark::parser::parse(&arena, src)?;
+        let title_text =
+            unmark::util::get_h1_inner_text(md).ok_or_else(|| anyhow!("no title text"))?;
+        let ctx = unmark::transpiler::Context::default();
+        let body = unmark::transpiler::document(ctx, md)?;
+        let dom = html!(
+            <html>
+            <head>
+                <title>{text!(title_text)}</title>
+                <meta name="viewport" content="width=device-width" />
+                <link rel="stylesheet" href="/styles/index.css"/>
+                </head>
+                <body>
+                {body}
+                <script type="text/javascript" src="/scripts/main.js"></script>
+                </body>
+            </html>
         );
-    } else {
-        return (
-            StatusCode::NOT_FOUND,
-            TypedHeader(ContentType::text()),
-            Vec::new(),
+        let text = format!("<!DOCTYPE html>\n{dom}");
+        Ok(vec![ProcessorOut {
+            tag: "transpiler:blog".into(),
+            event: ProcessorEventType::Inserted(
+                mime::TEXT_HTML_UTF_8,
+                text.as_bytes().to_vec(),
+                Visibility::Published,
+            ),
+            path: format!("/blog/{basename}.html"),
+            real_path: event.real_path.clone(),
+        }])
+    }
+}
+
+struct DiaryProcessor {}
+
+#[async_trait::async_trait]
+impl<'a> FileProcessor for DiaryProcessor {
+    type Error = anyhow::Error;
+    type Context = Context;
+    async fn process(
+        &self,
+        _ctx: &Self::Context,
+        event: ProcessorOut,
+    ) -> anyhow::Result<Vec<ProcessorOut>> {
+        let Some(basename) =
+            event.path.strip_suffix(".md") else {
+            return Ok(Vec::new())
+        };
+        let Some(basename) = basename.strip_prefix("/diary/") else {
+            return Ok(Vec::new())
+        };
+        if let ProcessorOut {
+            event: ProcessorEventType::Removed,
+            ..
+        } = &event
+        {
+            return Ok(vec![ProcessorOut {
+                tag: "transpiler:diary".into(),
+                event: ProcessorEventType::Removed,
+                path: event.path.clone(),
+                real_path: event.real_path.clone(),
+            }]);
+        }
+        let ProcessorOut { real_path, event: ProcessorEventType::Inserted(_mime, src, _), ..} = &event else {
+            return Ok(Vec::new())
+        };
+        let arena = Arena::new();
+        let src = std::str::from_utf8(&src)?;
+        let (_meta, md): (DiaryMetadata, _) = unmark::parser::parse(&arena, src)?;
+        let ctx = unmark::transpiler::Context::default();
+        let body = unmark::transpiler::document(ctx, md)?;
+        let _date = NaiveDate::parse_from_str(&basename, "%Y-%m-%d")?;
+        let dom = html!(
+            <html>
+            <head>
+                <title>{text!(basename)}</title>
+                <meta name="viewport" content="width=device-width" />
+                <link rel="stylesheet" href="/styles/index.css"/>
+                </head>
+                <body>
+                {body}
+                <script type="text/javascript" src="/scripts/main.js"></script>
+                </body>
+            </html>
         );
+        let content = format!("<!DOCTYPE html>\n{dom}");
+        Ok(vec![ProcessorOut {
+            tag: "transpile:diary".into(),
+            event: ProcessorEventType::Inserted(
+                mime::TEXT_HTML_UTF_8,
+                content.as_bytes().to_vec(),
+                Visibility::Published,
+            ),
+            path: format!("/diary/{basename}.html"),
+            real_path: real_path.clone(),
+        }])
     }
 }
 
@@ -144,87 +244,68 @@ async fn main() -> anyhow::Result<()> {
 
     let opts = Opts::parse();
     if let Some(config) = opts.config {
-        use tokio::io::AsyncWriteExt;
         let config = fs::read_to_string(config).await?;
         let config: Config = ron::from_str(&config)?;
-        let articles = listup_articles(&config.root).await?;
-        let arena = comrak::Arena::new();
-        let mut files = HashMap::new();
-
-        let scripts = listup_articles(&config.script_root).await?;
-        for (path, content) in scripts {
-            let rel_path = rel_path_from_root(&config.script_root, path)?;
-            let path = config.out.join("scripts").join(&rel_path);
-            if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent).await?;
-            }
-            let mut file = fs::File::create(path).await?;
-            file.write_all(content.as_bytes()).await?;
-            files.insert(
-                PathBuf::from("scripts").join(rel_path),
-                (content.as_bytes().to_vec(), mime::TEXT_JAVASCRIPT.into()),
-            );
-        }
-
-        let styles = listup_articles(&config.style_root).await?;
-        for (path, content) in styles {
-            let rel_path = rel_path_from_root(&config.style_root, path)?;
-            let path = config.out.join("styles").join(&rel_path);
-            if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent).await?;
-            }
-            let mut file = fs::File::create(path).await?;
-            file.write_all(content.as_bytes()).await?;
-            files.insert(
-                PathBuf::from("styles").join(rel_path),
-                (content.as_bytes().to_vec(), mime::TEXT_CSS.into()),
-            );
-        }
-
-        for (path, content) in articles {
-            let rel_path = rel_path_from_root(&config.root, &path)?;
-            // TODO
-            let (_frontmatter, md): (serde_json::Value, _) =
-                unmark::parser::parse(&arena, &content)?;
-            let content = unmark::transpiler::document(unmark::transpiler::Context::default(), md)?;
-            let document: DOMTree<String> = html!(
-                <html lang="ja">
-                    <head>
-                        <title>{text!("<title>")}</title>
-                        <link rel="stylesheet" href="/styles/index.css"/>
-                        <meta charset="utf-8" />
-                    </head>
-                    <body>
-                        <script type="text/javascript" src="/scripts/index.js"></script>
-                        {content}
-                    </body>
-                </html>
-            );
-            files.insert(
-                rel_path.clone().with_extension("html"),
-                (
-                    document.to_string().as_bytes().to_vec(),
-                    ContentType::html(),
-                ),
-            );
-            let out_path = config.out.join(&rel_path).with_extension("html");
-            if let Some(parent) = out_path.parent() {
-                fs::create_dir_all(parent).await?;
-            }
-
-            let mut file = fs::File::create(out_path).await?;
-            file.write_all("<!DOCTYPE html>".as_bytes()).await?;
-            file.write_all(document.to_string().as_bytes()).await?;
-        }
+        let state = Arc::new(unmark::dev_server::State::default());
         if let Some(addr) = opts.serve {
-            let app = Router::new()
-                .fallback(axum::routing::get(http_handler))
-                .with_state(Arc::new(State { files }));
+            let app = axum::Router::new()
+                .fallback(axum::routing::get(dev_server::get))
+                .with_state(state.clone());
             info!(addr = addr.to_string(), "launch_server");
-            axum::Server::bind(&addr)
-                .serve(app.into_make_service())
-                .await?;
+            tokio::spawn(axum::Server::bind(&addr).serve(app.into_make_service()));
         }
+        unmark::dev_server::watch_files::<Context, anyhow::Error, _>(
+            state,
+            Context,
+            vec![
+                DirectoryLayer {
+                    dist: "/styles".into(),
+                    src: config.style_root,
+                    filter: unmark::dev_server::Filter {
+                        pass: None,
+                        ignore: None,
+                    },
+                },
+                DirectoryLayer {
+                    dist: "/scripts".into(),
+                    src: config.script_root,
+                    filter: unmark::dev_server::Filter {
+                        pass: None,
+                        ignore: None,
+                    },
+                },
+                DirectoryLayer {
+                    dist: "".into(),
+                    src: config.root,
+                    filter: unmark::dev_server::Filter {
+                        pass: Some(regex::Regex::new(r#".*\.md"#).unwrap()),
+                        ignore: None,
+                    },
+                },
+            ],
+            vec![
+                Box::new(DiaryProcessor {}),
+                Box::new(BlogProcessor),
+                Box::new(unmark::dev_server::utilities::LogProcessor::default()),
+                Box::new(unmark::dev_server::utilities::FileLoader::new(
+                    Filter {
+                        ignore: Some(regex::Regex::new(r#".*\.md"#).unwrap()),
+                        pass: None,
+                    },
+                    Visibility::Published,
+                    |e| anyhow::anyhow!("{e}"),
+                )),
+                Box::new(unmark::dev_server::utilities::FileLoader::new(
+                    Filter {
+                        pass: Some(regex::Regex::new(r#".*\.md"#).unwrap()),
+                        ignore: None,
+                    },
+                    Visibility::Intermediate,
+                    |e| anyhow::anyhow!("{e}"),
+                )),
+            ],
+        )
+        .await?;
     } else {
         let example = Config::example();
         println!(
