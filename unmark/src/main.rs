@@ -33,6 +33,7 @@ struct Context {
     blogs: Arc<RwLock<HashMap<PathBuf, String>>>,
     diaries: Arc<RwLock<HashMap<PathBuf, String>>>,
     categories: Arc<RwLock<HashMap<String, HashMap<PathBuf, String>>>>,
+    codes: Arc<RwLock<HashMap<String, String>>>,
 }
 
 struct DiaryProc;
@@ -74,13 +75,41 @@ struct DiaryMetadata {}
 #[derive(Deserialize, Debug)]
 struct IndexMetadata {}
 
+fn gen_codes<T>(codes: &HashMap<String, String>) -> Event<T> {
+    let mut content = Vec::new();
+    write!(content, "export const codes = {{").unwrap();
+    codes.iter().for_each(|(id, code)| {
+        write!(
+            content,
+            "\"{id}\": \"{}\",",
+            code.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t")
+                .replace("\r", "\\r")
+        )
+        .unwrap();
+    });
+    write!(content, "}};").unwrap();
+    Event {
+        tag: "code-repo".into(),
+        event_type: EventType::FileInserted {
+            mime: mime::APPLICATION_JAVASCRIPT,
+            content: Arc::new(content),
+            visibility: unmark::dev_server::Visibility::Published,
+        },
+        out_path: "/scripts/code-repo.mjs".into(),
+        src_path: "<no>".into(),
+    }
+}
+
 #[async_trait::async_trait]
 impl<T: 'static + Send + Sync> Processor<T> for BlogProc {
     type Error = anyhow::Error;
     type Context = Context;
     async fn process(
         &self,
-        _ctx: &Self::Context,
+        ctx: &Self::Context,
         event: Event<T>,
     ) -> Result<Vec<Event<T>>, Self::Error> {
         if event.tag != "builtin:util:file_load".into() || !is_blog_md(&event.out_path) {
@@ -96,9 +125,15 @@ impl<T: 'static + Send + Sync> Processor<T> for BlogProc {
         let Some(src) = get_src(&event)? else {
             return Ok(Vec::new());
         };
+        let mut codes = ctx.codes.write().await;
         let arena = Arena::new();
         let (_, md) = unmark::parser::parse::<BlogMetadata>(&arena, src)?;
-        let body = unmark::transpiler::document(Default::default(), md)?;
+        let transpiler_ctx = unmark::transpiler::Context::default();
+        let codes_in_article = transpiler_ctx.codes.clone();
+        let body = unmark::transpiler::document(transpiler_ctx, md)?;
+        for (id, code) in codes_in_article.lock().unwrap().iter() {
+            codes.insert(id.clone(), code.clone());
+        }
         let title =
             unmark::util::get_h1_inner_text(md).ok_or_else(|| anyhow::anyhow!("no title found"))?;
         {}
@@ -109,23 +144,26 @@ impl<T: 'static + Send + Sync> Processor<T> for BlogProc {
                     <link rel="stylesheet" href="/styles/index.css" />
                 </head>
                 <body>
-                    <script type="application/javascript" src="/scripts/main.js"></script>
+                    <script type="module" src="/scripts/index.mjs"></script>
                     {body}
                 </body>
             </html>
         );
         let mut content = Vec::new();
         write!(content, "<!DOCTYPE>{dom}")?;
-        Ok(vec![Event {
-            tag: "blog".into(),
-            out_path: event.out_path.with_extension("html"),
-            event_type: EventType::FileInserted {
-                mime: mime::TEXT_HTML_UTF_8,
-                content: Arc::new(content),
-                visibility: unmark::dev_server::Visibility::Published,
+        Ok(vec![
+            gen_codes(&codes),
+            Event {
+                tag: "blog".into(),
+                out_path: event.out_path.with_extension("html"),
+                event_type: EventType::FileInserted {
+                    mime: mime::TEXT_HTML_UTF_8,
+                    content: Arc::new(content),
+                    visibility: unmark::dev_server::Visibility::Published,
+                },
+                ..event
             },
-            ..event
-        }])
+        ])
     }
 }
 
@@ -135,7 +173,7 @@ impl<T: 'static + Send + Sync> Processor<T> for DiaryProc {
     type Context = Context;
     async fn process(
         &self,
-        _ctx: &Self::Context,
+        ctx: &Self::Context,
         event: Event<T>,
     ) -> Result<Vec<Event<T>>, Self::Error> {
         if event.tag != "builtin:util:file_load".into() {
@@ -154,9 +192,15 @@ impl<T: 'static + Send + Sync> Processor<T> for DiaryProc {
         let Some(src) = get_src(&event)? else {
             return Ok(Vec::new());
         };
+        let mut codes = ctx.codes.write().await;
         let arena = Arena::new();
         let (_, md) = unmark::parser::parse::<DiaryMetadata>(&arena, src)?;
-        let body = unmark::transpiler::document(Default::default(), md)?;
+        let transpiler_ctx = unmark::transpiler::Context::default();
+        let codes_in_article = transpiler_ctx.codes.clone();
+        let body = unmark::transpiler::document(transpiler_ctx, md)?;
+        for (id, code) in codes_in_article.lock().unwrap().iter() {
+            codes.insert(id.clone(), code.clone());
+        }
         let dom: DOMTree<String> = html!(
             <html>
             <head>
@@ -164,23 +208,26 @@ impl<T: 'static + Send + Sync> Processor<T> for DiaryProc {
                 <link rel="stylesheet" href="/styles/index.css" />
                 </head>
                 <body>
-                <script type="application/javascript" src="/scripts/main.js"></script>
+                <script type="module" src="/scripts/index.mjs"></script>
                 {body}
                 </body>
             </html>
         );
         let mut content = Vec::new();
         write!(content, "<!DOCTYPE>{dom}")?;
-        Ok(vec![Event {
-            tag: "diary".into(),
-            out_path: event.out_path.with_extension("html"),
-            event_type: EventType::FileInserted {
-                mime: mime::TEXT_HTML_UTF_8,
-                content: Arc::new(content),
-                visibility: unmark::dev_server::Visibility::Published,
+        Ok(vec![
+            gen_codes(&codes),
+            Event {
+                tag: "diary".into(),
+                out_path: event.out_path.with_extension("html"),
+                event_type: EventType::FileInserted {
+                    mime: mime::TEXT_HTML_UTF_8,
+                    content: Arc::new(content),
+                    visibility: unmark::dev_server::Visibility::Published,
+                },
+                ..event
             },
-            ..event
-        }])
+        ])
     }
 }
 
@@ -218,7 +265,7 @@ impl<T: 'static + Send + Sync> Processor<T> for IndexProc {
                 <link rel="stylesheet" href="/styles/index.css" />
                 </head>
                 <body>
-                <script type="application/javascript" src="/scripts/main.js"></script>
+                <script type="module" src="/scripts/index.mjs"></script>
                 {body}
                 </body>
             </html>
@@ -268,7 +315,7 @@ impl<T: 'static + Send + Sync> Processor<T> for DiaryIndexProc {
                 <link rel="stylesheet" href="/styles/index.css" />
                 </head>
                 <body>
-                <script type="application/javascript" src="/scripts/main.js"></script>
+                <script type="module" src="/scripts/index.mjs"></script>
                 <ul>
                 {
                     diaries
@@ -304,7 +351,7 @@ async fn gen_categories<T>(ctx: &Context) -> anyhow::Result<Event<T>> {
             <link rel="stylesheet" href="/styles/index.css" />
             </head>
             <body>
-            <script type="application/javascript" src="/scripts/main.js"></script>
+            <script type="module" src="/scripts/index.mjs"></script>
             <h1>"category"</h1>
             <ul>
             {
@@ -355,7 +402,7 @@ async fn gen_category_pages<T>(ctx: &Context) -> anyhow::Result<Vec<Event<T>>> {
                         <link rel="stylesheet" href="/styles/index.css" />
                     </head>
                     <body>
-                        <script type="application/javascript" src="/scripts/main.js"></script>
+                        <script type="module" src="/scripts/index.mjs"></script>
                         <h1>{text!(format!("category/{category}"))}</h1>
                         <ul>
                             {
@@ -429,7 +476,7 @@ impl<T: 'static + Send + Sync> Processor<T> for BlogIndexProc {
                     <link rel="stylesheet" href="/styles/index.css" />
                     </head>
                     <body>
-                    <script type="application/javascript" src="/scripts/main.js"></script>
+                    <script type="module" src="/scripts/index.mjs"></script>
                     <ul>
                     {
                         blogs
@@ -490,7 +537,7 @@ async fn main() -> anyhow::Result<()> {
                     src: config.articles,
                     dist: "/".into(),
                     filter: unmark::dev_server::Filter {
-                        pass: Some(Regex::new(r#".+.md"#)?),
+                        pass: Some(Regex::new(r#".+\.md"#)?),
                         ignore: None,
                     },
                 },
@@ -498,7 +545,7 @@ async fn main() -> anyhow::Result<()> {
                     src: config.stylesheets,
                     dist: "/styles/".into(),
                     filter: unmark::dev_server::Filter {
-                        pass: Some(Regex::new(r#".+.css"#)?),
+                        pass: Some(Regex::new(r#".+\.css"#)?),
                         ignore: None,
                     },
                 },
@@ -506,7 +553,7 @@ async fn main() -> anyhow::Result<()> {
                     src: config.scripts,
                     dist: "/scripts/".into(),
                     filter: unmark::dev_server::Filter {
-                        pass: Some(Regex::new(r#".+\.js(\.map)?"#)?),
+                        pass: Some(Regex::new(r#"index.mjs(\.map)?"#)?),
                         ignore: None,
                     },
                 },
@@ -528,7 +575,7 @@ async fn main() -> anyhow::Result<()> {
                 Box::new(unmark::dev_server::util::FileLoad::new(
                     unmark::dev_server::Visibility::Published,
                     unmark::dev_server::Filter {
-                        pass: Some(Regex::new(r#".+\.(js|js\.map|css)"#)?),
+                        pass: Some(Regex::new(r#".+\.(mjs|mjs\.map|css)"#)?),
                         ignore: None,
                     },
                 )),

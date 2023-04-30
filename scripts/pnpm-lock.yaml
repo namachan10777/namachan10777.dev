@@ -2,6 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   '@rspack/cli': latest
+  typescript: ^5.0.4
+
+dependencies:
+  typescript: 5.0.4
 
 devDependencies:
   '@rspack/cli': 0.1.9
@@ -2345,6 +2349,12 @@ packages:
       media-typer: 0.3.0
       mime-types: 2.1.35
     dev: true
+
+  /typescript/5.0.4:
+    resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
+    engines: {node: '>=12.20'}
+    hasBin: true
+    dev: false
 
   /unpipe/1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}

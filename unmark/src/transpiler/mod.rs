@@ -1,4 +1,8 @@
-use std::cell::RefCell;
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use axohtml::{html, text};
 use comrak::{
@@ -24,12 +28,16 @@ pub enum Error {
 #[derive(Clone)]
 pub struct Context {
     section_level: u8,
+    pub codes: Arc<Mutex<HashMap<String, String>>>,
 }
 
 #[allow(clippy::derivable_impls)]
 impl Default for Context {
     fn default() -> Self {
-        Context { section_level: 0 }
+        Context {
+            section_level: 0,
+            codes: Arc::new(Mutex::new(Default::default())),
+        }
     }
 }
 
@@ -79,15 +87,20 @@ fn split_line_plaintext(src: &str) -> Vec<PhrasingContent> {
 
 #[cfg(not(feature = "syntax-highlight"))]
 fn block_code(
-    _ctx: Context,
+    ctx: Context,
     literal: &str,
     _info: &str,
 ) -> Result<Box<axohtml::elements::div<String>>, Error> {
     // FIXME
     let styled_code = split_line_plaintext(literal);
+    let uuid = uuid::Uuid::new_v4();
+    ctx.codes
+        .lock()
+        .unwrap()
+        .insert(format!("code-{uuid}"), literal.to_owned());
     Ok(html!(
         <div class="block-code">
-        <button class="code-copy">"copy"</button>
+        <button class="code-copy" id=(axohtml::types::Id::new(format!("code-{uuid}")))>"copy"</button>
             <pre class="invisible-code-repo"><code class="plaintext-code">{text!(literal)}</code></pre>
             <pre><code>{styled_code}</code></pre>
         </div>
@@ -234,6 +247,7 @@ fn sections<'a>(
                 let (read_count, inner_contents) = sections(
                     Context {
                         section_level: level + 1,
+                        codes: ctx.codes.clone(),
                     },
                     &md[reading_pos + 1..],
                 )?;

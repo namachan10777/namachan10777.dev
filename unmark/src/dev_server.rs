@@ -238,6 +238,9 @@ async fn watch_files_on_layer<E, T: 'static + Send + std::fmt::Debug>(
             Ok(event) => match event.kind {
                 notify::EventKind::Modify(_) | notify::EventKind::Create(_) => {
                     for path in event.paths {
+                        if !layer.filter.is_enable(&path) {
+                            continue;
+                        }
                         let rel_path = path
                             .strip_prefix(&root)
                             .expect("children of root must have root as prefix");
@@ -254,6 +257,9 @@ async fn watch_files_on_layer<E, T: 'static + Send + std::fmt::Debug>(
                 }
                 notify::EventKind::Remove(_) => {
                     for path in event.paths {
+                        if !layer.filter.is_enable(&path) {
+                            continue;
+                        }
                         let rel_path = path
                             .strip_prefix(&root)
                             .expect("children of root must have root as prefix");
@@ -283,6 +289,9 @@ async fn watch_files_on_layer<E, T: 'static + Send + std::fmt::Debug>(
         .watch(&watch_root, notify::RecursiveMode::Recursive)
         .map_err(Error::FileWatch)?;
     for (path, (_, _)) in get_files(&watch_root).await? {
+        if !layer.filter.is_enable(&path) {
+            continue;
+        }
         let out_path = path
             .strip_prefix(&watch_root)
             .expect("children must have root as prefix");

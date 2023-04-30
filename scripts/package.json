@@ -1,13 +1,13 @@
 {
-    "name": "rspack-react-starter",
-    "private": true,
-    "version": "0.0.0",
-    "scripts": {
-        "dev": "rspack serve",
-        "build": "rspack build"
-    },
-    "dependencies": {},
-    "devDependencies": {
-        "@rspack/cli": "latest"
-    }
+  "name": "rspack-react-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
 }
