@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use axohtml::{dom::DOMTree, html, text};
-use axum::{extract::FromRequestParts, http::StatusCode};
+use axum::{extract::FromRequestParts, headers::ContentType, http::StatusCode};
 use chrono::NaiveDate;
 use clap::Parser;
 
@@ -47,6 +47,8 @@ struct Config {
     style_root: PathBuf,
 }
 
+type Files = HashMap<PathBuf, (Vec<u8>, ContentType)>;
+
 impl Config {
     fn example() -> Self {
         Config {
@@ -73,6 +75,11 @@ impl<S> FromRequestParts<S> for AnyPath {
     }
 }
 
+#[derive(Debug)]
+struct State {
+    files: Files,
+}
+
 #[derive(Deserialize)]
 struct BlogMetadata {
     #[allow(dead_code)]
@@ -84,7 +91,7 @@ struct BlogMetadata {
 #[derive(Deserialize)]
 struct DiaryMetadata {}
 
-fn get_md_basename<'b>(prefix: &str, path: &'b str) -> Option<&'b str> {
+fn get_md_basename<'a, 'b>(prefix: &'a str, path: &'b str) -> Option<&'b str> {
     let basename = path.strip_suffix(".md")?;
     let basename = basename.strip_prefix(prefix)?;
     Some(basename)
@@ -103,7 +110,7 @@ impl FileProcessor for BlogProcessor {
 
     async fn process(
         &self,
-        _ctx: &Self::Context,
+        ctx: &Self::Context,
         event: ProcessorOut,
     ) -> Result<Vec<ProcessorOut>, Self::Error> {
         trace!(path = event.path, "blog");
@@ -122,10 +129,10 @@ impl FileProcessor for BlogProcessor {
                 real_path: event.real_path.clone(),
             }]);
         }
-        let ProcessorOut { event: ProcessorEventType::Inserted(_mime, src, _), ..} = &event else {
+        let ProcessorOut { real_path, event: ProcessorEventType::Inserted(_mime, src, _), ..} = &event else {
             return Ok(Vec::new())
         };
-        let src = std::str::from_utf8(src)?;
+        let src = std::str::from_utf8(&src)?;
         let arena = Arena::new();
         let (_meta, md): (BlogMetadata, _) = unmark::parser::parse(&arena, src)?;
         let title_text =
@@ -162,7 +169,7 @@ impl FileProcessor for BlogProcessor {
 struct BlogIndexProcessor;
 
 #[async_trait::async_trait]
-impl FileProcessor for BlogIndexProcessor {
+impl<'a> FileProcessor for BlogIndexProcessor {
     type Error = anyhow::Error;
     type Context = Context;
 
@@ -192,17 +199,14 @@ impl FileProcessor for BlogIndexProcessor {
             let src = std::str::from_utf8(src)?;
             let metadata = {
                 let arena = Arena::new();
-                let (meta, md) = unmark::parser::parse::<BlogMetadata>(&arena, src)?;
-                let title_text = unmark::util::get_h1_inner_text(md)
-                    .ok_or_else(|| anyhow::anyhow!("no title"))?;
-                (title_text, meta)
+                unmark::parser::parse::<BlogMetadata>(&arena, src)?.0
             };
             ctx.blog_metadata
                 .write()
                 .await
                 .insert(basename.to_owned(), metadata);
         }
-        let metadata = ctx.blog_metadata.read().await;
+        let metadata = ctx.diary_metadata.read().await;
         let dom: DOMTree<String> = html!(
             <html>
             <head>
@@ -213,8 +217,8 @@ impl FileProcessor for BlogIndexProcessor {
                 <body>
                 <ul>
                 {
-                    metadata.iter().map(|(date, (title, _))|
-                        html!(<li><a href=(format!("/blog/{date}.html")) title=date>{text!(title)}</a></li>)
+                    metadata.iter().map(|(date, meta)|
+                        html!(<li><a href=(format!("/blog/{date}.html")) title=date>{text!(date)}</a></li>)
                     )
                 }
                 </ul>
@@ -230,16 +234,16 @@ impl FileProcessor for BlogIndexProcessor {
                 content.as_bytes().to_vec(),
                 Visibility::Published,
             ),
-            path: "/blog.html".to_owned(),
+            path: format!("/diary.html"),
             real_path: event.real_path.clone(),
         }])
     }
 }
 
-struct DiaryIndexProcessor;
+struct DiaryIndexPageProcessor;
 
 #[async_trait::async_trait]
-impl FileProcessor for DiaryIndexProcessor {
+impl<'a> FileProcessor for DiaryIndexPageProcessor {
     type Error = anyhow::Error;
     type Context = Context;
 
@@ -287,7 +291,7 @@ impl FileProcessor for DiaryIndexProcessor {
                 <body>
                     <ul>
                         {
-                            metadata.iter().map(|(date, _)|
+                            metadata.iter().map(|(date, meta)|
                                 html!(<li><a href=(format!("/diary/{date}.html")) title=date>{text!(date)}</a></li>)
                             )
                         }
@@ -304,7 +308,7 @@ impl FileProcessor for DiaryIndexProcessor {
                 content.as_bytes().to_vec(),
                 Visibility::Published,
             ),
-            path: "/diary.html".to_owned(),
+            path: format!("/diary.html"),
             real_path: event.real_path.clone(),
         }])
     }
@@ -313,7 +317,7 @@ impl FileProcessor for DiaryIndexProcessor {
 struct DiaryProcessor;
 
 #[async_trait::async_trait]
-impl FileProcessor for DiaryProcessor {
+impl<'a> FileProcessor for DiaryProcessor {
     type Error = anyhow::Error;
     type Context = Context;
     async fn process(
@@ -341,11 +345,11 @@ impl FileProcessor for DiaryProcessor {
             return Ok(Vec::new())
         };
         let arena = Arena::new();
-        let src = std::str::from_utf8(src)?;
+        let src = std::str::from_utf8(&src)?;
         let (_meta, md): (DiaryMetadata, _) = unmark::parser::parse(&arena, src)?;
         let ctx = unmark::transpiler::Context::default();
         let body = unmark::transpiler::document(ctx, md)?;
-        let _date = NaiveDate::parse_from_str(basename, "%Y-%m-%d")?;
+        let _date = NaiveDate::parse_from_str(&basename, "%Y-%m-%d")?;
         let dom = html!(
             <html>
             <head>
@@ -379,7 +383,7 @@ struct IndexMetadata {}
 struct IndexProcessor;
 
 #[async_trait::async_trait]
-impl FileProcessor for IndexProcessor {
+impl<'a> FileProcessor for IndexProcessor {
     type Error = anyhow::Error;
     type Context = Context;
     async fn process(
@@ -407,7 +411,7 @@ impl FileProcessor for IndexProcessor {
             return Ok(Vec::new())
         };
         let arena = Arena::new();
-        let src = std::str::from_utf8(src)?;
+        let src = std::str::from_utf8(&src)?;
         let (_meta, md): (IndexMetadata, _) = unmark::parser::parse(&arena, src)?;
         let ctx = unmark::transpiler::Context::default();
         let body = unmark::transpiler::document(ctx, md)?;
@@ -432,7 +436,7 @@ impl FileProcessor for IndexProcessor {
                 content.as_bytes().to_vec(),
                 Visibility::Published,
             ),
-            path: "/index.html".to_string(),
+            path: format!("/index.html"),
             real_path: real_path.clone(),
         }])
     }
@@ -491,13 +495,10 @@ async fn main() -> anyhow::Result<()> {
                 },
             ],
             vec![
-                Box::new(BlogIndexProcessor),
-                Box::new(DiaryIndexProcessor),
                 Box::new(DiaryProcessor {}),
                 Box::new(BlogProcessor),
                 Box::new(IndexProcessor),
-                Box::<unmark::dev_server::utilities::LogProcessor<Context, anyhow::Error>>::default(
-                ),
+                Box::new(unmark::dev_server::utilities::LogProcessor::default()),
                 Box::new(unmark::dev_server::utilities::FileLoader::new(
                     Filter {
                         ignore: Some(regex::Regex::new(r#".*\.md"#).unwrap()),

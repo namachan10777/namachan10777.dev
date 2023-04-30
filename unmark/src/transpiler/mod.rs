@@ -5,6 +5,7 @@ use comrak::{
     arena_tree::{Children, Node},
     nodes::{Ast, ListType, NodeCode, NodeCodeBlock, NodeHeading, NodeLink, NodeList, NodeValue},
 };
+use itertools::Itertools;
 
 mod helper;
 
@@ -70,33 +71,35 @@ fn inline_code(
     Ok(html!(<code class="inline-code">{text!(literal)}</code>))
 }
 
+fn split_line_plaintext(src: &str) -> Vec<PhrasingContent> {
+    src.lines()
+        .map(|line| -> PhrasingContent { html!(<span class="line">{text!(line)}</span>) })
+        .collect_vec()
+}
+
 fn block_code(
     _ctx: Context,
     literal: &str,
     info: &str,
 ) -> Result<Box<axohtml::elements::div<String>>, Error> {
     // FIXME
-    let theme = &helper::THEME_SET.themes["InspiredGitHub"];
-    if matches!(info, "plaintext" | "text" | "txt") {
-        Ok(html!(
-            <div>
-                <button class="code-copy">"copy"</button>
-                <pre><code class="plaintext-code">{text!(literal)}</code></pre>
-            </div>
-        ))
+    let theme = &helper::THEME_SET.themes["base16-mocha.dark"];
+    let styled_code = if matches!(info, "plaintext" | "text" | "txt") {
+        split_line_plaintext(literal)
     } else {
         let syntax = helper::SYNTAX_SET
             .find_syntax_by_name(info)
             .or_else(|| helper::SYNTAX_SET.find_syntax_by_extension(info))
             .ok_or_else(|| Error::NoSyntaxFound(info.to_owned()))?;
-        Ok(html!(
-            <div>
-                <button class="code-copy">"copy"</button>
-                <pre class="invisible-code-repo"><code class="plaintext-code">{text!(literal)}</code></pre>
-                <pre><code>{helper::syntax_highlight(literal, theme, syntax)}</code></pre>
-            </div>
-        ))
-    }
+        helper::syntax_highlight(literal, theme, syntax)
+    };
+    Ok(html!(
+        <div class="block-code">
+        <button class="code-copy">"copy"</button>
+            <pre class="invisible-code-repo"><code class="plaintext-code">{text!(literal)}</code></pre>
+            <pre><code>{styled_code}</code></pre>
+        </div>
+    ))
 }
 
 fn paragraph(
@@ -104,7 +107,7 @@ fn paragraph(
     children: Children<RefCell<Ast>>,
 ) -> Result<Box<axohtml::elements::p<String>>, Error> {
     Ok(
-        html!(<p>{children.map(|md| phrasing_content(ctx.clone(), md)).collect::<Result<Vec<_>, _>>()?}</p>),
+        html!(<p class="paragraph">{children.map(|md| phrasing_content(ctx.clone(), md)).collect::<Result<Vec<_>, _>>()?}</p>),
     )
 }
 
@@ -189,12 +192,12 @@ fn phrasing_content<'a>(
 
 fn make_title(level: u8, inner: Vec<PhrasingContent>) -> Result<FlowContent, Error> {
     match level {
-        1 => Ok(html!(<h1>{inner}</h1>)),
-        2 => Ok(html!(<h2>{inner}</h2>)),
-        3 => Ok(html!(<h3>{inner}</h3>)),
-        4 => Ok(html!(<h4>{inner}</h4>)),
-        5 => Ok(html!(<h5>{inner}</h5>)),
-        6 => Ok(html!(<h6>{inner}</h6>)),
+        1 => Ok(html!(<h1 class="heading">{inner}</h1>)),
+        2 => Ok(html!(<h2 class="heading">{inner}</h2>)),
+        3 => Ok(html!(<h3 class="heading">{inner}</h3>)),
+        4 => Ok(html!(<h4 class="heading">{inner}</h4>)),
+        5 => Ok(html!(<h5 class="heading">{inner}</h5>)),
+        6 => Ok(html!(<h6 class="heading">{inner}</h6>)),
         _ => Err(Error::TooLargeLevel(level)),
     }
 }
@@ -242,7 +245,7 @@ fn sections<'a>(
 pub fn document<'a>(ctx: Context, md: &'a Node<'a, RefCell<Ast>>) -> Result<FlowContent, Error> {
     if let NodeValue::Document = md.data.borrow().value {
         let children = md.children().collect::<Vec<_>>();
-        Ok(html!(<div>{sections(ctx, children.as_slice())?.1}</div>))
+        Ok(html!(<div class="root">{sections(ctx, children.as_slice())?.1}</div>))
     } else {
         Err(Error::NoRootFound)
     }

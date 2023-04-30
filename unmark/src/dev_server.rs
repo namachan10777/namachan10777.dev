@@ -36,7 +36,7 @@ impl Default for State {
 
 impl State {
     async fn get(&self, path: &str) -> Option<(Mime, Vec<u8>)> {
-        let path = path.strip_suffix("/").unwrap_or(path);
+        let path = path.strip_suffix('/').unwrap_or(path);
         dbg!(path);
         let files = self.files.read().await;
         let (mime, content) = files
@@ -131,11 +131,7 @@ pub async fn get(
     dbg!(&path);
     dbg!(state.files.read().await.keys());
     if let Some((mime, content)) = state.get(&path).await {
-        (
-            StatusCode::OK,
-            TypedHeader(mime.clone().into()),
-            content.to_vec(),
-        )
+        (StatusCode::OK, TypedHeader(mime.into()), content.to_vec())
     } else {
         (
             StatusCode::NOT_FOUND,
@@ -376,7 +372,7 @@ pub mod utilities {
             event: ProcessorOut,
         ) -> Result<Vec<super::ProcessorOut>, Self::Error> {
             if matches!(&event.event, ProcessorEventType::Notice(tag) if tag == "modified")
-                && &event.tag == &"builtin:file_modify".into()
+                && event.tag == "builtin:file_modify".into()
             {
                 if !self.filter.is_enable(&event.path) {
                     return Ok(Vec::new());
@@ -384,7 +380,9 @@ pub mod utilities {
                 let mut file = fs::File::open(&event.real_path).await.map_err(&self.err)?;
                 let mut buf = Vec::new();
                 file.read_to_end(&mut buf).await.map_err(&self.err)?;
-                let mime = if event.real_path.extension() == Some(OsStr::from_bytes("css".as_bytes())) {
+                let mime = if event.real_path.extension()
+                    == Some(OsStr::from_bytes("css".as_bytes()))
+                {
                     info!("CSS");
                     mime::TEXT_CSS
                 } else if event.real_path.extension() == Some(OsStr::from_bytes("js".as_bytes())) {

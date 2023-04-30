@@ -13,12 +13,13 @@ pub fn syntax_highlight(
     source: &str,
     theme: &syntect::highlighting::Theme,
     syntax: &syntect::parsing::SyntaxReference,
-) -> Vec<Box<dyn PhrasingContent<String>>> {
+) -> Vec<super::PhrasingContent> {
     use syntect::easy::HighlightLines;
-    let mut styled = Vec::new();
+    let mut styled: Vec<super::PhrasingContent> = Vec::new();
     let mut h = HighlightLines::new(syntax, theme);
     for line in LinesWithEndings::from(source) {
         let ranges: Vec<(Style, &str)> = h.highlight_line(line, &SYNTAX_SET).unwrap();
+        let mut styled_line: Vec<super::PhrasingContent> = Vec::new();
         for (style, token) in ranges {
             let italic = style.font_style.contains(FontStyle::ITALIC);
             let bold = style.font_style.contains(FontStyle::BOLD);
@@ -52,8 +53,9 @@ pub fn syntax_highlight(
 
             let styled_token: Box<dyn PhrasingContent<String>> =
                 html!(<span style=html_style>{text!(token)}</span>);
-            styled.push(styled_token);
+            styled_line.push(styled_token);
         }
+        styled.push(html!(<span class="line">{styled_line}</span>))
     }
     styled
 }
