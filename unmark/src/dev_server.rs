@@ -3,11 +3,14 @@ use std::{
     fmt::Debug,
     fs::FileType,
     io,
+    net::SocketAddr,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
+use axum::{headers::ContentType, TypedHeader};
 use futures::StreamExt;
+use hyper::StatusCode;
 use itertools::Itertools;
 use mime::Mime;
 use notify::Watcher;
@@ -17,7 +20,7 @@ use tokio::{
     io::AsyncReadExt,
     sync::{mpsc, RwLock},
 };
-use tracing::{error, warn};
+use tracing::{error, trace, warn};
 
 type Files = RwLock<HashMap<PathBuf, (Mime, Arc<Vec<u8>>)>>;
 
@@ -34,8 +37,6 @@ impl Default for State {
 }
 
 impl State {}
-
-pub struct AnyPath(String);
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error<E> {
@@ -55,6 +56,8 @@ pub enum Error<E> {
     CanonicalizePath(PathBuf, io::Error),
     #[error("message queue overflow")]
     MsgQueueOverflow,
+    #[error("server")]
+    Server(hyper::Error),
 }
 
 async fn get_files<P: AsRef<Path>, E>(
@@ -285,15 +288,210 @@ async fn watch_files_on_layer<E, T: 'static + Send + std::fmt::Debug>(
             .expect("children must have root as prefix");
         let out_path = layer.dist.join(out_path);
         sender
-            .blocking_send(Event {
+            .send(Event {
                 tag: "builtin:file_watch".into(),
                 event_type: EventType::FileChanged,
                 out_path,
                 src_path: path,
             })
+            .await
             .expect("message queue overflow");
     }
     Ok(Box::new(watcher))
+}
+
+pub mod util {
+    use std::{marker::PhantomData, sync::Arc};
+
+    use tokio::{fs, io::AsyncReadExt};
+    use tracing::debug;
+
+    use super::{Event, EventType, Filter, Processor, Visibility};
+
+    pub struct Log<C, E> {
+        _a: PhantomData<C>,
+        _b: PhantomData<E>,
+    }
+
+    pub struct FileLoad<C, E> {
+        _a: PhantomData<C>,
+        _b: PhantomData<E>,
+        visibility: Visibility,
+        filter: Filter,
+    }
+
+    impl<C, E> Default for Log<C, E> {
+        fn default() -> Self {
+            Self {
+                _a: Default::default(),
+                _b: Default::default(),
+            }
+        }
+    }
+
+    pub trait FromFileLoadError {
+        fn from_file_load_error(e: std::io::Error) -> Self;
+    }
+
+    impl<C, E> FileLoad<C, E> {
+        pub fn new(visibility: Visibility, filter: Filter) -> Self {
+            Self {
+                _a: Default::default(),
+                _b: Default::default(),
+                visibility,
+                filter,
+            }
+        }
+    }
+
+    impl FromFileLoadError for anyhow::Error {
+        fn from_file_load_error(e: std::io::Error) -> Self {
+            e.into()
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl<C: Send + Sync, E: Send + Sync + FromFileLoadError, T: Send + Sync + 'static> Processor<T>
+        for FileLoad<C, E>
+    {
+        type Error = E;
+        type Context = C;
+        async fn process(&self, _: &Self::Context, event: Event<T>) -> Result<Vec<Event<T>>, E> {
+            if !self.filter.is_enable(&event.src_path) {
+                return Ok(Vec::new());
+            }
+            match &event.event_type {
+                EventType::FileChanged => {
+                    let mut file = fs::File::open(&event.src_path)
+                        .await
+                        .map_err(E::from_file_load_error)?;
+                    let mut content = Vec::new();
+                    file.read_to_end(&mut content)
+                        .await
+                        .map_err(E::from_file_load_error)?;
+                    let mime = mime_guess::from_path(&event.src_path).first_or_octet_stream();
+                    Ok(vec![Event {
+                        tag: "builtin:util:file_load".into(),
+                        event_type: EventType::FileInserted {
+                            mime,
+                            content: Arc::new(content),
+                            visibility: self.visibility,
+                        },
+                        src_path: event.src_path,
+                        out_path: event.out_path,
+                    }])
+                }
+                EventType::Removed => Ok(vec![Event {
+                    tag: "builtin:util:file_load".into(),
+                    event_type: EventType::Removed,
+                    src_path: event.src_path,
+                    out_path: event.out_path,
+                }]),
+                _ => Ok(Vec::new()),
+            }
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl<C: Send + Sync, E: Send + Sync, T: Send + Sync + 'static + std::fmt::Debug> Processor<T>
+        for Log<C, E>
+    {
+        type Error = E;
+        type Context = C;
+        async fn process(&self, _: &Self::Context, event: Event<T>) -> Result<Vec<Event<T>>, E> {
+            let out_path = event.out_path.to_str().unwrap_or("<non-utf8-path>");
+            let src_path = event.src_path.to_str().unwrap_or("<non-utf8-path>");
+            match &event.event_type {
+                EventType::FileChanged => {
+                    debug!(src = src_path, out = out_path, "changed");
+                }
+                EventType::FileInserted {
+                    mime,
+                    content,
+                    visibility,
+                } => {
+                    let content = std::str::from_utf8(content)
+                        .map(|s| s.chars().take(10).collect::<String>())
+                        .unwrap_or_else(|_| "<binary>".to_owned());
+                    debug!(
+                        src = src_path,
+                        out = out_path,
+                        mime = mime.to_string(),
+                        content = content,
+                        visibility = format!("{visibility:?}"),
+                        "inserted"
+                    );
+                }
+                EventType::Notice(msg) => {
+                    debug!(
+                        src = src_path,
+                        out = out_path,
+                        msg = format!("{msg:?}"),
+                        "notice"
+                    );
+                }
+                EventType::Removed => {
+                    debug!(src = src_path, out = out_path, "removed");
+                }
+            }
+            Ok(Vec::new())
+        }
+    }
+}
+
+#[cfg(feature = "dev-server")]
+struct AnyPath(String);
+
+#[cfg(feature = "dev-server")]
+#[async_trait::async_trait]
+impl<S> axum::extract::FromRequestParts<S> for AnyPath {
+    type Rejection = ();
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        _: &S,
+    ) -> Result<Self, Self::Rejection> {
+        Ok(Self(parts.uri.to_string()))
+    }
+}
+
+async fn get(
+    AnyPath(path): AnyPath,
+    axum::extract::State(state): axum::extract::State<Arc<State>>,
+) -> (
+    axum::http::StatusCode,
+    axum::TypedHeader<axum::headers::ContentType>,
+    Vec<u8>,
+) {
+    let path = PathBuf::from(path);
+    let files = state.files.read().await;
+    let file = files
+        .get(&path)
+        .or_else(|| files.get(&path.with_extension("html")))
+        .or_else(|| {
+            if path.extension().is_none() {
+                files.get(&path.join("index.html"))
+            } else {
+                None
+            }
+        });
+    let Some((mime, content)) = file else {
+        return (StatusCode::NOT_FOUND, TypedHeader(ContentType::text()), "no content".as_bytes().to_vec());
+    };
+    (
+        StatusCode::OK,
+        TypedHeader(ContentType::from(mime.clone())),
+        content.as_ref().to_vec(),
+    )
+}
+
+pub async fn serve(state: Arc<State>, addr: &std::net::SocketAddr) -> Result<(), hyper::Error> {
+    use axum::{Router, Server};
+    let app = Router::new()
+        .fallback(axum::routing::get(get))
+        .with_state(state);
+    Server::bind(addr).serve(app.into_make_service()).await?;
+    Ok(())
 }
 
 pub async fn watch_files<
@@ -307,6 +505,7 @@ pub async fn watch_files<
     initial_context: C,
     layers: D,
     processors: P,
+    addr: SocketAddr,
 ) -> Result<(), Error<E>> {
     let (tx, mut rx) = mpsc::channel::<Event<T>>(1024);
     let layers = futures::stream::iter(layers);
@@ -317,37 +516,42 @@ pub async fn watch_files<
         .into_iter()
         .collect::<Result<Vec<_>, _>>()?;
     let processors = processors.into_iter().collect_vec();
-    tokio::task::spawn(async move {
-        while let Some(event) = rx.recv().await {
-            for processor in &processors {
-                for out in processor
-                    .process(&initial_context, event.clone())
-                    .await
-                    .map_err(Error::Processor)?
-                {
-                    match &out.event_type {
-                        EventType::Removed => {
-                            state.files.write().await.remove(&out.out_path);
+    let core = tokio::task::spawn({
+        let state = state.clone();
+        async move {
+            while let Some(event) = rx.recv().await {
+                for processor in &processors {
+                    for out in processor
+                        .process(&initial_context, event.clone())
+                        .await
+                        .map_err(Error::Processor)?
+                    {
+                        match &out.event_type {
+                            EventType::Removed => {
+                                state.files.write().await.remove(&out.out_path);
+                            }
+                            EventType::FileInserted {
+                                mime,
+                                content,
+                                visibility: Visibility::Published,
+                            } => {
+                                let path = out.out_path.to_str().unwrap_or("<non-utf8-path>");
+                                trace!(path = path, "insert_file");
+                                state
+                                    .files
+                                    .write()
+                                    .await
+                                    .insert(out.out_path.clone(), (mime.clone(), content.clone()));
+                            }
+                            _ => (),
                         }
-                        EventType::FileInserted {
-                            mime,
-                            content,
-                            visibility: Visibility::Published,
-                        } => {
-                            state
-                                .files
-                                .write()
-                                .await
-                                .insert(out.out_path.clone(), (mime.clone(), content.clone()));
-                        }
-                        _ => (),
+                        tx.send(out).await.expect("msg queue overflow");
                     }
-                    tx.send(out).await.expect("msg queue overflow");
                 }
             }
+            Ok::<(), Error<E>>(())
         }
-        Ok::<(), Error<E>>(())
     });
-
-    unimplemented!()
+    serve(state, &addr).await.map_err(Error::Server)?;
+    core.await.unwrap()
 }

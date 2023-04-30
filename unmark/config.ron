@@ -1,7 +1,7 @@
 (
     syntect_theme: "InspiredGitHub",
-    root: "../articles",
+    articles: "../articles",
     out: "out",
-    script_root: "../scripts/dist",
-    style_root: "../styles",
+    scripts: "../scripts/dist",
+    stylesheets: "../styles",
 )
