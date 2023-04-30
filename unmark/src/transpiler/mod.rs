@@ -77,6 +77,23 @@ fn split_line_plaintext(src: &str) -> Vec<PhrasingContent> {
         .collect_vec()
 }
 
+#[cfg(not(feature = "syntax-highlight"))]
+fn block_code(
+    _ctx: Context,
+    literal: &str,
+    _info: &str,
+) -> Result<Box<axohtml::elements::div<String>>, Error> {
+    // FIXME
+    let styled_code = split_line_plaintext(literal);
+    Ok(html!(
+        <div class="block-code">
+        <button class="code-copy">"copy"</button>
+            <pre class="invisible-code-repo"><code class="plaintext-code">{text!(literal)}</code></pre>
+            <pre><code>{styled_code}</code></pre>
+        </div>
+    ))
+}
+#[cfg(feature = "syntax-highlight")]
 fn block_code(
     _ctx: Context,
     literal: &str,

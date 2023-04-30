@@ -1,14 +1,20 @@
+#[cfg(feature = "syntax-highlight")]
 use axohtml::{elements::PhrasingContent, html, text};
+#[cfg(feature = "syntax-highlight")]
 use once_cell::sync::Lazy;
+#[cfg(feature = "syntax-highlight")]
 use syntect::{
     highlighting::{FontStyle, Style, ThemeSet},
     parsing::SyntaxSet,
     util::LinesWithEndings,
 };
 
+#[cfg(feature = "syntax-highlight")]
 pub static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
+#[cfg(feature = "syntax-highlight")]
 pub static THEME_SET: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
 
+#[cfg(feature = "syntax-highlight")]
 pub fn syntax_highlight(
     source: &str,
     theme: &syntect::highlighting::Theme,

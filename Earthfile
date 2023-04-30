@@ -9,10 +9,10 @@ unmark-plan:
     COPY unmark/Cargo.* .
     COPY unmark/src src
     RUN cargo chef prepare --recipe-path=recipe.json
-    SAVE ARTIFACT recipe.json
+    SAVE ARTIFACT recipe.json /recipe.json
 
 unmark-debug-prebuild:
-    COPY +unmark-plan/recipe.json .
+    COPY +unmark-plan/recipe.json recipe.json
     RUN cargo chef cook --recipe-path=recipe.json
     RUN cargo clippy
 

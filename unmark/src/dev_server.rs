@@ -1,20 +1,17 @@
 use std::{
     collections::HashMap,
+    fmt::Debug,
     fs::FileType,
     io,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
-use axum::{
-    extract::{self, FromRequestParts},
-    headers::ContentType,
-    http::StatusCode,
-    response::IntoResponse,
-    TypedHeader,
-};
+use futures::StreamExt;
+use itertools::Itertools;
 use mime::Mime;
 use notify::Watcher;
+use regex::Regex;
 use tokio::{
     fs,
     io::AsyncReadExt,
@@ -22,8 +19,10 @@ use tokio::{
 };
 use tracing::{error, warn};
 
+type Files = RwLock<HashMap<PathBuf, (Mime, Arc<Vec<u8>>)>>;
+
 pub struct State {
-    pub files: RwLock<HashMap<String, (Mime, Vec<u8>)>>,
+    pub files: Files,
 }
 
 impl Default for State {
@@ -34,32 +33,9 @@ impl Default for State {
     }
 }
 
-impl State {
-    async fn get(&self, path: &str) -> Option<(Mime, Vec<u8>)> {
-        let path = path.strip_suffix('/').unwrap_or(path);
-        dbg!(path);
-        let files = self.files.read().await;
-        let (mime, content) = files
-            .get(path)
-            .or_else(|| files.get(&format!("{path}.html")))
-            .or_else(|| files.get(&format!("{path}/index.html")))?;
-        Some((mime.clone(), content.clone()))
-    }
-}
+impl State {}
 
 pub struct AnyPath(String);
-
-#[async_trait::async_trait]
-impl<S> FromRequestParts<S> for AnyPath {
-    type Rejection = ();
-
-    async fn from_request_parts(
-        parts: &mut axum::http::request::Parts,
-        _: &S,
-    ) -> Result<Self, Self::Rejection> {
-        Ok(Self(parts.uri.to_string()))
-    }
-}
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error<E> {
@@ -77,11 +53,13 @@ pub enum Error<E> {
     Processor(E),
     #[error("cannot canonicalize path {0:?}")]
     CanonicalizePath(PathBuf, io::Error),
+    #[error("message queue overflow")]
+    MsgQueueOverflow,
 }
 
 async fn get_files<P: AsRef<Path>, E>(
     root_dir: P,
-) -> Result<HashMap<String, (Mime, Vec<u8>)>, Error<E>> {
+) -> Result<HashMap<PathBuf, (Mime, Vec<u8>)>, Error<E>> {
     let mut stack = Vec::new();
     let mut files = HashMap::new();
     stack.push(root_dir.as_ref().to_owned());
@@ -105,15 +83,8 @@ async fn get_files<P: AsRef<Path>, E>(
             file.read_to_end(&mut content)
                 .await
                 .map_err(|e| Error::ReadFile(path.to_owned(), e))?;
-            let guessed_mime = infer::get(&content)
-                .map(|t| t.mime_type())
-                .unwrap_or("application/octet-stream");
-            let guessed_mime: mime::Mime = guessed_mime.parse().unwrap();
-            let path = path
-                .to_str()
-                .ok_or_else(|| Error::NonUtf8Path(path.to_owned()))?
-                .to_owned();
-            files.insert(path, (guessed_mime, content));
+            let mime = mime_guess::from_path(&path).first_or_octet_stream();
+            files.insert(path, (mime, content));
         } else {
             let metadata = fs::metadata(&path)
                 .await
@@ -124,23 +95,6 @@ async fn get_files<P: AsRef<Path>, E>(
     Ok(files)
 }
 
-pub async fn get(
-    AnyPath(path): AnyPath,
-    extract::State(state): extract::State<Arc<State>>,
-) -> impl IntoResponse {
-    dbg!(&path);
-    dbg!(state.files.read().await.keys());
-    if let Some((mime, content)) = state.get(&path).await {
-        (StatusCode::OK, TypedHeader(mime.into()), content.to_vec())
-    } else {
-        (
-            StatusCode::NOT_FOUND,
-            TypedHeader(ContentType::text()),
-            Vec::new(),
-        )
-    }
-}
-
 #[derive(Clone)]
 pub struct Filter {
     pub pass: Option<regex::Regex>,
@@ -148,16 +102,20 @@ pub struct Filter {
 }
 
 impl Filter {
-    pub fn is_enable(&self, path: &str) -> bool {
+    pub fn is_enable<P: AsRef<Path>>(&self, path: P) -> bool {
+        let Some(path_str) = path.as_ref().to_str() else {
+            warn!(path=format!("{:?}", path.as_ref()), "non_utf-8_path");
+            return false;
+        };
         let pass = self
             .pass
             .as_ref()
-            .map(|re| re.is_match(path))
+            .map(|re| re.is_match(path_str))
             .unwrap_or(true);
         let ignore = self
             .ignore
             .as_ref()
-            .map(|re| re.is_match(path))
+            .map(|re| re.is_match(path_str))
             .unwrap_or(false);
         pass && !ignore
     }
@@ -170,6 +128,8 @@ pub struct DirectoryLayer {
     pub filter: Filter,
 }
 
+/// Reserved tag
+/// * `builtin:file_modify`
 #[derive(Debug, Clone)]
 pub enum Tag {
     Static(&'static str),
@@ -212,288 +172,182 @@ pub enum Visibility {
 }
 
 #[derive(Debug, Clone)]
-pub enum ProcessorEventType {
-    Inserted(Mime, Vec<u8>, Visibility),
-    Notice(String),
+pub enum EventType<T> {
+    FileInserted {
+        mime: Mime,
+        content: Arc<Vec<u8>>,
+        visibility: Visibility,
+    },
+    FileChanged,
+    Notice(T),
     Removed,
 }
 
 #[derive(Debug, Clone)]
-pub struct ProcessorOut {
+pub struct Event<T> {
     pub tag: Tag,
-    pub event: ProcessorEventType,
-    pub path: String,
-    pub real_path: PathBuf,
+    pub event_type: EventType<T>,
+    pub out_path: PathBuf,
+    pub src_path: PathBuf,
+}
+
+impl<T> Event<T> {
+    pub fn get_inserted_file_by_out_path(&self, re: &Regex) -> Option<(&Mime, &[u8], Visibility)> {
+        let Some(str_path)  = self.out_path.to_str() else {
+            return None;
+        };
+        if !re.is_match(str_path) {
+            return None;
+        }
+        let EventType::FileInserted {
+            mime,
+            content,
+            visibility,
+        } = &self.event_type else { return None };
+        Some((mime, content.as_ref(), *visibility))
+    }
 }
 
 #[async_trait::async_trait]
-pub trait FileProcessor {
+pub trait Processor<T> {
     type Context;
     type Error;
     async fn process(
         &self,
         ctx: &Self::Context,
-        event: ProcessorOut,
-    ) -> Result<Vec<ProcessorOut>, Self::Error>;
+        event: Event<T>,
+    ) -> Result<Vec<Event<T>>, Self::Error>;
 }
 
-async fn watch_files_for_layer<E>(
+async fn watch_files_on_layer<E, T: 'static + Send + std::fmt::Debug>(
     layer: DirectoryLayer,
-    sender: mpsc::Sender<ProcessorOut>,
+    sender: mpsc::Sender<Event<T>>,
 ) -> Result<Box<dyn notify::Watcher>, Error<E>> {
-    let root = layer
+    let watch_root = layer
         .src
         .canonicalize()
         .map_err(|e| Error::CanonicalizePath(layer.src.clone(), e))?;
     let mut watcher = notify::recommended_watcher({
         let sender = sender.clone();
-        let root = root.clone();
+        let root = watch_root.clone();
         let layer = layer.clone();
         move |event: Result<notify::Event, notify::Error>| match event {
-            Ok(event) => {
-                let kind = event.kind;
-                for path in event.paths {
-                    let real_path = path.clone();
-                    let path = path
-                        .strip_prefix(&root)
-                        .expect("children of root must have root as prefix");
-                    let path = layer.dist.join(path);
-                    let Some(path) = path.to_str() else {
-                        warn!(path=format!("{path:?}"), "non-utf8 path");
-                        return;
-                    };
-                    if !layer.filter.is_enable(path) {
-                        return;
-                    }
-                    dbg!(&path);
-                    match kind {
-                        notify::EventKind::Remove(_) => {
-                            sender
-                                .blocking_send(ProcessorOut {
-                                    tag: "builtin:file_remove".into(),
-                                    event: ProcessorEventType::Notice("removed".to_owned()),
-                                    path: path.to_owned(),
-                                    real_path,
-                                })
-                                .unwrap();
-                        }
-                        _ => {
-                            sender
-                                .blocking_send(ProcessorOut {
-                                    tag: "builtin:file_modify".into(),
-                                    event: ProcessorEventType::Notice("modified".to_owned()),
-                                    path: path.to_owned(),
-                                    real_path,
-                                })
-                                .unwrap();
-                        }
+            Ok(event) => match event.kind {
+                notify::EventKind::Modify(_) | notify::EventKind::Create(_) => {
+                    for path in event.paths {
+                        let rel_path = path
+                            .strip_prefix(&root)
+                            .expect("children of root must have root as prefix");
+                        let out_path = layer.dist.join(rel_path);
+                        sender
+                            .blocking_send(Event {
+                                tag: "builtin:file_watch".into(),
+                                event_type: EventType::FileChanged,
+                                out_path,
+                                src_path: path,
+                            })
+                            .expect("message queue overflow");
                     }
                 }
-            }
+                notify::EventKind::Remove(_) => {
+                    for path in event.paths {
+                        let rel_path = path
+                            .strip_prefix(&root)
+                            .expect("children of root must have root as prefix");
+                        let out_path = layer.dist.join(rel_path);
+                        sender
+                            .blocking_send(Event {
+                                tag: "builtin:file_watch".into(),
+                                event_type: EventType::Removed,
+                                out_path,
+                                src_path: path,
+                            })
+                            .expect("message queue overflow");
+                    }
+                }
+                // ignore
+                notify::EventKind::Any
+                | notify::EventKind::Access(_)
+                | notify::EventKind::Other => (),
+            },
             Err(e) => {
-                error!(err = e.to_string(), "file_watch_error");
+                warn!(err = e.to_string(), "file_watch");
             }
         }
     })
     .map_err(Error::FileWatch)?;
     watcher
-        .watch(&root, notify::RecursiveMode::Recursive)
+        .watch(&watch_root, notify::RecursiveMode::Recursive)
         .map_err(Error::FileWatch)?;
-    let files = get_files(&root).await?;
-    let root_str = root
-        .to_str()
-        .ok_or_else(|| Error::NonUtf8Path(root.clone()))?;
-    let dist_str = layer
-        .dist
-        .to_str()
-        .ok_or_else(|| Error::NonUtf8Path(root.clone()))?;
-    for (path, _) in files {
-        if !layer.filter.is_enable(&path) {
-            continue;
-        }
-        let real_path = PathBuf::from(path.clone());
-        let path = path
-            .strip_prefix(root_str)
+    for (path, (_, _)) in get_files(&watch_root).await? {
+        let out_path = path
+            .strip_prefix(&watch_root)
             .expect("children must have root as prefix");
-        let path = format!("{dist_str}{path}");
-        dbg!(&path);
+        let out_path = layer.dist.join(out_path);
         sender
-            .send(ProcessorOut {
-                tag: "builtin:file_modify".into(),
-                event: ProcessorEventType::Notice("modified".to_owned()),
-                path,
-                real_path,
+            .blocking_send(Event {
+                tag: "builtin:file_watch".into(),
+                event_type: EventType::FileChanged,
+                out_path,
+                src_path: path,
             })
-            .await
-            .unwrap();
+            .expect("message queue overflow");
     }
     Ok(Box::new(watcher))
 }
 
-pub mod utilities {
-    use std::{ffi::OsStr, marker::PhantomData, os::unix::prelude::OsStrExt};
-
-    use itertools::Itertools;
-    use tokio::{fs, io::AsyncReadExt};
-    use tracing::{debug, info};
-
-    use crate::dev_server::ProcessorEventType;
-
-    use super::{FileProcessor, Filter, ProcessorOut, Visibility};
-
-    pub struct FileLoader<C, E, F> {
-        _phantom1: PhantomData<C>,
-        _phantom2: PhantomData<E>,
-        err: F,
-        filter: Filter,
-        visibility: Visibility,
-    }
-
-    impl<C, E, F: Fn(std::io::Error) -> E> FileLoader<C, E, F> {
-        pub fn new(filter: Filter, visibility: Visibility, err: F) -> Self {
-            Self {
-                _phantom1: PhantomData::default(),
-                _phantom2: PhantomData::default(),
-                filter,
-                visibility,
-                err,
-            }
-        }
-    }
-
-    #[async_trait::async_trait]
-    impl<C: Sync, E: Sync, F: Fn(std::io::Error) -> E + Sync> FileProcessor for FileLoader<C, E, F> {
-        type Context = C;
-        type Error = E;
-
-        async fn process(
-            &self,
-            _ctx: &Self::Context,
-            event: ProcessorOut,
-        ) -> Result<Vec<super::ProcessorOut>, Self::Error> {
-            if matches!(&event.event, ProcessorEventType::Notice(tag) if tag == "modified")
-                && event.tag == "builtin:file_modify".into()
-            {
-                if !self.filter.is_enable(&event.path) {
-                    return Ok(Vec::new());
-                }
-                let mut file = fs::File::open(&event.real_path).await.map_err(&self.err)?;
-                let mut buf = Vec::new();
-                file.read_to_end(&mut buf).await.map_err(&self.err)?;
-                let mime = if event.real_path.extension()
-                    == Some(OsStr::from_bytes("css".as_bytes()))
-                {
-                    info!("CSS");
-                    mime::TEXT_CSS
-                } else if event.real_path.extension() == Some(OsStr::from_bytes("js".as_bytes())) {
-                    info!("JS");
-                    mime::APPLICATION_JAVASCRIPT
-                } else {
-                    mime::APPLICATION_OCTET_STREAM
-                };
-                return Ok(vec![ProcessorOut {
-                    tag: "builtin-util:file_read".into(),
-                    event: ProcessorEventType::Inserted(mime, buf, self.visibility),
-                    path: event.path,
-                    real_path: event.real_path,
-                }]);
-            }
-            Ok(Vec::new())
-        }
-    }
-
-    pub struct LogProcessor<C: Sync, E: Sync> {
-        _phantom1: PhantomData<C>,
-        _phantom2: PhantomData<E>,
-    }
-
-    impl<C: Sync, E: Sync> Default for LogProcessor<C, E> {
-        fn default() -> Self {
-            Self {
-                _phantom1: PhantomData::default(),
-                _phantom2: PhantomData::default(),
-            }
-        }
-    }
-
-    #[async_trait::async_trait]
-    impl<C: Sync, E: Sync> FileProcessor for LogProcessor<C, E> {
-        type Context = C;
-
-        type Error = E;
-
-        async fn process(
-            &self,
-            _ctx: &Self::Context,
-            event: ProcessorOut,
-        ) -> Result<Vec<super::ProcessorOut>, Self::Error> {
-            let path = &event.path;
-            let tag = &event.tag;
-            match &event.event {
-                ProcessorEventType::Inserted(mime, content, visibility) => {
-                    if let Ok(content) = std::str::from_utf8(content) {
-                        let content = content.chars().take(10).join("");
-                        debug!(
-                            tag = format!("{tag:?}"),
-                            path = path,
-                            mime = mime.to_string(),
-                            content = content,
-                            visibility = format!("{visibility:?}"),
-                            "inserted"
-                        );
-                    } else {
-                        debug!(
-                            tag = format!("{tag:?}"),
-                            path = path,
-                            mime = mime.to_string(),
-                            content = format!("<binary>"),
-                            "inserted"
-                        );
-                    }
-                }
-                ProcessorEventType::Notice(msg) => {
-                    debug!(tag = format!("{tag:?}"), path = path, msg = msg, "notice");
-                }
-                ProcessorEventType::Removed => {
-                    debug!(tag = format!("{tag:?}"), path = path, "removed");
-                }
-            }
-            Ok(Vec::new())
-        }
-    }
-}
-
-pub async fn watch_files<C: Sync, E: Sync, I: IntoIterator<Item = DirectoryLayer>>(
+pub async fn watch_files<
+    D: IntoIterator<Item = DirectoryLayer>,
+    P: IntoIterator<Item = Box<dyn Processor<T, Context = C, Error = E> + Send + Sync>>,
+    C: Send + Sync + 'static,
+    E: Send + Sync + 'static,
+    T: 'static + Clone + Send + Sync + Debug,
+>(
     state: Arc<State>,
-    ctx: C,
-    layers: I,
-    processors: Vec<Box<dyn FileProcessor<Context = C, Error = E>>>,
+    initial_context: C,
+    layers: D,
+    processors: P,
 ) -> Result<(), Error<E>> {
-    let (tx, mut rx) = mpsc::channel(1024);
-    let mut watchers = Vec::new();
-    for layer in layers {
-        watchers.push(watch_files_for_layer(layer, tx.clone()).await?);
-    }
-    while let Some(event) = rx.recv().await {
-        for processor in &processors {
-            let result = processor
-                .process(&ctx, event.clone())
-                .await
-                .map_err(Error::Processor)?;
-            for out in result {
-                if let ProcessorEventType::Inserted(mime, content, Visibility::Published) =
-                    &out.event
+    let (tx, mut rx) = mpsc::channel::<Event<T>>(1024);
+    let layers = futures::stream::iter(layers);
+    let _watchers = layers
+        .then(|layer| watch_files_on_layer::<E, T>(layer, tx.clone()))
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()?;
+    let processors = processors.into_iter().collect_vec();
+    tokio::task::spawn(async move {
+        while let Some(event) = rx.recv().await {
+            for processor in &processors {
+                for out in processor
+                    .process(&initial_context, event.clone())
+                    .await
+                    .map_err(Error::Processor)?
                 {
-                    dbg!(&event.path);
-                    state
-                        .files
-                        .write()
-                        .await
-                        .insert(out.path.clone(), (mime.clone(), content.clone()));
+                    match &out.event_type {
+                        EventType::Removed => {
+                            state.files.write().await.remove(&out.out_path);
+                        }
+                        EventType::FileInserted {
+                            mime,
+                            content,
+                            visibility: Visibility::Published,
+                        } => {
+                            state
+                                .files
+                                .write()
+                                .await
+                                .insert(out.out_path.clone(), (mime.clone(), content.clone()));
+                        }
+                        _ => (),
+                    }
+                    tx.send(out).await.expect("msg queue overflow");
                 }
-                tx.send(out).await.unwrap();
             }
         }
-    }
-    Ok(())
+        Ok::<(), Error<E>>(())
+    });
+
+    unimplemented!()
 }

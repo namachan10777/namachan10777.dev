@@ -16,8 +16,6 @@ pub enum Error {
     TranspileError(crate::transpiler::Error),
     #[error("non utf-8 path {0:?}")]
     NonUtf8Path(PathBuf),
-    #[error("cannot parse \"{0}\" as date due to {1}")]
-    ParseDate(String, chrono::ParseError),
 }
 
 pub fn get_flat_inner_text<'a>(md: &'a Node<'a, RefCell<Ast>>) -> String {
