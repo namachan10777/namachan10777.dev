@@ -16,6 +16,7 @@ async-recursion = "1.0.4"
 async-trait = "0.1.68"
 axohtml = "0.5.0"
 axum = { version = "0.6.17", default-features=false, features = ["headers", "http1", "http2", "tokio"], optional=true }
+chumsky = "0.9.2"
 clap = { version = "4.0.32", features = ["derive"] }
 comrak = { version = "0.18.0", features = [], default-features = false }
 futures = {version="0.3.28", features=["std", "async-await"], default-features=false}
