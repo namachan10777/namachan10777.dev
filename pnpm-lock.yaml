@@ -34,9 +34,9 @@ specifiers:
   refractor: 4.8.1
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
-  remark-parse: 10.0.1
+  remark-parse: 10.0.2
   remark-rehype: 10.1.0
-  remark-stringify: 10.0.2
+  remark-stringify: 10.0.3
   sharp: 0.32.1
   text-loader: 0.0.1
   typescript: 4.9.5
@@ -57,9 +57,9 @@ dependencies:
   refractor: 4.8.1
   remark-frontmatter: 4.0.1
   remark-gfm: 3.0.1
-  remark-parse: 10.0.1
+  remark-parse: 10.0.2
   remark-rehype: 10.1.0
-  remark-stringify: 10.0.2
+  remark-stringify: 10.0.3
   unified: 10.1.2
 
 devDependencies:
@@ -4565,8 +4565,8 @@ packages:
       - supports-color
     dev: false
 
-  /remark-parse/10.0.1:
-    resolution: {integrity: sha512-1fUyHr2jLsVOkhbvPRBJ5zTKZZyD6yZzYaWCS6BPBdQ8vEMBCH+9zNCDA6tET/zHCi/jLqjCWtlJZUPk+DbnFw==}
+  /remark-parse/10.0.2:
+    resolution: {integrity: sha512-3ydxgHa/ZQzG8LvC7jTXccARYDcRld3VfcgIIFs7bI6vbRSxJJmzgLEIIoYKyrfhaY+ujuWaf/PJiMZXoiCXgw==}
     dependencies:
       '@types/mdast': 3.0.11
       mdast-util-from-markdown: 1.2.0
@@ -4584,8 +4584,8 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /remark-stringify/10.0.2:
-    resolution: {integrity: sha512-6wV3pvbPvHkbNnWB0wdDvVFHOe1hBRAx1Q/5g/EpH4RppAII6J8Gnwe7VbHuXaoKIF6LAg6ExTel/+kNqSQ7lw==}
+  /remark-stringify/10.0.3:
+    resolution: {integrity: sha512-koyOzCMYoUHudypbj4XpnAKFbkddRMYZHwghnxd7ue5210WzGw6kOBwauJTRUMq16jsovXx8dYNvSSWP89kZ3A==}
     dependencies:
       '@types/mdast': 3.0.11
       mdast-util-to-markdown: 1.4.0
