@@ -1,19 +1,4 @@
-node_modules
-elm-stuff
-elm.js
-*.satysfi-aux
+/dist/
+/target/
 *.html
-*.xhtml
-!index.xhtml
-/.yarn/
-public/sitemap.xml
-
-dist/*
-
-*.zip
-
-# Local Netlify folder
-.netlify
-
-.next
-/webpack-tml-loader/*.js
+*.js

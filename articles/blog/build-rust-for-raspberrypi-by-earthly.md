@@ -1,8 +1,9 @@
 ---
-title: "EarthlyでRaspberryPi向けにビルドする"
 name: "build-rust-for-raspberrypi-by-earthly"
 category: ["tech"]
 ---
+
+# EarthlyでRaspberryPi向けにビルドする
 
 RaspberryPi向けのビルドとなると依存管理とかが面倒なのでmuslを使いたい。
 GNU libcの方がパフォーマンス良いと言ってもRaspberyPiならパフォーマンスとか関係ないし。
