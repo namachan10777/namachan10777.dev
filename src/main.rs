@@ -49,7 +49,7 @@ impl unmark::builder::OneToOneRule for Blog {
                     <link rel="stylesheet" href="../style/index.css" />
                 </head>
                 <body>
-                    <div id="content">
+                    <div id="contents-root">
                         <header>
                             <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../blog.html">"blog"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
                             <div>
@@ -99,7 +99,7 @@ impl unmark::builder::OneToOneRule for Diary {
                     <link rel="stylesheet" href="../style/highlight/otynium.css" />
                     <link rel="stylesheet" href="../style/index.css" />
                 </head>
-                <body><div id="contents">
+                <body><div id="contents-root">
                     <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
                     {html}
                 </div></body>
@@ -137,7 +137,7 @@ impl unmark::builder::OneToOneRule for Index {
                     <link rel="stylesheet" href="./style/highlight/otynium.css" />
                     <link rel="stylesheet" href="./style/index.css" />
                 </head>
-                <body><div id="contents">{html}</div></body>
+                <body><div id="contents-root">{html}</div></body>
             </html>
         );
         let content = Blob {
@@ -174,7 +174,7 @@ impl unmark::builder::Rule for BlogIndex {
                     <link rel="stylesheet" href="./style/index.css" />
                 </head>
                 <body>
-                    <div id="contents">
+                    <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"blog"</span></span>
                         </header>
@@ -222,7 +222,7 @@ impl unmark::builder::Rule for DiaryIndex {
                     <link rel="stylesheet" href="./style/index.css" />
                 </head>
                 <body>
-                    <div id="contents">
+                    <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"diary"</span></span>
                         </header>
@@ -281,7 +281,7 @@ impl unmark::builder::Rule for CategoryIndex {
                     <link rel="stylesheet" href="./style/index.css" />
                 </head>
                 <body>
-                    <div id="contents">
+                    <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"category"</span></span>
                         </header>
