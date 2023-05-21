@@ -352,12 +352,10 @@ fn main() -> anyhow::Result<()> {
         dbg!(&path);
         let out_path = opts.dist.join(path.strip_prefix("/").unwrap());
         dbg!(&out_path);
-        if out_path.exists() {
-            if out_path.is_dir() {
-                fs::remove_dir_all(&out_path)?;
-            }
+        if out_path.exists() && out_path.is_dir() {
+            fs::remove_dir_all(&out_path)?;
         }
-        fs::create_dir_all(&out_path.parent().unwrap())?;
+        fs::create_dir_all(out_path.parent().unwrap())?;
         let mut file = fs::File::create(out_path)?;
         file.write_all(&content.content)?;
     }
