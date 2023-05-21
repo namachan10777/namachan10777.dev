@@ -1,5 +1,4 @@
-/scripts/node_modules/
-/scripts/dist/
-/unmark/target/
+/dist/
+/target/
 *.html
 *.js
