@@ -1,21 +1,27 @@
 use anyhow::Context;
 use axohtml::{dom::DOMTree, html, text, types::Id};
 use clap::Parser;
-use maplit::hashmap;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, io::Write, path::PathBuf};
+use std::{
+    collections::HashMap,
+    fs,
+    io::Write,
+    net::SocketAddr,
+    path::{Path, PathBuf},
+};
 use unmark::builder::{build, static_load, Blob, DirMap};
 
 #[derive(Parser)]
 struct Opts {
     root: PathBuf,
-    dist: PathBuf,
+    addr: SocketAddr,
 }
 
 struct Hooks;
 impl unmark::htmlgen::Hooks for Hooks {}
 
+#[derive(Clone)]
 struct Blog;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -24,14 +30,18 @@ struct BlogMeta {
     category: Vec<String>,
 }
 
-impl unmark::builder::OneToOneRule for Blog {
+impl unmark::builder::util::MapRule for Blog {
     type Error = anyhow::Error;
+
+    fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
+        path.with_extension("html")
+    }
 
     fn build(
         &self,
         path: &std::path::Path,
         content: &unmark::builder::Blob,
-    ) -> Result<(PathBuf, unmark::builder::Blob), Self::Error> {
+    ) -> Result<unmark::builder::Blob, Self::Error> {
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) =
             unmark::md::parse::<BlogMeta>(&src).with_context(|| format!("{path:?}"))?;
@@ -64,29 +74,30 @@ impl unmark::builder::OneToOneRule for Blog {
                 </body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok((path.with_extension("html"), content))
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
+#[derive(Clone)]
 struct Diary;
 #[derive(Debug, Deserialize, Serialize)]
 struct DiaryMeta {
     date: String,
 }
 
-impl unmark::builder::OneToOneRule for Diary {
+impl unmark::builder::util::MapRule for Diary {
     type Error = anyhow::Error;
 
-    fn build(
-        &self,
-        path: &std::path::Path,
-        content: &Blob,
-    ) -> Result<(PathBuf, Blob), Self::Error> {
+    fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
+        path.with_extension("html")
+    }
+
+    fn build(&self, path: &std::path::Path, content: &Blob) -> Result<Blob, Self::Error> {
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) = unmark::md::parse::<DiaryMeta>(&src)?;
         let page_name = path.file_name();
@@ -107,28 +118,29 @@ impl unmark::builder::OneToOneRule for Diary {
                 </div></body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok((path.with_extension("html"), content))
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
+#[derive(Clone)]
 struct Index;
 #[derive(Deserialize)]
 struct IndexMeta {
     title: String,
 }
-impl unmark::builder::OneToOneRule for Index {
+impl unmark::builder::util::MapRule for Index {
     type Error = anyhow::Error;
 
-    fn build(
-        &self,
-        path: &std::path::Path,
-        content: &Blob,
-    ) -> Result<(PathBuf, Blob), Self::Error> {
+    fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
+        path.with_extension("html")
+    }
+
+    fn build(&self, _: &std::path::Path, content: &Blob) -> Result<Blob, Self::Error> {
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) = unmark::md::parse::<IndexMeta>(&src)?;
         let html = unmark::htmlgen::document(Hooks, &ast)?;
@@ -143,20 +155,33 @@ impl unmark::builder::OneToOneRule for Index {
                 <body><div id="contents-root">{html}</div></body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok((path.with_extension("html"), content))
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
+#[derive(Clone)]
 struct BlogIndex;
-impl unmark::builder::Rule for BlogIndex {
+impl unmark::builder::util::Aggregate for BlogIndex {
     type Error = anyhow::Error;
 
-    fn build(&self, tree: &unmark::builder::Tree) -> Result<unmark::builder::Tree, Self::Error> {
+    fn out(&self, _: &HashMap<PathBuf, Blob>) -> PathBuf {
+        "/blog.html".into()
+    }
+
+    fn demands(&self, tree: &HashMap<PathBuf, Blob>) -> Vec<PathBuf> {
+        let re = Regex::new(r#"^/blog/.+\.md$"#).unwrap();
+        tree.keys()
+            .filter(|path| re.is_match(&path.to_string_lossy()))
+            .cloned()
+            .collect()
+    }
+
+    fn build(&self, tree: &HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
         let blog_re = Regex::new(r#"^/blog/.+\.md"#).unwrap();
         let blogs = tree
             .iter()
@@ -194,20 +219,33 @@ impl unmark::builder::Rule for BlogIndex {
                 </body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok(hashmap! {"/blog.html".into() => content })
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
+#[derive(Clone)]
 struct DiaryIndex;
-impl unmark::builder::Rule for DiaryIndex {
+impl unmark::builder::util::Aggregate for DiaryIndex {
     type Error = anyhow::Error;
 
-    fn build(&self, tree: &unmark::builder::Tree) -> Result<unmark::builder::Tree, Self::Error> {
+    fn out(&self, _: &HashMap<PathBuf, Blob>) -> PathBuf {
+        "/diary.html".into()
+    }
+
+    fn demands(&self, tree: &HashMap<PathBuf, Blob>) -> Vec<PathBuf> {
+        let re = Regex::new(r#"^/blog/.+\.md$"#).unwrap();
+        tree.keys()
+            .filter(|path| re.is_match(&path.to_string_lossy()))
+            .cloned()
+            .collect()
+    }
+
+    fn build(&self, tree: &HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
         let blog_re = Regex::new(r#"^/diary/.+\.md"#).unwrap();
         let blogs = tree
             .iter()
@@ -243,20 +281,33 @@ impl unmark::builder::Rule for DiaryIndex {
                 </body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok(hashmap! {"/diary.html".into() => content })
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
+#[derive(Clone)]
 struct CategoryIndex;
-impl unmark::builder::Rule for CategoryIndex {
+impl unmark::builder::util::Aggregate for CategoryIndex {
     type Error = anyhow::Error;
 
-    fn build(&self, tree: &unmark::builder::Tree) -> Result<unmark::builder::Tree, Self::Error> {
+    fn out(&self, _: &HashMap<PathBuf, Blob>) -> PathBuf {
+        "/category.html".into()
+    }
+
+    fn demands(&self, tree: &HashMap<PathBuf, Blob>) -> Vec<PathBuf> {
+        let re = Regex::new(r#"^/blog/.+\.md$"#).unwrap();
+        tree.keys()
+            .filter(|path| re.is_match(&path.to_string_lossy()))
+            .cloned()
+            .collect()
+    }
+
+    fn build(&self, tree: &HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
         let blog_re = Regex::new(r#"^/blog/.+\.md"#).unwrap();
         let blogs = tree
             .iter()
@@ -315,55 +366,50 @@ impl unmark::builder::Rule for CategoryIndex {
                 </body>
             </html>
         );
-        let content = Blob {
-            content: html.to_string().as_bytes().to_vec(),
-            mime: mime::TEXT_HTML_UTF_8,
-            publish: true,
-        };
-        Ok(hashmap! {"/category.html".into() => content })
+        let content = Blob::new(
+            html.to_string().as_bytes().to_vec(),
+            mime::TEXT_HTML_UTF_8,
+            true,
+        );
+        Ok(content)
     }
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    use tracing_subscriber::prelude::*;
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .with(tracing_subscriber::fmt::layer())
+        .init();
     let opts = Opts::parse();
-    let tree = static_load(vec![
-        DirMap::new_by_re(&opts.root, "/", false, Regex::new(r#"^.+\.md$"#).unwrap()),
-        DirMap::new_by_re(&opts.root, "/", true, Regex::new(r#"^.+\.css$"#).unwrap()),
-    ])?;
-    dbg!(tree.keys().collect::<Vec<_>>());
-    let tree = build(
+    let tree = vec![
+        DirMap::new_by_re(
+            opts.root.clone(),
+            "/".into(),
+            Regex::new(r#"^.+\.md$"#).unwrap(),
+            false,
+        ),
+        DirMap::new_by_re(
+            opts.root.clone(),
+            "/".into(),
+            Regex::new(r#"^.+\.css$"#).unwrap(),
+            false,
+        ),
+    ];
+    let mut cache = unmark::builder::Cache::empty();
+    unmark::builder::dev_server::serve(
+        &opts.addr,
         tree,
         vec![
-            unmark::builder::one_to_one_based_on_regex(
-                Regex::new(r#"^/blog/.+\.md$"#).unwrap(),
-                Blog,
-            ),
-            unmark::builder::one_to_one_based_on_regex(
-                Regex::new(r#"^/diary/.+\.md$"#).unwrap(),
-                Diary,
-            ),
-            unmark::builder::one_to_one_based_on_regex(
-                Regex::new(r#"^/index.md$"#).unwrap(),
-                Index,
-            ),
-            Box::new(BlogIndex),
-            Box::new(DiaryIndex),
-            Box::new(CategoryIndex),
+            unmark::builder::util::map_rule(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
+            unmark::builder::util::map_rule(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
+            unmark::builder::util::map_rule(Index, Regex::new(r#"^/index.md$"#).unwrap()),
+            unmark::builder::util::aggregate(BlogIndex),
+            unmark::builder::util::aggregate(DiaryIndex),
+            unmark::builder::util::aggregate(CategoryIndex),
         ],
-    )?;
-    for (path, content) in tree {
-        if !content.publish {
-            continue;
-        }
-        dbg!(&path);
-        let out_path = opts.dist.join(path.strip_prefix("/").unwrap());
-        dbg!(&out_path);
-        if out_path.exists() && out_path.is_dir() {
-            fs::remove_dir_all(&out_path)?;
-        }
-        fs::create_dir_all(out_path.parent().unwrap())?;
-        let mut file = fs::File::create(out_path)?;
-        file.write_all(&content.content)?;
-    }
+    )
+    .await?;
     Ok(())
 }
