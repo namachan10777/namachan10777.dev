@@ -37,16 +37,14 @@ code {
 @media (min-aspect-ratio: 1/1) {
     #contents-root {
         width: 70vw;
-    }
-    html {
-        font-size: 1rem;
+        overflow-wrap: break-word;
     }
 }
 
 @media (max-aspect-ratio: 1/1) {
     #contents-root {
         width: 95vw;
-        font-size: 1rem;
+        overflow-wrap: break-word;
     }
 }
 

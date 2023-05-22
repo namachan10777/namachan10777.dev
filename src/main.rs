@@ -47,6 +47,7 @@ impl unmark::builder::OneToOneRule for Blog {
                     <title>{text!(title)}</title>
                     <link rel="stylesheet" href="../style/highlight/otynium.css" />
                     <link rel="stylesheet" href="../style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body>
                     <div id="contents-root">
@@ -98,6 +99,7 @@ impl unmark::builder::OneToOneRule for Diary {
                     <title>{text!(meta.date)}</title>
                     <link rel="stylesheet" href="../style/highlight/otynium.css" />
                     <link rel="stylesheet" href="../style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body><div id="contents-root">
                     <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
@@ -136,6 +138,7 @@ impl unmark::builder::OneToOneRule for Index {
                     <title>{text!(meta.title)}</title>
                     <link rel="stylesheet" href="./style/highlight/otynium.css" />
                     <link rel="stylesheet" href="./style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body><div id="contents-root">{html}</div></body>
             </html>
@@ -172,6 +175,7 @@ impl unmark::builder::Rule for BlogIndex {
                     <title>"Blog"</title>
                     <link rel="stylesheet" href="./style/highlight/otynium.css" />
                     <link rel="stylesheet" href="./style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body>
                     <div id="contents-root">
@@ -220,6 +224,7 @@ impl unmark::builder::Rule for DiaryIndex {
                     <title>"Blog"</title>
                     <link rel="stylesheet" href="./style/highlight/otynium.css" />
                     <link rel="stylesheet" href="./style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body>
                     <div id="contents-root">
@@ -279,6 +284,7 @@ impl unmark::builder::Rule for CategoryIndex {
                     <title>"Blog"</title>
                     <link rel="stylesheet" href="./style/highlight/otynium.css" />
                     <link rel="stylesheet" href="./style/index.css" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body>
                     <div id="contents-root">
