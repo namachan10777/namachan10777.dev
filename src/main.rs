@@ -52,7 +52,7 @@ impl unmark::htmlgen::Hooks for Hooks {
         let k: PathBuf = url.into();
         dbg!(&k);
         let (w, h) = self.imgs.get(&k).map(|(w, h)| (*w, *h)).unwrap();
-        Ok(html!(<img src=url alt=alt width=w height=h/>))
+        Ok(html!(<img src=url alt=alt width=w height=h class="generic-img"/>))
     }
 }
 

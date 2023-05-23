@@ -15,6 +15,7 @@ body {
 
 img.generic-img {
     max-width: 100%;
+    height: auto;
 }
 
 code {
