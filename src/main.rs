@@ -62,7 +62,7 @@ impl unmark::builder::util::Spread for Image {
         let image = image::load_from_memory(&blob.content)?;
         let mut buffer = Vec::new();
         image::codecs::webp::WebPEncoder::new(&mut buffer).encode(
-            &image.as_bytes(),
+            image.as_bytes(),
             image.dimensions().0,
             image.dimensions().1,
             image.color(),
@@ -413,7 +413,9 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
     }
 }
 
-fn dirs(root: &Path) -> Vec<DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>> {
+type BoxedDirMap = DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>;
+
+fn dirs(root: &Path) -> Vec<BoxedDirMap> {
     vec![
         DirMap::new_by_re(
             root.to_owned(),
