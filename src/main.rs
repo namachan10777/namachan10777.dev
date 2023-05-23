@@ -377,7 +377,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
     }
 
     fn demands(&self, tree: &HashMap<PathBuf, Blob>) -> Vec<PathBuf> {
-        let re = Regex::new(r#"^/blog/.+\.md$"#).unwrap();
+        let re = Regex::new(r#"^/diary/.+\.md$"#).unwrap();
         tree.keys()
             .filter(|path| re.is_match(&path.to_string_lossy()))
             .cloned()
@@ -385,10 +385,10 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
     }
 
     fn build(&self, tree: &HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
-        let blog_re = Regex::new(r#"^/diary/.+\.md"#).unwrap();
-        let blogs = tree
+        let diary_re = Regex::new(r#"^/diary/.+\.md"#).unwrap();
+        let diaries = tree
             .iter()
-            .filter(|(path, _)| blog_re.is_match(&path.to_string_lossy()))
+            .filter(|(path, _)| diary_re.is_match(&path.to_string_lossy()))
             .map(|(path, content)| {
                 let content = String::from_utf8_lossy(&content.content);
                 let (_, meta) = unmark::md::parse::<DiaryMeta>(&content)?;
@@ -398,7 +398,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
         let html: DOMTree<String> = html!(
             <html lang="ja">
                 <head>
-                    <title>"Blog"</title>
+                    <title>"Diary"</title>
                     {common_headers()}
                 </head>
                 <body>
@@ -406,10 +406,10 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"diary"</span></span>
                         </header>
-                        <h1 class="heading">"Blog"</h1>
+                        <h1 class="heading">"Diary"</h1>
                         <ul>
                             {
-                                blogs.into_iter().map(|(path, title)| {
+                                diaries.into_iter().map(|(path, title)| {
                                     html!(<li><a href=(path.strip_prefix("/").unwrap().with_extension("html").to_string_lossy())>{text!(title)}</a></li>)
                                 })
                             }
