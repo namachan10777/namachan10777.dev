@@ -93,7 +93,7 @@ pub struct DirMap<F> {
     pub publish: bool,
 }
 
-impl DirMap<Box<dyn Fn(&Path) -> bool>> {
+impl DirMap<Box<dyn Fn(&Path) -> bool + Send + Sync + 'static>> {
     pub fn new_by_re(src: PathBuf, dst: PathBuf, re: Regex, publish: bool) -> Self {
         Self {
             src,
@@ -125,7 +125,7 @@ async fn glob<P: AsRef<Path>>(root: P) -> std::io::Result<HashSet<PathBuf>> {
 }
 
 pub async fn static_load(
-    dirs: Vec<DirMap<Box<dyn Fn(&Path) -> bool>>>,
+    dirs: &[DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>],
 ) -> std::io::Result<HashMap<PathBuf, Blob>> {
     let mut tree = HashMap::new();
     for dir in dirs {
@@ -148,7 +148,7 @@ pub async fn static_load(
 pub fn build<E>(
     cache: &mut Cache,
     mut tree: HashMap<PathBuf, Blob>,
-    rules: Vec<Box<dyn Rule<Error = E>>>,
+    rules: &[Box<dyn Rule<Error = E> + Send + Sync + 'static>],
 ) -> Result<HashMap<PathBuf, Blob>, Error<E>> {
     for rule in rules {
         let builds = rule.builds(&tree).map_err(Error::Build)?;
@@ -213,9 +213,12 @@ pub fn build<E>(
 pub mod dev_server {
     use std::{
         collections::HashMap,
+        io,
         net::SocketAddr,
+        os::unix::process,
         path::{Path, PathBuf},
         sync::Arc,
+        unimplemented,
     };
 
     use axum::{
@@ -224,7 +227,12 @@ pub mod dev_server {
         http::StatusCode,
         Router, TypedHeader,
     };
-    use tokio::sync::RwLock;
+    use notify::{Event, FsEventWatcher};
+    use tokio::{
+        fs,
+        sync::{mpsc, RwLock},
+    };
+    use tracing::{error, warn};
 
     use super::{static_load, Blob, Cache, DirMap, Rule};
 
@@ -237,6 +245,100 @@ pub mod dev_server {
         async fn from_request(req: axum::http::Request<B>, _: &S) -> Result<Self, Self::Rejection> {
             Ok(Self(req.uri().path().to_owned().into()))
         }
+    }
+
+    #[derive(Debug)]
+    enum FsEvent {
+        Insert { src: PathBuf, dst: PathBuf },
+        Remove { src: PathBuf, dst: PathBuf },
+    }
+
+    async fn watch_dir(
+        dir: DirMap<Box<dyn Fn(&Path) -> bool + Send + Sync + 'static>>,
+        tx: mpsc::Sender<FsEvent>,
+    ) -> Result<FsEventWatcher, notify::Error> {
+        use notify::Watcher;
+        let root = dir.src.clone();
+        let src = dir.src.canonicalize().unwrap();
+        let mut watcher = notify::recommended_watcher(move |event| match event {
+            Ok(Event {
+                kind: notify::EventKind::Create(_) | notify::EventKind::Modify(_),
+                paths,
+                ..
+            }) => {
+                for path in paths {
+                    if !(dir.filter)(&path) {
+                        continue;
+                    }
+                    let Ok(path) = path.canonicalize() else {
+                        return;
+                    };
+                    let dst = dir.dst.join(path.strip_prefix(&src).unwrap());
+                    if let Err(e) = tx.blocking_send(FsEvent::Insert { src: path, dst }) {
+                        warn!(error = e.to_string(), "fs_event_queue");
+                    }
+                }
+            }
+            Ok(Event {
+                kind: notify::EventKind::Remove(_),
+                paths,
+                ..
+            }) => {
+                for path in paths {
+                    if !(dir.filter)(&path) {
+                        continue;
+                    }
+                    let dst = dir.dst.join(path.strip_prefix(&dir.src).unwrap());
+                    if let Err(e) = tx.blocking_send(FsEvent::Remove { src: path, dst }) {
+                        warn!(error = e.to_string(), "fs_event_queue");
+                    }
+                }
+            }
+            Ok(_) => {
+            }
+            Err(e) => {
+                warn!(error = format!("{e}"), "watch_error");
+            }
+        })?;
+        watcher.watch(&root, notify::RecursiveMode::Recursive)?;
+        Ok(watcher)
+    }
+
+    async fn process_fs_event(tree: &mut HashMap<PathBuf, Blob>, event: FsEvent) -> io::Result<()> {
+        match event {
+            FsEvent::Insert { src, dst } => {
+                let content = fs::read(&src).await?;
+                let mime = mime_guess::from_path(&src).first_or_octet_stream();
+                let blob = Blob::new(content, mime, false);
+                tree.insert(dst, blob);
+            }
+            FsEvent::Remove { dst, .. } => {
+                tree.remove(&dst);
+            }
+        }
+        Ok(())
+    }
+
+    async fn continuous_build<E>(
+        cache: &mut Cache,
+        mut src_tree: HashMap<PathBuf, Blob>,
+        mut fs_events: mpsc::Receiver<FsEvent>,
+        state: Arc<FileState>,
+        rules: &[Box<dyn Rule<Error = E> + Send + Sync + 'static>],
+    ) -> Result<(), Error<E>> {
+        while let Some(event) = fs_events.recv().await {
+            process_fs_event(&mut src_tree, event)
+                .await
+                .map_err(Error::FsError)?;
+            while let Ok(event) = fs_events.try_recv() {
+                process_fs_event(&mut src_tree, event)
+                    .await
+                    .map_err(Error::FsError)?;
+            }
+            let tree = super::build(cache, src_tree.clone(), rules).map_err(Error::Build)?;
+            *state.tree.write().await = tree;
+        }
+        Ok(())
     }
 
     #[derive(Debug, thiserror::Error)]
@@ -272,16 +374,25 @@ pub mod dev_server {
         }
     }
 
-    pub async fn serve<E>(
+    pub async fn serve<E: Send + Sync + 'static>(
         addr: &SocketAddr,
-        dirs: Vec<DirMap<Box<dyn Fn(&Path) -> bool>>>,
-        rules: Vec<Box<dyn Rule<Error = E>>>,
+        dirs: Vec<DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>>,
+        rules: Vec<Box<dyn Rule<Error = E> + 'static + Send + Sync>>,
     ) -> Result<(), Error<E>> {
         let mut cache = Cache::empty();
-        let tree = static_load(dirs).await.map_err(Error::FsError)?;
-        let tree = super::build(&mut cache, tree, rules).map_err(Error::Build)?;
+        let src_tree = static_load(&dirs).await.map_err(Error::FsError)?;
+        let tree = super::build(&mut cache, src_tree.clone(), &rules).map_err(Error::Build)?;
         let state = Arc::new(FileState {
             tree: RwLock::new(tree),
+        });
+        let (tx, rx) = mpsc::channel(1024);
+        let mut watchers = Vec::new();
+        for dir in dirs {
+            watchers.push(watch_dir(dir, tx.clone()).await);
+        }
+        let state_for_build = state.clone();
+        tokio::spawn(async move {
+            let _ = continuous_build(&mut cache, src_tree, rx, state_for_build, &rules).await;
         });
         let app = Router::new()
             .fallback(axum::routing::get(file))
@@ -327,10 +438,10 @@ pub mod util {
         rule: R,
     }
 
-    pub fn map_rule<E, R: 'static + Clone + MapRule<Error = E>>(
+    pub fn map_rule<E, R: 'static + Send + Sync + Clone + MapRule<Error = E>>(
         rule: R,
         re: Regex,
-    ) -> Box<dyn Rule<Error = E>> {
+    ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
         Box::new(MapRuleImpl { re, rule })
     }
 
@@ -426,9 +537,9 @@ pub mod util {
         }
     }
 
-    pub fn aggregate<E, R: 'static + Clone + Aggregate<Error = E>>(
+    pub fn aggregate<E, R: 'static + Send + Sync + Clone + Aggregate<Error = E>>(
         rule: R,
-    ) -> Box<dyn Rule<Error = E>> {
+    ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
         Box::new(AggregateImpl { rule })
     }
 }
@@ -478,14 +589,14 @@ mod test {
             "test.txt".into() => super::Blob::new("Hello World!".as_bytes().to_vec(), mime::TEXT_PLAIN_UTF_8, true),
         };
         let rules = vec![map_rule(Upper, Regex::new(r#"^.+\.txt$"#).unwrap())];
-        let tree = super::build(&mut cache, src_tree.clone(), rules).unwrap();
+        let tree = super::build(&mut cache, src_tree.clone(), &rules).unwrap();
         let key: PathBuf = "test.txt".into();
         assert_eq!(
             String::from_utf8_lossy(&tree.get(&key).unwrap().content),
             "HELLO WORLD!"
         );
         let rules = vec![map_rule(Upper, Regex::new(r#"^.+\.txt$"#).unwrap())];
-        let tree = super::build(&mut cache, src_tree, rules).unwrap();
+        let tree = super::build(&mut cache, src_tree, &rules).unwrap();
         assert_eq!(
             String::from_utf8_lossy(&tree.get(&key).unwrap().content),
             "HELLO WORLD!"

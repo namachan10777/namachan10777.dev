@@ -5,12 +5,10 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
-    fs,
-    io::Write,
     net::SocketAddr,
     path::{Path, PathBuf},
 };
-use unmark::builder::{build, static_load, Blob, DirMap};
+use unmark::builder::{Blob, DirMap};
 
 #[derive(Parser)]
 struct Opts {
@@ -397,7 +395,6 @@ async fn main() -> anyhow::Result<()> {
             false,
         ),
     ];
-    let mut cache = unmark::builder::Cache::empty();
     unmark::builder::dev_server::serve(
         &opts.addr,
         tree,

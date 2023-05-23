@@ -14,6 +14,7 @@ title: "namachan10777"
 
 ## Navigation
 
+
 * [Blog](blog.html)
 * [Diary](diary.html)
 * [Keybase](https://keybase.io/namachan10777)
