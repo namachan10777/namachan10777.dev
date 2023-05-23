@@ -21,7 +21,7 @@ jobs:
     - name: tool build
       run: cargo build --release
     - name: build
-      run: cargo run --release articles dist
+      run: cargo run --release -- build articles --dist dist
     - name: Publish
       uses: cloudflare/wrangler-action@2.0.0
       with:
