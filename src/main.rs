@@ -1,19 +1,37 @@
 use anyhow::Context;
-use axohtml::{dom::DOMTree, html, text, types::Id};
+use axohtml::{dom::DOMTree, elements::MetadataContent, html, text, types::Id};
 use clap::Parser;
+use image::GenericImageView;
+use maplit::hashmap;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use tokio::fs;
+use tracing::info;
 use std::{
     collections::HashMap,
     net::SocketAddr,
     path::{Path, PathBuf},
 };
-use unmark::builder::{Blob, DirMap};
+use unmark::builder::{Blob, DirMap, Cache, static_load};
 
 #[derive(Parser)]
 struct Opts {
-    root: PathBuf,
-    addr: SocketAddr,
+    #[clap(subcommand)]
+    cmd: SubCommand,
+}
+
+#[derive(Parser)]
+enum SubCommand {
+    Dev {
+        root: PathBuf,
+        #[clap(short, long, default_value = "127.0.0.1:3000")]
+        addr: SocketAddr,
+    },
+    Build {
+        root: PathBuf,
+        #[clap(short, long)]
+        dist: PathBuf,
+    },
 }
 
 struct Hooks;
@@ -26,6 +44,31 @@ struct Blog;
 struct BlogMeta {
     name: String,
     category: Vec<String>,
+}
+
+#[derive(Clone)]
+struct Image;
+
+impl unmark::builder::util::Spread for Image {
+    type Error = anyhow::Error;
+    fn out_path(&self, path: &std::path::Path) -> Vec<std::path::PathBuf> {
+        vec![path.with_extension("webp")]
+    }
+    fn build(
+        &self,
+        path: &std::path::Path,
+        blob: &Blob,
+    ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
+        let image = image::load_from_memory(&blob.content)?;
+        let mut buffer = Vec::new();
+        image::codecs::webp::WebPEncoder::new(&mut buffer).encode(
+            &image.as_bytes(),
+            image.dimensions().0,
+            image.dimensions().1,
+            image.color(),
+        )?;
+        Ok(hashmap! { path.with_extension("webp") => Blob::new(buffer, mime::IMAGE_STAR, true)})
+    }
 }
 
 impl unmark::builder::util::MapRule for Blog {
@@ -53,9 +96,7 @@ impl unmark::builder::util::MapRule for Blog {
             <html>
                 <head>
                     <title>{text!(title)}</title>
-                    <link rel="stylesheet" href="../style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="../style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body>
                     <div id="contents-root">
@@ -106,9 +147,7 @@ impl unmark::builder::util::MapRule for Diary {
             <html>
                 <head>
                     <title>{text!(meta.date)}</title>
-                    <link rel="stylesheet" href="../style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="../style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body><div id="contents-root">
                     <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
@@ -146,9 +185,7 @@ impl unmark::builder::util::MapRule for Index {
             <html>
                 <head>
                     <title>{text!(meta.title)}</title>
-                    <link rel="stylesheet" href="./style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="./style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body><div id="contents-root">{html}</div></body>
             </html>
@@ -160,6 +197,15 @@ impl unmark::builder::util::MapRule for Index {
         );
         Ok(content)
     }
+}
+
+fn common_headers() -> Vec<Box<dyn MetadataContent<String>>> {
+    vec![
+        html!(<link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon"	 />),
+        html!(<link rel="stylesheet" href="/style/highlight/otynium.css" />),
+        html!(<link rel="stylesheet" href="/style/index.css" />),
+        html!(<meta name="viewport" content="width=device-width, initial-scale=1.0" />),
+    ]
 }
 
 #[derive(Clone)]
@@ -196,9 +242,7 @@ impl unmark::builder::util::Aggregate for BlogIndex {
             <html>
                 <head>
                     <title>"Blog"</title>
-                    <link rel="stylesheet" href="./style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="./style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body>
                     <div id="contents-root">
@@ -258,9 +302,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
             <html>
                 <head>
                     <title>"Blog"</title>
-                    <link rel="stylesheet" href="./style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="./style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body>
                     <div id="contents-root">
@@ -331,9 +373,7 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
             <html>
                 <head>
                     <title>"Blog"</title>
-                    <link rel="stylesheet" href="./style/highlight/otynium.css" />
-                    <link rel="stylesheet" href="./style/index.css" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    {common_headers()}
                 </head>
                 <body>
                     <div id="contents-root">
@@ -373,6 +413,29 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
     }
 }
 
+fn dirs(root: &Path) -> Vec<DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>> {
+    vec![
+        DirMap::new_by_re(
+            root.to_owned(),
+            "/".into(),
+            Regex::new(r#"^.+\.md$"#).unwrap(),
+            false,
+        ),
+        DirMap::new_by_re(
+            root.to_owned(),
+            "/".into(),
+            Regex::new(r#"^.+\.css$"#).unwrap(),
+            false,
+        ),
+        DirMap::new_by_re(
+            root.join("public"),
+            "/".into(),
+            Regex::new(r#"^.+$"#).unwrap(),
+            false,
+        ),
+    ]
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     use tracing_subscriber::prelude::*;
@@ -381,32 +444,37 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
     let opts = Opts::parse();
-    let tree = vec![
-        DirMap::new_by_re(
-            opts.root.clone(),
-            "/".into(),
-            Regex::new(r#"^.+\.md$"#).unwrap(),
-            false,
-        ),
-        DirMap::new_by_re(
-            opts.root.clone(),
-            "/".into(),
-            Regex::new(r#"^.+\.css$"#).unwrap(),
-            false,
-        ),
+    let rules = vec![
+        unmark::builder::util::map_rule(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
+        unmark::builder::util::map_rule(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
+        unmark::builder::util::map_rule(Index, Regex::new(r#"^/index.md$"#).unwrap()),
+        unmark::builder::util::aggregate(BlogIndex),
+        unmark::builder::util::aggregate(DiaryIndex),
+        unmark::builder::util::aggregate(CategoryIndex),
+        unmark::builder::util::spread(Regex::new(r#"^.+\.(png|webp)"#).unwrap(), Image),
+        unmark::builder::util::publish(Regex::new(r#"^.+\.ico"#).unwrap()),
+        unmark::builder::util::publish(Regex::new(r#"^.+\.css"#).unwrap()),
     ];
-    unmark::builder::dev_server::serve(
-        &opts.addr,
-        tree,
-        vec![
-            unmark::builder::util::map_rule(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
-            unmark::builder::util::map_rule(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
-            unmark::builder::util::map_rule(Index, Regex::new(r#"^/index.md$"#).unwrap()),
-            unmark::builder::util::aggregate(BlogIndex),
-            unmark::builder::util::aggregate(DiaryIndex),
-            unmark::builder::util::aggregate(CategoryIndex),
-        ],
-    )
-    .await?;
+    match opts.cmd {
+        SubCommand::Build { root, dist } => {
+            let tree = static_load(&dirs(&root)).await?;
+            for (path, blob) in unmark::builder::build(&mut Cache::empty(), tree, &rules)? {
+                if !blob.publish {
+                    continue;
+                }
+                info!(path=format!("{path:?}"), "write");
+                let path = dist.join(path.strip_prefix("/").unwrap());
+                if let Some(parent) = path.parent() {
+                    if !parent.exists() {
+                        fs::create_dir_all(parent).await?;
+                    }
+                }
+                fs::write(path, blob.content).await?;
+            }
+        }
+        SubCommand::Dev { root, addr } => {
+            unmark::builder::dev_server::serve(&addr, dirs(&root), rules).await?;
+        }
+    }
     Ok(())
 }

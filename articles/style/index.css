@@ -13,6 +13,10 @@ body {
     width: 100%;
 }
 
+img.generic-img {
+    max-width: 100%;
+}
+
 code {
     font-family: Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
     background-color: #dfffdf;

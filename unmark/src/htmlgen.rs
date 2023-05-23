@@ -42,7 +42,7 @@ pub trait Hooks {
         match ast {
             Ast::Code(code) => self.code_phrasing(code),
             Ast::Text(text) => Ok(text!(text.clone())),
-            Ast::Image { url, alt } => Ok(html!(<img src=url alt=alt />)),
+            Ast::Image { url, alt } => Ok(html!(<img class="generic-img" src=url alt=alt />)),
             Ast::Link { url, contents } => {
                 Ok(html!(<a href=url>{self.flow_contents(contents)?}</a>))
             }

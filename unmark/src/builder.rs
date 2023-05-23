@@ -215,10 +215,8 @@ pub mod dev_server {
         collections::HashMap,
         io,
         net::SocketAddr,
-        os::unix::process,
         path::{Path, PathBuf},
         sync::Arc,
-        unimplemented,
     };
 
     use axum::{
@@ -250,7 +248,7 @@ pub mod dev_server {
     #[derive(Debug)]
     enum FsEvent {
         Insert { src: PathBuf, dst: PathBuf },
-        Remove { src: PathBuf, dst: PathBuf },
+        Remove { dst: PathBuf },
     }
 
     async fn watch_dir(
@@ -289,13 +287,12 @@ pub mod dev_server {
                         continue;
                     }
                     let dst = dir.dst.join(path.strip_prefix(&dir.src).unwrap());
-                    if let Err(e) = tx.blocking_send(FsEvent::Remove { src: path, dst }) {
+                    if let Err(e) = tx.blocking_send(FsEvent::Remove { dst }) {
                         warn!(error = e.to_string(), "fs_event_queue");
                     }
                 }
             }
-            Ok(_) => {
-            }
+            Ok(_) => {}
             Err(e) => {
                 warn!(error = format!("{e}"), "watch_error");
             }
@@ -541,6 +538,98 @@ pub mod util {
         rule: R,
     ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
         Box::new(AggregateImpl { rule })
+    }
+
+    pub trait Spread {
+        type Error;
+        fn out_path(&self, path: &std::path::Path) -> Vec<std::path::PathBuf>;
+        fn build(
+            &self,
+            path: &std::path::Path,
+            blog: &Blob,
+        ) -> Result<HashMap<PathBuf, Blob>, Self::Error>;
+    }
+
+    struct SpreadImpl<R> {
+        re: Regex,
+        rule: R,
+    }
+
+    struct SpreadBuild<R> {
+        rule: R,
+        out: Vec<PathBuf>,
+        src: PathBuf,
+    }
+
+    impl<E, R: Spread<Error = E>> Build for SpreadBuild<R> {
+        type Error = E;
+        fn build(
+            &self,
+            tree: &HashMap<&Path, &Blob>,
+        ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
+            self.rule
+                .build(&self.src, tree.get(&self.src.as_ref()).unwrap())
+        }
+        fn io_expect(&self) -> (Vec<PathBuf>, Vec<PathBuf>) {
+            (vec![self.src.clone()], self.out.clone())
+        }
+    }
+
+    impl<E, R: 'static + Send + Sync + Clone + Spread<Error = E>> Rule for SpreadImpl<R> {
+        type Error = E;
+        fn builds(
+            &self,
+            tree: &HashMap<PathBuf, Blob>,
+        ) -> Result<Vec<Box<dyn Build<Error = Self::Error>>>, Self::Error> {
+            Ok(tree
+                .iter()
+                .flat_map(|(path, _)| {
+                    if self.re.is_match(&path.to_string_lossy()) {
+                        let build: Box<dyn Build<Error = E>> = Box::new(SpreadBuild {
+                            src: path.clone(),
+                            out: self.rule.out_path(path),
+                            rule: self.rule.clone(),
+                        });
+                        Some(build)
+                    } else {
+                        None
+                    }
+                })
+                .collect())
+        }
+    }
+
+    pub fn spread<E, R: 'static + Send + Sync + Clone + Spread<Error = E>>(
+        re: Regex,
+        rule: R,
+    ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
+        Box::new(SpreadImpl { rule, re })
+    }
+
+    pub struct Publish<E>(std::marker::PhantomData<E>);
+
+    impl<E> Clone for Publish<E> {
+        fn clone(&self) -> Self {
+            Self(Default::default())
+        }
+    }
+
+    impl<E> MapRule for Publish<E> {
+        type Error = E;
+
+        fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
+            path.to_path_buf()
+        }
+
+        fn build(&self, _: &std::path::Path, blob: &Blob) -> Result<Blob, Self::Error> {
+            Ok(Blob::new(blob.content.clone(), blob.mime.clone(), true))
+        }
+    }
+
+    pub fn publish<E: Send + Sync + 'static>(
+        re: Regex,
+    ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
+        map_rule(Publish(Default::default()), re)
     }
 }
 
