@@ -7,7 +7,6 @@ use axohtml::{
 };
 use clap::Parser;
 use image::GenericImageView;
-use maplit::hashmap;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -43,6 +42,36 @@ struct Hooks {
     imgs: HashMap<PathBuf, (u32, u32)>,
 }
 
+#[derive(Debug)]
+struct Src {
+    dim: (u32, u32),
+    path: PathBuf,
+}
+
+fn srcset(path: &Path, (w, h): (u32, u32)) -> Vec<Src> {
+    let mut srcset = Vec::new();
+    let mut w = w;
+    let mut h = h;
+    let re = Regex::new(r#"^(.*/.+).(png|webp)$"#).unwrap();
+    while w > 100 {
+        let path = path.to_string_lossy().to_string();
+        let matched = re.captures(&path).unwrap();
+        let path = format!(
+            "{}-{}w.{}",
+            matched.get(1).unwrap().as_str(),
+            w,
+            matched.get(2).unwrap().as_str()
+        );
+        srcset.push(Src {
+            dim: (w, h),
+            path: path.into(),
+        });
+        w = w * 2 / 3;
+        h = h * 2 / 3;
+    }
+    srcset
+}
+
 impl unmark::htmlgen::Hooks for Hooks {
     fn img_phrasing(
         &self,
@@ -50,9 +79,32 @@ impl unmark::htmlgen::Hooks for Hooks {
         alt: &str,
     ) -> Result<Box<dyn PhrasingContent<String>>, unmark::htmlgen::Error> {
         let k: PathBuf = url.into();
-        dbg!(&k);
         let (w, h) = self.imgs.get(&k).map(|(w, h)| (*w, *h)).unwrap();
-        Ok(html!(<img src=url alt=alt width=w height=h class="generic-img"/>))
+        if k.extension().map(|ext| ext != "svg").unwrap_or(true) {
+            let srcset = srcset(&k, (w, h))
+                .into_iter()
+                .map(|src| {
+                    format!(
+                        "{path} {w}w",
+                        path = src.path.to_string_lossy(),
+                        w = src.dim.0
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            let media = srcset(&k, (w, h))
+                .into_iter()
+                .map(|src| format!("()"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            Ok(html!(
+                <img srcset=srcset src=url alt=alt class="generic-img" width=w height=h/>
+            ))
+        } else {
+            Ok(html!(
+                <img src=url alt=alt class="generic-img" width=w height=h/>
+            ))
+        }
     }
 }
 
@@ -107,8 +159,14 @@ struct Image;
 
 impl unmark::builder::util::Spread for Image {
     type Error = anyhow::Error;
-    fn out_path(&self, path: &std::path::Path) -> Vec<std::path::PathBuf> {
-        vec![path.with_extension("webp")]
+    fn out_path(&self, path: &std::path::Path, blob: &Blob) -> Vec<std::path::PathBuf> {
+        let image = image::load_from_memory(&blob.content).unwrap();
+        let mut outs = srcset(path, image.dimensions())
+            .into_iter()
+            .map(|src| src.path)
+            .collect::<Vec<_>>();
+        outs.push(path.with_extension("webp"));
+        outs
     }
     fn build(
         &self,
@@ -116,14 +174,37 @@ impl unmark::builder::util::Spread for Image {
         blob: &Blob,
     ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
         let image = image::load_from_memory(&blob.content)?;
+        let mut images = HashMap::new();
         let mut buffer = Vec::new();
-        image::codecs::webp::WebPEncoder::new(&mut buffer).encode(
-            image.as_bytes(),
-            image.dimensions().0,
-            image.dimensions().1,
-            image.color(),
-        )?;
-        Ok(hashmap! { path.with_extension("webp") => Blob::new(buffer, mime::IMAGE_STAR, true)})
+        image::codecs::webp::WebPEncoder::new(&mut buffer)
+            .encode(
+                image.as_bytes(),
+                image.dimensions().0,
+                image.dimensions().1,
+                image.color(),
+            )
+            .unwrap();
+        images.insert(
+            path.with_extension("webp"),
+            Blob::new(buffer, mime::IMAGE_STAR, true),
+        );
+        for src in srcset(path, image.dimensions()) {
+            let mut buffer = Vec::new();
+            dbg!(&src);
+            let image = image.resize(
+                src.dim.0,
+                src.dim.1,
+                image::imageops::FilterType::CatmullRom,
+            );
+            image::codecs::webp::WebPEncoder::new(&mut buffer).encode(
+                image.as_bytes(),
+                image.dimensions().0,
+                image.dimensions().1,
+                image.color(),
+            )?;
+            images.insert(src.path, Blob::new(buffer, mime::IMAGE_STAR, true));
+        }
+        Ok(images)
     }
 }
 

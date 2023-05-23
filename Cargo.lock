@@ -113,8 +113,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 [[package]]
 name = "axohtml"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43fa44671c6204345a7aa13b832b5887d58a89a5212cfc26e7f43fab93e56ef0"
+source = "git+https://github.com/namachan10777/axohtml#1c579e8c22f32540eb69d2d92dece19cd845dbec"
 dependencies = [
  "axohtml-macros",
  "htmlescape",
@@ -128,8 +127,7 @@ dependencies = [
 [[package]]
 name = "axohtml-macros"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca657e298f8a9d90c87f92b463733bb9605ec1e686993388a38bf91d0d0f56bd"
+source = "git+https://github.com/namachan10777/axohtml#1c579e8c22f32540eb69d2d92dece19cd845dbec"
 dependencies = [
  "console",
  "lalrpop",

@@ -609,7 +609,7 @@ pub mod util {
 
     pub trait Spread {
         type Error;
-        fn out_path(&self, path: &std::path::Path) -> Vec<std::path::PathBuf>;
+        fn out_path(&self, path: &std::path::Path, blog: &Blob) -> Vec<std::path::PathBuf>;
         fn build(
             &self,
             path: &std::path::Path,
@@ -650,11 +650,11 @@ pub mod util {
         ) -> Result<Vec<Box<dyn Build<Error = Self::Error>>>, Self::Error> {
             Ok(tree
                 .iter()
-                .flat_map(|(path, _)| {
+                .flat_map(|(path, blob)| {
                     if self.re.is_match(&path.to_string_lossy()) {
                         let build: Box<dyn Build<Error = E>> = Box::new(SpreadBuild {
                             src: path.clone(),
-                            out: self.rule.out_path(path),
+                            out: self.rule.out_path(path, &blob),
                             rule: self.rule.clone(),
                         });
                         Some(build)
