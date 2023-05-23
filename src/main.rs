@@ -545,8 +545,7 @@ async fn main() -> anyhow::Result<()> {
     let opts = Opts::parse();
     let rules = vec![
         unmark::builder::util::spread(Regex::new(r#"^.+\.(png|webp)"#).unwrap(), Image),
-        unmark::builder::util::publish(Regex::new(r#"^.+\.ico"#).unwrap()),
-        unmark::builder::util::publish(Regex::new(r#"^.+\.css"#).unwrap()),
+        unmark::builder::util::publish(Regex::new(r#"^.+\.(ico|css|svg)"#).unwrap()),
         unmark::builder::util::map_with_dep(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
         unmark::builder::util::map_with_dep(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
         unmark::builder::util::map_with_dep(Index, Regex::new(r#"^/index.md$"#).unwrap()),
