@@ -4,9 +4,9 @@ title: "namachan10777"
 
 ## About
 
-![300,300: green box with eyes](/icon.webp)
+![my icon: green box with eyes](/icon.webp)
 
-![40,15: life-failing badge](https://img.shields.io/badge/life-failing-red.svg?style=plastic)
+![life-failing badge](/res/life-failing-badge.svg)
 
 * Masaki Nakano
 * B3, College of computer and information science, University of Tsukuba.

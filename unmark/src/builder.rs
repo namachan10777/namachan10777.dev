@@ -39,12 +39,14 @@ pub trait Build {
     fn build(&self, tree: &HashMap<&Path, &Blob>) -> Result<HashMap<PathBuf, Blob>, Self::Error>;
 }
 
+type BoxedBuild<E> = Box<dyn Build<Error = E>>;
+
 pub trait Rule {
     type Error;
     fn builds(
         &self,
         tree: &HashMap<PathBuf, Blob>,
-    ) -> Result<Vec<Box<dyn Build<Error = Self::Error>>>, Self::Error>;
+    ) -> Result<Vec<BoxedBuild<Self::Error>>, Self::Error>;
 }
 
 type Hash = GenericArray<u8, generic_array::typenum::consts::U32>;
@@ -124,9 +126,7 @@ async fn glob<P: AsRef<Path>>(root: P) -> std::io::Result<HashSet<PathBuf>> {
     Ok(files)
 }
 
-pub async fn static_load(
-    dirs: &[DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>],
-) -> std::io::Result<HashMap<PathBuf, Blob>> {
+pub async fn static_load(dirs: &[BoxedDirMap]) -> std::io::Result<HashMap<PathBuf, Blob>> {
     let mut tree = HashMap::new();
     for dir in dirs {
         for path in glob(&dir.src).await? {
@@ -162,7 +162,7 @@ pub fn build<E>(
             for path in &input_paths {
                 // 入力のハッシュを計算
                 let entry = tree.get(path).ok_or_else(|| Error::NoEntry(path.clone()))?;
-                input_hasher.update(&entry.hash);
+                input_hasher.update(entry.hash);
                 ref_tree.insert(path.as_ref(), entry);
             }
             let input_hash = input_hasher.finalize();
@@ -210,14 +210,10 @@ pub fn build<E>(
     Ok(tree)
 }
 
+pub type BoxedDirMap = DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>;
+
 pub mod dev_server {
-    use std::{
-        collections::HashMap,
-        io,
-        net::SocketAddr,
-        path::{Path, PathBuf},
-        sync::Arc,
-    };
+    use std::{collections::HashMap, io, net::SocketAddr, path::PathBuf, sync::Arc};
 
     use axum::{
         extract::{FromRequest, State},
@@ -232,7 +228,7 @@ pub mod dev_server {
     };
     use tracing::{error, warn};
 
-    use super::{static_load, Blob, Cache, DirMap, Rule};
+    use super::{static_load, Blob, BoxedDirMap, Cache, Rule};
 
     struct AnyPath(PathBuf);
 
@@ -252,7 +248,7 @@ pub mod dev_server {
     }
 
     async fn watch_dir(
-        dir: DirMap<Box<dyn Fn(&Path) -> bool + Send + Sync + 'static>>,
+        dir: BoxedDirMap,
         tx: mpsc::Sender<FsEvent>,
     ) -> Result<impl Watcher, notify::Error> {
         let root = dir.src.clone();
@@ -372,7 +368,7 @@ pub mod dev_server {
 
     pub async fn serve<E: Send + Sync + 'static>(
         addr: &SocketAddr,
-        dirs: Vec<DirMap<Box<dyn Fn(&Path) -> bool + 'static + Send + Sync>>>,
+        dirs: Vec<BoxedDirMap>,
         rules: Vec<Box<dyn Rule<Error = E> + 'static + Send + Sync>>,
     ) -> Result<(), Error<E>> {
         let mut cache = Cache::empty();
@@ -449,7 +445,7 @@ pub mod util {
         ) -> Result<std::collections::HashMap<PathBuf, super::Blob>, Self::Error> {
             let out = self
                 .rule
-                .build(&self.demand, *tree.get(&self.demand.as_ref()).unwrap())?;
+                .build(&self.demand, tree.get(&self.demand.as_ref()).unwrap())?;
             Ok(hashmap! {self.out.clone() => out})
         }
 
@@ -480,6 +476,78 @@ pub mod util {
                 })
                 .collect())
         }
+    }
+
+    pub trait MapWithDeps {
+        type Error;
+        fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf;
+        fn deps(&self, path: &std::path::Path, blob: &Blob) -> Vec<PathBuf>;
+        fn build(
+            &self,
+            path: &std::path::Path,
+            blob: &HashMap<&Path, &Blob>,
+        ) -> Result<Blob, Self::Error>;
+    }
+
+    struct MapWithDepsBuild<R> {
+        rule: R,
+        src: PathBuf,
+        demands: Vec<PathBuf>,
+        out: PathBuf,
+    }
+
+    struct MapWithDepsImpl<R> {
+        re: Regex,
+        rule: R,
+    }
+
+    impl<E, R: 'static + Clone + MapWithDeps<Error = E>> Build for MapWithDepsBuild<R> {
+        type Error = E;
+
+        fn io_expect(&self) -> (Vec<PathBuf>, Vec<PathBuf>) {
+            (self.demands.clone(), vec![self.out.clone()])
+        }
+
+        fn build(
+            &self,
+            tree: &HashMap<&Path, &Blob>,
+        ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
+            Ok(hashmap! { self.out.clone() => self.rule.build(&self.src, tree)? })
+        }
+    }
+
+    impl<E, R: 'static + Clone + MapWithDeps<Error = E>> Rule for MapWithDepsImpl<R> {
+        type Error = E;
+        fn builds(
+            &self,
+            tree: &std::collections::HashMap<std::path::PathBuf, super::Blob>,
+        ) -> Result<Vec<Box<dyn super::Build<Error = Self::Error>>>, Self::Error> {
+            Ok(tree
+                .iter()
+                .flat_map(|(path, _)| {
+                    if self.re.is_match(&path.to_string_lossy()) {
+                        let mut demands =self.rule.deps(path, tree.get(path).unwrap());
+                        demands.push(path.clone());
+                        let build: Box<dyn Build<Error = E>> = Box::new(MapWithDepsBuild {
+                            rule: self.rule.clone(),
+                            src: path.clone(),
+                            demands,
+                            out: self.rule.out_path(path),
+                        });
+                        Some(build)
+                    } else {
+                        None
+                    }
+                })
+                .collect())
+        }
+    }
+
+    pub fn map_with_dep<E, R: 'static + Send + Sync + Clone + MapWithDeps<Error = E>>(
+        rule: R,
+        re: Regex,
+    ) -> Box<dyn Rule<Error = E> + Send + Sync + 'static> {
+        Box::new(MapWithDepsImpl { re, rule })
     }
 
     pub trait Aggregate {
@@ -634,7 +702,7 @@ pub mod util {
 
 #[cfg(test)]
 mod test {
-    use std::{path::PathBuf, unimplemented};
+    use std::path::PathBuf;
 
     use super::{
         util::{map_rule, MapRule},
@@ -653,7 +721,7 @@ mod test {
             path.with_extension("txt")
         }
 
-        fn build(&self, path: &std::path::Path, blob: &Blob) -> Result<Blob, Self::Error> {
+        fn build(&self, _path: &std::path::Path, blob: &Blob) -> Result<Blob, Self::Error> {
             Ok(Blob::new(
                 String::from_utf8_lossy(&blob.content)
                     .to_uppercase()
@@ -673,7 +741,7 @@ mod test {
             .with(tracing_subscriber::EnvFilter::from_default_env())
             .init();
         let mut cache = super::Cache::empty();
-        let mut src_tree = hashmap! {
+        let src_tree = hashmap! {
             "test.txt".into() => super::Blob::new("Hello World!".as_bytes().to_vec(), mime::TEXT_PLAIN_UTF_8, true),
         };
         let rules = vec![map_rule(Upper, Regex::new(r#"^.+\.txt$"#).unwrap())];

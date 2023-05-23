@@ -1,5 +1,10 @@
 use anyhow::Context;
-use axohtml::{dom::DOMTree, elements::MetadataContent, html, text, types::Id};
+use axohtml::{
+    dom::DOMTree,
+    elements::{MetadataContent, PhrasingContent},
+    html, text,
+    types::Id,
+};
 use clap::Parser;
 use image::GenericImageView;
 use maplit::hashmap;
@@ -34,8 +39,59 @@ enum SubCommand {
     },
 }
 
-struct Hooks;
-impl unmark::htmlgen::Hooks for Hooks {}
+struct Hooks {
+    imgs: HashMap<PathBuf, (u32, u32)>,
+}
+
+impl unmark::htmlgen::Hooks for Hooks {
+    fn img_phrasing(
+        &self,
+        url: &str,
+        alt: &str,
+    ) -> Result<Box<dyn PhrasingContent<String>>, unmark::htmlgen::Error> {
+        let k: PathBuf = url.into();
+        dbg!(&k);
+        let (w, h) = self.imgs.get(&k).map(|(w, h)| (*w, *h)).unwrap();
+        Ok(html!(<img src=url alt=alt width=w height=h/>))
+    }
+}
+
+fn get_size_hint_from_svg(svg: &Blob) -> (u32, u32) {
+    let svg = String::from_utf8_lossy(&svg.content);
+    let mut svg = svg::read(&svg).unwrap();
+    let size = svg.find_map(|event| match event {
+        svg::parser::Event::Tag(_, _, attrs) => {
+            let (_, w) = attrs.iter().find(|(name, _)| *name == "width")?;
+            let (_, h) = attrs.iter().find(|(name, _)| *name == "height")?;
+            let w: u32 = w.parse().ok()?;
+            let h: u32 = h.parse().ok()?;
+            Some((w, h))
+        }
+        _ => None,
+    });
+    size.unwrap()
+}
+
+impl Hooks {
+    fn new(tree: &HashMap<&Path, &Blob>) -> Self {
+        Self {
+            imgs: tree
+                .iter()
+                .filter_map(|(path, blob)| {
+                    if matches!(blob.mime.essence_str(), "image/*") {
+                        let image = image::load_from_memory(&blob.content).ok()?;
+                        Some(((*path).to_owned(), image.dimensions()))
+                    } else if path.extension().map(|s| s == "svg").unwrap_or(false) {
+                        let size = get_size_hint_from_svg(blob);
+                        Some(((*path).to_owned(), size))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+        }
+    }
+}
 
 #[derive(Clone)]
 struct Blog;
@@ -71,29 +127,40 @@ impl unmark::builder::util::Spread for Image {
     }
 }
 
-impl unmark::builder::util::MapRule for Blog {
+impl unmark::builder::util::MapWithDeps for Blog {
     type Error = anyhow::Error;
 
     fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
         path.with_extension("html")
     }
 
+    fn deps(&self, path: &std::path::Path, blob: &Blob) -> Vec<PathBuf> {
+        let src = String::from_utf8_lossy(&blob.content);
+        let Ok((ast, _)) =
+            unmark::md::parse::<BlogMeta>(&src).with_context(|| format!("{path:?}")) else { return Vec::new() };
+        unmark::md::util::included_images(&ast)
+            .into_iter()
+            .filter(|url| !url.starts_with("https://"))
+            .collect()
+    }
+
     fn build(
         &self,
         path: &std::path::Path,
-        content: &unmark::builder::Blob,
+        tree: &HashMap<&Path, &Blob>,
     ) -> Result<unmark::builder::Blob, Self::Error> {
+        let content = tree.get(path).with_context(|| "no entry")?;
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) =
             unmark::md::parse::<BlogMeta>(&src).with_context(|| format!("{path:?}"))?;
-        let html = unmark::htmlgen::document(Hooks, &ast)?;
+        let html = unmark::htmlgen::document(Hooks::new(tree), &ast)?;
         let title = unmark::md::util::h1_content_as_string(&ast)
             .unwrap_or_else(|| path.to_string_lossy().to_string());
         let page_name = path.file_name();
         let page_name = page_name.unwrap().to_string_lossy();
         let page_name = page_name.strip_suffix(".md").unwrap();
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>{text!(title)}</title>
                     {common_headers()}
@@ -114,7 +181,7 @@ impl unmark::builder::util::MapRule for Blog {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -129,22 +196,37 @@ struct DiaryMeta {
     date: String,
 }
 
-impl unmark::builder::util::MapRule for Diary {
+impl unmark::builder::util::MapWithDeps for Diary {
     type Error = anyhow::Error;
 
     fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
         path.with_extension("html")
     }
 
-    fn build(&self, path: &std::path::Path, content: &Blob) -> Result<Blob, Self::Error> {
+    fn deps(&self, path: &std::path::Path, blob: &Blob) -> Vec<PathBuf> {
+        let src = String::from_utf8_lossy(&blob.content);
+        let Ok((ast, _)) =
+            unmark::md::parse::<BlogMeta>(&src).with_context(|| format!("{path:?}")) else { return Vec::new() };
+        unmark::md::util::included_images(&ast)
+            .into_iter()
+            .filter(|url| !url.starts_with("https://"))
+            .collect()
+    }
+
+    fn build(
+        &self,
+        path: &std::path::Path,
+        tree: &HashMap<&Path, &Blob>,
+    ) -> Result<Blob, Self::Error> {
+        let content = tree.get(path).with_context(|| "no entry")?;
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) = unmark::md::parse::<DiaryMeta>(&src)?;
         let page_name = path.file_name();
         let page_name = page_name.unwrap().to_string_lossy();
         let page_name = page_name.strip_suffix(".md").unwrap();
-        let html = unmark::htmlgen::document(Hooks, &ast)?;
+        let html = unmark::htmlgen::document(Hooks::new(tree), &ast)?;
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>{text!(meta.date)}</title>
                     {common_headers()}
@@ -156,7 +238,7 @@ impl unmark::builder::util::MapRule for Diary {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -170,19 +252,34 @@ struct Index;
 struct IndexMeta {
     title: String,
 }
-impl unmark::builder::util::MapRule for Index {
+impl unmark::builder::util::MapWithDeps for Index {
     type Error = anyhow::Error;
 
     fn out_path(&self, path: &std::path::Path) -> std::path::PathBuf {
         path.with_extension("html")
     }
 
-    fn build(&self, _: &std::path::Path, content: &Blob) -> Result<Blob, Self::Error> {
+    fn deps(&self, path: &std::path::Path, blob: &Blob) -> Vec<PathBuf> {
+        let src = String::from_utf8_lossy(&blob.content);
+        let Ok((ast, _)) =
+            unmark::md::parse::<IndexMeta>(&src).with_context(|| format!("{path:?}")) else { return Vec::new() };
+        unmark::md::util::included_images(&ast)
+            .into_iter()
+            .filter(|url| !url.starts_with("https://"))
+            .collect()
+    }
+
+    fn build(
+        &self,
+        path: &std::path::Path,
+        tree: &HashMap<&Path, &Blob>,
+    ) -> Result<Blob, Self::Error> {
+        let content = tree.get(path).with_context(|| "no entry")?;
         let src = String::from_utf8_lossy(&content.content);
         let (ast, meta) = unmark::md::parse::<IndexMeta>(&src)?;
-        let html = unmark::htmlgen::document(Hooks, &ast)?;
+        let html = unmark::htmlgen::document(Hooks::new(tree), &ast)?;
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>{text!(meta.title)}</title>
                     {common_headers()}
@@ -191,7 +288,7 @@ impl unmark::builder::util::MapRule for Index {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -239,7 +336,7 @@ impl unmark::builder::util::Aggregate for BlogIndex {
             })
             .collect::<Result<HashMap<_, _>, _>>()?;
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>"Blog"</title>
                     {common_headers()}
@@ -262,7 +359,7 @@ impl unmark::builder::util::Aggregate for BlogIndex {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -299,7 +396,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
             })
             .collect::<Result<HashMap<_, _>, _>>()?;
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>"Blog"</title>
                     {common_headers()}
@@ -322,7 +419,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -370,7 +467,7 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
             }
         }
         let html: DOMTree<String> = html!(
-            <html>
+            <html lang="ja">
                 <head>
                     <title>"Blog"</title>
                     {common_headers()}
@@ -405,7 +502,7 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
             </html>
         );
         let content = Blob::new(
-            html.to_string().as_bytes().to_vec(),
+            format!("<!DOCTYPE html>{html}").as_bytes().to_vec(),
             mime::TEXT_HTML_UTF_8,
             true,
         );
@@ -447,15 +544,15 @@ async fn main() -> anyhow::Result<()> {
         .init();
     let opts = Opts::parse();
     let rules = vec![
-        unmark::builder::util::map_rule(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
-        unmark::builder::util::map_rule(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
-        unmark::builder::util::map_rule(Index, Regex::new(r#"^/index.md$"#).unwrap()),
-        unmark::builder::util::aggregate(BlogIndex),
-        unmark::builder::util::aggregate(DiaryIndex),
-        unmark::builder::util::aggregate(CategoryIndex),
         unmark::builder::util::spread(Regex::new(r#"^.+\.(png|webp)"#).unwrap(), Image),
         unmark::builder::util::publish(Regex::new(r#"^.+\.ico"#).unwrap()),
         unmark::builder::util::publish(Regex::new(r#"^.+\.css"#).unwrap()),
+        unmark::builder::util::map_with_dep(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
+        unmark::builder::util::map_with_dep(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
+        unmark::builder::util::map_with_dep(Index, Regex::new(r#"^/index.md$"#).unwrap()),
+        unmark::builder::util::aggregate(BlogIndex),
+        unmark::builder::util::aggregate(DiaryIndex),
+        unmark::builder::util::aggregate(CategoryIndex),
     ];
     match opts.cmd {
         SubCommand::Build { root, dist } => {

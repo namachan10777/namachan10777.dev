@@ -133,6 +133,6 @@ write memory
 
 Macbook AirでWiFiからspeed.cloudflare.comに接続して計測した
 
-![600,220: down 335 mbps, up 345 mbps](/res/cloudflare-speedtest-mba-2021-11-15.png)
+![600,220: down 335 mbps, up 345 mbps](/res/cloudflare-speedtest-mba-2021-11-15.webp)
 
 割といいんじゃないでしょうか

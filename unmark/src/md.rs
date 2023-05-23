@@ -57,6 +57,14 @@ pub enum Error {
     InvalidListItem,
 }
 
+fn children_to_text<'a>(md: &'a Node<'a, RefCell<comrak::nodes::Ast>>) -> String {
+    if let NodeValue::Text(text) = &md.data.borrow().value {
+        text.clone()
+    } else {
+        md.children().map(children_to_text).collect::<String>()
+    }
+}
+
 fn convert<'a>(md: &'a Node<'a, RefCell<comrak::nodes::Ast>>) -> Result<Ast, Error> {
     match &md.data.borrow().value {
         NodeValue::Text(text) => Ok(Ast::Text(text.clone())),
@@ -72,10 +80,12 @@ fn convert<'a>(md: &'a Node<'a, RefCell<comrak::nodes::Ast>>) -> Result<Ast, Err
                 contents: children,
             })
         }
-        NodeValue::Image(image) => Ok(Ast::Image {
+        NodeValue::Image(image) => {
+            Ok(Ast::Image {
             url: image.url.clone(),
-            alt: image.title.clone(),
-        }),
+            alt: children_to_text(md),
+        })
+    },
         NodeValue::List(NodeList { list_type, .. }) => {
             let children = md
                 .children()
@@ -231,6 +241,8 @@ mod test {
 }
 
 pub mod util {
+    use std::path::PathBuf;
+
     use super::Ast;
     pub fn phrasing_content_as_string(root: &Ast) -> Option<String> {
         match root {
@@ -249,6 +261,28 @@ pub mod util {
             Ast::Text(t) => Some(t.to_owned()),
             _ => None,
         }
+    }
+
+    pub fn included_images(root: &[Ast]) -> Vec<PathBuf> {
+        root.iter()
+            .flat_map(|ast| match ast {
+                Ast::Image { url, .. } => {
+                    vec![url.to_owned().into()]
+                },
+                Ast::Bold(ast) => included_images(ast),
+                Ast::BoldItalic(ast) => included_images(ast),
+                Ast::Italic(ast) => included_images(ast),
+                Ast::Code(_) => Vec::new(),
+                Ast::CodeBlock { .. } => Vec::new(),
+                Ast::Link { contents, .. } =>  included_images(&contents),
+                Ast::OrderedList(asts) => asts.iter().flat_map(|ast| included_images(&ast)).collect(),
+                Ast::UnorderedList(asts) => asts.iter().flat_map(|ast| included_images(&ast)).collect(),
+                Ast::Paragraph(asts) => included_images(&asts),
+                Ast::Quote(asts) => included_images(&asts),
+                Ast::Text(_) => Vec::new(),
+                Ast::Section { contents, .. } => included_images(contents),
+            })
+            .collect()
     }
 
     pub fn h1_content_as_string(root: &[Ast]) -> Option<String> {

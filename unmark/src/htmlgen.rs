@@ -1,3 +1,5 @@
+use std::unimplemented;
+
 use axohtml::elements::{FlowContent, PhrasingContent};
 use axohtml::{html, text};
 
@@ -11,6 +13,14 @@ pub trait Hooks {
 
     fn code_phrasing(&self, code: &str) -> Result<Box<dyn PhrasingContent<String>>, Error> {
         Ok(html!(<code>{text!(code)}</code>))
+    }
+
+    fn img_phrasing(
+        &self,
+        url: &str,
+        alt: &str,
+    ) -> Result<Box<dyn PhrasingContent<String>>, Error> {
+        Ok(html!(<img src=url alt=alt/>))
     }
 
     fn section(
@@ -42,7 +52,7 @@ pub trait Hooks {
         match ast {
             Ast::Code(code) => self.code_phrasing(code),
             Ast::Text(text) => Ok(text!(text.clone())),
-            Ast::Image { url, alt } => Ok(html!(<img class="generic-img" src=url alt=alt />)),
+            Ast::Image { url, alt } => self.img_phrasing(url, alt),
             Ast::Link { url, contents } => {
                 Ok(html!(<a href=url>{self.flow_contents(contents)?}</a>))
             }
