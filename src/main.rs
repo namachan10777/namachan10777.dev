@@ -5,14 +5,14 @@ use image::GenericImageView;
 use maplit::hashmap;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tokio::fs;
-use tracing::info;
 use std::{
     collections::HashMap,
     net::SocketAddr,
     path::{Path, PathBuf},
 };
-use unmark::builder::{Blob, DirMap, Cache, static_load};
+use tokio::fs;
+use tracing::info;
+use unmark::builder::{static_load, Blob, Cache, DirMap};
 
 #[derive(Parser)]
 struct Opts {
@@ -462,7 +462,7 @@ async fn main() -> anyhow::Result<()> {
                 if !blob.publish {
                     continue;
                 }
-                info!(path=format!("{path:?}"), "write");
+                info!(path = format!("{path:?}"), "write");
                 let path = dist.join(path.strip_prefix("/").unwrap());
                 if let Some(parent) = path.parent() {
                     if !parent.exists() {

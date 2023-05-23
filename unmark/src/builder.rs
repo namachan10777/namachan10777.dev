@@ -225,7 +225,7 @@ pub mod dev_server {
         http::StatusCode,
         Router, TypedHeader,
     };
-    use notify::{Event, FsEventWatcher};
+    use notify::{Event, Watcher};
     use tokio::{
         fs,
         sync::{mpsc, RwLock},
@@ -254,8 +254,7 @@ pub mod dev_server {
     async fn watch_dir(
         dir: DirMap<Box<dyn Fn(&Path) -> bool + Send + Sync + 'static>>,
         tx: mpsc::Sender<FsEvent>,
-    ) -> Result<FsEventWatcher, notify::Error> {
-        use notify::Watcher;
+    ) -> Result<impl Watcher, notify::Error> {
         let root = dir.src.clone();
         let src = dir.src.canonicalize().unwrap();
         let mut watcher = notify::recommended_watcher(move |event| match event {
