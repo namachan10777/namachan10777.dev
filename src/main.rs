@@ -197,7 +197,10 @@ impl unmark::builder::util::Spread for Image {
                 image.dimensions().1,
                 image.color(),
             )?;
-            images.insert(src.path.with_extension("webp"), Blob::new(buffer, mime::IMAGE_STAR, true));
+            images.insert(
+                src.path.with_extension("webp"),
+                Blob::new(buffer, mime::IMAGE_STAR, true),
+            );
         }
         Ok(images)
     }
