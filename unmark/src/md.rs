@@ -80,12 +80,10 @@ fn convert<'a>(md: &'a Node<'a, RefCell<comrak::nodes::Ast>>) -> Result<Ast, Err
                 contents: children,
             })
         }
-        NodeValue::Image(image) => {
-            Ok(Ast::Image {
+        NodeValue::Image(image) => Ok(Ast::Image {
             url: image.url.clone(),
             alt: children_to_text(md),
-        })
-    },
+        }),
         NodeValue::List(NodeList { list_type, .. }) => {
             let children = md
                 .children()
@@ -222,24 +220,6 @@ where
     Ok((ast, frontmatter))
 }
 
-#[cfg(test)]
-mod test {
-    use super::{frontmatter_delimiter_from_line, FrontMatterType};
-
-    #[test]
-    fn test_get_frontmatter_delimiter() {
-        assert_eq!(
-            frontmatter_delimiter_from_line("+++"),
-            Some(FrontMatterType::Toml)
-        );
-        assert_eq!(
-            frontmatter_delimiter_from_line("--- \t"),
-            Some(FrontMatterType::Yaml)
-        );
-        assert_eq!(frontmatter_delimiter_from_line(" --- \t"), None);
-    }
-}
-
 pub mod util {
     use std::path::PathBuf;
 
@@ -268,17 +248,21 @@ pub mod util {
             .flat_map(|ast| match ast {
                 Ast::Image { url, .. } => {
                     vec![url.to_owned().into()]
-                },
+                }
                 Ast::Bold(ast) => included_images(ast),
                 Ast::BoldItalic(ast) => included_images(ast),
                 Ast::Italic(ast) => included_images(ast),
                 Ast::Code(_) => Vec::new(),
                 Ast::CodeBlock { .. } => Vec::new(),
-                Ast::Link { contents, .. } =>  included_images(&contents),
-                Ast::OrderedList(asts) => asts.iter().flat_map(|ast| included_images(&ast)).collect(),
-                Ast::UnorderedList(asts) => asts.iter().flat_map(|ast| included_images(&ast)).collect(),
-                Ast::Paragraph(asts) => included_images(&asts),
-                Ast::Quote(asts) => included_images(&asts),
+                Ast::Link { contents, .. } => included_images(contents),
+                Ast::OrderedList(asts) => {
+                    asts.iter().flat_map(|ast| included_images(ast)).collect()
+                }
+                Ast::UnorderedList(asts) => {
+                    asts.iter().flat_map(|ast| included_images(ast)).collect()
+                }
+                Ast::Paragraph(asts) => included_images(asts),
+                Ast::Quote(asts) => included_images(asts),
                 Ast::Text(_) => Vec::new(),
                 Ast::Section { contents, .. } => included_images(contents),
             })
@@ -303,5 +287,23 @@ pub mod util {
                 _ => None,
             })
             .next()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{frontmatter_delimiter_from_line, FrontMatterType};
+
+    #[test]
+    fn test_get_frontmatter_delimiter() {
+        assert_eq!(
+            frontmatter_delimiter_from_line("+++"),
+            Some(FrontMatterType::Toml)
+        );
+        assert_eq!(
+            frontmatter_delimiter_from_line("--- \t"),
+            Some(FrontMatterType::Yaml)
+        );
+        assert_eq!(frontmatter_delimiter_from_line(" --- \t"), None);
     }
 }

@@ -40,5 +40,8 @@ url = "2.3.1"
 anyhow = "1.0.71"
 chrono = "0.4.24"
 clap = { version = "4.2.7", features = ["derive"] }
+image = { version = "0.24.6", features = ["webp-encoder"] }
 serde_json = "1.0.96"
+svg = "0.13.1"
+tokio = { version = "1.28.1", features = ["rt-multi-thread", "macros"] }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }

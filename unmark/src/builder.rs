@@ -8,7 +8,7 @@ use std::{
     time::Instant,
 };
 use tokio::fs;
-use tracing::{info, debug};
+use tracing::{debug, info};
 
 use generic_array::GenericArray;
 
@@ -208,7 +208,7 @@ pub fn build<E>(
         }
     }
     for path in tree.keys() {
-        debug!(path=format!("{path:?}"), "built_file");
+        debug!(path = format!("{path:?}"), "built_file");
     }
     Ok(tree)
 }
@@ -529,7 +529,7 @@ pub mod util {
                 .iter()
                 .flat_map(|(path, _)| {
                     if self.re.is_match(&path.to_string_lossy()) {
-                        let mut demands =self.rule.deps(path, tree.get(path).unwrap());
+                        let mut demands = self.rule.deps(path, tree.get(path).unwrap());
                         demands.push(path.clone());
                         let build: Box<dyn Build<Error = E>> = Box::new(MapWithDepsBuild {
                             rule: self.rule.clone(),
@@ -657,7 +657,7 @@ pub mod util {
                     if self.re.is_match(&path.to_string_lossy()) {
                         let build: Box<dyn Build<Error = E>> = Box::new(SpreadBuild {
                             src: path.clone(),
-                            out: self.rule.out_path(path, &blob),
+                            out: self.rule.out_path(path, blob),
                             rule: self.rule.clone(),
                         });
                         Some(build)
