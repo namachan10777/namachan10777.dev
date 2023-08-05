@@ -12,7 +12,7 @@ default = ["syntax"]
 [dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }
 async-trait = "0.1.68"
-axohtml = {git="https://github.com/namachan10777/axohtml"}
+axohtml = {git="https://github.com/namachan10777/axohtml", rev="7aaf4beb6480404e8ae8850228246e2cef225d55"}
 axum = { version = "0.6.18", features = ["headers"] }
 comrak = {version="0.18.0", default-features=false, features=[]}
 generic-array = "0.14.7"

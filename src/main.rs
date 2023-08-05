@@ -66,9 +66,10 @@ fn srcset(path: &Path, (w, h): (u32, u32)) -> Vec<Src> {
             dim: (w, h),
             path: path.into(),
         });
-        w = w * 2 / 3;
-        h = h * 2 / 3;
+        w = w / 2;
+        h = h / 2;
     }
+    srcset.reverse();
     srcset
 }
 
@@ -81,7 +82,7 @@ impl unmark::htmlgen::Hooks for Hooks {
         let k: PathBuf = url.into();
         let (w, h) = self.imgs.get(&k).map(|(w, h)| (*w, *h)).unwrap();
         if k.extension().map(|ext| ext != "svg").unwrap_or(true) {
-            let srcset = srcset(&k, (w, h))
+            let srcset_attr = srcset(&k, (w, h))
                 .into_iter()
                 .map(|src| {
                     format!(
@@ -92,17 +93,12 @@ impl unmark::htmlgen::Hooks for Hooks {
                 })
                 .collect::<Vec<_>>()
                 .join(", ");
-            let media = srcset(&k, (w, h))
-                .into_iter()
-                .map(|src| format!("()"))
-                .collect::<Vec<_>>()
-                .join(", ");
             Ok(html!(
-                <img srcset=srcset src=url alt=alt class="generic-img" width=w height=h/>
+                <img loading="lazy" srcset=srcset_attr src=url alt=alt class="generic-img" width=w height=h/>
             ))
         } else {
             Ok(html!(
-                <img src=url alt=alt class="generic-img" width=w height=h/>
+                <img loading="lazy" src=url alt=alt class="generic-img" width=w height=h/>
             ))
         }
     }
@@ -163,7 +159,7 @@ impl unmark::builder::util::Spread for Image {
         let image = image::load_from_memory(&blob.content).unwrap();
         let mut outs = srcset(path, image.dimensions())
             .into_iter()
-            .map(|src| src.path)
+            .map(|src| src.path.with_extension("webp"))
             .collect::<Vec<_>>();
         outs.push(path.with_extension("webp"));
         outs
@@ -190,7 +186,6 @@ impl unmark::builder::util::Spread for Image {
         );
         for src in srcset(path, image.dimensions()) {
             let mut buffer = Vec::new();
-            dbg!(&src);
             let image = image.resize(
                 src.dim.0,
                 src.dim.1,
@@ -202,7 +197,7 @@ impl unmark::builder::util::Spread for Image {
                 image.dimensions().1,
                 image.color(),
             )?;
-            images.insert(src.path, Blob::new(buffer, mime::IMAGE_STAR, true));
+            images.insert(src.path.with_extension("webp"), Blob::new(buffer, mime::IMAGE_STAR, true));
         }
         Ok(images)
     }

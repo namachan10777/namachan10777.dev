@@ -8,7 +8,7 @@ use std::{
     time::Instant,
 };
 use tokio::fs;
-use tracing::info;
+use tracing::{info, debug};
 
 use generic_array::GenericArray;
 
@@ -206,6 +206,9 @@ pub fn build<E>(
                 tree.insert(path, blob);
             }
         }
+    }
+    for path in tree.keys() {
+        debug!(path=format!("{path:?}"), "built_file");
     }
     Ok(tree)
 }

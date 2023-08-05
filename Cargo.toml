@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }
-axohtml = {git="https://github.com/namachan10777/axohtml"}
+axohtml = {git="https://github.com/namachan10777/axohtml", rev="7aaf4beb6480404e8ae8850228246e2cef225d55"}
 clap = { version = "4.3.0", features = ["derive"] }
 image = {version="0.24.6", features = ["webp-encoder"]}
 maplit = "1.0.2"

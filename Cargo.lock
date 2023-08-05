@@ -113,7 +113,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 [[package]]
 name = "axohtml"
 version = "0.5.0"
-source = "git+https://github.com/namachan10777/axohtml#1c579e8c22f32540eb69d2d92dece19cd845dbec"
+source = "git+https://github.com/namachan10777/axohtml?rev=7aaf4beb6480404e8ae8850228246e2cef225d55#7aaf4beb6480404e8ae8850228246e2cef225d55"
 dependencies = [
  "axohtml-macros",
  "htmlescape",
@@ -127,7 +127,7 @@ dependencies = [
 [[package]]
 name = "axohtml-macros"
 version = "0.5.0"
-source = "git+https://github.com/namachan10777/axohtml#1c579e8c22f32540eb69d2d92dece19cd845dbec"
+source = "git+https://github.com/namachan10777/axohtml?rev=7aaf4beb6480404e8ae8850228246e2cef225d55#7aaf4beb6480404e8ae8850228246e2cef225d55"
 dependencies = [
  "console",
  "lalrpop",
