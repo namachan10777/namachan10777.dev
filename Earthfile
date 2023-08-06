@@ -47,6 +47,7 @@ deploy:
     WORKDIR /work
     RUN npm install -g wrangler
     ARG --required PROJECT_NAME
+    BUILD +unmark-test
     COPY +web/dist dist
     RUN --secret CLOUDFLARE_ACCOUNT_ID=CLOUDFLARE_ACCOUNT_ID --secret CLOUDFLARE_API_TOKEN=CLOUDFLARE_API_TOKEN \
         wrangler pages deploy dist --project-name=$PROJECT_NAME
