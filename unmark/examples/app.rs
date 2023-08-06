@@ -6,6 +6,7 @@ use axohtml::{
     types::Id,
 };
 use clap::Parser;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -19,7 +20,7 @@ use unmark::{
     builder::{static_load, Blob, Cache, DirMap},
     webtools::{
         self,
-        image::{get_img_src, optimized_srcset, ImageSrc},
+        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc},
     },
 };
 
@@ -28,6 +29,9 @@ struct Opts {
     #[clap(subcommand)]
     cmd: SubCommand,
 }
+
+const IMAGE_OPTIMIZE_CONFIG: Lazy<ImageOptimizeConfig> =
+    Lazy::new(|| ImageOptimizeConfig::new(200, 0.6).unwrap());
 
 #[derive(Parser)]
 enum SubCommand {
@@ -55,7 +59,8 @@ impl unmark::htmlgen::Hooks for Hooks {
     ) -> Result<Box<dyn PhrasingContent<String>>, unmark::htmlgen::Error> {
         let k: PathBuf = url.into();
         let src = self.imgs.get(&k).unwrap();
-        if let Some(srcset) = webtools::image::optimized_srcset_string(src) {
+        if let Some(srcset) = webtools::image::optimized_srcset_string(&IMAGE_OPTIMIZE_CONFIG, src)
+        {
             Ok(html!(
                 <img loading="lazy" srcset=srcset src=url alt=alt class="generic-img" width=(src.dim.0) height=(src.dim.1)/>
             ))
@@ -107,7 +112,7 @@ impl unmark::builder::util::Spread for Image {
     type Error = anyhow::Error;
     fn out_path(&self, path: &std::path::Path, blob: &Blob) -> Vec<std::path::PathBuf> {
         let src = get_img_src(path, blob).unwrap();
-        if let Ok(srcset) = optimized_srcset(&src) {
+        if let Ok(srcset) = optimized_srcset(&IMAGE_OPTIMIZE_CONFIG, &src) {
             let mut optimized_imgs = srcset.into_iter().map(|src| src.path).collect::<Vec<_>>();
             optimized_imgs.push(path.with_extension("webp"));
             optimized_imgs
@@ -120,7 +125,8 @@ impl unmark::builder::util::Spread for Image {
         path: &std::path::Path,
         blob: &Blob,
     ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
-        let images = webtools::image::optimize_img(&get_img_src(path, blob)?, blob)?;
+        let images =
+            webtools::image::optimize_img(&IMAGE_OPTIMIZE_CONFIG, &get_img_src(path, blob)?, blob)?;
         Ok(images)
     }
 }

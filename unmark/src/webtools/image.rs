@@ -16,6 +16,24 @@ pub struct ImageSrc {
     pub path: PathBuf,
 }
 
+#[derive(Debug, Clone)]
+pub struct ImageOptimizeConfig {
+    min_width: u32,
+    scale_step: f64,
+}
+
+impl ImageOptimizeConfig {
+    pub fn new(min_width: u32, scale_step: f64) -> Result<Self, ImageError> {
+        if scale_step >= 1.0 {
+            return Err(ImageError::InvalidScaleStep(scale_step));
+        }
+        Ok(Self {
+            min_width,
+            scale_step,
+        })
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum ImageError {
     #[error("load img {0:?} due to {1}")]
@@ -24,6 +42,8 @@ pub enum ImageError {
     NotRasterImage(PathBuf),
     #[error("encode image {0:?} due to {1}")]
     Encode(PathBuf, image::ImageError),
+    #[error("invalid scale step {0}. scale step must be smaller than 1.0")]
+    InvalidScaleStep(f64),
 }
 
 fn get_size_hint_from_svg(svg: &Blob) -> (u32, u32) {
@@ -59,7 +79,7 @@ pub fn get_img_src(path: &Path, blob: &crate::builder::Blob) -> Result<ImageSrc,
     }
 }
 
-fn srcset(src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
+fn srcset(config: &ImageOptimizeConfig, src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
     let mut srcset = Vec::new();
     let mut w = src.dim.0;
     let mut h = src.dim.1;
@@ -68,7 +88,7 @@ fn srcset(src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
     let matched = re
         .captures(&path)
         .ok_or_else(|| ImageError::NotRasterImage(src.path.to_owned()))?;
-    while w > 100 {
+    while w > config.min_width {
         let path = format!(
             "{}-{}w.{}",
             matched.get(1).unwrap().as_str(),
@@ -79,15 +99,15 @@ fn srcset(src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
             dim: (w, h),
             path: path.into(),
         });
-        w /= 2;
-        h /= 2;
+        w = (w as f64 * config.scale_step) as u32;
+        h = (h as f64 * config.scale_step) as u32;
     }
     srcset.reverse();
     Ok(srcset)
 }
 
-pub fn optimized_srcset(src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
-    Ok(srcset(src)?
+pub fn optimized_srcset(config: &ImageOptimizeConfig, src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
+    Ok(srcset(config, src)?
         .into_iter()
         .map(|src| ImageSrc {
             path: src.path.with_extension("webp"),
@@ -96,8 +116,8 @@ pub fn optimized_srcset(src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
         .collect())
 }
 
-pub fn optimized_srcset_string(src: &ImageSrc) -> Option<String> {
-    let Ok(srcset) = srcset(src) else {
+pub fn optimized_srcset_string(config: &ImageOptimizeConfig, src: &ImageSrc) -> Option<String> {
+    let Ok(srcset) = srcset(config, src) else {
         return None
     };
     Some(
@@ -110,10 +130,11 @@ pub fn optimized_srcset_string(src: &ImageSrc) -> Option<String> {
 }
 
 pub fn optimize_img(
+    config: &ImageOptimizeConfig,
     src: &ImageSrc,
     blob: &crate::builder::Blob,
 ) -> Result<HashMap<PathBuf, Blob>, ImageError> {
-    let Ok(mut srcset)  = optimized_srcset(src) else {
+    let Ok(mut srcset)  = optimized_srcset(config, src) else {
         return Ok(hashmap! {
             src.path.to_owned() => blob.clone(),
         })
