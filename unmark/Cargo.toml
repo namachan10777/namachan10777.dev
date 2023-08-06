@@ -8,7 +8,8 @@ edition = "2021"
 [features]
 syntax = ["tree-sitter", "tree-sitter-highlight", "tree-sitter-rust", "tree-sitter-javascript"]
 image = ["dep:image", "dep:svg"]
-default = ["syntax", "image"]
+git = ["dep:git2"]
+default = ["syntax", "image", "git"]
 
 [dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }
@@ -38,6 +39,7 @@ tree-sitter-rust = { version="0.20.3", optional=true }
 image = { version = "0.24.6", features = ["webp-encoder"], optional = true }
 svg = {version="0.13.1", optional=true}
 url = "2.3.1"
+git2 = { version = "0.17.2", default-features = false, optional = true }
 
 [dev-dependencies]
 anyhow = "1.0.71"
