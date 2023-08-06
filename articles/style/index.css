@@ -1,5 +1,6 @@
 :root {
     --font-base: -apple-system, "BlinkMacSystemFont", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif, "Segoe UI Emoji";
+    --font-mono: Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
 }
 
 body {
@@ -19,14 +20,14 @@ img.generic-img {
 }
 
 code {
-    font-family: Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+    font-family: var(--font-mono);
     background-color: #dfffdf;
     padding: 0.2em;
     border-radius: 0.2em;
 }
 
 .category {
-    font-family: Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+    font-family: var(--font-mono);
 }
 
 .category::before {
@@ -34,9 +35,17 @@ code {
 }
 
 .path-component {
-    font-family: Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+    font-family: var(--font-mono);
     margin-left: 0.1em;
     margin-right: 0.1em;
+}
+
+.git-entry > a > span {
+    font-family: var(--font-mono);
+}
+
+.git-entry > span {
+    margin-left: 1em;
 }
 
 @media (min-aspect-ratio: 1/1) {

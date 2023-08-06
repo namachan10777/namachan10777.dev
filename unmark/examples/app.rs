@@ -17,10 +17,10 @@ use std::{
 use tokio::fs;
 use tracing::info;
 use unmark::{
-    builder::{static_load, Blob, Cache, DirMap},
+    builder::{static_load, Blob, Cache, DirMap, Rule},
     webtools::{
         self,
-        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc},
+        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc}, git::gen_history,
     },
 };
 
@@ -97,7 +97,9 @@ impl Hooks {
 }
 
 #[derive(Clone)]
-struct Blog;
+struct Blog {
+    article_root: PathBuf,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 struct BlogMeta {
@@ -180,6 +182,7 @@ impl unmark::builder::util::MapWithDeps for Blog {
                             </div>
                         </header>
                         {html}
+                        {gen_history(&self.article_root, path)}
                     </div>
                 </body>
             </html>
@@ -194,7 +197,9 @@ impl unmark::builder::util::MapWithDeps for Blog {
 }
 
 #[derive(Clone)]
-struct Diary;
+struct Diary {
+    article_root: PathBuf,
+}
 #[derive(Debug, Deserialize, Serialize)]
 struct DiaryMeta {
     date: String,
@@ -235,10 +240,13 @@ impl unmark::builder::util::MapWithDeps for Diary {
                     <title>{text!(meta.date)}</title>
                     {common_headers()}
                 </head>
-                <body><div id="contents-root">
-                    <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
-                    {html}
-                </div></body>
+                <body>
+                    <div id="contents-root">
+                        <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
+                        {html}
+                    </div>
+                    {gen_history(&self.article_root, path)}
+                </body>
             </html>
         );
         let content = Blob::new(
@@ -251,7 +259,9 @@ impl unmark::builder::util::MapWithDeps for Diary {
 }
 
 #[derive(Clone)]
-struct Index;
+struct Index {
+    article_root: PathBuf,
+}
 #[derive(Deserialize)]
 struct IndexMeta {
     title: String,
@@ -288,7 +298,10 @@ impl unmark::builder::util::MapWithDeps for Index {
                     <title>{text!(meta.title)}</title>
                     {common_headers()}
                 </head>
-                <body><div id="contents-root">{html}</div></body>
+                <body>
+                    <div id="contents-root">{html}</div>
+                    {gen_history(&self.article_root, path)}
+                </body>
             </html>
         );
         let content = Blob::new(
@@ -539,6 +552,35 @@ fn dirs(root: &Path) -> Vec<BoxedDirMap> {
     ]
 }
 
+fn rules<P: AsRef<Path>>(
+    article_root: P,
+) -> Vec<Box<dyn Rule<Error = anyhow::Error> + Send + Sync + 'static>> {
+    let article_root = article_root.as_ref().to_owned();
+    vec![
+        unmark::builder::util::spread(Regex::new(r#"^.+\.(png|webp)"#).unwrap(), Image),
+        unmark::builder::util::publish(Regex::new(r#"^.+\.(ico|css|svg)"#).unwrap()),
+        unmark::builder::util::map_with_dep(
+            Blog {
+                article_root: article_root.clone(),
+            },
+            Regex::new(r#"^/blog/.+\.md$"#).unwrap(),
+        ),
+        unmark::builder::util::map_with_dep(
+            Diary {
+                article_root: article_root.clone(),
+            },
+            Regex::new(r#"^/diary/.+\.md$"#).unwrap(),
+        ),
+        unmark::builder::util::map_with_dep(
+            Index { article_root },
+            Regex::new(r#"^/index.md$"#).unwrap(),
+        ),
+        unmark::builder::util::aggregate(BlogIndex),
+        unmark::builder::util::aggregate(DiaryIndex),
+        unmark::builder::util::aggregate(CategoryIndex),
+    ]
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     use tracing_subscriber::prelude::*;
@@ -547,18 +589,9 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
     let opts = Opts::parse();
-    let rules = vec![
-        unmark::builder::util::spread(Regex::new(r#"^.+\.(png|webp)"#).unwrap(), Image),
-        unmark::builder::util::publish(Regex::new(r#"^.+\.(ico|css|svg)"#).unwrap()),
-        unmark::builder::util::map_with_dep(Blog, Regex::new(r#"^/blog/.+\.md$"#).unwrap()),
-        unmark::builder::util::map_with_dep(Diary, Regex::new(r#"^/diary/.+\.md$"#).unwrap()),
-        unmark::builder::util::map_with_dep(Index, Regex::new(r#"^/index.md$"#).unwrap()),
-        unmark::builder::util::aggregate(BlogIndex),
-        unmark::builder::util::aggregate(DiaryIndex),
-        unmark::builder::util::aggregate(CategoryIndex),
-    ];
     match opts.cmd {
         SubCommand::Build { root, dist } => {
+            let rules = rules(&root);
             let tree = static_load(&dirs(&root)).await?;
             for (path, blob) in unmark::builder::build(&mut Cache::empty(), tree, &rules)? {
                 if !blob.publish {
@@ -575,6 +608,7 @@ async fn main() -> anyhow::Result<()> {
             }
         }
         SubCommand::Dev { root, addr } => {
+            let rules = rules(&root);
             unmark::builder::dev_server::serve(&addr, dirs(&root), rules).await?;
         }
     }
