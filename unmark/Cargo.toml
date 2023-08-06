@@ -7,7 +7,8 @@ edition = "2021"
 
 [features]
 syntax = ["tree-sitter", "tree-sitter-highlight", "tree-sitter-rust", "tree-sitter-javascript"]
-default = ["syntax"]
+image = ["dep:image", "dep:svg"]
+default = ["syntax", "image"]
 
 [dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }
@@ -34,14 +35,14 @@ tree-sitter = { version = "0.20.10", optional = true }
 tree-sitter-highlight = { version="0.20.1", optional=true }
 tree-sitter-javascript = { version="0.20.0", optional=true }
 tree-sitter-rust = { version="0.20.3", optional=true }
+image = { version = "0.24.6", features = ["webp-encoder"], optional = true }
+svg = {version="0.13.1", optional=true}
 url = "2.3.1"
 
 [dev-dependencies]
 anyhow = "1.0.71"
 chrono = "0.4.24"
 clap = { version = "4.2.7", features = ["derive"] }
-image = { version = "0.24.6", features = ["webp-encoder"] }
 serde_json = "1.0.96"
-svg = "0.13.1"
 tokio = { version = "1.28.1", features = ["rt-multi-thread", "macros"] }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }

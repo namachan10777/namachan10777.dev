@@ -3,7 +3,6 @@ use std::unimplemented;
 use axohtml::elements::{FlowContent, PhrasingContent};
 use axohtml::{html, text};
 
-use crate::highlight::highlight;
 use crate::md::Ast;
 
 pub trait Hooks {
@@ -91,7 +90,10 @@ pub trait Hooks {
             )),
             Ast::Text(text) => Ok(text!(text.clone())),
             Ast::CodeBlock { info, content } => {
-                let highlighted = highlight(info, content).unwrap();
+                #[cfg(feature = "syntax")]
+                let highlighted = crate::webtools::highlight::highlight(info, content).unwrap();
+                #[cfg(not(feature = "syntax"))]
+                let highlighted = text!(content);
                 Ok(html!(
                     <pre class="code-block">
                         <code>{highlighted}</code>

@@ -101,13 +101,10 @@ fn convert<'a>(md: &'a Node<'a, RefCell<comrak::nodes::Ast>>) -> Result<Ast, Err
             }
         }
         NodeValue::SoftBreak => Ok(Ast::Text(String::new())),
-        NodeValue::CodeBlock(NodeCodeBlock { literal, info, .. }) => {
-            crate::highlight::highlight("js", literal).unwrap();
-            Ok(Ast::CodeBlock {
-                info: info.clone(),
-                content: literal.clone(),
-            })
-        }
+        NodeValue::CodeBlock(NodeCodeBlock { literal, info, .. }) => Ok(Ast::CodeBlock {
+            info: info.clone(),
+            content: literal.clone(),
+        }),
         node => unimplemented!("{:?}", node),
     }
 }

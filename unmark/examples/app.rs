@@ -6,7 +6,6 @@ use axohtml::{
     types::Id,
 };
 use clap::Parser;
-use image::GenericImageView;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -16,7 +15,13 @@ use std::{
 };
 use tokio::fs;
 use tracing::info;
-use unmark::builder::{static_load, Blob, Cache, DirMap};
+use unmark::{
+    builder::{static_load, Blob, Cache, DirMap},
+    webtools::{
+        self,
+        image::{get_img_src, optimized_srcset, ImageSrc},
+    },
+};
 
 #[derive(Parser)]
 struct Opts {
@@ -39,38 +44,7 @@ enum SubCommand {
 }
 
 struct Hooks {
-    imgs: HashMap<PathBuf, (u32, u32)>,
-}
-
-#[derive(Debug)]
-struct Src {
-    dim: (u32, u32),
-    path: PathBuf,
-}
-
-fn srcset(path: &Path, (w, h): (u32, u32)) -> Vec<Src> {
-    let mut srcset = Vec::new();
-    let mut w = w;
-    let mut h = h;
-    let re = Regex::new(r#"^(.*/.+).(png|webp)$"#).unwrap();
-    while w > 100 {
-        let path = path.to_string_lossy().to_string();
-        let matched = re.captures(&path).unwrap();
-        let path = format!(
-            "{}-{}w.{}",
-            matched.get(1).unwrap().as_str(),
-            w,
-            matched.get(2).unwrap().as_str()
-        );
-        srcset.push(Src {
-            dim: (w, h),
-            path: path.into(),
-        });
-        w /= 2;
-        h /= 2;
-    }
-    srcset.reverse();
-    srcset
+    imgs: HashMap<PathBuf, ImageSrc>,
 }
 
 impl unmark::htmlgen::Hooks for Hooks {
@@ -80,44 +54,17 @@ impl unmark::htmlgen::Hooks for Hooks {
         alt: &str,
     ) -> Result<Box<dyn PhrasingContent<String>>, unmark::htmlgen::Error> {
         let k: PathBuf = url.into();
-        let (w, h) = self.imgs.get(&k).map(|(w, h)| (*w, *h)).unwrap();
-        if k.extension().map(|ext| ext != "svg").unwrap_or(true) {
-            let srcset_attr = srcset(&k, (w, h))
-                .into_iter()
-                .map(|src| {
-                    format!(
-                        "{path} {w}w",
-                        path = src.path.to_string_lossy(),
-                        w = src.dim.0
-                    )
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
+        let src = self.imgs.get(&k).unwrap();
+        if let Some(srcset) = webtools::image::optimized_srcset_string(src) {
             Ok(html!(
-                <img loading="lazy" srcset=srcset_attr src=url alt=alt class="generic-img" width=w height=h/>
+                <img loading="lazy" srcset=srcset src=url alt=alt class="generic-img" width=(src.dim.0) height=(src.dim.1)/>
             ))
         } else {
             Ok(html!(
-                <img loading="lazy" src=url alt=alt class="generic-img" width=w height=h/>
+                <img loading="lazy" src=url alt=alt class="generic-img" width=(src.dim.0) height=(src.dim.1)/>
             ))
         }
     }
-}
-
-fn get_size_hint_from_svg(svg: &Blob) -> (u32, u32) {
-    let svg = String::from_utf8_lossy(&svg.content);
-    let mut svg = svg::read(&svg).unwrap();
-    let size = svg.find_map(|event| match event {
-        svg::parser::Event::Tag(_, _, attrs) => {
-            let (_, w) = attrs.iter().find(|(name, _)| *name == "width")?;
-            let (_, h) = attrs.iter().find(|(name, _)| *name == "height")?;
-            let w: u32 = w.parse().ok()?;
-            let h: u32 = h.parse().ok()?;
-            Some((w, h))
-        }
-        _ => None,
-    });
-    size.unwrap()
 }
 
 impl Hooks {
@@ -125,17 +72,20 @@ impl Hooks {
         Self {
             imgs: tree
                 .iter()
-                .filter_map(|(path, blob)| {
-                    if matches!(blob.mime.essence_str(), "image/*") {
-                        let image = image::load_from_memory(&blob.content).ok()?;
-                        Some(((*path).to_owned(), image.dimensions()))
-                    } else if path.extension().map(|s| s == "svg").unwrap_or(false) {
-                        let size = get_size_hint_from_svg(blob);
-                        Some(((*path).to_owned(), size))
+                .map(|(path, blob)| {
+                    if matches!(blob.mime.essence_str(), "image/*")
+                        || path.extension().map(|s| s == "svg").unwrap_or(false)
+                    {
+                        let src = get_img_src(path, blob)?;
+                        Ok(Some(((*path).to_owned(), src)))
                     } else {
-                        None
+                        Ok::<_, webtools::image::ImageError>(None)
                     }
                 })
+                .collect::<Result<Vec<_>, _>>()
+                .unwrap()
+                .into_iter()
+                .flatten()
                 .collect(),
         }
     }
@@ -156,52 +106,21 @@ struct Image;
 impl unmark::builder::util::Spread for Image {
     type Error = anyhow::Error;
     fn out_path(&self, path: &std::path::Path, blob: &Blob) -> Vec<std::path::PathBuf> {
-        let image = image::load_from_memory(&blob.content).unwrap();
-        let mut outs = srcset(path, image.dimensions())
-            .into_iter()
-            .map(|src| src.path.with_extension("webp"))
-            .collect::<Vec<_>>();
-        outs.push(path.with_extension("webp"));
-        outs
+        let src = get_img_src(path, blob).unwrap();
+        if let Ok(srcset) = optimized_srcset(&src) {
+            let mut optimized_imgs = srcset.into_iter().map(|src| src.path).collect::<Vec<_>>();
+            optimized_imgs.push(path.with_extension("webp"));
+            optimized_imgs
+        } else {
+            vec![path.to_owned()]
+        }
     }
     fn build(
         &self,
         path: &std::path::Path,
         blob: &Blob,
     ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
-        let image = image::load_from_memory(&blob.content)?;
-        let mut images = HashMap::new();
-        let mut buffer = Vec::new();
-        image::codecs::webp::WebPEncoder::new(&mut buffer)
-            .encode(
-                image.as_bytes(),
-                image.dimensions().0,
-                image.dimensions().1,
-                image.color(),
-            )
-            .unwrap();
-        images.insert(
-            path.with_extension("webp"),
-            Blob::new(buffer, mime::IMAGE_STAR, true),
-        );
-        for src in srcset(path, image.dimensions()) {
-            let mut buffer = Vec::new();
-            let image = image.resize(
-                src.dim.0,
-                src.dim.1,
-                image::imageops::FilterType::CatmullRom,
-            );
-            image::codecs::webp::WebPEncoder::new(&mut buffer).encode(
-                image.as_bytes(),
-                image.dimensions().0,
-                image.dimensions().1,
-                image.color(),
-            )?;
-            images.insert(
-                src.path.with_extension("webp"),
-                Blob::new(buffer, mime::IMAGE_STAR, true),
-            );
-        }
+        let images = webtools::image::optimize_img(&get_img_src(path, blob)?, blob)?;
         Ok(images)
     }
 }
