@@ -19,8 +19,10 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }} 
-    - run: |
+    - name: Test on earthly
+      env:
+        EARTHLY_PUSH: ${{ github.ref == 'refs/heads/master' }}
+      run: |
         earthly \
           --remote-cache=ghcr.io/namachan10777/namachan10777-dev:cache-test \
-          --push \
-          +test
+          +unmark-test

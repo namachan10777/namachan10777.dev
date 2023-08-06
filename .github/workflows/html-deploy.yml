@@ -22,7 +22,8 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }} 
-    - run: |
+    - name: Deploy in earthly
+      run: |
         earthly \
           --secret CLOUDFLARE_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }} \
           --secret CLOUDFLARE_API_TOKEN=${{ secrets.CF_API_TOKEN }} \
