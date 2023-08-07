@@ -19,6 +19,11 @@ img.generic-img {
     height: auto;
 }
 
+img.rss-button {
+	width: 1em;
+	height: 1em;
+}
+
 code {
     font-family: var(--font-mono);
     background-color: #dfffdf;

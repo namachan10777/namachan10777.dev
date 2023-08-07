@@ -213,7 +213,7 @@ impl unmark::builder::util::Aggregate for Rss {
     }
 
     fn out(&self, _: &HashMap<PathBuf, Blob>) -> PathBuf {
-        "/rss.xml".into()
+        "/rss.rdf".into()
     }
 
     fn build(&self, tree: &std::collections::HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
