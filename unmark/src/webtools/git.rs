@@ -1,7 +1,10 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use axohtml::{html, text};
-use git2::{Commit, Repository};
+use git2::{Commit, Oid, Repository};
 
 pub struct GitRepo {
     repo: Repository,
@@ -65,22 +68,26 @@ fn get_file_logs<P: AsRef<Path>>(repo: &Repository, path: P) -> Result<Vec<Commi
     let mut revwalk = repo.revwalk()?;
     revwalk.set_sorting(git2::Sort::TIME)?;
     revwalk.push_head()?;
-    let mut old_id = None;
-    let mut oids = Vec::new();
-    for oid in revwalk {
-        let oid = oid?;
-        let Ok(commit) = repo.find_commit(oid) else {
+    let mut commits: HashMap<Oid, Commit<'_>> = HashMap::new();
+    for rev in revwalk {
+        let rev = rev?;
+        let Ok(commit) = repo.find_commit(rev) else {
             continue;
         };
-        let Ok(entry) = commit.tree()?.get_path(path.as_ref()) else {
-            continue;
-        };
-        if old_id.map(|old_id| old_id != entry.id()).unwrap_or(true) {
-            oids.push(commit);
+        if let Ok(entry) = commit.tree()?.get_path(path.as_ref()) {
+            commits
+                .entry(entry.id())
+                .and_modify(|prev| {
+                    if commit.time() < prev.time() {
+                        *prev = commit.clone();
+                    }
+                })
+                .or_insert_with(|| commit.clone());
         }
-        old_id = Some(entry.id());
     }
-    Ok(oids)
+    let mut history = commits.into_values().collect::<Vec<_>>();
+    history.sort_by_key(|commit| std::cmp::Reverse(commit.time()));
+    Ok(history)
 }
 
 pub fn gen_history<P1: AsRef<Path>, P2: AsRef<Path>>(
@@ -92,7 +99,10 @@ pub fn gen_history<P1: AsRef<Path>, P2: AsRef<Path>>(
     let logs = commits.iter().map(|commit| {
         let id = commit.id();
         let id_short_str = &id.to_string()[..8];
-        let path = repo.path_on_git(file_path.as_ref()).to_string_lossy().to_string();
+        let path = repo
+            .path_on_git(file_path.as_ref())
+            .to_string_lossy()
+            .to_string();
         let github_url =
             format!("https://github.com/namachan10777/namachan10777.dev/blob/{id}/{path}");
         let title = commit

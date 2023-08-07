@@ -40,6 +40,7 @@ image = { version = "0.24.6", features = ["webp-encoder"], optional = true }
 svg = {version="0.13.1", optional=true}
 url = "2.3.1"
 git2 = { version = "0.17.2", default-features = false, optional = true }
+itertools = "0.11.0"
 
 [dev-dependencies]
 anyhow = "1.0.71"

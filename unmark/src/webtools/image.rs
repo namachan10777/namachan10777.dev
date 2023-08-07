@@ -106,7 +106,10 @@ fn srcset(config: &ImageOptimizeConfig, src: &ImageSrc) -> Result<Vec<ImageSrc>,
     Ok(srcset)
 }
 
-pub fn optimized_srcset(config: &ImageOptimizeConfig, src: &ImageSrc) -> Result<Vec<ImageSrc>, ImageError> {
+pub fn optimized_srcset(
+    config: &ImageOptimizeConfig,
+    src: &ImageSrc,
+) -> Result<Vec<ImageSrc>, ImageError> {
     Ok(srcset(config, src)?
         .into_iter()
         .map(|src| ImageSrc {

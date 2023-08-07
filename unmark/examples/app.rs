@@ -20,7 +20,8 @@ use unmark::{
     builder::{static_load, Blob, Cache, DirMap, Rule},
     webtools::{
         self,
-        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc}, git::gen_history,
+        git::gen_history,
+        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc},
     },
 };
 
@@ -30,7 +31,7 @@ struct Opts {
     cmd: SubCommand,
 }
 
-const IMAGE_OPTIMIZE_CONFIG: Lazy<ImageOptimizeConfig> =
+static IMAGE_OPTIMIZE_CONFIG: Lazy<ImageOptimizeConfig> =
     Lazy::new(|| ImageOptimizeConfig::new(200, 0.6).unwrap());
 
 #[derive(Parser)]
@@ -244,8 +245,8 @@ impl unmark::builder::util::MapWithDeps for Diary {
                     <div id="contents-root">
                         <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
                         {html}
+                        {gen_history(&self.article_root, path)}
                     </div>
-                    {gen_history(&self.article_root, path)}
                 </body>
             </html>
         );
@@ -299,8 +300,10 @@ impl unmark::builder::util::MapWithDeps for Index {
                     {common_headers()}
                 </head>
                 <body>
-                    <div id="contents-root">{html}</div>
-                    {gen_history(&self.article_root, path)}
+                    <div id="contents-root">
+                        {html}
+                        {gen_history(&self.article_root, path)}
+                    </div>
                 </body>
             </html>
         );
