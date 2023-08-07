@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-syntax = ["tree-sitter", "tree-sitter-highlight", "tree-sitter-rust", "tree-sitter-javascript"]
+syntax = ["dep:tree-sitter", "dep:tree-sitter-highlight", "dep:tree-sitter-rust", "dep:tree-sitter-javascript"]
 image = ["dep:image", "dep:svg"]
 git = ["dep:git2"]
 default = ["syntax", "image", "git"]
