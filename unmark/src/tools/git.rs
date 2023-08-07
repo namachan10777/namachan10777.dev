@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use chrono::{FixedOffset, NaiveDateTime, TimeZone};
 use git2::{Commit, Oid, Repository};
 
 pub struct GitRepo {
@@ -63,7 +64,7 @@ impl GitRepo {
     }
 }
 
-pub fn get_file_logs<P: AsRef<Path>>(repo: &Repository, path: P) -> Result<Vec<Commit>, git2::Error> {
+fn get_file_logs<P: AsRef<Path>>(repo: &Repository, path: P) -> Result<Vec<Commit>, git2::Error> {
     let mut revwalk = repo.revwalk()?;
     revwalk.set_sorting(git2::Sort::TIME)?;
     revwalk.push_head()?;
@@ -87,4 +88,13 @@ pub fn get_file_logs<P: AsRef<Path>>(repo: &Repository, path: P) -> Result<Vec<C
     let mut history = commits.into_values().collect::<Vec<_>>();
     history.sort_by_key(|commit| std::cmp::Reverse(commit.time()));
     Ok(history)
+}
+
+pub fn chrono_from_git(time: &git2::Time) -> chrono::DateTime<FixedOffset> {
+    let native = NaiveDateTime::from_timestamp_opt(time.seconds(), 0).unwrap();
+    
+    FixedOffset::east_opt(time.offset_minutes() * 60)
+        .unwrap()
+        .from_local_datetime(&native)
+        .unwrap()
 }

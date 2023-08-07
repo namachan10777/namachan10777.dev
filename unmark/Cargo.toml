@@ -8,8 +8,9 @@ edition = "2021"
 [features]
 syntax = ["dep:tree-sitter", "dep:tree-sitter-highlight", "dep:tree-sitter-rust", "dep:tree-sitter-javascript"]
 image = ["dep:image", "dep:svg"]
-git = ["dep:git2"]
-default = ["syntax", "image", "git"]
+git = ["dep:git2", "dep:chrono"]
+rss = ["dep:rss"]
+default = ["syntax", "image", "git", "rss"]
 
 [dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }
@@ -41,10 +42,11 @@ svg = {version="0.13.1", optional=true}
 url = "2.3.1"
 git2 = { version = "0.17.2", default-features = false, optional = true }
 itertools = "0.11.0"
+rss = { version="2.0.5", optional = true }
+chrono = { version="0.4.24", optional = true }
 
 [dev-dependencies]
 anyhow = "1.0.71"
-chrono = "0.4.24"
 clap = { version = "4.2.7", features = ["derive"] }
 serde_json = "1.0.96"
 tokio = { version = "1.28.1", features = ["rt-multi-thread", "macros"] }

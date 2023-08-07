@@ -2,8 +2,7 @@ use std::path::Path;
 
 use axohtml::{html, text};
 
-use crate::tools::git::{GitRepo, Error};
-
+use crate::tools::git::{Error, GitRepo};
 
 pub fn gen_history<P1: AsRef<Path>, P2: AsRef<Path>>(
     article_root: P1,

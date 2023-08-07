@@ -6,6 +6,7 @@ use axohtml::{
     types::Id,
 };
 use clap::Parser;
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -24,6 +25,7 @@ use unmark::{
             get_img_src, optimized_srcset, optimized_srcset_string, ImageOptimizeConfig, ImageSrc,
         },
     },
+    tools::{self, git::GitRepo},
 };
 
 #[derive(Parser)]
@@ -94,6 +96,155 @@ impl Hooks {
                 .flatten()
                 .collect(),
         }
+    }
+}
+
+fn create_rss_item_diary<P1: AsRef<Path>, P2: AsRef<Path>>(
+    article_root: P1,
+    path: P2,
+    blob: &Blob,
+) -> anyhow::Result<rss::Item> {
+    let content = String::from_utf8_lossy(&blob.content);
+    let (ast, meta) = unmark::md::parse::<DiaryMeta>(&content)?;
+    let title = unmark::md::util::h1_content_as_string(&ast);
+    let mut item = rss::Item::default();
+    item.set_title(meta.date);
+    item.set_author("Masaki Nakano".to_owned());
+    let page_name = path
+        .as_ref()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .strip_suffix(".md")
+        .unwrap();
+    item.set_title(title);
+    item.set_link(format!(
+        "https://www.namachan10777.dev/diary/{}.html",
+        page_name
+    ));
+    let repo = GitRepo::open(article_root)?;
+    let commits = repo.get_file_logs(path)?;
+    let last_commit = commits.last().unwrap();
+    item.set_pub_date(tools::git::chrono_from_git(&last_commit.time()).to_rfc2822());
+    Ok(item)
+}
+
+fn create_rss_item_blog<P1: AsRef<Path>, P2: AsRef<Path>>(
+    article_root: P1,
+    path: P2,
+    blob: &Blob,
+) -> anyhow::Result<rss::Item> {
+    let content = String::from_utf8_lossy(&blob.content);
+    let (ast, meta) = unmark::md::parse::<BlogMeta>(&content)?;
+    let title = unmark::md::util::h1_content_as_string(&ast);
+    let mut item = rss::Item::default();
+    item.set_author("Masaki Nakano".to_owned());
+    item.set_categories(
+        meta.category
+            .iter()
+            .map(|name| {
+                let mut cat = rss::Category::default();
+                cat.set_name(name.clone());
+                cat
+            })
+            .collect_vec(),
+    );
+    let page_name = path
+        .as_ref()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .strip_suffix(".md")
+        .unwrap();
+    item.set_title(title);
+    item.set_link(format!(
+        "https://www.namachan10777.dev/blog/{}.html",
+        page_name
+    ));
+    let repo = GitRepo::open(article_root)?;
+    let commits = repo.get_file_logs(path)?;
+    let last_commit = commits.last().unwrap();
+    item.set_pub_date(tools::git::chrono_from_git(&last_commit.time()).to_rfc2822());
+    Ok(item)
+}
+
+fn create_rss_item_index<P1: AsRef<Path>, P2: AsRef<Path>>(
+    article_root: P1,
+    path: P2,
+    _blob: &Blob,
+) -> anyhow::Result<rss::Item> {
+    let mut item = rss::Item::default();
+    item.set_author("Masaki Nakano".to_owned());
+    let page_name = path
+        .as_ref()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .strip_suffix(".md")
+        .unwrap();
+    item.set_title("index".to_owned());
+    item.set_link(format!(
+        "https://www.namachan10777.dev/blog/{}.html",
+        page_name
+    ));
+    let repo = GitRepo::open(article_root)?;
+    let commits = repo.get_file_logs(path)?;
+    let last_commit = commits.last().unwrap();
+    item.set_pub_date(tools::git::chrono_from_git(&last_commit.time()).to_rfc2822());
+    Ok(item)
+}
+
+#[derive(Clone)]
+struct Rss {
+    article_root: PathBuf,
+}
+
+impl unmark::builder::util::Aggregate for Rss {
+    type Error = anyhow::Error;
+    fn demands(&self, tree: &HashMap<PathBuf, Blob>) -> Vec<PathBuf> {
+        let re = Regex::new(r#"^.+\.md$"#).unwrap();
+        tree.keys()
+            .filter(|path| re.is_match(&path.to_string_lossy()))
+            .cloned()
+            .collect()
+    }
+
+    fn out(&self, _: &HashMap<PathBuf, Blob>) -> PathBuf {
+        "/rss.xml".into()
+    }
+
+    fn build(&self, tree: &std::collections::HashMap<&Path, &Blob>) -> Result<Blob, Self::Error> {
+        let items = tree
+            .iter()
+            .map(|(path, blob)| {
+                if path.starts_with("/blog") {
+                    Ok(Some(create_rss_item_blog(&self.article_root, path, blob)?))
+                } else if path.starts_with("/diary") {
+                    Ok(Some(create_rss_item_diary(&self.article_root, path, blob)?))
+                } else if path.as_os_str() == "/index.md" {
+                    Ok(Some(create_rss_item_index(&self.article_root, path, blob)?))
+                } else {
+                    Ok::<_, anyhow::Error>(None)
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .flatten()
+            .collect_vec();
+        let mut channel = rss::Channel::default();
+        channel.set_webmaster("admin@namachan10777.dev".to_owned());
+        channel.set_title("namachan10777.dev".to_owned());
+        channel.set_description("namachan10777's persoanl web site".to_owned());
+        channel.set_link("https://www.namachan10777.dev".to_owned());
+        channel.set_items(items);
+        Ok(Blob::new(
+            channel.to_string().as_bytes().to_vec(),
+            mime::TEXT_XML,
+            true,
+        ))
     }
 }
 
@@ -578,9 +729,12 @@ fn rules<P: AsRef<Path>>(
             Regex::new(r#"^/diary/.+\.md$"#).unwrap(),
         ),
         unmark::builder::util::map_with_dep(
-            Index { article_root },
+            Index {
+                article_root: article_root.clone(),
+            },
             Regex::new(r#"^/index.md$"#).unwrap(),
         ),
+        unmark::builder::util::aggregate(Rss { article_root }),
         unmark::builder::util::aggregate(BlogIndex),
         unmark::builder::util::aggregate(DiaryIndex),
         unmark::builder::util::aggregate(CategoryIndex),
