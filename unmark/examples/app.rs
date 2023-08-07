@@ -18,10 +18,11 @@ use tokio::fs;
 use tracing::info;
 use unmark::{
     builder::{static_load, Blob, Cache, DirMap, Rule},
-    webtools::{
-        self,
+    html::{
         git::gen_history,
-        image::{get_img_src, optimized_srcset, ImageOptimizeConfig, ImageSrc},
+        image::{
+            get_img_src, optimized_srcset, optimized_srcset_string, ImageOptimizeConfig, ImageSrc,
+        },
     },
 };
 
@@ -60,8 +61,7 @@ impl unmark::htmlgen::Hooks for Hooks {
     ) -> Result<Box<dyn PhrasingContent<String>>, unmark::htmlgen::Error> {
         let k: PathBuf = url.into();
         let src = self.imgs.get(&k).unwrap();
-        if let Some(srcset) = webtools::image::optimized_srcset_string(&IMAGE_OPTIMIZE_CONFIG, src)
-        {
+        if let Some(srcset) = optimized_srcset_string(&IMAGE_OPTIMIZE_CONFIG, src) {
             Ok(html!(
                 <img loading="lazy" srcset=srcset src=url alt=alt class="generic-img" width=(src.dim.0) height=(src.dim.1)/>
             ))
@@ -85,7 +85,7 @@ impl Hooks {
                         let src = get_img_src(path, blob)?;
                         Ok(Some(((*path).to_owned(), src)))
                     } else {
-                        Ok::<_, webtools::image::ImageError>(None)
+                        Ok::<_, unmark::html::image::ImageError>(None)
                     }
                 })
                 .collect::<Result<Vec<_>, _>>()
@@ -128,8 +128,11 @@ impl unmark::builder::util::Spread for Image {
         path: &std::path::Path,
         blob: &Blob,
     ) -> Result<HashMap<PathBuf, Blob>, Self::Error> {
-        let images =
-            webtools::image::optimize_img(&IMAGE_OPTIMIZE_CONFIG, &get_img_src(path, blob)?, blob)?;
+        let images = unmark::html::image::optimize_img(
+            &IMAGE_OPTIMIZE_CONFIG,
+            &get_img_src(path, blob)?,
+            blob,
+        )?;
         Ok(images)
     }
 }

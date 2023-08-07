@@ -91,7 +91,7 @@ pub trait Hooks {
             Ast::Text(text) => Ok(text!(text.clone())),
             Ast::CodeBlock { info, content } => {
                 #[cfg(feature = "syntax")]
-                let highlighted = crate::webtools::highlight::highlight(info, content).unwrap();
+                let highlighted = crate::html::highlight::highlight(info, content).unwrap();
                 #[cfg(not(feature = "syntax"))]
                 let highlighted = text!(content);
                 Ok(html!(
