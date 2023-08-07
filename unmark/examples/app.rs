@@ -1,7 +1,7 @@
 use anyhow::Context;
 use axohtml::{
     dom::DOMTree,
-    elements::{MetadataContent, PhrasingContent},
+    elements::{MetadataContent, PhrasingContent, FlowContent},
     html, text,
     types::Id,
 };
@@ -53,6 +53,14 @@ enum SubCommand {
 
 struct Hooks {
     imgs: HashMap<PathBuf, ImageSrc>,
+}
+
+fn rss_button() -> Box<dyn FlowContent<String>> {
+    html!(
+        <div class="rss-button">
+            <a href="/rss.rdf"><img src="/res/rss.svg" /> <span>"rss"</span></a>
+        </div>
+    )
 }
 
 impl unmark::htmlgen::Hooks for Hooks {
@@ -335,6 +343,7 @@ impl unmark::builder::util::MapWithDeps for Blog {
                                 meta.category.iter().map(|category| html!(<a class="category" href=(format!("../category.html#{category}"))>{text!(category)}</a>))
                             }
                             </div>
+                            {rss_button()}
                         </header>
                         {html}
                         {gen_history(&self.article_root, path)}
@@ -398,6 +407,7 @@ impl unmark::builder::util::MapWithDeps for Diary {
                 <body>
                     <div id="contents-root">
                         <span><a href="../index.html" class="path-component">"namachan10777.dev"</a>"/"<a class="path-component" href="../diary.html">"diary"</a>"/"<span class="path-component">{text!(page_name)}</span></span>
+                        {rss_button()}
                         {html}
                         {gen_history(&self.article_root, path)}
                     </div>
@@ -455,6 +465,7 @@ impl unmark::builder::util::MapWithDeps for Index {
                 </head>
                 <body>
                     <div id="contents-root">
+                        {rss_button()}
                         {html}
                         {gen_history(&self.article_root, path)}
                     </div>
@@ -519,6 +530,7 @@ impl unmark::builder::util::Aggregate for BlogIndex {
                     <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"blog"</span></span>
+                            {rss_button()}
                         </header>
                         <h1 class="heading">"Blog"</h1>
                         <ul>
@@ -579,6 +591,7 @@ impl unmark::builder::util::Aggregate for DiaryIndex {
                     <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"diary"</span></span>
+                            {rss_button()}
                         </header>
                         <h1 class="heading">"Diary"</h1>
                         <ul>
@@ -650,6 +663,7 @@ impl unmark::builder::util::Aggregate for CategoryIndex {
                     <div id="contents-root">
                         <header>
                             <span><a href="index.html" class="path-component">"namachan10777.dev"</a>"/"<span class="path-component">"category"</span></span>
+                            {rss_button()}
                         </header>
                         <h1 class="heading">"Blog"</h1>
                         {
