@@ -39,6 +39,7 @@ web:
     WORKDIR /work
     COPY +unmark-tool/bin unmark
     COPY articles articles
+    COPY .git .git
     RUN ./unmark build articles --dist dist
     SAVE ARTIFACT dist /dist
 
