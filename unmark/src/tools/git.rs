@@ -92,7 +92,7 @@ fn get_file_logs<P: AsRef<Path>>(repo: &Repository, path: P) -> Result<Vec<Commi
 
 pub fn chrono_from_git(time: &git2::Time) -> chrono::DateTime<FixedOffset> {
     let native = NaiveDateTime::from_timestamp_opt(time.seconds(), 0).unwrap();
-    
+
     FixedOffset::east_opt(time.offset_minutes() * 60)
         .unwrap()
         .from_local_datetime(&native)

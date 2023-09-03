@@ -1,7 +1,7 @@
 use anyhow::Context;
 use axohtml::{
     dom::DOMTree,
-    elements::{MetadataContent, PhrasingContent, FlowContent},
+    elements::{FlowContent, MetadataContent, PhrasingContent},
     html, text,
     types::Id,
 };
