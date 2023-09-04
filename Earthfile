@@ -40,6 +40,7 @@ web:
     COPY +unmark-tool/bin unmark
     COPY articles articles
     COPY .git .git
+    RUN git fetch --unshallow
     RUN ./unmark build articles --dist dist
     SAVE ARTIFACT dist /dist
 
