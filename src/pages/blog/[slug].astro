@@ -1,0 +1,12 @@
+---
+import Base from "@layouts/base.astro";
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+
+export const getStaticPaths = (async () => {
+  const blogs = await getCollection("blog");
+  return blogs.map((blog) => ({ params: { slug: blog.slug } }));
+}) satisfies GetStaticPaths;
+---
+
+<Base title={Astro.params.slug} />

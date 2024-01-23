@@ -1,0 +1,32 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<div class="root">
+  <h3 class="title">{title}</h3>
+  <div class="description">{description}</div>
+</div>
+
+<style>
+  .root {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-text-normal);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-strong);
+  }
+
+  .description {
+    color: var(--color-text-weak);
+
+    font-size: var(--font-size-sm);
+  }
+</style>

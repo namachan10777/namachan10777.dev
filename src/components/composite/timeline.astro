@@ -1,0 +1,73 @@
+---
+interface Props {
+  events: { date: string; title: string }[];
+}
+
+const { events } = Astro.props;
+---
+
+<div class="root">
+  {
+    events.map((event) => (
+      <>
+        <div class="date">{event.date}</div>
+        <div class="timeline-decoration">
+          <div class="timeline-line" />
+          <div class="timeline-circle" />
+        </div>
+        <h3 class="title">{event.title}</h3>
+      </>
+    ))
+  }
+</div>
+
+<style>
+  .root {
+    display: grid;
+    grid-template-columns: minmax(4rem, max-content) 2rem 1fr;
+  }
+
+  .timeline-decoration {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .timeline-line {
+    width: 1px;
+    height: 100%;
+    background-color: var(--color-text-weak);
+    position: absolute;
+    left: calc(50% - 1px / 2);
+  }
+
+  .timeline-circle {
+    position: absolute;
+    width: 0.5rem;
+    height: 0.5rem;
+    top: calc(50% - 0.5rem / 2);
+    left: calc(50% - 0.5rem / 2);
+    border-radius: 50%;
+    border: solid var(--color-text-normal) 1px;
+    background-color: white;
+  }
+
+  .date {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--color-text-weak);
+    font-family: ui-monospace;
+    font-size: var(--font-size-sm);
+  }
+
+  .title {
+    word-break: auto-phrase;
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+  }
+</style>

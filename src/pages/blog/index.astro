@@ -1,0 +1,17 @@
+---
+import Base from "@layouts/base.astro";
+import { getCollection } from "astro:content";
+const blogs = await getCollection("blog");
+---
+
+<Base title="Blog">
+  <ul>
+    {
+      blogs.map((blog) => (
+        <li>
+          <a href={`/blog/${blog.slug}`}>{blog.slug}</a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

@@ -1,0 +1,20 @@
+---
+import Base from "@layouts/base.astro";
+import { getCollection } from "astro:content";
+const blogs = await getCollection("blog");
+const categories = [
+  ...new Set(blogs.flatMap((blog) => blog.data.category)).values(),
+];
+---
+
+<Base title="categories">
+  <ul>
+    {
+      categories.map((category) => (
+        <li>
+          <a href={`/category`}>{category}</a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

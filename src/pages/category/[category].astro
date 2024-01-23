@@ -1,0 +1,18 @@
+---
+import Base from "@layouts/base.astro";
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+export const getStaticPaths = (async () => {
+  const blogs = await getCollection("blog");
+  const categories = [
+    ...new Set(blogs.flatMap((blog) => blog.data.category)).values(),
+  ];
+  return categories.map((category) => ({
+    params: {
+      category,
+    },
+  }));
+}) satisfies GetStaticPaths;
+---
+
+<Base title={Astro.params.category} />

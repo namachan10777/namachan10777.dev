@@ -1,0 +1,52 @@
+---
+import { Icon } from "astro-icon/components";
+interface Props {
+  title: string;
+  booktitle: string;
+  href?: string;
+}
+
+const { title, booktitle, href } = Astro.props;
+const titleDecoration = href ? "underline" : "unset";
+---
+
+<li class="root">
+  <div class="icon-wrapper">
+    <Icon name="material-symbols:link-rounded" />
+  </div>
+  <div>
+    <a class="title" href={href}>
+      {title}
+    </a>
+    <div class="booktitle">{booktitle}</div>
+  </div>
+</li>
+
+<style define:vars={{ titleDecoration }}>
+  .root {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .icon-wrapper {
+    width: 1.3rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 1.5rem;
+    font-size: var(--font-size-xl);
+    margin-right: 0.5rem;
+  }
+
+  .title {
+    font-weight: bold;
+    text-decoration: var(--titleDecoration);
+    line-height: 1.5;
+  }
+
+  .booktitle {
+    margin-top: 0.5rem;
+  }
+</style>

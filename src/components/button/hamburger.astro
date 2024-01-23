@@ -1,0 +1,108 @@
+---
+interface Props {
+  sizeRem: number;
+}
+
+const { sizeRem } = Astro.props;
+
+const styleVars = {
+  rootSize: `${sizeRem}rem`,
+  barLength: `${sizeRem * 0.8}rem`,
+  left: `${sizeRem * 0.1}rem`,
+  barSpace: `${(sizeRem / 2) * 0.5}rem`,
+};
+---
+
+<hamburger-button>
+  <button>
+    <div class="root">
+      <div class:list={["bar", "top"]}></div>
+      <div class:list={["bar", "center"]}></div>
+      <div class:list={["bar", "bottom"]}></div>
+    </div>
+  </button>
+</hamburger-button>
+
+<script>
+  type Listener = (ev: { target: HamburgetButton; opened: boolean }) => void;
+
+  class HamburgetButton extends HTMLElement {
+    listeners: Listener[];
+
+    constructor() {
+      super();
+
+      this.listeners = [];
+
+      const button = this.querySelector("button");
+      const iconRoot = this.querySelector(".root");
+      if (button && iconRoot) {
+        button.addEventListener("click", () => {
+          if (iconRoot.classList.contains("open")) {
+            iconRoot.classList.remove("open");
+            for (const listener of this.listeners) {
+              listener({ target: this, opened: false });
+            }
+          } else {
+            iconRoot.classList.add("open");
+            for (const listener of this.listeners) {
+              listener({ target: this, opened: true });
+            }
+          }
+        });
+      }
+    }
+
+    addToggleEventListener(listener: Listener) {
+      this.listeners.push(listener);
+    }
+    removeToggleEventListener(listener: Listener) {
+      this.listeners = [
+        ...this.listeners.filter((needle) => needle !== listener),
+      ];
+    }
+  }
+
+  customElements.define("hamburger-button", HamburgetButton);
+</script>
+
+<style define:vars={styleVars}>
+  .root {
+    position: relative;
+    width: var(--rootSize);
+    height: var(--rootSize);
+  }
+
+  .bar {
+    position: absolute;
+    background-color: var(--color-text-normal);
+    height: 1.5px;
+    border-radius: 0.75px;
+    width: var(--barLength);
+    left: var(--left);
+    top: calc(50% - 0.5px);
+    transition:
+      width 0.1s linear,
+      transform 0.1s linear;
+  }
+
+  .open > .center {
+    width: 0;
+  }
+
+  .top {
+    transform: translateY(calc(0rem - var(--barSpace)));
+  }
+
+  .open > .top {
+    transform: rotate(45deg);
+  }
+
+  .bottom {
+    transform: translateY(calc(0rem + var(--barSpace)));
+  }
+
+  .open > .bottom {
+    transform: rotate(-45deg);
+  }
+</style>

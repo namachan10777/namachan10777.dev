@@ -1,0 +1,24 @@
+<div class="outer">
+  <div class="inner">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .outer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+  }
+
+  @media screen and (min-width: 769px) {
+    .inner {
+      width: 70%;
+    }
+  }
+</style>

@@ -1,0 +1,25 @@
+:root {
+  --color-primary: #e9fe7e;
+  --color-complementary: #937efe;
+  --color-analog-1: #fed37e;
+  --color-analog-2: #a9fe7e;
+  --color-triadic-1: #7efe93;
+  --color-triadic-2: #7ee9fe;
+  --color-text-strong: rgb(0 0 0 / 93%);
+  --color-text-normal: rgb(0 0 0 / 80%);
+  --color-text-weak: rgb(0 0 0 / 35%);
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+}
+
+body {
+  font-family: -apple-system, blinkMacSystemFont, YuGothic-M, YuGothic, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+	-webkit-text-size-adjust: 100%;
+
+  color: var(--color-text-normal);
+}

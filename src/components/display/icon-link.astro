@@ -1,0 +1,26 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  name: string;
+  color: string;
+  href: string;
+}
+const { name, color, href } = Astro.props;
+---
+
+<a class="root" href={href}><Icon name={name} /></a>
+
+<style define:vars={{ color }}>
+  .root {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: white;
+    background-color: var(--color);
+  }
+</style>

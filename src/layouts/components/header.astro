@@ -1,0 +1,89 @@
+---
+import icon from "@assets/icon.webp";
+import Hamburger from "@components/button/hamburger.astro";
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+---
+
+<header class="root">
+  <a class="logo" href="/">
+    <div class="icon-container">
+      <div class="icon-wrapper">
+        <Image src={icon} alt="icon: green box with eye" />
+      </div>
+    </div>
+    <h1 class="heading">namachan10777</h1>
+  </a>
+  <div class="toolbox">
+    <div class="search-icon-container">
+      <Icon name="material-symbols:search-rounded" class="search-icon" />
+    </div>
+    <div class="button-container">
+      <Hamburger sizeRem={1.5} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .root {
+    position: sticky;
+    top: 0;
+    background-color: rgba(255, 255, 255, 70%);
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
+  }
+
+  .heading {
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .toolbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .search-icon-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .search-icon {
+    font-size: var(--font-size-xl);
+  }
+
+  .button-container {
+    padding: 0.5rem;
+  }
+
+  .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .icon-wrapper {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 50%;
+    overflow: hidden hidden;
+  }
+
+  .icon-wrapper > img {
+    height: 100%;
+    width: 100%;
+  }
+</style>
