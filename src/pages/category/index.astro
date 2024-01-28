@@ -1,4 +1,6 @@
 ---
+import Breadcrumbs from "@components/display/breadcrumbs.astro";
+import ResponsiveWidth from "@components/layout/responsive-width.astro";
 import Base from "@layouts/base.astro";
 import { getCollection } from "astro:content";
 const blogs = await getCollection("blog");
@@ -8,13 +10,29 @@ const categories = [
 ---
 
 <Base title="categories" description="ブログ記事の一覧">
-  <ul>
-    {
-      categories.map((category) => (
-        <li>
-          <a href={`/category`}>{category}</a>
-        </li>
-      ))
-    }
-  </ul>
+  <ResponsiveWidth>
+    <Breadcrumbs path={["category"]} />
+    <ul>
+      {
+        categories.map((category) => (
+          <li>
+            <a href={`/category/${category}`}>#{category}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </ResponsiveWidth>
 </Base>
+
+<style>
+  ul {
+    margin-top: 1rem;
+  }
+  a {
+    font-family: Menlo, Monaco, "Courier New", monospace;
+    font-size: var(--font-size-xl);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-style: dashed;
+  }
+</style>

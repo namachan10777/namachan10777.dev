@@ -1,35 +1,10 @@
-:root[data-theme="default"] {
+:root {
   --color-primary: #039d03;
   --color-text-strong: rgba(39, 37, 37, 0.9);
-  --color-text-normal: rgba(39, 37, 37, 70%);
+  --color-text-normal: rgba(39, 37, 37, 80%);
   --color-text-weak: rgba(39, 37, 37, 40%);
   --color-bg: white;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="default"] {
-    --color-primary: #00ed00;
-    --color-text-strong: rgba(234, 247, 246, 90%);
-    --color-text-normal: rgba(234, 247, 246, 70%);
-    --color-text-weak: rgba(234, 247, 246, 40%);
-    --color-bg: black;
-  }
-}
-
-:root[data-theme="dark"] {
-  --color-primary: #00ed00;
-  --color-text-strong: rgba(234, 247, 246, 90%);
-  --color-text-normal: rgba(234, 247, 246, 70%);
-  --color-text-weak: rgba(234, 247, 246, 40%);
-  --color-bg: black;
-}
-
-:root[data-theme="light"] {
-  --color-primary: #039d03;
-  --color-text-strong: rgba(39, 37, 37, 0.9);
-  --color-text-normal: rgba(39, 37, 37, 70%);
-  --color-text-weak: rgba(39, 37, 37, 40%);
-  --color-bg: white;
+  --bg-code:   rgba(39, 37, 37, 0.2);
 }
 
 :root {
@@ -49,4 +24,44 @@ body {
 
   color: var(--color-text-normal);
   background-color: var(--color-bg);
+}
+
+.md-root p {
+  line-height: 1.8;
+}
+
+.md-root h2 {
+  color: var(--color-text-strong);
+  font-weight: bold;
+  font-size: var(--font-size-xl);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.md-root code {
+  font-family: 'Courier New', Courier, monospace;
+  margin-right: 0.3em;
+  margin-left: 0.3em;
+  background-color: var(--bg-code);
+  padding: 0.3em;
+}
+
+.md-root ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.md-root li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.md-root pre > code {
+  background-color: unset;
+}
+
+.md-root pre {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
 }

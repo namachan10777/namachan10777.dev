@@ -22,11 +22,21 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <Header title={title} />
+    <Header title="namachan10777.dev" />
     <SiteNav />
     <main>
       <slot />
     </main>
+    <div class="toaster">
+      <div>
+        <span>$</span>
+        <span id="toaster-placeholder"></span>
+      </div>
+      <div>
+        <span>$</span>
+        <span class="cursor"></span>
+      </div>
+    </div>
   </body>
 </html>
 
@@ -48,11 +58,99 @@ const { title } = Astro.props;
       });
     });
   }
+
+  window.addEventListener("load", () => {
+    const prevMatched = /https?:\/\/([a-zA-Z0-9\-:\.]+)\/(.*)/.exec(
+      document.referrer
+    );
+    console.log(document.referrer);
+    const toasterPlaceholder = document.getElementById("toaster-placeholder");
+    if (
+      toasterPlaceholder &&
+      prevMatched &&
+      typeof prevMatched[1] === "string" &&
+      typeof prevMatched[2] === "string"
+    ) {
+      const prevHost = prevMatched[1];
+      const prevPath = prevMatched[2] === "" ? [] : prevMatched[2].split("/");
+      const currentHost = window.location.host;
+      const currentPath =
+        window.location.pathname === "/"
+          ? []
+          : window.location.pathname.slice(1, undefined).split("/");
+      console.log({ prevPath, currentPath });
+      if (prevHost !== currentHost) {
+        toasterPlaceholder.textContent = `cd ${window.location.href}`;
+      } else {
+        let relPath = [];
+        let commonLength = 0;
+        for (
+          ;
+          commonLength < Math.min(prevPath.length, currentPath.length);
+          ++commonLength
+        ) {}
+        for (let i = 0; i < prevPath.length - commonLength; ++i) {
+          relPath.push("..");
+        }
+        for (; commonLength < currentPath.length; ++commonLength) {
+          relPath.push(currentPath[commonLength]);
+        }
+        if (relPath.length === 0) {
+          console.log("ls");
+          toasterPlaceholder.textContent = "ls";
+        } else {
+          toasterPlaceholder.textContent = `cd ${relPath.join("/") + "/"}`;
+        }
+      }
+    }
+  });
 </script>
 
 <style>
   body {
     position: relative;
+  }
+
+  .toaster {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 0.5rem;
+    min-width: 10rem;
+    border-top: 1px solid var(--color-text-normal);
+    border-left: 1px solid var(--color-text-normal);
+    animation-fill-mode: forwards;
+    animation-delay: 5s;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-name: toaster;
+  }
+
+  @keyframes toaster {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(10rem);
+    }
+  }
+
+  .cursor {
+    height: 1rem;
+    width: 0.5rem;
+    display: inline-block;
+    animation: 0.7s linear blink-cursor infinite;
+  }
+
+  @keyframes blink-cursor {
+    0% {
+      background-color: var(--color-bg);
+    }
+
+    50% {
+      background-color: var(--color-text-normal);
+    }
   }
 
   h1 {

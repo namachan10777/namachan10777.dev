@@ -1,0 +1,71 @@
+---
+interface Props {
+  path: string[];
+}
+const { path } = Astro.props;
+let fullPath = "";
+const anchors = [];
+for (const section of path) {
+  fullPath = `${fullPath}/${section}`;
+  anchors.push({
+    fullPath,
+    section,
+  });
+}
+---
+
+<div class="root">
+  <nav>
+    <a href="/">(root)</a>
+    {
+      anchors.map((anchor) => (
+        <>
+          <span>/</span>
+          <a href={anchor.fullPath}>{anchor.section}</a>
+        </>
+      ))
+    }
+  </nav>
+</div>
+
+<style>
+  .root {
+    font-family: Menlo, Monaco, "Courier New", monospace;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  nav {
+    display: inline;
+  }
+
+  .cmdline {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .cursor {
+    height: 1rem;
+    width: 0.5rem;
+    animation: 0.7s linear cursor infinite;
+    display: block;
+  }
+
+  @keyframes cursor {
+    0% {
+      background-color: var(--color-bg);
+    }
+
+    50% {
+      background-color: var(--color-text-normal);
+    }
+  }
+
+  nav > a {
+    margin-left: 0;
+    margin-right: 0;
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    text-underline-offset: 3px;
+  }
+</style>

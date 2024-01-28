@@ -6,8 +6,6 @@ description: Next.jsから自作のRust製静的サイトジェネレータへ�
 title: 個人サイトをRustで書き直した
 ---
 
-# 個人サイトをRustで書き直した
-
 [NextJSで書いていたもの](./blog-on-nextjs.html)を結局Rustで書き直した。この時は普通に`getStaticPaths`, `getStaticProps`内で`fs`モジュールを使えばいいところを、何故かWebpackでMarkdownを読み込んでいたがこれが無くてもNextJS（というよりはVercel)でのビルドには問題があった。Vercelの
 ビルド環境ではGitの履歴が上手く取得出来ないため事前にメタデータをスクリプトで生成する必要があった。Vercelで完結しない以上もうGHAとかでビルドしても良い気がした。
 

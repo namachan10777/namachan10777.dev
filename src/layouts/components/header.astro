@@ -1,7 +1,5 @@
 ---
 import Hamburger from "@components/button/hamburger.astro";
-import ThemeSwitcher from "@components/composite/theme-switcher.astro";
-import { Icon } from "astro-icon/components";
 
 interface Props {
   title: string;
@@ -13,13 +11,6 @@ interface Props {
     <h1 class="heading">{Astro.props.title}</h1>
   </a>
   <div class="toolbox">
-    <div class="search-icon-container">
-      <input type="text" class="search-box" />
-      <Icon name="material-symbols:search-rounded" class="search-icon" />
-    </div>
-    <div class="theme-switcher-container">
-      <ThemeSwitcher />
-    </div>
     <div class="button-container">
       <Hamburger sizeRem={1.5} id="toggle-nav" />
     </div>

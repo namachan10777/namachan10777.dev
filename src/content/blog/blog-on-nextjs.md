@@ -2,11 +2,9 @@
 name: "blog-on-nextjs"
 category: ["tech"]
 date: 2021-09-21
-description: サイトをNext.jsで作り直した
+description: 個人サイトをNext.jsで作り直した
 title: 個人サイトをNext.jsで書き直した
 ---
-
-# 個人サイトをNext.jsで書き直した
 
 今まではRustを使った自作静的サイトジェネレータを使っていたが、
 どうにも設計が行き詰まっていたので根本から作り直した。
