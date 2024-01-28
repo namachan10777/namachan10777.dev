@@ -17,12 +17,12 @@
           if (this.dataset.toggled === "true") {
             this.dataset.toggled = "false";
             for (const listener of this.listeners) {
-              listener(true);
+              listener(false);
             }
           } else {
             this.dataset.toggled = "true";
             for (const listener of this.listeners) {
-              listener(false);
+              listener(true);
             }
           }
         });
@@ -55,14 +55,14 @@
     width: 2.5rem;
     height: 1.2rem;
     border-radius: 0.6rem;
-    border: 1.5px solid var(--color-text-normal);
+    border: 1px solid var(--color-text-normal);
   }
 
   .ball {
     height: 1rem;
     width: 1rem;
     border-radius: 50%;
-    border: 1.5px solid var(--color-text-normal);
+    border: 1px solid var(--color-text-normal);
     transition: transform 0.05s linear;
   }
 

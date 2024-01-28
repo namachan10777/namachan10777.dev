@@ -27,8 +27,10 @@ import { Icon } from "astro-icon/components";
             window.matchMedia("(prefers-color-scheme: dark)").matches
           ) {
             toggle.setState(true);
+            document.documentElement.dataset.theme = "dark";
           } else {
             toggle.setState(false);
+            document.documentElement.dataset.theme = "light";
           }
           toggle.addToggleEventListener((toggled) => {
             if (toggled) {

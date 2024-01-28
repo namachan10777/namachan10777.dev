@@ -11,4 +11,7 @@ export const getStaticPaths = (async () => {
 const article = await getEntry("blog", Astro.params.slug);
 ---
 
-<Base title={Astro.params.slug} description={article.data.description} />
+<Base
+  title={`/blog/${Astro.params.slug}`}
+  description={article.data.description}
+/>

@@ -1,6 +1,9 @@
 ---
 name: "blog-on-rust"
 category: ["tech"]
+date: 2023-05-22
+description: Next.jsから自作のRust製静的サイトジェネレータへ移行した
+title: 個人サイトをRustで書き直した
 ---
 
 # 個人サイトをRustで書き直した

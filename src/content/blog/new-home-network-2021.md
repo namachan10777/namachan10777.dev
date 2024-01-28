@@ -1,6 +1,9 @@
 ---
 category: ["tech"]
 name: "new-home-network-2021"
+date: 2021-11-03
+description: 新居に引っ越したので自宅用ネットワークを構築した。オーバースペック気味だが快適
+title: 新居のネットワーク
 ---
 
 # 新居のネットワーク

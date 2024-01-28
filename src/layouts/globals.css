@@ -1,31 +1,35 @@
 :root[data-theme="default"] {
+  --color-primary: #039d03;
   --color-text-strong: rgba(39, 37, 37, 0.9);
   --color-text-normal: rgba(39, 37, 37, 70%);
   --color-text-weak: rgba(39, 37, 37, 40%);
-  --color-bg: #f3e5de;
+  --color-bg: white;
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-theme="default"] {
+    --color-primary: #00ed00;
     --color-text-strong: rgba(234, 247, 246, 90%);
     --color-text-normal: rgba(234, 247, 246, 70%);
     --color-text-weak: rgba(234, 247, 246, 40%);
-    --color-bg: #292726;
+    --color-bg: black;
   }
 }
 
 :root[data-theme="dark"] {
+  --color-primary: #00ed00;
   --color-text-strong: rgba(234, 247, 246, 90%);
   --color-text-normal: rgba(234, 247, 246, 70%);
   --color-text-weak: rgba(234, 247, 246, 40%);
-  --color-bg: #292726;
+  --color-bg: black;
 }
 
 :root[data-theme="light"] {
+  --color-primary: #039d03;
   --color-text-strong: rgba(39, 37, 37, 0.9);
   --color-text-normal: rgba(39, 37, 37, 70%);
   --color-text-weak: rgba(39, 37, 37, 40%);
-  --color-bg: #f3e5de;
+  --color-bg: white;
 }
 
 :root {

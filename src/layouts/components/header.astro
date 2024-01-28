@@ -1,19 +1,16 @@
 ---
-import icon from "@assets/icon.webp";
 import Hamburger from "@components/button/hamburger.astro";
 import ThemeSwitcher from "@components/composite/theme-switcher.astro";
 import { Icon } from "astro-icon/components";
-import { Image } from "astro:assets";
+
+interface Props {
+  title: string;
+}
 ---
 
 <header class="root">
   <a class="logo" href="/">
-    <div class="icon-container">
-      <div class="icon-wrapper">
-        <Image src={icon} alt="icon: green box with eye" />
-      </div>
-    </div>
-    <h1 class="heading">namachan10777</h1>
+    <h1 class="heading">{Astro.props.title}</h1>
   </a>
   <div class="toolbox">
     <div class="search-icon-container">
@@ -39,13 +36,13 @@ import { Image } from "astro:assets";
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1.5px solid var(--color-text-normal);
+    border-bottom: 1px solid var(--color-text-normal);
     z-index: 9999;
+    font-family: Menlo, Monaco, "Courier New", monospace;
   }
 
   .heading {
     font-size: var(--font-size-xl);
-    font-weight: bold;
     color: var(--color-text-strong);
   }
 

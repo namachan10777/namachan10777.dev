@@ -73,7 +73,7 @@ const skills: Skill[] = [
 ---
 
 <Base
-  title="namachan10777"
+  title="/index.html"
   description="namachan10777(Masaki Nakano)の経歴、スキル、出版物についてのページ"
 >
   <ResponsiveWidth>
@@ -84,7 +84,7 @@ const skills: Skill[] = [
         </div>
       </div>
       <div class="brief-profile-container">
-        <h2 class="name">Masaki Nakano</h2>
+        <h2 class="name"><span class="first-letter">M</span>asaki Nakano</h2>
         <p class="brief-profile-text">
           ソフトウェア技術者、学生。
           インターンでのSRE業務の経験、メトリクス基盤構築、Webバックエンド実装、CI整備。
@@ -97,7 +97,9 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">Interests</h2>
+      <h2 class="section-heading">
+        <span class="first-letter">I</span>NTERESTS
+      </h2>
       <div class="content-wrapper">
         <ul class="interests">
           <li>
@@ -120,7 +122,7 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">Skills</h2>
+      <h2 class="section-heading"><span class="first-letter">S</span>KILLS</h2>
       <div class="content-wrapper">
         <Skills skills={skills} />
       </div>
@@ -128,7 +130,9 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">Timeline</h2>
+      <h2 class="section-heading">
+        <span class="first-letter">T</span>IMELINE
+      </h2>
       <div class="content-wrapper">
         <Timeline events={events} />
       </div>
@@ -136,7 +140,7 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">Papers</h2>
+      <h2 class="section-heading"><span class="first-letter">P</span>APERS</h2>
 
       <div class="content-wrapper">
         <ul>
@@ -159,6 +163,10 @@ const skills: Skill[] = [
     </section>
   </ResponsiveWidth>
   <style>
+    .first-letter {
+      color: var(--color-primary);
+    }
+
     .bg-gray {
       background-color: var(--bg-gray);
       width: 100%;
@@ -218,11 +226,11 @@ const skills: Skill[] = [
     }
 
     .section-heading {
-      font-weight: bold;
+      font-weight: light;
+      font-family: Menlo, Monaco, "Courier New", ui-monospace;
       font-size: var(--font-size-2xl);
       color: var(--color-text-strong);
       margin-bottom: 1rem;
-      font-family: ui-monospace;
     }
 
     .brief-profile-container {
@@ -247,12 +255,13 @@ const skills: Skill[] = [
       font-size: var(--font-size-2xl);
       color: var(--color-text-strong);
       font-weight: bold;
+      font-family: Menlo, Monaco, "Courier New", monospace;
     }
 
     .main-section {
       padding-top: 2rem;
       padding-bottom: 3rem;
-      border-top: 1.5px solid var(--color-text-normal);
+      border-top: 1px dashed var(--color-text-normal);
     }
 
     .large-icon-container {

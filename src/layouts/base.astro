@@ -22,7 +22,7 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <Header />
+    <Header title={title} />
     <SiteNav />
     <main>
       <slot />
@@ -33,7 +33,7 @@ const { title } = Astro.props;
 <script>
   const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
     addToggleEventListener: (
-      listener: (ev: { target: HTMLElement; opened: boolean }) => void,
+      listener: (ev: { target: HTMLElement; opened: boolean }) => void
     ) => void;
   };
   const siteNav = document.getElementById("site-nav");
