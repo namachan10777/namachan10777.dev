@@ -1,15 +1,34 @@
+:root[data-theme="default"] {
+  --color-text-strong: rgba(39, 37, 37, 0.9);
+  --color-text-normal: rgba(39, 37, 37, 70%);
+  --color-text-weak: rgba(39, 37, 37, 40%);
+  --color-bg: #f3e5de;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="default"] {
+    --color-text-strong: rgba(234, 247, 246, 90%);
+    --color-text-normal: rgba(234, 247, 246, 70%);
+    --color-text-weak: rgba(234, 247, 246, 40%);
+    --color-bg: #292726;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-text-strong: rgba(234, 247, 246, 90%);
+  --color-text-normal: rgba(234, 247, 246, 70%);
+  --color-text-weak: rgba(234, 247, 246, 40%);
+  --color-bg: #292726;
+}
+
+:root[data-theme="light"] {
+  --color-text-strong: rgba(39, 37, 37, 0.9);
+  --color-text-normal: rgba(39, 37, 37, 70%);
+  --color-text-weak: rgba(39, 37, 37, 40%);
+  --color-bg: #f3e5de;
+}
+
 :root {
-  --color-primary: #e9fe7e;
-  --color-complementary: #937efe;
-  --color-analog-1: #fed37e;
-  --color-analog-2: #a9fe7e;
-  --color-triadic-1: #7efe93;
-  --color-triadic-2: #7ee9fe;
-  --color-text-strong: rgb(55, 65, 81);
-  --color-text-normal: rgb(75, 85, 99);
-  --color-text-weak: rgb(109, 123, 144);
-  --bg-white: #ffffff;
-  --bg-gray: #f3f4f6;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -20,8 +39,10 @@
 }
 
 body {
-  font-family: -apple-system, blinkMacSystemFont, YuGothic-M, YuGothic, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-	-webkit-text-size-adjust: 100%;
+  font-family: -apple-system, blinkMacSystemFont, YuGothic-M, YuGothic,
+    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  -webkit-text-size-adjust: 100%;
 
   color: var(--color-text-normal);
+  background-color: var(--color-bg);
 }

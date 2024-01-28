@@ -1,8 +1,9 @@
 ---
 import icon from "@assets/icon.webp";
 import Hamburger from "@components/button/hamburger.astro";
-import { Image } from "astro:assets";
+import ThemeSwitcher from "@components/composite/theme-switcher.astro";
 import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
 ---
 
 <header class="root">
@@ -16,10 +17,14 @@ import { Icon } from "astro-icon/components";
   </a>
   <div class="toolbox">
     <div class="search-icon-container">
+      <input type="text" class="search-box" />
       <Icon name="material-symbols:search-rounded" class="search-icon" />
     </div>
+    <div class="theme-switcher-container">
+      <ThemeSwitcher />
+    </div>
     <div class="button-container">
-      <Hamburger sizeRem={1.5} />
+      <Hamburger sizeRem={1.5} id="toggle-nav" />
     </div>
   </div>
 </header>
@@ -27,13 +32,14 @@ import { Icon } from "astro-icon/components";
 <style>
   .root {
     position: sticky;
+    height: 3rem;
     top: 0;
-    background-color: rgba(255, 255, 255);
+    background-color: var(--color-bg);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
+    border-bottom: 1.5px solid var(--color-text-normal);
     z-index: 9999;
   }
 
@@ -41,6 +47,11 @@ import { Icon } from "astro-icon/components";
     font-size: var(--font-size-xl);
     font-weight: bold;
     color: var(--color-text-strong);
+  }
+
+  .search-box {
+    border-bottom: 1px solid var(--color-text-normal);
+    height: 1.5rem;
   }
 
   .logo {
@@ -54,6 +65,10 @@ import { Icon } from "astro-icon/components";
     display: flex;
     flex-direction: row;
     align-items: center;
+  }
+
+  .theme-switcher-container {
+    margin-left: 1rem;
   }
 
   .search-icon-container {

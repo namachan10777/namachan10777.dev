@@ -1,0 +1,59 @@
+---
+import Toggle from "@components/button/toggle.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<theme-switcher>
+  <div class="container">
+    <Icon name="material-symbols:light-mode-outline-rounded" class="icon" />
+    <Toggle />
+    <Icon name="material-symbols:dark-mode-outline-rounded" class="icon" />
+  </div>
+</theme-switcher>
+
+<script>
+  class ThemeSwitcher extends HTMLElement {
+    constructor() {
+      super();
+      const toggle = this.querySelector("toggle-switch") as {
+        addToggleEventListener: (listener: (toggled: boolean) => void) => void;
+        setState: (toggled: boolean) => void;
+      } & Element;
+
+      customElements.whenDefined("toggle-switch").then(() => {
+        if (toggle) {
+          if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
+            toggle.setState(true);
+          } else {
+            toggle.setState(false);
+          }
+          toggle.addToggleEventListener((toggled) => {
+            if (toggled) {
+              document.documentElement.dataset.theme = "dark";
+            } else {
+              document.documentElement.dataset.theme = "light";
+            }
+          });
+        }
+      });
+    }
+  }
+  customElements.define("theme-switcher", ThemeSwitcher);
+</script>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .icon {
+    font-size: var(--font-size-lg);
+    margin-right: 0.3rem;
+    margin-left: 0.3rem;
+  }
+</style>

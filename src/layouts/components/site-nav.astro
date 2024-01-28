@@ -1,0 +1,68 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<nav id="site-nav">
+  <h2>Links</h2>
+  <ul>
+    <li>
+      <a href="/blog"><Icon name="material-symbols:post" />Blog</a>
+    </li>
+    <li>
+      <a href="https://github.com/namachan10777"
+        ><Icon name="mdi:github" />GitHub</a
+      >
+    </li>
+    <li>
+      <a href="https://github.com/namachan10777"
+        ><Icon name="mdi:twitter" />Twitter</a
+      >
+    </li>
+  </ul>
+</nav>
+
+<style>
+  #site-nav {
+    position: fixed;
+    top: 3rem;
+    right: 0;
+    max-width: 20rem;
+    height: calc(100vh - 3rem);
+    width: 80%;
+    background-color: var(--color-bg);
+    border-left: 1px solid var(--color-text-normal);
+    transform: translateX(100vw);
+    transition: transform 0.2s ease;
+    padding: 1rem;
+  }
+
+  #site-nav[data-show="true"] {
+    transform: translateX(0);
+  }
+
+  h2 {
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  li {
+    font-weight: bold;
+    color: var(--color-text-strong);
+    font-size: var(--font-size-xl);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-top: 1px solid var(--color-text-normal);
+  }
+
+  a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  a > svg {
+    margin-right: 0.5rem;
+  }
+</style>

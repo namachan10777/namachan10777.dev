@@ -16,7 +16,7 @@ interface Props {
   {
     Astro.props.skills.map((skill) => (
       <div class="skill">
-        <Icon name={skill.icon} class:list={["icon", `color-${skill.color}`]} />
+        <Icon name={skill.icon} class:list={["icon"]} />
         <span>{skill.name}</span>
       </div>
     ))
@@ -46,18 +46,18 @@ interface Props {
   }
 
   .color-blue {
-    color: #210d8f;
+    color: #907df8;
   }
 
   .color-red {
-    color: #ba0c0c;
+    color: #f15f5f;
   }
 
   .color-green {
-    color: #058105;
+    color: #70f270;
   }
 
   .color-orange {
-    color: #d6861d;
+    color: #fbb150;
   }
 </style>
