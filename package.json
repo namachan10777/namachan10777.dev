@@ -18,6 +18,9 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.4.1",
+    "@iconify-json/lucide": "^1.1.159",
+    "@iconify-json/mdi": "^1.1.64",
+    "@iconify-json/simple-icons": "^1.1.89",
     "astro": "^4.2.1",
     "astro-icon": "^1.0.2",
     "pagefind": "^1.0.4",
@@ -34,6 +37,7 @@
     "postcss-html": "^1.6.0",
     "prettier": "^3.2.4",
     "prettier-plugin-astro": "^0.13.0",
+    "sharp": "^0.33.2",
     "stylelint": "^16.2.0",
     "stylelint-config-standard": "^36.0.0",
     "stylelint-order": "^6.0.4"

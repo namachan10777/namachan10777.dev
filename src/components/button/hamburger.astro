@@ -14,7 +14,7 @@ const styleVars = {
 ---
 
 <hamburger-button>
-  <button>
+  <button aria-label="グローバルナビゲーションを開く" aria-haspopup="menu">
     <div class="root">
       <div class:list={["bar", "top"]}></div>
       <div class:list={["bar", "center"]}></div>
@@ -40,11 +40,13 @@ const styleVars = {
         button.addEventListener("click", () => {
           if (iconRoot.classList.contains("open")) {
             iconRoot.classList.remove("open");
+            button.ariaLabel = "グローバルナビゲーションを開く";
             for (const listener of this.listeners) {
               listener({ target: this, opened: false });
             }
           } else {
             iconRoot.classList.add("open");
+            button.ariaLabel = "グローバルナビゲーションを閉じる";
             for (const listener of this.listeners) {
               listener({ target: this, opened: true });
             }

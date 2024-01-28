@@ -15,4 +15,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 ---
 
-<Base title={Astro.params.category} />
+<Base
+  title={Astro.params.category}
+  description={`カテゴリー${Astro.params.category}に属すブログ記事の一覧`}
+/>

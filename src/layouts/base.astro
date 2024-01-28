@@ -1,8 +1,11 @@
 ---
 import Header from "./components/header.astro";
+import "./destyle.css";
+import "./globals.css";
 
 interface Props {
   title: string;
+  description: string;
 }
 
 const { title } = Astro.props;
@@ -14,11 +17,7 @@ const { title } = Astro.props;
     <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/destyle.css@1.0.15/destyle.css"
-    />
-    <link rel="stylesheet" href="/globals.css" />
+    <meta name="description" content={Astro.props.description} />
     <title>{title}</title>
   </head>
   <body>

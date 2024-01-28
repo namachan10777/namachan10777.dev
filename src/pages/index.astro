@@ -3,11 +3,9 @@ import Base from "@layouts/base.astro";
 import { Image } from "astro:assets";
 import icon from "@assets/icon.webp";
 import Timeline from "@components/composite/timeline.astro";
-import Badge from "@components/display/badge.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
-import MiniCard from "@components/button/mini-card.astro";
 import Paper from "@components/display/paper.astro";
-import IconLink from "@components/display/icon-link.astro";
+import Skills, { type Skill } from "@components/composite/skills.astro";
 
 const events = [
   { date: "2015-04", title: "香川高等専門学校 機械工学科入学" },
@@ -34,167 +32,226 @@ const events = [
   },
 ];
 
-const keywords = [
-  "AWS",
-  "Terraform",
-  "Rust",
-  "ECS",
-  "GitHub Actions",
-  "TypeScript",
-  "C",
+const skills: Skill[] = [
+  {
+    icon: "lucide:network",
+    name: "ネットワークスペシャリスト",
+    color: "blue",
+  },
+  {
+    icon: "material-symbols:language",
+    name: "TOEIC L&R 765",
+    color: "green",
+  },
+  {
+    icon: "mdi:aws",
+    name: "AWS",
+    color: "black",
+  },
+  {
+    icon: "mdi:terraform",
+    name: "Terraform",
+    color: "blue",
+  },
+  {
+    icon: "simple-icons:rust",
+    name: "Rust",
+    color: "orange",
+  },
+  {
+    icon: "mdi:language-c",
+    name: "C",
+    color: "red",
+  },
+  {
+    icon: "simple-icons:typescript",
+    name: "TypeScript",
+    color: "blue",
+  },
 ];
 ---
 
-<Base title="namachan10777">
-  <ResponsiveWidth>
-    <section class:list={["main-section", "profile"]}>
-      <div class="large-icon-container">
-        <div class="icon-wrapper">
-          <Image src={icon} alt="icon" />
-        </div>
-      </div>
-      <div class="brief-profile-container">
-        <h2 class="name">Masaki Nakano</h2>
-        <nav class="icons">
-          <IconLink
-            name="x-logo"
-            color="black"
-            href="https://x.com/namachan10777"
-          />
-          <IconLink
-            name="material-symbols:mail-outline-rounded"
-            color="var(--color-complementary)"
-            href="mailto:admin@namachan10777.dev"
-          />
-        </nav>
-      </div>
-    </section>
-  </ResponsiveWidth>
-  <ResponsiveWidth>
-    <section class="badge-container">
-      {
-        keywords.map((keyword) => (
-          <div class="badge-wrapper">
-            <Badge>{keyword}</Badge>
+<Base
+  title="namachan10777"
+  description="namachan10777(Masaki Nakano)の経歴、スキル、出版物についてのページ"
+>
+  <div class="bg-gray">
+    <ResponsiveWidth>
+      <section class:list={["main-section", "profile"]}>
+        <div class="large-icon-container">
+          <div class="icon-wrapper">
+            <Image src={icon} alt="icon" />
           </div>
-        ))
-      }
-    </section>
-  </ResponsiveWidth>
-  <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Timeline</h2>
+        </div>
+        <div class="brief-profile-container">
+          <h2 class="name">Masaki Nakano</h2>
+          <p class="brief-profile-text">
+            ソフトウェア技術者、学生。
+            インターンでのSRE業務の経験、メトリクス基盤構築、Webバックエンド実装、CI整備。
+            専攻はHPCにおける高速分散ストレージ技術。
+            そのた基板設計（低周波）、組み込みの業務経験。
+            AWSでのサービス開発・運用体制構築が主な領域ですが、
+            大体何でもやります。
+          </p>
+        </div>
+      </section>
+    </ResponsiveWidth>
+  </div>
+  <section class="main-section">
+    <ResponsiveWidth>
+      <h2 class="section-heading">Skills</h2>
       <div class="content-wrapper">
-        <Timeline events={events} />
+        <Skills skills={skills} />
       </div>
-    </section>
-  </ResponsiveWidth>
-  <ResponsiveWidth>
+    </ResponsiveWidth>
+  </section>
+  <div class="bg-gray">
     <section class="main-section">
-      <h2 class="section-heading">Qualifications</h2>
-      <div class="qual-cards-container">
-        <div class="qual-card-wrapper">
-          <MiniCard title="TOEIC L&R" description="765" />
+      <ResponsiveWidth>
+        <h2 class="section-heading">Timeline</h2>
+        <div class="content-wrapper">
+          <Timeline events={events} />
         </div>
-        <div class="qual-card-wrapper">
-          <MiniCard title="ネットワークスペシャリスト" description="" />
-        </div>
-        <div class="qual-card-wrapper">
-          <MiniCard title="応用情報技術者" description="" />
-        </div>
-      </div>
+      </ResponsiveWidth>
     </section>
-  </ResponsiveWidth>
-  <ResponsiveWidth>
-    <section class="main-section">
+  </div>
+  <section class="main-section">
+    <ResponsiveWidth>
       <h2 class="section-heading">Papers</h2>
-      <ul>
-        <Paper
-          title="RustのUCXラッパーasync-ucxの性能評価"
-          booktitle="第192回HPC研究会"
-        />
-        <Paper
-          title="ユーザーからの補助情報を用いるインタラクティブ音源分離システム"
-          booktitle="日本音響学会 2020年"
-          href="https://kitalab.net/pdf/2020_ASJspr_nakano.pdf"
-        />
-        <Paper
-          title="ユーザーからの補助情報を用いる独立低ランク行列分析"
-          booktitle="日本音響学会"
-          href="https://kitalab.net/pdf/2020_ASJaut_oshima.pdf"
-        />
-      </ul>
-    </section>
-  </ResponsiveWidth>
+
+      <div class="content-wrapper">
+        <ul>
+          <Paper
+            title="RustのUCXラッパーasync-ucxの性能評価"
+            booktitle="第192回HPC研究会"
+          />
+          <Paper
+            title="ユーザーからの補助情報を用いるインタラクティブ音源分離システム"
+            booktitle="日本音響学会 2020年"
+            href="https://kitalab.net/pdf/2020_ASJspr_nakano.pdf"
+          />
+          <Paper
+            title="ユーザーからの補助情報を用いる独立低ランク行列分析"
+            booktitle="日本音響学会"
+            href="https://kitalab.net/pdf/2020_ASJaut_oshima.pdf"
+          />
+        </ul>
+      </div>
+    </ResponsiveWidth>
+  </section>
+  <style>
+    .bg-gray {
+      background-color: var(--bg-gray);
+      width: 100%;
+    }
+
+    .my-2 {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .icons {
+      display: grid;
+      grid-template-columns: 1.5rem 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      gap: 1rem;
+    }
+
+    .profile {
+      display: grid;
+      gap: 3rem;
+      grid-template-columns: 20% 1fr;
+    }
+
+    @media screen and (max-width: 768px) {
+      .profile {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .qual-card-wrapper {
+      padding: 0.5rem;
+    }
+
+    .qual-cards-container {
+      padding-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .badge-wrapper {
+      padding: 0.5rem;
+    }
+
+    .badge-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .content-wrapper {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .section-heading {
+      font-weight: bold;
+      font-size: var(--font-size-2xl);
+      color: var(--color-text-strong);
+      margin-bottom: 1rem;
+    }
+
+    .brief-profile-container {
+      padding: 1rem;
+    }
+
+    @media screen and (max-width: 768px) {
+      .brief-profile-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .brief-profile-text {
+      padding-top: 1rem;
+      line-height: 1.6;
+      color: var(--color-text-normal);
+    }
+
+    .name {
+      font-size: var(--font-size-2xl);
+      color: var(--color-text-strong);
+      font-weight: bold;
+    }
+
+    .main-section {
+      padding-top: 3rem;
+      padding-bottom: 1rem;
+    }
+
+    .large-icon-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-wrapper {
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    @media screen and (max-width: 768px) {
+      .icon-wrapper {
+        width: 40%;
+      }
+    }
+
+    .icon-wrapper > img {
+      width: 100%;
+      height: auto;
+    }
+  </style>
 </Base>
-
-<style>
-  .icons {
-    display: grid;
-    grid-template-columns: 1.5rem 1.5rem;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    gap: 1rem;
-  }
-
-  .profile {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 6rem 1fr;
-  }
-
-  .qual-card-wrapper {
-    padding: 0.5rem;
-  }
-
-  .qual-cards-container {
-    padding-top: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .badge-wrapper {
-    padding: 0.5rem;
-  }
-
-  .badge-container {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .content-wrapper {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .section-heading {
-    font-weight: bold;
-    font-size: var(--font-size-lg);
-  }
-
-  .brief-profile-text {
-    padding-top: 0.5rem;
-    color: var(--color-text-normal);
-  }
-
-  .name {
-    font-size: var(--font-size-xl);
-    font-weight: bold;
-  }
-
-  .main-section {
-    padding: 1rem;
-  }
-
-  .icon-wrapper {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 50%;
-    overflow: hidden;
-  }
-
-  .icon-wrapper > img {
-    width: 100%;
-    height: auto;
-  }
-</style>

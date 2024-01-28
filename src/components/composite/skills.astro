@@ -1,0 +1,63 @@
+---
+import { Icon } from "astro-icon/components";
+
+export type Skill = {
+  name: string;
+  icon: string;
+  color: "black" | "blue" | "red" | "green" | "orange";
+};
+
+interface Props {
+  skills: Skill[];
+}
+---
+
+<div class="container">
+  {
+    Astro.props.skills.map((skill) => (
+      <div class="skill">
+        <Icon name={skill.icon} class:list={["icon", `color-${skill.color}`]} />
+        <span>{skill.name}</span>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, max-content));
+    gap: 1.5rem;
+  }
+
+  .icon {
+    font-size: var(--font-size-2xl);
+    margin-right: 0.5rem;
+  }
+
+  .skill {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .color-black {
+    color: var(--color-text-strong);
+  }
+
+  .color-blue {
+    color: #210d8f;
+  }
+
+  .color-red {
+    color: #ba0c0c;
+  }
+
+  .color-green {
+    color: #058105;
+  }
+
+  .color-orange {
+    color: #d6861d;
+  }
+</style>

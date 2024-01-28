@@ -5,9 +5,11 @@
   --color-analog-2: #a9fe7e;
   --color-triadic-1: #7efe93;
   --color-triadic-2: #7ee9fe;
-  --color-text-strong: rgb(0 0 0 / 93%);
-  --color-text-normal: rgb(0 0 0 / 80%);
-  --color-text-weak: rgb(0 0 0 / 35%);
+  --color-text-strong: rgb(55, 65, 81);
+  --color-text-normal: rgb(75, 85, 99);
+  --color-text-weak: rgb(109, 123, 144);
+  --bg-white: #ffffff;
+  --bg-gray: #f3f4f6;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;

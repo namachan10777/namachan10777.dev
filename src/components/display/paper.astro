@@ -24,7 +24,8 @@ const titleDecoration = href ? "underline" : "unset";
 
 <style define:vars={{ titleDecoration }}>
   .root {
-    padding: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     display: flex;
     flex-direction: row;
   }
@@ -43,6 +44,8 @@ const titleDecoration = href ? "underline" : "unset";
   .title {
     font-weight: bold;
     text-decoration: var(--titleDecoration);
+    color: var(--color-text-strong);
+    font-size: var(--font-size-lg);
     line-height: 1.5;
   }
 
