@@ -5,6 +5,7 @@ import Timeline from "@components/composite/timeline.astro";
 import Paper from "@components/display/paper.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
 import Base from "@layouts/base.astro";
+import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
 
 const events = [
@@ -91,6 +92,29 @@ const skills: Skill[] = [
           そのた基板設計（低周波）、組み込みの業務経験。
           AWSでのサービス開発・運用体制構築が主な領域です。
         </p>
+      </div>
+    </section>
+  </ResponsiveWidth>
+  <ResponsiveWidth>
+    <section class="main-section">
+      <h2 class="section-heading">Interests</h2>
+      <div class="content-wrapper">
+        <ul class="interests">
+          <li>
+            <Icon name="mdi:storage" class="li-marker" />Distributed Storage
+          </li>
+          <li>
+            <Icon name="mdi:barometer" class="li-marker" />Metrics and Logs
+          </li>
+          <li>
+            <Icon name="mdi:truck-outline" class="li-marker" />Data
+            Transportation
+          </li>
+          <li>
+            <Icon name="lucide:pen-line" class="li-marker" />Developper
+            Experience
+          </li>
+        </ul>
       </div>
     </section>
   </ResponsiveWidth>
@@ -251,6 +275,20 @@ const skills: Skill[] = [
     .icon-wrapper > img {
       width: 100%;
       height: auto;
+    }
+
+    .interests > li {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-text-strong);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .li-marker {
+      margin-right: 0.5rem;
+      font-size: var(--font-size-lg);
     }
   </style>
 </Base>
