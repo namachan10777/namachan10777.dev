@@ -43,7 +43,7 @@ const { title } = Astro.props;
 <script>
   const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
     addToggleEventListener: (
-      listener: (ev: { target: HTMLElement; opened: boolean }) => void
+      listener: (ev: { target: HTMLElement; opened: boolean }) => void,
     ) => void;
   };
   const siteNav = document.getElementById("site-nav");
@@ -59,49 +59,56 @@ const { title } = Astro.props;
     });
   }
 
-  window.addEventListener("load", () => {
-    const prevMatched = /https?:\/\/([a-zA-Z0-9\-:\.]+)\/(.*)/.exec(
-      document.referrer
-    );
-    console.log(document.referrer);
-    const toasterPlaceholder = document.getElementById("toaster-placeholder");
-    if (
-      toasterPlaceholder &&
-      prevMatched &&
-      typeof prevMatched[1] === "string" &&
-      typeof prevMatched[2] === "string"
-    ) {
-      const prevHost = prevMatched[1];
-      const prevPath = prevMatched[2] === "" ? [] : prevMatched[2].split("/");
-      const currentHost = window.location.host;
-      const currentPath =
-        window.location.pathname === "/"
-          ? []
-          : window.location.pathname.slice(1, undefined).split("/");
-      console.log({ prevPath, currentPath });
-      if (prevHost !== currentHost) {
-        toasterPlaceholder.textContent = `cd ${window.location.href}`;
+  function pathSections(path: string): string[] {
+    const inner = /^\/?(.*)\/?$/.exec(path);
+    if (inner && inner[1]) {
+      if (inner[1].length === 0) {
+        return [];
       } else {
-        let relPath = [];
-        let commonLength = 0;
-        for (
-          ;
-          commonLength < Math.min(prevPath.length, currentPath.length);
-          ++commonLength
-        ) {}
-        for (let i = 0; i < prevPath.length - commonLength; ++i) {
-          relPath.push("..");
-        }
-        for (; commonLength < currentPath.length; ++commonLength) {
-          relPath.push(currentPath[commonLength]);
-        }
-        if (relPath.length === 0) {
-          console.log("ls");
-          toasterPlaceholder.textContent = "ls";
-        } else {
-          toasterPlaceholder.textContent = `cd ${relPath.join("/") + "/"}`;
-        }
+        return path.slice(1).split("/");
       }
+    } else {
+      return [];
+    }
+  }
+
+  function countCommonPrefix(path1: string[], path2: string[]): number {
+    let i = 0;
+    for (; i < Math.min(path1.length, path2.length); ++i) {}
+    return i;
+  }
+
+  function cmdMessage(): string {
+    if (document.referrer === "") {
+      return "ls";
+    }
+    const from = new URL(document.referrer);
+    const here = window.location;
+    if (from.host !== here.host) {
+      return `cd ${here.href}`;
+    }
+    const fromPath = pathSections(from.pathname);
+    const herePath = pathSections(here.pathname);
+    const commonLength = countCommonPrefix(fromPath, herePath);
+    const backCount = fromPath.length - commonLength;
+    const forwardCount = herePath.length - commonLength;
+    if (backCount == 0 && forwardCount == 0) {
+      return "ls";
+    }
+    let relPath = [];
+    for (let i = 0; i < backCount; ++i) {
+      relPath.push("..");
+    }
+    for (let i = 0; i < forwardCount; ++i) {
+      relPath.push(herePath[commonLength + i]);
+    }
+    return `cd ${relPath.join("/")}`;
+  }
+
+  window.addEventListener("load", () => {
+    const toasterPlaceholder = document.getElementById("toaster-placeholder");
+    if (toasterPlaceholder) {
+      toasterPlaceholder.textContent = cmdMessage();
     }
   });
 </script>
@@ -119,6 +126,7 @@ const { title } = Astro.props;
     min-width: 10rem;
     border-top: 1px solid var(--color-text-normal);
     border-left: 1px solid var(--color-text-normal);
+    background-color: var(--color-bg);
     animation-fill-mode: forwards;
     animation-delay: 5s;
     animation-duration: 1s;

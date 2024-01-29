@@ -4,7 +4,7 @@
   --color-text-normal: rgba(39, 37, 37, 80%);
   --color-text-weak: rgba(39, 37, 37, 40%);
   --color-bg: white;
-  --bg-code:   rgba(39, 37, 37, 0.2);
+  --bg-code: rgba(39, 37, 37, 0.2);
 }
 
 :root {
@@ -39,7 +39,7 @@ body {
 }
 
 .md-root code {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   margin-right: 0.3em;
   margin-left: 0.3em;
   background-color: var(--bg-code);
