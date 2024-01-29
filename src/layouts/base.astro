@@ -60,21 +60,26 @@ const { title } = Astro.props;
   }
 
   function pathSections(path: string): string[] {
-    const inner = /^\/?(.*)\/?$/.exec(path);
-    if (inner && inner[1]) {
-      if (inner[1].length === 0) {
-        return [];
-      } else {
-        return path.slice(1).split("/");
-      }
-    } else {
+    let inner = path;
+    if (inner.startsWith("/")) {
+      inner = inner.slice(1);
+    } else if (inner.endsWith("/")) {
+      inner = inner.slice(0, -1);
+    }
+    if (inner.length === 0) {
       return [];
+    } else {
+      return inner.split("/");
     }
   }
 
   function countCommonPrefix(path1: string[], path2: string[]): number {
     let i = 0;
-    for (; i < Math.min(path1.length, path2.length); ++i) {}
+    for (; i < Math.min(path1.length, path2.length); ++i) {
+      if (path1[i] !== path2[i]) {
+        return i;
+      }
+    }
     return i;
   }
 
