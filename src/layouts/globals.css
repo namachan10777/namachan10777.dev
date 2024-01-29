@@ -1,10 +1,10 @@
 :root {
-  --color-primary: #02b802;
-  --color-text-strong: rgba(39, 37, 37, 1);
-  --color-text-normal: rgba(39, 37, 37, 80%);
-  --color-text-weak: rgba(39, 37, 37, 40%);
+  --color-primary: #ff0000;
+  --color-text-strong: rgba(0, 0, 20, 1);
+  --color-text-normal: rgba(0, 0, 20, 100%);
+  --color-text-weak: rgba(0, 0, 20, 40%);
   --color-bg: white;
-  --bg-code: rgba(39, 37, 37, 0.2);
+  --bg-code: rgba(0, 0, 20, 0.2);
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -24,6 +24,7 @@ body {
 
   color: var(--color-text-normal);
   background-color: var(--color-bg);
+  font-weight: lighter;
 }
 
 .md-root p {
