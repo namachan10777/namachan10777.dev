@@ -1,13 +1,10 @@
 :root {
-  --color-primary: #039d03;
+  --color-primary: #02b802;
   --color-text-strong: rgba(39, 37, 37, 0.9);
   --color-text-normal: rgba(39, 37, 37, 80%);
   --color-text-weak: rgba(39, 37, 37, 40%);
   --color-bg: white;
   --bg-code: rgba(39, 37, 37, 0.2);
-}
-
-:root {
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -15,11 +12,14 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
+
+  --mono-family: "Menlo", "Consolas", "Monaco", monospace;
+  --sans-serif-family: -apple-system, blinkMacSystemFont, YuGothic-M, YuGothic,
+    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
 }
 
 body {
-  font-family: -apple-system, blinkMacSystemFont, YuGothic-M, YuGothic,
-    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-family: var(--sans-serif-family);
   -webkit-text-size-adjust: 100%;
 
   color: var(--color-text-normal);
@@ -39,7 +39,7 @@ body {
 }
 
 .md-root code {
-  font-family: "Courier New", Courier, monospace;
+  font-family: var(--mono-family);
   margin-right: 0.3em;
   margin-left: 0.3em;
   background-color: var(--bg-code);

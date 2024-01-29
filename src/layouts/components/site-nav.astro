@@ -23,7 +23,7 @@ import { Icon } from "astro-icon/components";
 
 <style>
   #site-nav {
-    font-family: ui-monospace;
+    font-family: var(--mono-family);
     position: fixed;
     top: 3rem;
     right: 0;
@@ -35,6 +35,7 @@ import { Icon } from "astro-icon/components";
     transform: translateX(100vw);
     transition: transform 0.2s ease;
     padding: 1rem;
+    z-index: 8888;
   }
 
   #site-nav[data-show="true"] {

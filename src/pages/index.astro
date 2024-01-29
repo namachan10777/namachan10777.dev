@@ -141,9 +141,8 @@ const skills: Skill[] = [
   <ResponsiveWidth>
     <section class="main-section">
       <h2 class="section-heading"><span class="first-letter">P</span>APERS</h2>
-
       <div class="content-wrapper">
-        <ul>
+        <ul class="papers">
           <Paper
             title="RustのUCXラッパーasync-ucxの性能評価"
             booktitle="第192回HPC研究会"
@@ -227,7 +226,7 @@ const skills: Skill[] = [
 
     .section-heading {
       font-weight: light;
-      font-family: Menlo, Monaco, "Courier New", ui-monospace;
+      font-family: var(--mono-family);
       font-size: var(--font-size-2xl);
       color: var(--color-text-strong);
       margin-bottom: 1rem;
@@ -255,7 +254,7 @@ const skills: Skill[] = [
       font-size: var(--font-size-2xl);
       color: var(--color-text-strong);
       font-weight: bold;
-      font-family: Menlo, Monaco, "Courier New", monospace;
+      font-family: var(--mono-family);
     }
 
     .main-section {
@@ -286,9 +285,17 @@ const skills: Skill[] = [
       height: auto;
     }
 
+    .papers {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .interests {
+      display: grid;
+      gap: 2rem;
+    }
+
     .interests > li {
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
       color: var(--color-text-strong);
       display: flex;
       flex-direction: row;

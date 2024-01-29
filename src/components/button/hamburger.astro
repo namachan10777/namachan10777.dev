@@ -7,20 +7,21 @@ interface Props {
 const { sizeRem } = Astro.props;
 
 const styleVars = {
-  rootSize: `${sizeRem}rem`,
   barLength: `${sizeRem * 0.8}rem`,
   left: `${sizeRem * 0.1}rem`,
   barSpace: `${(sizeRem / 2) * 0.5}rem`,
 };
 ---
 
-<hamburger-button id={Astro.props.id}>
-  <button aria-label="グローバルナビゲーションを開く" aria-haspopup="menu">
-    <div class="root">
-      <div class:list={["bar", "top"]}></div>
-      <div class:list={["bar", "center"]}></div>
-      <div class:list={["bar", "bottom"]}></div>
-    </div>
+<hamburger-button id={Astro.props.id} class="custom">
+  <button
+    aria-label="グローバルナビゲーションを開く"
+    aria-haspopup="menu"
+    class="root"
+  >
+    <div class:list={["bar", "top"]}></div>
+    <div class:list={["bar", "center"]}></div>
+    <div class:list={["bar", "bottom"]}></div>
   </button>
 </hamburger-button>
 
@@ -29,6 +30,8 @@ const styleVars = {
 
   class HamburgetButton extends HTMLElement {
     listeners: Listener[];
+    button: HTMLElement;
+    iconRoot: Element;
 
     constructor() {
       super();
@@ -38,21 +41,34 @@ const styleVars = {
       const button = this.querySelector("button");
       const iconRoot = this.querySelector(".root");
       if (button && iconRoot) {
-        button.addEventListener("click", () => {
-          if (iconRoot.classList.contains("open")) {
-            iconRoot.classList.remove("open");
-            button.ariaLabel = "グローバルナビゲーションを開く";
-            for (const listener of this.listeners) {
-              listener({ target: this, opened: false });
-            }
-          } else {
-            iconRoot.classList.add("open");
-            button.ariaLabel = "グローバルナビゲーションを閉じる";
-            for (const listener of this.listeners) {
-              listener({ target: this, opened: true });
-            }
-          }
-        });
+        this.button = button;
+        this.iconRoot = iconRoot;
+      } else {
+        throw new Error("invalid DOM");
+      }
+
+      this.button.addEventListener("click", () => {
+        if (iconRoot.classList.contains("open")) {
+          this.setToggled(true);
+        } else {
+          this.setToggled(false);
+        }
+      });
+    }
+
+    setToggled(toggled: boolean) {
+      if (toggled) {
+        this.iconRoot.classList.remove("open");
+        this.button.ariaLabel = "グローバルナビゲーションを開く";
+        for (const listener of this.listeners) {
+          listener({ target: this, opened: false });
+        }
+      } else {
+        this.iconRoot.classList.add("open");
+        this.button.ariaLabel = "グローバルナビゲーションを閉じる";
+        for (const listener of this.listeners) {
+          listener({ target: this, opened: true });
+        }
       }
     }
 
@@ -70,10 +86,18 @@ const styleVars = {
 </script>
 
 <style define:vars={styleVars}>
+  .custom {
+    height: 100%;
+  }
+
   .root {
     position: relative;
-    width: var(--rootSize);
-    height: var(--rootSize);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 2rem;
   }
 
   .bar {

@@ -11,9 +11,7 @@ interface Props {
     <h1 class="heading">{Astro.props.title}</h1>
   </a>
   <div class="toolbox">
-    <div class="button-container">
-      <Hamburger sizeRem={1.5} id="toggle-nav" />
-    </div>
+    <Hamburger sizeRem={1.5} id="toggle-nav" />
   </div>
 </header>
 
@@ -29,7 +27,7 @@ interface Props {
     align-items: center;
     border-bottom: 1px solid var(--color-text-normal);
     z-index: 9999;
-    font-family: Menlo, Monaco, "Courier New", monospace;
+    font-family: var(--mono-family);
   }
 
   .heading {
@@ -53,6 +51,7 @@ interface Props {
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: 100%;
   }
 
   .theme-switcher-container {
@@ -68,10 +67,6 @@ interface Props {
 
   .search-icon {
     font-size: var(--font-size-xl);
-  }
-
-  .button-container {
-    padding: 0.5rem;
   }
 
   .icon-container {

@@ -111,6 +111,17 @@ const { title } = Astro.props;
       toasterPlaceholder.textContent = cmdMessage();
     }
   });
+
+  const main = document.querySelector("main");
+  const hamburger = document.querySelector("hamburger-button") as
+    | ({ setToggled: (toggled: boolean) => void } & Element)
+    | null;
+  if (main && hamburger) {
+    console.log("toggled");
+    main.addEventListener("click", () => {
+      hamburger.setToggled(true);
+    });
+  }
 </script>
 
 <style>
@@ -132,6 +143,7 @@ const { title } = Astro.props;
     animation-duration: 1s;
     animation-timing-function: linear;
     animation-name: toaster;
+    font-family: var(--mono-family);
   }
 
   @keyframes toaster {
