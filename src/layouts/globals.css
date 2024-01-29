@@ -1,6 +1,6 @@
 :root {
   --color-primary: #02b802;
-  --color-text-strong: rgba(39, 37, 37, 0.9);
+  --color-text-strong: rgba(39, 37, 37, 1);
   --color-text-normal: rgba(39, 37, 37, 80%);
   --color-text-weak: rgba(39, 37, 37, 40%);
   --color-bg: white;
