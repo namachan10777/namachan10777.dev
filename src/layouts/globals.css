@@ -4,7 +4,7 @@
   --color-text-normal: rgba(0, 0, 20, 100%);
   --color-text-weak: rgba(0, 0, 20, 40%);
   --color-bg: white;
-  --bg-code: rgba(0, 0, 20, 0.2);
+  --bg-code: rgba(0, 0, 20, 0.1);
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -28,7 +28,9 @@ body {
 }
 
 .md-root p {
-  line-height: 1.8;
+  line-height: 1.9;
+  padding-block-start: 0.5rem;
+  padding-block-end: 0.5rem;
 }
 
 .md-root h2 {
@@ -44,7 +46,7 @@ body {
   margin-right: 0.3em;
   margin-left: 0.3em;
   background-color: var(--bg-code);
-  padding: 0.3em;
+  padding: 0.1em;
 }
 
 .md-root ul {
@@ -71,3 +73,4 @@ body {
   width: 100%;
   height: auto;
 }
+
