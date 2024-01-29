@@ -25,16 +25,18 @@ const { title } = Astro.props;
   <body>
     <Header title="namachan10777.dev" />
     <SiteNav />
-    <main>
-      <slot />
-    </main>
+    <div id="scrollable-content">
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
     <div class="toaster">
       <div>
         <span>$</span>
         <span id="toaster-placeholder"></span>
       </div>
     </div>
-    <Footer />
   </body>
 </html>
 
@@ -45,13 +47,24 @@ const { title } = Astro.props;
     ) => void;
   };
   const siteNav = document.getElementById("site-nav");
-  if (toggleNav && siteNav) {
+  const scrollableContent = document.getElementById("scrollable-content");
+  if (toggleNav && siteNav && scrollableContent) {
     customElements.whenDefined("hamburger-button").then(() => {
       toggleNav.addToggleEventListener(({ opened }) => {
         if (opened) {
           siteNav.dataset.show = true.toString();
+          const scrollHeight = window.scrollY;
+          scrollableContent.style.position = "fixed";
+          scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
+          scrollableContent.dataset.scroll = scrollHeight.toString();
         } else {
           siteNav.dataset.show = false.toString();
+          scrollableContent.style.position = "unset";
+          scrollableContent.style.transform = "unset";
+          if (scrollableContent.dataset.scroll) {
+            const scrollHeight = parseInt(scrollableContent.dataset.scroll, 10);
+            window.scroll({ behavior: "instant", top: scrollHeight });
+          }
         }
       });
     });
@@ -130,6 +143,10 @@ const { title } = Astro.props;
 <style>
   body {
     position: relative;
+  }
+
+  #scrollable-content {
+    width: 100%;
   }
 
   .toaster {
