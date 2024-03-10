@@ -6,9 +6,9 @@
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@content": ["src/content/config.ts"],
-      "@assets/*": ["src/assets/*"],
+      "@assets/*": ["src/assets/*"]
     },
     "jsx": "react-jsx",
-    "jsxImportSource": "react",
-  },
+    "jsxImportSource": "react"
+  }
 }
