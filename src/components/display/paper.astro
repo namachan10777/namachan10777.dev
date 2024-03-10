@@ -15,9 +15,15 @@ const titleDecoration = href ? "underline" : "unset";
     <Icon name="material-symbols:link-rounded" />
   </div>
   <div>
-    <a class="title" href={href}>
-      {title}
-    </a>
+    {
+      href ? (
+        <a class="title" href={href}>
+          {title}
+        </a>
+      ) : (
+        <span class="title">{title}</span>
+      )
+    }
     <div class="booktitle">{booktitle}</div>
   </div>
 </li>
