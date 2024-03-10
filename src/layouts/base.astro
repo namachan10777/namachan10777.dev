@@ -11,7 +11,7 @@ interface Props {
   description: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 const url = Astro.url;
 const ogUrl = (() => {
   if (url.pathname === "/") {
@@ -22,13 +22,21 @@ const ogUrl = (() => {
     return `${url.pathname}.webp`;
   }
 })();
-console.log(ogUrl);
 ---
 
 <html lang="ja" data-theme="default">
   <head>
     <SEO
       charset="UTF-8"
+      twitter={{
+        creator: "@namachan10777",
+        card: "summary_large_image",
+        site: "@namachan10777",
+        title,
+        image: new URL(ogUrl, Astro.url.origin).toString(),
+        imageAlt: title,
+        description,
+      }}
       openGraph={{
         basic: {
           title: title,
@@ -64,7 +72,7 @@ console.log(ogUrl);
     <script>
       const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
         addToggleEventListener: (
-          listener: (ev: { target: HTMLElement; opened: boolean }) => void,
+          listener: (ev: { target: HTMLElement; opened: boolean }) => void
         ) => void;
       };
       const siteNav = document.getElementById("site-nav");
@@ -85,7 +93,7 @@ console.log(ogUrl);
               if (scrollableContent.dataset.scroll) {
                 const scrollHeight = parseInt(
                   scrollableContent.dataset.scroll,
-                  10,
+                  10
                 );
                 window.scroll({ behavior: "instant", top: scrollHeight });
               }
@@ -147,7 +155,7 @@ console.log(ogUrl);
 
       window.addEventListener("load", () => {
         const toasterPlaceholder = document.getElementById(
-          "toaster-placeholder",
+          "toaster-placeholder"
         );
         if (toasterPlaceholder) {
           toasterPlaceholder.textContent = cmdMessage();
