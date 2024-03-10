@@ -72,7 +72,7 @@ const ogUrl = (() => {
     <script>
       const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
         addToggleEventListener: (
-          listener: (ev: { target: HTMLElement; opened: boolean }) => void
+          listener: (ev: { target: HTMLElement; opened: boolean }) => void,
         ) => void;
       };
       const siteNav = document.getElementById("site-nav");
@@ -93,7 +93,7 @@ const ogUrl = (() => {
               if (scrollableContent.dataset.scroll) {
                 const scrollHeight = parseInt(
                   scrollableContent.dataset.scroll,
-                  10
+                  10,
                 );
                 window.scroll({ behavior: "instant", top: scrollHeight });
               }
@@ -155,7 +155,7 @@ const ogUrl = (() => {
 
       window.addEventListener("load", () => {
         const toasterPlaceholder = document.getElementById(
-          "toaster-placeholder"
+          "toaster-placeholder",
         );
         if (toasterPlaceholder) {
           toasterPlaceholder.textContent = cmdMessage();

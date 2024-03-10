@@ -19,6 +19,7 @@
   "dependencies": {
     "@astrojs/check": "^0.4.1",
     "@astrojs/react": "^3.0.10",
+    "@astrojs/rss": "^4.0.5",
     "@iconify-json/lucide": "^1.1.159",
     "@iconify-json/material-symbols": "^1.1.70",
     "@iconify-json/mdi": "^1.1.64",
