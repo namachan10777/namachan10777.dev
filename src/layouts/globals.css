@@ -108,6 +108,5 @@ body {
 
 .md-root a {
   text-decoration: underline;
-  text-decoration-style: dashed;
   text-underline-offset: 3px;
 }
