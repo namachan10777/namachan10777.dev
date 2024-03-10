@@ -1,0 +1,30 @@
+---
+import PopupIcon from "@components/display/popup-icon.astro";
+
+export type Props = {
+  ghPath: string;
+};
+---
+
+<section class="root">
+  <PopupIcon
+    name="mdi:github"
+    url={`https://github.com/namachan10777/namachan10777.dev/blob/master/${Astro.props.ghPath}`}
+    tooltip="View on GitHub"
+  />
+  <PopupIcon
+    name="mdi:rss"
+    url="https://www.namachan10777.dev/blog/rss.xml"
+    tooltip="Subscribe blog"
+  />
+</section>
+
+<style>
+  .root {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import Breadcrumbs from "@components/display/breadcrumbs.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
+import InfoBar from "@components/composite/info-bar.astro";
 import Base from "@layouts/base.astro";
 import { getCollection } from "astro:content";
 const blogs = (await getCollection("blog")).sort(
@@ -17,6 +18,9 @@ function dateToString(date: Date): string {
 <Base title="/blog" description="ブログ記事の一覧">
   <ResponsiveWidth>
     <Breadcrumbs path={["blog"]} />
+    <div class="info-bar-wrapper">
+      <InfoBar ghPath="src/pages/blog/index.astro" />
+    </div>
     <ul>
       {
         blogs.map((blog) => (
@@ -48,11 +52,20 @@ function dateToString(date: Date): string {
     margin-bottom: 0.5rem;
   }
 
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding-block: 1rem;
+  }
+
   li {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
     display: flex;
     flex-direction: column;
     align-items: start;
+  }
+
+  .info-bar-wrapper {
+    padding-block: 0.5rem;
   }
 </style>

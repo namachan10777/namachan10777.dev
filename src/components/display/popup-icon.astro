@@ -1,0 +1,55 @@
+---
+import { Icon } from "astro-icon/components";
+export type Props = {
+  name: string;
+  url: string;
+  tooltip: string;
+};
+const { name, url, tooltip } = Astro.props;
+---
+
+<a href={url} class="link">
+  <Icon name={name} class="icon" />
+  <div class="tooltip">
+    <div class="text">
+      {tooltip}
+    </div>
+  </div>
+</a>
+
+<style>
+  .link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .text {
+    padding: 0.2rem;
+    border-radius: 0.2rem;
+    width: fit-content;
+    background-color: rgba(0, 0, 0, 0%);
+    color: rgba(255, 255, 255, 0%);
+    transition:
+      color 0.1s linear,
+      background-color 0.1s linear;
+  }
+
+  .link:hover .text {
+    background-color: rgba(0, 0, 0, 90%);
+    color: white;
+  }
+
+  .tooltip {
+    font-size: var(--font-size-sm);
+    position: absolute;
+    width: 10rem;
+    top: 2rem;
+  }
+
+  .icon {
+    font-size: var(--font-size-2xl);
+    color: rgba(0, 0, 0, 70%);
+  }
+</style>
