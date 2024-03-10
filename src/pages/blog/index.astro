@@ -5,7 +5,7 @@ import InfoBar from "@components/composite/info-bar.astro";
 import Base from "@layouts/base.astro";
 import { getCollection } from "astro:content";
 const blogs = (await getCollection("blog")).sort(
-  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 function dateToString(date: Date): string {
   const year = `0${date.getFullYear()}`.slice(-4);

@@ -10,7 +10,7 @@ export const GET: APIRoute = async (ctx) => {
     description: "分散システム、ストレージ、Web、あとそのほか",
     site: ctx.site || "https://www.namachan10777.dev",
     items: blog
-      .sort((a, b) => a.data.date.getDate() - b.data.date.getDate())
+      .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
       .map((blog) => ({
         title: blog.data.title,
         pubDate: blog.data.date,
