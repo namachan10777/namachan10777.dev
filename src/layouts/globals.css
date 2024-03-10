@@ -93,6 +93,8 @@ body {
 
 .md-root pre > code {
   background-color: unset;
+  margin: 0;
+  padding: 0;
 }
 
 .md-root pre {
