@@ -8,5 +8,7 @@
       "@content": ["src/content/config.ts"],
       "@assets/*": ["src/assets/*"],
     },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
   },
 }
