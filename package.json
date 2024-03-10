@@ -43,6 +43,7 @@
     "prettier-plugin-astro": "^0.13.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "remark-sectionize": "^2.0.0",
     "satori": "^0.10.13",
     "satori-html": "^0.3.2",
     "sharp": "^0.33.2",
