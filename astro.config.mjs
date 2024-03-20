@@ -2,7 +2,6 @@ import react from "@astrojs/react";
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 import remarkSectionize from "remark-sectionize";
-
 import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
