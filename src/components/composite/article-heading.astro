@@ -1,5 +1,5 @@
 ---
-import TextPreview from "@components/display/text-preview.astro";
+import MarkdownPreview from "@components/display/markdown-preview.astro";
 
 export type Props = {
   date: Date;
@@ -22,7 +22,7 @@ function dateToString(date: Date): string {
     <a href={Astro.props.href}>{Astro.props.title}</a>
   </div>
   <div class="preview-area">
-    <TextPreview text={Astro.props.bodyMarkdown} limit={255} />
+    <MarkdownPreview text={Astro.props.bodyMarkdown} limit={255} />
     <a href={Astro.props.href} class="read-more"> 読む </a>
   </div>
 </div>
@@ -44,7 +44,7 @@ function dateToString(date: Date): string {
   .read-more {
     font-size: var(--font-size-normal);
     display: block;
-    color: #5555ee;
+    color: #55e;
   }
 
   .preview-area {
