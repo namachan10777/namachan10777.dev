@@ -9,7 +9,9 @@ const { name, url, tooltip } = Astro.props;
 ---
 
 <a href={url} class="link">
-  <Icon name={name} class="icon" />
+  <div class="icon-container">
+    <Icon name={name} class="icon" />
+  </div>
   <div class="tooltip">
     <div class="text">
       {tooltip}
@@ -23,6 +25,14 @@ const { name, url, tooltip } = Astro.props;
     flex-direction: column;
     align-items: flex-start;
     position: relative;
+  }
+
+  .icon-container {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-self: center;
   }
 
   .text {
@@ -51,5 +61,10 @@ const { name, url, tooltip } = Astro.props;
   .icon {
     font-size: var(--font-size-2xl);
     color: rgb(0 0 0 / 70%);
+    transition: transform 0.1s linear;
+  }
+
+  .link:hover .icon {
+    transform: scale(110%);
   }
 </style>
