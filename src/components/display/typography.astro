@@ -1,0 +1,24 @@
+---
+export type Props = {
+  color?: "normal" | "weak";
+};
+---
+
+<p class={`${Astro.props.color}`}>
+  <slot />
+</p>
+
+<style>
+  .weak {
+    color: var(--color-text-weak);
+  }
+
+  .normal {
+    color: var(--color-text-normal);
+  }
+
+  p {
+    line-height: 150%;
+    font-weight: normal;
+  }
+</style>

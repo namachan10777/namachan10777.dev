@@ -1,0 +1,17 @@
+---
+import Typography from "@components/display/typography.astro";
+export type Props = {
+  text: string;
+  limit: number;
+};
+
+const { text, limit } = Astro.props;
+
+const preview = text.length > limit ? `${text.substring(0, limit)}……` : text;
+---
+
+<Typography color="weak">
+  {preview}
+</Typography>
+
+<style></style>
