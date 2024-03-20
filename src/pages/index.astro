@@ -2,11 +2,13 @@
 import icon from "@assets/icon.webp";
 import Skills, { type Skill } from "@components/composite/skills.astro";
 import Timeline from "@components/composite/timeline.astro";
+import Date from "@components/display/date.astro";
 import Paper from "@components/display/paper.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
 import Base from "@layouts/base.astro";
 import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 
 const events = [
   { date: "2015-04", title: "香川高等専門学校 機械工学科入学" },
@@ -70,6 +72,10 @@ const skills: Skill[] = [
     color: "blue",
   },
 ];
+
+const blogs = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
 ---
 
 <Base
@@ -97,9 +103,7 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">
-        <span class="first-letter">I</span>nterests
-      </h2>
+      <h2 class="section-heading">Interests</h2>
       <div class="content-wrapper">
         <ul class="interests">
           <li>
@@ -122,7 +126,7 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading"><span class="first-letter">S</span>kills</h2>
+      <h2 class="section-heading">Skills</h2>
       <div class="content-wrapper">
         <Skills skills={skills} />
       </div>
@@ -130,9 +134,7 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading">
-        <span class="first-letter">T</span>imeline
-      </h2>
+      <h2 class="section-heading">Timeline</h2>
       <div class="content-wrapper">
         <Timeline events={events} />
       </div>
@@ -140,7 +142,29 @@ const skills: Skill[] = [
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
-      <h2 class="section-heading"><span class="first-letter">P</span>apers</h2>
+      <h2 class="section-heading">Blog</h2>
+      <div class="content-wrapper">
+        <ol class="blog-index">
+          {
+            blogs.slice(0, 5).map((blog) => (
+              <li class="blog-heading">
+                <h3 class="blog-title">
+                  <a href={`/blog/${blog.slug}`}>{blog.data.title}</a>
+                </h3>
+                <div class="blog-date">
+                  <Date date={blog.data.date} />
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <a href="/blog" class="read-more-link">さらに読む</a>
+      </div>
+    </section>
+  </ResponsiveWidth>
+  <ResponsiveWidth>
+    <section class="main-section">
+      <h2 class="section-heading">Papers</h2>
       <div class="content-wrapper">
         <ul class="papers">
           <Paper
@@ -162,6 +186,34 @@ const skills: Skill[] = [
     </section>
   </ResponsiveWidth>
   <style>
+    .blog-index {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .blog-heading {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .blog-title {
+      font-weight: normal;
+      font-size: var(--font-size-xl);
+      text-decoration: underline;
+    }
+
+    .blog-date {
+      color: var(--color-text-weak);
+    }
+
+    .read-more-link {
+      color: #55f;
+      display: block;
+      margin-block-start: 1rem;
+    }
+
     .first-letter {
       color: var(--color-primary);
       font-size: var(--font-size-4xl);
