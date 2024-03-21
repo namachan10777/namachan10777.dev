@@ -4,6 +4,7 @@ category: ["tech"]
 date: 2024-02-22
 description: 個人サイトをAstroJSで作り直した
 title: 個人サイトをAstroJSで書き直した
+publish: true
 ---
 
 またやった。

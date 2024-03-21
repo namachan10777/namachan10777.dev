@@ -4,6 +4,7 @@ category: ["tech"]
 date: 2024-02-21
 description: kube-vipをKubernetes 1.29で使う上での問題点と回避策
 title: kube-vipをKubernetes 1.29で使う
+publish: true
 ---
 
 k8sはコントロールプレーンからワーカーのPodまで高可用性構成（以下HA構成）に出来るが、

@@ -21,7 +21,9 @@ const blogs = (
   await getCollection("blog", (blog) =>
     blog.data.category.includes(Astro.params.category),
   )
-).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .filter((blog) => blog.data.publish);
 ---
 
 <Base

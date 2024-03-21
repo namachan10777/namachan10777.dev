@@ -8,7 +8,9 @@ import { getCollection, getEntry } from "astro:content";
 
 export const getStaticPaths = (async () => {
   const blogs = await getCollection("blog");
-  return blogs.map((blog) => ({ params: { slug: blog.slug } }));
+  return blogs
+    .filter((blog) => blog.data.publish)
+    .map((blog) => ({ params: { slug: blog.slug } }));
 }) satisfies GetStaticPaths;
 
 const article = await getEntry("blog", Astro.params.slug);

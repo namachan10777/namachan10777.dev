@@ -4,6 +4,7 @@ category: ["tech"]
 date: 2021-09-21
 description: 個人サイトをNext.jsで作り直した
 title: 個人サイトをNext.jsで書き直した
+publish: true
 ---
 
 今まではRustを使った自作静的サイトジェネレータを使っていたが、

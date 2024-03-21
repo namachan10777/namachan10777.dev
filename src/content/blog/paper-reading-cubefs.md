@@ -4,6 +4,7 @@ name: "new-home-network-2021"
 date: 2024-02-23
 description: CubeFS（ChubaoFS）の論文を読んだのでメモ
 title: CubeFSの論文を読んだ
+publish: true
 ---
 
 [CubeFSの論文](https://arxiv.org/abs/1911.03001)を読んだ。

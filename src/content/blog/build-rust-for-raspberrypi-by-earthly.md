@@ -4,6 +4,7 @@ category: ["tech"]
 date: 2022-06-07
 description: Earthlyはコンテナビルドツールとして便利だが、組み込みのような開発環境構築が面倒なビルドにも便利
 title: EarthlyでRaspberryPi向けにビルドする
+publish: true
 ---
 
 RaspberryPi向けのビルドとなると依存管理とかが面倒なのでmuslを使いたい。

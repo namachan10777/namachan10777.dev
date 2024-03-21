@@ -5,7 +5,11 @@ import Base from "@layouts/base.astro";
 import { getCollection } from "astro:content";
 const blogs = await getCollection("blog");
 const categories = [
-  ...new Set(blogs.flatMap((blog) => blog.data.category)).values(),
+  ...new Set(
+    blogs
+      .filter((blog) => blog.data.publish)
+      .flatMap((blog) => blog.data.category),
+  ).values(),
 ];
 ---
 
