@@ -1,80 +1,48 @@
 ---
 import icon from "@assets/icon.webp";
-import Skills, { type Skill } from "@components/composite/skills.astro";
-import Timeline from "@components/composite/timeline.astro";
+import Profile from "@components/composite/block-parts/profile.astro";
+import Timeline from "@components/composite/block-parts/timeline.astro";
+import Paper from "@components/composite/heading/paper.astro";
 import Date from "@components/display/date.astro";
-import Paper from "@components/display/paper.astro";
+import Typography from "@components/display/typography.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
 import Base from "@layouts/base.astro";
 import { Icon } from "astro-icon/components";
-import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 
 const events = [
   { date: "2015-04", title: "香川高等専門学校 機械工学科入学" },
   { date: "2016-04", title: "香川高等専門学校 電気情報工学科転科" },
-  { date: "2018-08", title: "jig.jpインターン(4週間)" },
-  { date: "2018-12", title: "mixi git challenge 2位" },
-  { date: "2019-03", title: "mixi bug shooting challenge" },
   {
     date: "2020-03",
-    title: "日本音響学会 春季研究発表会 ポスター発表（開催扱い）",
+    title: "日本音響学会 春季研究発表会 ポスター発表",
   },
   { date: "2020-03", title: "香川高等専門学校 電気情報工学科卒業" },
   { date: "2020-04", title: "筑波大学 情報学群 情報科学類入学" },
-  { date: "2020-08", title: "株式会社はてな サマーインターン" },
-  { date: "2020-09", title: "株式会社ACCESS 2day インターン" },
-  { date: "2021-03", title: "クックパッド株式会社 spring internship 最優秀賞" },
   {
     date: "2021-09",
     title: "クックパッド株式会社 就業型インターン(SRE) (現在退職)",
   },
   {
     date: "2021-12",
-    title: "Taiwan Now! 蘭の舟ロボット製作（制御、電源回路、通信）",
-  },
-];
-
-const skills: Skill[] = [
-  {
-    icon: "lucide:network",
-    name: "ネットワークスペシャリスト",
-    color: "blue",
+    title: "Taiwan Now! 蘭の舟ロボット設計・開発（電装系）",
   },
   {
-    icon: "material-symbols:language",
-    name: "TOEIC L&R 765",
-    color: "green",
+    date: "2022-09",
+    title: "京都府広域アートプロジェクト 照明システム開発",
   },
   {
-    icon: "mdi:aws",
-    name: "AWS",
-    color: "black",
+    date: "2023-12",
+    title: "横浜 ヨルノヨ Web音楽同期、照明制御",
   },
   {
-    icon: "mdi:terraform",
-    name: "Terraform",
-    color: "blue",
-  },
-  {
-    icon: "simple-icons:rust",
-    name: "Rust",
-    color: "orange",
-  },
-  {
-    icon: "mdi:language-c",
-    name: "C",
-    color: "red",
-  },
-  {
-    icon: "simple-icons:typescript",
-    name: "TypeScript",
-    color: "blue",
+    date: "2023-08",
+    title: "株式会社ArkEdge Space インターン（在職）",
   },
 ];
 
 const blogs = (await getCollection("blog")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 ---
 
@@ -83,23 +51,14 @@ const blogs = (await getCollection("blog")).sort(
   description="namachan10777(Masaki Nakano)の経歴、スキル、出版物についてのページ"
 >
   <ResponsiveWidth>
-    <section class:list={["profile"]}>
-      <div class="large-icon-container">
-        <div class="icon-wrapper">
-          <Image src={icon} alt="icon" />
-        </div>
-      </div>
-      <div class="brief-profile-container">
-        <h2 class="name">Masaki Nakano</h2>
-        <p class="brief-profile-text">
-          ソフトウェア技術者、学生。
-          インターンでのSRE業務の経験、メトリクス基盤構築、Webバックエンド実装、CI整備。
-          専攻はHPCにおける高速分散ストレージ技術。
-          そのた基板設計（低周波）、組み込みの業務経験。
-          AWSでのサービス開発・運用体制構築が主な領域です。
-        </p>
-      </div>
-    </section>
+    <Profile src={icon} name="Masaki Nakano">
+      <span slot="name">Masaki Nakano</span>
+      <Typography>
+        HPCにおける分散ストレージ、非同期ランタイムを研究テーマとしています。
+        研究以外ではオンプレ計算機クラスタのメンテナンス、
+        AWSを使ったDWH、Webフロントエンドなど色々しています。
+      </Typography>
+    </Profile>
   </ResponsiveWidth>
   <ResponsiveWidth>
     <section class="main-section">
@@ -121,14 +80,6 @@ const blogs = (await getCollection("blog")).sort(
             Experience
           </li>
         </ul>
-      </div>
-    </section>
-  </ResponsiveWidth>
-  <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Skills</h2>
-      <div class="content-wrapper">
-        <Skills skills={skills} />
       </div>
     </section>
   </ResponsiveWidth>
@@ -237,22 +188,6 @@ const blogs = (await getCollection("blog")).sort(
       gap: 1rem;
     }
 
-    .profile {
-      display: grid;
-      gap: 3rem;
-      grid-template-columns: 20% 1fr;
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-
-    @media screen and (width <= 768px) {
-      .profile {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-    }
-
     .qual-card-wrapper {
       padding: 0.5rem;
     }
@@ -284,60 +219,16 @@ const blogs = (await getCollection("blog")).sort(
       margin-bottom: 1rem;
     }
 
-    .brief-profile-container {
-      padding: 1rem;
-    }
-
-    @media screen and (width <= 768px) {
-      .brief-profile-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .name {
-        text-align: center;
-      }
-    }
-
     .brief-profile-text {
       padding-top: 1rem;
       line-height: 1.6;
       color: var(--color-text-normal);
     }
 
-    .name {
-      font-size: 4rem;
-      color: var(--color-text-strong);
-      font-family: var(--mono-family);
-    }
-
     .main-section {
       padding-top: 2rem;
       padding-bottom: 3rem;
       border-top: 1px solid var(--color-text-normal);
-    }
-
-    .large-icon-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon-wrapper {
-      border-radius: 50%;
-      overflow: hidden;
-    }
-
-    @media screen and (width <= 768px) {
-      .icon-wrapper {
-        width: 40%;
-      }
-    }
-
-    .icon-wrapper > img {
-      width: 100%;
-      height: auto;
     }
 
     .papers {

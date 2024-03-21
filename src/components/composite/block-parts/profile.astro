@@ -1,0 +1,83 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+export type Props = {
+  src: ImageMetadata;
+  name: string;
+};
+---
+
+<section class:list={["profile"]}>
+  <div class="large-icon-container">
+    <div class="icon-wrapper">
+      <Image src={Astro.props.src} alt="icon" />
+    </div>
+  </div>
+  <div class="brief-profile-container">
+    <h2 class="name"><slot name="name" /></h2>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .profile {
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: 20% 1fr;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  @media screen and (width <= 768px) {
+    .profile {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  .large-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-wrapper {
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .brief-profile-container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media screen and (width <= 768px) {
+    .icon-wrapper {
+      width: 40%;
+    }
+  }
+
+  .icon-wrapper > img {
+    width: 100%;
+    height: auto;
+  }
+
+  @media screen and (width <= 768px) {
+    .brief-profile-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .name {
+    font-size: 2rem;
+    color: var(--color-text-strong);
+    font-family: var(--mono-family);
+    text-align: center;
+  }
+</style>
