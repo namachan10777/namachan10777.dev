@@ -1,7 +1,7 @@
 :root {
   --color-primary: #567fc5;
   --color-text-strong: rgba(0, 0, 20, 1);
-  --color-text-normal: rgba(0, 0, 20, 100%);
+  --color-text-normal: rgba(0, 0, 20, 70%);
   --color-text-weak: rgba(0, 0, 20, 40%);
   --color-bg: white;
   --bg-code: rgba(0, 0, 20, 0.1);

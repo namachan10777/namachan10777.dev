@@ -12,12 +12,12 @@ export type Props = {
 
 <div class="container">
   <div class="date"><Date date={Astro.props.date} /></div>
-  <div>
+  <h3 class="title">
     <a href={Astro.props.href}>{Astro.props.title}</a>
-  </div>
+  </h3>
   <div class="preview-area">
     <MarkdownPreview text={Astro.props.bodyMarkdown} limit={255} />
-    <a href={Astro.props.href} class="read-more"> 読む </a>
+    <a href={Astro.props.href} class="read-more">読む</a>
   </div>
 </div>
 
@@ -28,9 +28,10 @@ export type Props = {
     gap: 1rem;
   }
 
-  a {
+  .title {
     color: var(--color-text-strong);
     font-size: var(--font-size-xl);
+    font-weight: bold;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -44,6 +45,7 @@ export type Props = {
   .preview-area {
     display: flex;
     flex-direction: column;
+    color: var(--color-text-normal);
     gap: 0.5rem;
   }
 
