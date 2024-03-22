@@ -64,12 +64,6 @@ const ogUrl = (() => {
       </main>
       <Footer />
     </div>
-    <div class="toaster">
-      <div>
-        <span>$</span>
-        <span id="toaster-placeholder"></span>
-      </div>
-    </div>
     <script>
       const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
         addToggleEventListener: (
@@ -102,66 +96,6 @@ const ogUrl = (() => {
           });
         });
       }
-
-      function pathSections(path: string): string[] {
-        let inner = path;
-        if (inner.startsWith("/")) {
-          inner = inner.slice(1);
-        } else if (inner.endsWith("/")) {
-          inner = inner.slice(0, -1);
-        }
-        if (inner.length === 0) {
-          return [];
-        } else {
-          return inner.split("/");
-        }
-      }
-
-      function countCommonPrefix(path1: string[], path2: string[]): number {
-        let i = 0;
-        for (; i < Math.min(path1.length, path2.length); ++i) {
-          if (path1[i] !== path2[i]) {
-            return i;
-          }
-        }
-        return i;
-      }
-
-      function cmdMessage(): string {
-        if (document.referrer === "") {
-          return "ls";
-        }
-        const from = new URL(document.referrer);
-        const here = window.location;
-        if (from.host !== here.host) {
-          return `cd ${here.href}`;
-        }
-        const fromPath = pathSections(from.pathname);
-        const herePath = pathSections(here.pathname);
-        const commonLength = countCommonPrefix(fromPath, herePath);
-        const backCount = fromPath.length - commonLength;
-        const forwardCount = herePath.length - commonLength;
-        if (backCount == 0 && forwardCount == 0) {
-          return "ls";
-        }
-        let relPath = [];
-        for (let i = 0; i < backCount; ++i) {
-          relPath.push("..");
-        }
-        for (let i = 0; i < forwardCount; ++i) {
-          relPath.push(herePath[commonLength + i]);
-        }
-        return `cd ${relPath.join("/")}`;
-      }
-
-      window.addEventListener("load", () => {
-        const toasterPlaceholder = document.getElementById(
-          "toaster-placeholder",
-        );
-        if (toasterPlaceholder) {
-          toasterPlaceholder.textContent = cmdMessage();
-        }
-      });
 
       const main = document.querySelector("main");
       const hamburger = document.querySelector("hamburger-button") as
