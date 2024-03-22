@@ -1,6 +1,7 @@
 ---
 import icon from "@assets/icon.webp";
 import Profile from "@components/composite/block-parts/profile.astro";
+import Section from "@components/composite/block-parts/section.astro";
 import Timeline from "@components/composite/block-parts/timeline.astro";
 import Paper from "@components/composite/heading/paper.astro";
 import Date from "@components/display/date.astro";
@@ -46,10 +47,7 @@ const blogs = (await getCollection("blog"))
   .filter((blog) => blog.data.publish);
 ---
 
-<Base
-  title="/index.html"
-  description="namachan10777(Masaki Nakano)の経歴、スキル、出版物についてのページ"
->
+<Base title="/index.html" description="namachan10777">
   <ResponsiveWidth>
     <Profile src={icon} name="Masaki Nakano">
       <span slot="name">Masaki Nakano</span>
@@ -61,80 +59,66 @@ const blogs = (await getCollection("blog"))
     </Profile>
   </ResponsiveWidth>
   <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Interests</h2>
-      <div class="content-wrapper">
-        <ul class="interests">
-          <li>
-            <Icon name="mdi:storage" class="li-marker" />Distributed Storage
-          </li>
-          <li>
-            <Icon name="mdi:barometer" class="li-marker" />Metrics and Logs
-          </li>
-          <li>
-            <Icon name="mdi:truck-outline" class="li-marker" />Data
-            Transportation
-          </li>
-          <li>
-            <Icon name="lucide:pen-line" class="li-marker" />Developper
-            Experience
-          </li>
-        </ul>
-      </div>
-    </section>
+    <Section title="Interests">
+      <ul class="interests">
+        <li>
+          <Icon name="mdi:storage" class="li-marker" />Distributed Storage
+        </li>
+        <li>
+          <Icon name="mdi:barometer" class="li-marker" />Metrics and Logs
+        </li>
+        <li>
+          <Icon name="mdi:truck-outline" class="li-marker" />Data Transportation
+        </li>
+        <li>
+          <Icon name="lucide:pen-line" class="li-marker" />Developper Experience
+        </li>
+      </ul>
+    </Section>
   </ResponsiveWidth>
   <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Timeline</h2>
-      <div class="content-wrapper">
-        <Timeline events={events} />
-      </div>
-    </section>
+    <Section title="Timeline">
+      <Timeline events={events} />
+    </Section>
   </ResponsiveWidth>
   <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Blog</h2>
-      <div class="content-wrapper">
-        <ol class="blog-index">
-          {
-            blogs.slice(0, 5).map((blog) => (
-              <li class="blog-heading">
-                <h3 class="blog-title">
-                  <a href={`/blog/${blog.slug}`}>{blog.data.title}</a>
-                </h3>
-                <div class="blog-date">
-                  <Date date={blog.data.date} />
-                </div>
-              </li>
-            ))
-          }
-        </ol>
-        <a href="/blog" class="read-more-link">さらに読む</a>
-      </div>
-    </section>
+    <Section title="Blog">
+      <ol class="blog-index">
+        {
+          blogs.slice(0, 5).map((blog) => (
+            <li class="blog-heading">
+              <h3 class="blog-title">
+                <a href={`/blog/${blog.slug}`}>{blog.data.title}</a>
+              </h3>
+              <div class="blog-date">
+                <Date date={blog.data.date} />
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <a href="/blog" class="read-more-link">さらに読む</a>
+    </Section>
   </ResponsiveWidth>
   <ResponsiveWidth>
-    <section class="main-section">
-      <h2 class="section-heading">Papers</h2>
-      <div class="content-wrapper">
-        <ul class="papers">
-          <Paper
-            title="RustのUCXラッパーasync-ucxの性能評価"
-            booktitle="第192回HPC研究会"
-          />
-          <Paper
-            title="ユーザーからの補助情報を用いるインタラクティブ音源分離システム"
-            booktitle="日本音響学会 2020年"
-            href="https://kitalab.net/pdf/2020_ASJspr_nakano.pdf"
-          />
-          <Paper
-            title="ユーザーからの補助情報を用いる独立低ランク行列分析"
-            booktitle="日本音響学会"
-            href="https://kitalab.net/pdf/2020_ASJaut_oshima.pdf"
-          />
-        </ul>
-      </div>
-    </section>
+    <Section title="Papers">
+      <ul class="papers">
+        <Paper
+          title="RustのUCXラッパーasync-ucxの性能評価"
+          booktitle="第192回HPC研究会"
+        />
+        <Paper
+          title="ユーザーからの補助情報を用いるインタラクティブ音源分離システム"
+          booktitle="日本音響学会 2020年"
+          href="https://kitalab.net/pdf/2020_ASJspr_nakano.pdf"
+        />
+        <Paper
+          title="ユーザーからの補助情報を用いる独立低ランク行列分析"
+          booktitle="日本音響学会"
+          href="https://kitalab.net/pdf/2020_ASJaut_oshima.pdf"
+        />
+      </ul>
+    </Section>
   </ResponsiveWidth>
   <style>
     .blog-index {
@@ -163,72 +147,6 @@ const blogs = (await getCollection("blog"))
       color: #55f;
       display: block;
       margin-block-start: 1rem;
-    }
-
-    .first-letter {
-      color: var(--color-primary);
-      font-size: var(--font-size-4xl);
-    }
-
-    .bg-gray {
-      background-color: var(--bg-gray);
-      width: 100%;
-    }
-
-    .my-2 {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .icons {
-      display: grid;
-      grid-template-columns: 1.5rem 1.5rem;
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
-      gap: 1rem;
-    }
-
-    .qual-card-wrapper {
-      padding: 0.5rem;
-    }
-
-    .qual-cards-container {
-      padding-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    .badge-wrapper {
-      padding: 0.5rem;
-    }
-
-    .badge-container {
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    .content-wrapper {
-      padding-top: 1rem;
-      padding-bottom: 1rem;
-    }
-
-    .section-heading {
-      font-family: var(--mono-family);
-      font-size: var(--font-size-3xl);
-      color: var(--color-text-strong);
-      margin-bottom: 1rem;
-    }
-
-    .brief-profile-text {
-      padding-top: 1rem;
-      line-height: 1.6;
-      color: var(--color-text-normal);
-    }
-
-    .main-section {
-      padding-top: 2rem;
-      padding-bottom: 3rem;
-      border-top: 1px solid var(--color-text-normal);
     }
 
     .papers {

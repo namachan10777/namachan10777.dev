@@ -1,0 +1,39 @@
+---
+export type Props = {
+  title: string;
+  href?: string;
+};
+---
+
+<section class="main-section">
+  <h2 class="section-heading">
+    {
+      Astro.props.href ? (
+        <a href={Astro.props.href}>{Astro.props.title}</a>
+      ) : (
+        Astro.props.title
+      )
+    }
+  </h2>
+  <div class="content-wrapper">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .main-section {
+    padding-block: 2rem 3rem;
+    border-top: 1px solid var(--color-text-normal);
+  }
+
+  .section-heading {
+    font-size: var(--font-size-3xl);
+    color: var(--color-text-strong);
+    font-weight: bold;
+    margin-block-end: 1rem;
+  }
+
+  .content-wrapper {
+    padding-block: 1rem;
+  }
+</style>
