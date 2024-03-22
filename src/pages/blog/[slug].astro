@@ -17,10 +17,7 @@ const article = await getEntry("blog", Astro.params.slug);
 const { Content } = await article.render();
 ---
 
-<Base
-  title={`/blog/${Astro.params.slug}`}
-  description={article.data.description}
->
+<Base title={article.data.title} description={article.data.description}>
   <ResponsiveWidth>
     <Breadcrumbs path={["blog", Astro.params.slug]} />
     <div class="title-section">
