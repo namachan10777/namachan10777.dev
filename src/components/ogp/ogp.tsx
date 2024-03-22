@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import fetch from "node-fetch";
+import fetch from "node-fetch-cache";
 import satori from "satori";
 import sharp from "sharp";
 
