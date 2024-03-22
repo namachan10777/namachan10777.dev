@@ -16,27 +16,19 @@ const categories = [
 <Base title="ブログカテゴリ一覧" description="ブログ記事の一覧">
   <ResponsiveWidth>
     <Breadcrumbs path={["category"]} />
-    <ul>
+    <ul class="mt-4">
       {
         categories.map((category) => (
           <li>
-            <a href={`/category/${category}`}>#{category}</a>
+            <a
+              class="font-mono text-xl underline decoration-2"
+              href={`/category/${category}`}
+            >
+              #{category}
+            </a>
           </li>
         ))
       }
     </ul>
   </ResponsiveWidth>
 </Base>
-
-<style>
-  ul {
-    margin-top: 1rem;
-  }
-
-  a {
-    font-family: var(--mono-family);
-    font-size: var(--font-size-xl);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-</style>

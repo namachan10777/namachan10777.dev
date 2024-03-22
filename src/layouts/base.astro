@@ -55,11 +55,11 @@ const ogUrl = (() => {
     <meta name="description" content={Astro.props.description} />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="relative">
     <Header title="namachan10777.dev" />
     <SiteNav />
-    <div id="scrollable-content">
-      <main>
+    <div id="scrollable-content" class="w-full">
+      <main class="min-h-[calc(100vh_-_6rem)]">
         <slot />
       </main>
       <Footer />
@@ -108,68 +108,5 @@ const ogUrl = (() => {
         });
       }
     </script>
-
-    <style>
-      body {
-        position: relative;
-      }
-
-      #scrollable-content {
-        width: 100%;
-      }
-
-      .toaster {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        padding: 0.5rem;
-        min-width: 10rem;
-        border-top: 1px solid var(--color-text-normal);
-        border-left: 1px solid var(--color-text-normal);
-        background-color: var(--color-bg);
-        animation-fill-mode: forwards;
-        animation-delay: 5s;
-        animation-duration: 1s;
-        animation-timing-function: linear;
-        animation-name: toaster;
-        font-family: var(--mono-family);
-      }
-
-      @keyframes toaster {
-        0% {
-          transform: translateY(0);
-        }
-
-        100% {
-          transform: translateY(10rem);
-        }
-      }
-
-      .cursor {
-        height: 1rem;
-        width: 0.5rem;
-        display: inline-block;
-        animation: 0.7s linear blink-cursor infinite;
-      }
-
-      @keyframes blink-cursor {
-        0% {
-          background-color: var(--color-bg);
-        }
-
-        50% {
-          background-color: var(--color-text-normal);
-        }
-      }
-
-      h1 {
-        font-size: var(--font-size-xl);
-        font-weight: bold;
-      }
-
-      main {
-        min-height: calc(100vh - 3rem - 3rem);
-      }
-    </style>
   </body>
 </html>

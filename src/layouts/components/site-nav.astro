@@ -1,71 +1,48 @@
 ---
 import { Icon } from "astro-icon/components";
+const menuItems = [
+  {
+    name: "Blog",
+    icon: "material-symbols:post",
+    href: "/blog",
+  },
+  {
+    name: "GitHub",
+    icon: "mdi:github",
+    href: "https://github.com/namachan10777",
+  },
+  {
+    name: "Twitter",
+    icon: "mdi:twitter",
+    href: "https://twitter.com/namachan10777",
+  },
+];
 ---
 
-<nav id="site-nav">
-  <h2>Links</h2>
+<nav
+  id="site-nav"
+  class="font-mono fixed top-12 right-0 max-w-full w-80 h-[calc(100vh_-_3rem)] bg-white border-l border-gray-900 translate-x-full transition-transform p-4 z-50"
+>
+  <h2 class="text-xl text-gray-500 my-4">Links</h2>
   <ul>
-    <li>
-      <a href="/blog"><Icon name="material-symbols:post" />Blog</a>
-    </li>
-    <li>
-      <a href="https://github.com/namachan10777"
-        ><Icon name="mdi:github" />GitHub</a
-      >
-    </li>
-    <li>
-      <a href="https://x.com/namachan10777"
-        ><Icon name="mdi:twitter" />Twitter</a
-      >
-    </li>
+    {
+      menuItems.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="flex flex-row items-center text-black text-xl py-4 border-t border-gray-900 gap-2"
+          >
+            <Icon name={item.icon} />
+            <span>{item.name}</span>
+          </a>
+        </li>
+      ))
+    }
   </ul>
 </nav>
 
 <style>
-  #site-nav {
-    font-family: var(--mono-family);
-    position: fixed;
-    top: 3rem;
-    right: 0;
-    max-width: 20rem;
-    height: calc(100vh - 3rem);
-    width: 80%;
-    background-color: var(--color-bg);
-    border-left: 1px solid var(--color-text-normal);
-    transform: translateX(100vw);
-    transition: transform 0.2s ease;
-    padding: 1rem;
-    z-index: 8888;
-  }
-
   #site-nav[data-show="true"] {
     transform: translateX(0);
-  }
-
-  h2 {
-    font-size: var(--font-size-xl);
-    color: var(--color-text-weak);
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  li {
-    color: var(--color-text-strong);
-    font-size: var(--font-size-xl);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    border-top: 1px solid var(--color-text-normal);
-  }
-
-  a {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  a > svg {
-    margin-right: 0.5rem;
   }
 </style>

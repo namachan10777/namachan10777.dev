@@ -32,10 +32,10 @@ const blogs = (
 >
   <ResponsiveWidth>
     <Breadcrumbs path={["category", Astro.params.category]} />
-    <ul>
+    <ul class="flex flex-col gap-12">
       {
         blogs.map((blog) => (
-          <li>
+          <li class="flex flex-col items-start">
             <ArticleHeading
               bodyMarkdown={blog.body}
               title={blog.data.title}
@@ -48,13 +48,3 @@ const blogs = (
     </ul>
   </ResponsiveWidth>
 </Base>
-
-<style>
-  li {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-  }
-</style>

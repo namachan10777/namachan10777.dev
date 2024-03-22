@@ -8,63 +8,18 @@ export type Props = {
 const { name, url, tooltip } = Astro.props;
 ---
 
-<a href={url} class="link">
-  <div class="icon-container">
-    <Icon name={name} class="icon" />
+<a href={url} class="group flex flex-col items-start relative">
+  <div class="w-6 h-6 flex items-center justify-center">
+    <Icon
+      name={name}
+      class="text-2xl text-gray-700 transition-transform group-hover:scale-110"
+    />
   </div>
-  <div class="tooltip">
-    <div class="text">
+  <div class="text-sm absolute w-40 top-8">
+    <div
+      class="p-1 rounded-sm w-fit transition-colors bg-transparent text-transparent group-hover:bg-gray-900 group-hover:text-white"
+    >
       {tooltip}
     </div>
   </div>
 </a>
-
-<style>
-  .link {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative;
-  }
-
-  .icon-container {
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-self: center;
-  }
-
-  .text {
-    padding: 0.2rem;
-    border-radius: 0.2rem;
-    width: fit-content;
-    background-color: rgb(0 0 0 / 0%);
-    color: rgb(255 255 255 / 0%);
-    transition:
-      color 0.1s linear,
-      background-color 0.1s linear;
-  }
-
-  .link:hover .text {
-    background-color: rgb(0 0 0 / 90%);
-    color: white;
-  }
-
-  .tooltip {
-    font-size: var(--font-size-sm);
-    position: absolute;
-    width: 10rem;
-    top: 2rem;
-  }
-
-  .icon {
-    font-size: var(--font-size-2xl);
-    color: rgb(0 0 0 / 70%);
-    transition: transform 0.1s linear;
-  }
-
-  .link:hover .icon {
-    transform: scale(110%);
-  }
-</style>

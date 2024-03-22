@@ -6,86 +6,13 @@ interface Props {
 }
 ---
 
-<header class="root">
-  <a class="logo" href="/">
-    <h1 class="heading">{Astro.props.title}</h1>
+<header
+  class="sticky h-12 top-0 bg-white flex flex-row justify-between items-center border-b border-gray-700 z-50 font-mono"
+>
+  <a class="flex flex-row items-center" href="/">
+    <h1 class="text-xl text-black pl-4">{Astro.props.title}</h1>
   </a>
-  <div class="toolbox">
+  <div class="flex flex-row items-center h-full">
     <Hamburger sizeRem={1.5} id="toggle-nav" />
   </div>
 </header>
-
-<style>
-  .root {
-    position: sticky;
-    height: 3rem;
-    top: 0;
-    background-color: var(--color-bg);
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--color-text-normal);
-    z-index: 9999;
-    font-family: var(--mono-family);
-  }
-
-  .heading {
-    font-size: var(--font-size-xl);
-    color: var(--color-text-strong);
-  }
-
-  .search-box {
-    border-bottom: 1px solid var(--color-text-normal);
-    height: 1.5rem;
-  }
-
-  .logo {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0.5rem;
-  }
-
-  .toolbox {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 100%;
-  }
-
-  .theme-switcher-container {
-    margin-left: 1rem;
-  }
-
-  .search-icon-container {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .search-icon {
-    font-size: var(--font-size-xl);
-  }
-
-  .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .icon-wrapper {
-    height: 1.5rem;
-    width: 1.5rem;
-    border-radius: 50%;
-    overflow: hidden hidden;
-  }
-
-  .icon-wrapper > img {
-    height: 100%;
-    width: 100%;
-  }
-</style>

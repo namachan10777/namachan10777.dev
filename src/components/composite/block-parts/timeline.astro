@@ -6,68 +6,21 @@ interface Props {
 const { events } = Astro.props;
 ---
 
-<div class="root">
+<div class="grid grid-cols-[minmax(4rem,max-content)_2rem_1fr]">
   {
     events.map((event) => (
       <>
-        <div class="date">{event.date}</div>
-        <div class="timeline-decoration">
-          <div class="timeline-line" />
-          <div class="timeline-circle" />
+        <div class="flex flex-row items-center text-gray-500 font-mono text-sm">
+          {event.date}
         </div>
-        <h3 class="title">{event.title}</h3>
+        <div class="relative w-full h-hull">
+          <div class="w-px h-full bg-gray-700 absolute left-[calc(50%_-_1px_/_2)]" />
+          <div class="absolute w-2 h-2 top-[calc(50%_-0.5rem_/_2)] left-[calc(50%_-_0.5rem_/_2)] rounded-full border border-gray-900 bg-white" />
+        </div>
+        <h3 class="text-gray-900 h-full flex flex-row items-center py-4">
+          {event.title}
+        </h3>
       </>
     ))
   }
 </div>
-
-<style>
-  .root {
-    display: grid;
-    grid-template-columns: minmax(4rem, max-content) 2rem 1fr;
-  }
-
-  .timeline-decoration {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  .timeline-line {
-    width: 1px;
-    height: 100%;
-    background-color: var(--color-text-weak);
-    position: absolute;
-    left: calc(50% - 1px / 2);
-  }
-
-  .timeline-circle {
-    position: absolute;
-    width: 0.5rem;
-    height: 0.5rem;
-    top: calc(50% - 0.5rem / 2);
-    left: calc(50% - 0.5rem / 2);
-    border-radius: 50%;
-    border: solid var(--color-text-normal) 1px;
-    background-color: var(--color-bg);
-  }
-
-  .date {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    color: var(--color-text-weak);
-    font-family: var(--mono-family);
-    font-size: var(--font-size-sm);
-  }
-
-  .title {
-    word-break: auto-phrase;
-    color: var(--color-text-normal);
-    display: flex;
-    height: 100%;
-    flex-direction: row;
-    align-items: center;
-    padding-block: 1rem;
-  }
-</style>

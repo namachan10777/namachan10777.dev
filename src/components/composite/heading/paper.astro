@@ -7,54 +7,22 @@ interface Props {
 }
 
 const { title, booktitle, href } = Astro.props;
-const titleDecoration = href ? "underline" : "unset";
 ---
 
-<li class="root">
-  <div class="icon-wrapper">
+<li class="flex flex-row">
+  <div class="w-5 flex flex-row justify-center items-center h-6 text-xl mr-2">
     <Icon name="material-symbols:link-rounded" />
   </div>
   <div>
     {
       href ? (
-        <a class="title" href={href}>
+        <a class="underline text-black text-lg" href={href}>
           {title}
         </a>
       ) : (
-        <span class="title">{title}</span>
+        <span class="text-black text-lg">{title}</span>
       )
     }
-    <div class="booktitle">{booktitle}</div>
+    <div class="mt-2 text-gray-500">{booktitle}</div>
   </div>
 </li>
-
-<style define:vars={{ titleDecoration }}>
-  .root {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .icon-wrapper {
-    width: 1.3rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 1.5rem;
-    font-size: var(--font-size-xl);
-    margin-inline-end: 0.5rem;
-  }
-
-  .title {
-    text-decoration: var(--titleDecoration);
-    text-underline-offset: 3px;
-    color: var(--color-text-strong);
-    font-size: var(--font-size-lg);
-    line-height: 1.5;
-  }
-
-  .booktitle {
-    margin-block-start: 0.5rem;
-    color: var(--color-text-weak);
-  }
-</style>

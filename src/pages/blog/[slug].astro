@@ -20,13 +20,15 @@ const { Content } = await article.render();
 <Base title={article.data.title} description={article.data.description}>
   <ResponsiveWidth>
     <Breadcrumbs path={["blog", Astro.params.slug]} />
-    <div class="title-section">
-      <h1>{article.data.title}</h1>
-      <div class="info-bar-wrapper">
+    <div class="my-8">
+      <h1 class="text-black text-3xl font-bold">{article.data.title}</h1>
+      <div class="py-2">
         <InfoBar ghPath="src/pages/blog/index.astro" />
       </div>
     </div>
-    <nav class="tags">
+    <nav
+      class="mb-4 underline font-mono font-bold decoration-1 grid gap-4 grid-cols-[repeat(auto-fit,minmax(6rem,max-content))]"
+    >
       {
         article.data.category.map((cat) => (
           <a href={`/category/${cat}`}>#{cat}</a>
@@ -38,30 +40,3 @@ const { Content } = await article.render();
     </main>
   </ResponsiveWidth>
 </Base>
-<style>
-  .tags {
-    margin-bottom: 1rem;
-    text-decoration: underline;
-    text-decoration-style: dashed;
-    font-family: var(--mono-family);
-    font-weight: bold;
-    text-underline-offset: 3px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(6rem, max-content));
-    gap: 1rem;
-  }
-
-  h1 {
-    color: var(--color-text-strong);
-    font-size: var(--font-size-3xl);
-    font-weight: bold;
-  }
-
-  .info-bar-wrapper {
-    padding-block: 0.5rem;
-  }
-
-  .title-section {
-    margin-block: 2rem;
-  }
-</style>

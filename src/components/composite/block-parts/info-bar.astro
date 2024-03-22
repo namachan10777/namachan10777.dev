@@ -6,7 +6,7 @@ export type Props = {
 };
 ---
 
-<section class="root">
+<section class="flex flex-wrap flex-row gap-4 items-center">
   <PopupIcon
     name="mdi:github"
     url={`https://github.com/namachan10777/namachan10777.dev/blob/master/${Astro.props.ghPath}`}
@@ -18,12 +18,3 @@ export type Props = {
     tooltip="Subscribe blog"
   />
 </section>
-
-<style>
-  .root {
-    display: flex;
-    flex-flow: row wrap;
-    gap: 1rem;
-    align-items: center;
-  }
-</style>

@@ -10,48 +10,13 @@ export type Props = {
 };
 ---
 
-<div class="container">
-  <div class="date"><Date date={Astro.props.date} /></div>
-  <h3 class="title">
+<div class="flex flex-col gap-4">
+  <div class="font-mono text-gray-600"><Date date={Astro.props.date} /></div>
+  <h3 class="text-black text-xl font-bold underline">
     <a href={Astro.props.href}>{Astro.props.title}</a>
   </h3>
-  <div class="preview-area">
+  <div class="flex flex-col text-gray-900 gap-2">
     <MarkdownPreview text={Astro.props.bodyMarkdown} limit={255} />
-    <a href={Astro.props.href} class="read-more">読む</a>
+    <a href={Astro.props.href} class="text-blue-700">読む</a>
   </div>
 </div>
-
-<style>
-  .container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .title {
-    color: var(--color-text-strong);
-    font-size: var(--font-size-xl);
-    font-weight: bold;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .read-more {
-    font-size: var(--font-size-normal);
-    display: block;
-    color: var(--color-link);
-  }
-
-  .preview-area {
-    display: flex;
-    flex-direction: column;
-    color: var(--color-text-normal);
-    gap: 0.5rem;
-  }
-
-  .date {
-    font-family: var(--mono-family);
-    color: var(--color-text-weak);
-    font-weight: 100;
-  }
-</style>

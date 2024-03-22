@@ -13,13 +13,13 @@ const blogs = (await getCollection("blog"))
 <Base title="namachan10777/blog" description="ブログ記事の一覧">
   <ResponsiveWidth>
     <Breadcrumbs path={["blog"]} />
-    <div class="info-bar-wrapper">
+    <div class="py-2">
       <InfoBar ghPath="src/pages/blog/index.astro" />
     </div>
-    <ul>
+    <ul class="flex flex-col gap-12 py-4">
       {
         blogs.map((blog) => (
-          <li>
+          <li class="flex flex-col items-center">
             <ArticleHeading
               title={blog.data.title}
               date={blog.data.date}
@@ -32,22 +32,3 @@ const blogs = (await getCollection("blog"))
     </ul>
   </ResponsiveWidth>
 </Base>
-
-<style>
-  ul {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    padding-block: 1rem;
-  }
-
-  li {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-  }
-
-  .info-bar-wrapper {
-    padding-block: 0.5rem;
-  }
-</style>

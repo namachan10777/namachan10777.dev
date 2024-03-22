@@ -14,58 +14,18 @@ for (const section of path) {
 }
 ---
 
-<div class="root">
-  <nav>
-    <a href="/">(root)</a>
+<div class="font-mono py-2 mt-4">
+  <nav class="inline">
+    <a href="/" class="m-0 underline decoration-1">(root)</a>
     {
       anchors.map((anchor) => (
         <>
           <span>/</span>
-          <a href={anchor.fullPath}>{anchor.section}</a>
+          <a href={anchor.fullPath} class="underline decoration-1">
+            {anchor.section}
+          </a>
         </>
       ))
     }
   </nav>
 </div>
-
-<style>
-  .root {
-    font-family: var(--mono-family);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  nav {
-    display: inline;
-  }
-
-  .cmdline {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .cursor {
-    height: 1rem;
-    width: 0.5rem;
-    animation: 0.7s linear cursor infinite;
-    display: block;
-  }
-
-  @keyframes cursor {
-    0% {
-      background-color: var(--color-bg);
-    }
-
-    50% {
-      background-color: var(--color-text-normal);
-    }
-  }
-
-  nav > a {
-    margin-inline: 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-</style>

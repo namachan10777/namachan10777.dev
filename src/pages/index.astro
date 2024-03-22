@@ -42,6 +42,25 @@ const events = [
   },
 ];
 
+const interests = [
+  {
+    text: "Distributed storage",
+    icon: "mdi:storage",
+  },
+  {
+    text: "Metrics and Logs",
+    icon: "mdi:barometer",
+  },
+  {
+    text: "Asynchronous runtime",
+    icon: "mdi:engine",
+  },
+  {
+    text: "Fast RPC",
+    icon: "mdi:message-fast",
+  },
+];
+
 const blogs = (await getCollection("blog"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .filter((blog) => blog.data.publish);
@@ -60,19 +79,17 @@ const blogs = (await getCollection("blog"))
   </ResponsiveWidth>
   <ResponsiveWidth>
     <Section title="Interests">
-      <ul class="interests">
-        <li>
-          <Icon name="mdi:storage" class="li-marker" />Distributed Storage
-        </li>
-        <li>
-          <Icon name="mdi:barometer" class="li-marker" />Metrics and Logs
-        </li>
-        <li>
-          <Icon name="mdi:truck-outline" class="li-marker" />Data Transportation
-        </li>
-        <li>
-          <Icon name="lucide:pen-line" class="li-marker" />Developper Experience
-        </li>
+      <ul
+        class="grid grid-cols-[repeat(auto-fit,minmax(8rem,max-content))] gap-8"
+      >
+        {
+          interests.map((interest) => (
+            <li class="flex flex-row items-center gap-1">
+              <Icon name={interest.icon} class="text-2xl" />
+              <span>{interest.text}</span>
+            </li>
+          ))
+        }
       </ul>
     </Section>
   </ResponsiveWidth>
@@ -83,26 +100,26 @@ const blogs = (await getCollection("blog"))
   </ResponsiveWidth>
   <ResponsiveWidth>
     <Section title="Blog">
-      <ol class="blog-index">
+      <ol class="flex flex-col gap-6">
         {
           blogs.slice(0, 5).map((blog) => (
-            <li class="blog-heading">
-              <h3 class="blog-title">
+            <li class="flex flex-col gap-2 ">
+              <h3 class="text-xl underline">
                 <a href={`/blog/${blog.slug}`}>{blog.data.title}</a>
               </h3>
-              <div class="blog-date">
+              <div class="text-gray-500">
                 <Date date={blog.data.date} />
               </div>
             </li>
           ))
         }
       </ol>
-      <a href="/blog" class="read-more-link">さらに読む</a>
+      <a href="/blog" class="text-blue-600 block mt-4">さらに読む</a>
     </Section>
   </ResponsiveWidth>
   <ResponsiveWidth>
     <Section title="Papers">
-      <ul class="papers">
+      <ul class="flex flex-col gap-8">
         <Paper
           title="RustのUCXラッパーasync-ucxの性能評価"
           booktitle="第192回HPC研究会"
@@ -120,55 +137,4 @@ const blogs = (await getCollection("blog"))
       </ul>
     </Section>
   </ResponsiveWidth>
-  <style>
-    .blog-index {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .blog-heading {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .blog-title {
-      font-weight: normal;
-      font-size: var(--font-size-xl);
-      text-decoration: underline;
-    }
-
-    .blog-date {
-      color: var(--color-text-weak);
-    }
-
-    .read-more-link {
-      color: var(--color-link);
-      display: block;
-      margin-block-start: 1rem;
-    }
-
-    .papers {
-      display: grid;
-      gap: 2rem;
-    }
-
-    .interests {
-      display: grid;
-      gap: 2rem;
-    }
-
-    .interests > li {
-      color: var(--color-text-strong);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-
-    .li-marker {
-      margin-right: 0.5rem;
-      font-size: var(--font-size-lg);
-    }
-  </style>
 </Base>

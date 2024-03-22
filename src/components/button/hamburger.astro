@@ -13,7 +13,7 @@ const styleVars = {
 };
 ---
 
-<hamburger-button id={Astro.props.id} class="custom">
+<hamburger-button id={Astro.props.id} class="h-full">
   <button
     aria-label="グローバルナビゲーションを開く"
     aria-haspopup="menu"
@@ -86,10 +86,6 @@ const styleVars = {
 </script>
 
 <style define:vars={styleVars}>
-  .custom {
-    height: 100%;
-  }
-
   .root {
     position: relative;
     display: flex;

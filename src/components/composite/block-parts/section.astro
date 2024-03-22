@@ -5,8 +5,8 @@ export type Props = {
 };
 ---
 
-<section class="main-section">
-  <h2 class="section-heading">
+<section class="pt-8 pb-12 border-t border-gray-800">
+  <h2 class="text-3xl text-black font-bold mb-4">
     {
       Astro.props.href ? (
         <a href={Astro.props.href}>{Astro.props.title}</a>
@@ -15,25 +15,7 @@ export type Props = {
       )
     }
   </h2>
-  <div class="content-wrapper">
+  <div class="py-4">
     <slot />
   </div>
 </section>
-
-<style>
-  .main-section {
-    padding-block: 2rem 3rem;
-    border-top: 1px solid var(--color-text-normal);
-  }
-
-  .section-heading {
-    font-size: var(--font-size-3xl);
-    color: var(--color-text-strong);
-    font-weight: bold;
-    margin-block-end: 1rem;
-  }
-
-  .content-wrapper {
-    padding-block: 1rem;
-  }
-</style>
