@@ -15,7 +15,9 @@ export type Props = {
     </div>
   </div>
   <div class="p-4 flex flex-col gap-4 text-center md:text-start">
-    <h2 class="text-2xl font-mono text-black"><slot name="name" /></h2>
+    <h2 class="text-3xl font-mono text-black font-semibold">
+      <slot name="name" />
+    </h2>
     <slot />
   </div>
 </section>
