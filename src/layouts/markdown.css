@@ -78,4 +78,11 @@
 .md-root a {
   text-decoration: underline;
   text-underline-offset: 3px;
+  color: var(--color-link);
+}
+
+.md-root sup {
+  font-weight: bold;
+  color: var(--color-link);
+  margin: 0.3rem;
 }
