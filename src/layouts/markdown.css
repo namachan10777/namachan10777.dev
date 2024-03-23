@@ -47,6 +47,7 @@
   font-family: var(--mono-family);
   margin-inline: 0.3em;
   background-color: var(--bg-code);
+  word-break: break-word;
   padding: 0.1em;
 }
 
