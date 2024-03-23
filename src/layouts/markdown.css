@@ -59,17 +59,6 @@
   margin-block: 0.5rem;
 }
 
-.md-root pre > code {
-  background-color: unset;
-  margin: 0;
-  padding: 0;
-}
-
-.md-root pre {
-  margin-block: 1rem;
-  padding: 0.5rem;
-}
-
 .md-root img {
   width: 100%;
   height: auto;

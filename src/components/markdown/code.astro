@@ -1,0 +1,66 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<code-block>
+  <div class="relative">
+    <div class="absolute top-0 right-0 p-2 flex flex-row items-center">
+      <span class="copy-message invisible text-white opacity-80 text-sm"
+        >copied!</span
+      >
+      <button
+        class="text-xl text-white opacity-40 hover:opacity-95 transition-opacity"
+        ><Icon name="material-symbols:copy-all-outline" /></button
+      >
+    </div>
+    <pre class="codeblock-root"><slot /></pre>
+  </div>
+</code-block>
+
+<script>
+  class CodeBlock extends HTMLElement {
+    constructor() {
+      super();
+      const text = this.querySelector("pre.codeblock-root")?.textContent;
+      const button = this.querySelector("button");
+      const msg = this.querySelector(".copy-message");
+      if (text && button && msg) {
+        button.addEventListener("click", () => {
+          navigator.clipboard.writeText(text);
+          msg.classList.remove("invisible");
+          setTimeout(() => {
+            msg.classList.add("invisible");
+          }, 1000);
+        });
+      }
+    }
+  }
+
+  customElements.define("code-block", CodeBlock);
+</script>
+
+<style is:global>
+  .codeblock-root {
+    counter-reset: line-number;
+    background-color: rgb(32 39 39);
+    color: #e1e4e8;
+    line-height: 0.9em;
+    padding-inline-start: 1rem;
+  }
+
+  .codeblock-root span.line {
+    counter-increment: line-number;
+    display: list-item;
+    padding-inline-start: 1rem;
+    margin-inline-start: 1rem;
+  }
+
+  .codeblock-root span.line:last-child {
+    display: none;
+  }
+
+  .codeblock-root span.line::marker {
+    content: counter(line-number);
+    color: #aaa;
+  }
+</style>

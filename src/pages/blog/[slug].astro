@@ -2,6 +2,7 @@
 import InfoBar from "@components/composite/block-parts/info-bar.astro";
 import Breadcrumbs from "@components/display/breadcrumbs.astro";
 import ResponsiveWidth from "@components/layout/responsive-width.astro";
+import Code from "@components/markdown/code.astro";
 import Base from "@layouts/base.astro";
 import type { GetStaticPaths } from "astro";
 import { getCollection, getEntry } from "astro:content";
@@ -36,7 +37,7 @@ const { Content } = await article.render();
       }
     </nav>
     <main class="md-root">
-      <Content />
+      <Content components={{ pre: Code }} />
     </main>
   </ResponsiveWidth>
 </Base>
