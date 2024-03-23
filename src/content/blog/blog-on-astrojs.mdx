@@ -41,7 +41,7 @@ Markdownは意味論上見出しタグも本文もフラットにレンダリン
 Web標準に`<section />`タグがあるので対応した。
 Astroはmarkdown処理にremarkプラグインを簡単に入れられるので`astro.config.js`を弄るだけで済む。
 
-````typescript
+```typescript
 import react from "@astrojs/react";
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
@@ -87,7 +87,7 @@ export const GET: APIRoute = async ({ params }) => {
   });
   return new Response(body);
 };
-````
+```
 
 ## RSS
 
