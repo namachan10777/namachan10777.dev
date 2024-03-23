@@ -19,9 +19,9 @@ const styleVars = {
     aria-haspopup="menu"
     class="root"
   >
-    <div class:list={["bar", "top"]}></div>
-    <div class:list={["bar", "center"]}></div>
-    <div class:list={["bar", "bottom"]}></div>
+    <div class="bar top bg-black"></div>
+    <div class="bar center bg-black"></div>
+    <div class="bar bottom bg-black"></div>
   </button>
 </hamburger-button>
 
@@ -98,7 +98,6 @@ const styleVars = {
 
   .bar {
     position: absolute;
-    background-color: var(--color-text-normal);
     height: 1px;
     border-radius: 0.5px;
     width: var(--barLength);
