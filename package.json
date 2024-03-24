@@ -24,7 +24,7 @@
     "@astrojs/sitemap": "^3.1.1",
     "@astrojs/tailwind": "^5.1.0",
     "@iconify-json/lucide": "^1.1.176",
-    "@iconify-json/material-symbols": "^1.1.75",
+    "@iconify-json/material-symbols": "^1.1.76",
     "@iconify-json/mdi": "^1.1.64",
     "@iconify-json/simple-icons": "^1.1.96",
     "@resvg/resvg-js": "^2.6.0",
