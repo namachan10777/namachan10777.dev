@@ -36,7 +36,7 @@
     "astro-icon": "^1.1.0",
     "astro-seo": "^0.8.3",
     "eslint": "^8.57.0",
-    "eslint-plugin-astro": "^0.31.4",
+    "eslint-plugin-astro": "^0.32.0",
     "eslint-plugin-import": "^2.29.1",
     "jsdom": "^24.0.0",
     "node-fetch": "^3.3.2",
