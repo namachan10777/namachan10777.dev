@@ -76,3 +76,8 @@
   color: var(--color-link);
   margin: 0.3rem;
 }
+
+.md-root hr {
+  margin-block: 2rem;
+  border-color: #bbb;
+}
