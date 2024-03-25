@@ -24,8 +24,8 @@ dependencies:
     specifier: ^5.1.0
     version: 5.1.0(astro@4.5.9)(tailwindcss@3.4.1)
   '@iconify-json/lucide':
-    specifier: ^1.1.177
-    version: 1.1.177
+    specifier: ^1.1.178
+    version: 1.1.178
   '@iconify-json/material-symbols':
     specifier: ^1.1.76
     version: 1.1.76
@@ -1137,8 +1137,8 @@ packages:
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
     dev: false
 
-  /@iconify-json/lucide@1.1.177:
-    resolution: {integrity: sha512-SQbHei3LEBDR+7O8odUWWWncIovVfJ1oulG9+MaLysNU/7BwjsEuALnGPH3mIYS57mZ2MlLvPr5yj3TILTLU/Q==}
+  /@iconify-json/lucide@1.1.178:
+    resolution: {integrity: sha512-IW5Z3ytfOPtcAlIgeMCGNrbPD/wfOBOyUAXEUgNhGTWxJICtbeHQkmL4mEoJmScSkjpZvyevxOC9kfdJG8VBtg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: false
