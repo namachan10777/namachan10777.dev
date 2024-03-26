@@ -27,7 +27,7 @@
     "@iconify-json/material-symbols": "^1.1.76",
     "@iconify-json/mdi": "^1.1.64",
     "@iconify-json/simple-icons": "^1.1.97",
-    "@resvg/resvg-js": "^2.6.0",
+    "@resvg/resvg-js": "^2.6.1",
     "@types/react": "^18.2.70",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
