@@ -2,6 +2,7 @@
 import { SEO } from "astro-seo";
 import Footer from "./components/footer.astro";
 import Header from "./components/header.astro";
+import Sidebar from "./components/sidebar.astro";
 import SiteNav from "./components/site-nav.astro";
 import "./markdown.css";
 
@@ -54,57 +55,72 @@ const ogUrl = (() => {
     <title>{title}</title>
   </head>
   <body class="relative">
-    <Header title="namachan10777.dev" />
-    <SiteNav />
-    <div id="scrollable-content" class="w-full">
-      <main class="min-h-[calc(100vh_-_6rem)]">
-        <slot />
-      </main>
-      <Footer />
+    <div class="md:hidden h-0">
+      <Header title="namachan10777.dev" />
+      <SiteNav />
     </div>
-    <script>
-      const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
-        addToggleEventListener: (
-          listener: (ev: { target: HTMLElement; opened: boolean }) => void,
-        ) => void;
-      };
-      const siteNav = document.getElementById("site-nav");
-      const scrollableContent = document.getElementById("scrollable-content");
-      if (toggleNav && siteNav && scrollableContent) {
-        customElements.whenDefined("hamburger-button").then(() => {
-          toggleNav.addToggleEventListener(({ opened }) => {
-            if (opened) {
-              siteNav.dataset.show = true.toString();
-              const scrollHeight = window.scrollY;
-              scrollableContent.style.position = "fixed";
-              scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
-              scrollableContent.dataset.scroll = scrollHeight.toString();
-            } else {
-              siteNav.dataset.show = false.toString();
-              scrollableContent.style.position = "unset";
-              scrollableContent.style.transform = "unset";
-              if (scrollableContent.dataset.scroll) {
-                const scrollHeight = parseInt(
-                  scrollableContent.dataset.scroll,
-                  10,
-                );
-                window.scroll({ behavior: "instant", top: scrollHeight });
+    <div>
+      <div id="scrollable-content" class="w-full">
+        <div class="grid md:grid-cols-[20rem_1fr]">
+          <div class="md:block hidden sticky h-dvh top-0 left-0">
+            <Sidebar />
+          </div>
+          <div
+            class="min-h-[calc(100vh_-_6rem)] md:min-h-[calc(100vh_-_3rem)] w-full"
+          >
+            <main>
+              <slot />
+            </main>
+            <Footer />
+          </div>
+        </div>
+      </div>
+      <script>
+        const toggleNav = document.getElementById(
+          "toggle-nav",
+        ) as HTMLElement & {
+          addToggleEventListener: (
+            listener: (ev: { target: HTMLElement; opened: boolean }) => void,
+          ) => void;
+        };
+        const siteNav = document.getElementById("site-nav");
+        const scrollableContent = document.getElementById("scrollable-content");
+        if (toggleNav && siteNav && scrollableContent) {
+          customElements.whenDefined("hamburger-button").then(() => {
+            toggleNav.addToggleEventListener(({ opened }) => {
+              if (opened) {
+                siteNav.dataset.show = true.toString();
+                const scrollHeight = window.scrollY;
+                scrollableContent.style.position = "fixed";
+                scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
+                scrollableContent.dataset.scroll = scrollHeight.toString();
+              } else {
+                siteNav.dataset.show = false.toString();
+                scrollableContent.style.position = "unset";
+                scrollableContent.style.transform = "unset";
+                if (scrollableContent.dataset.scroll) {
+                  const scrollHeight = parseInt(
+                    scrollableContent.dataset.scroll,
+                    10,
+                  );
+                  window.scroll({ behavior: "instant", top: scrollHeight });
+                }
               }
-            }
+            });
           });
-        });
-      }
+        }
 
-      const main = document.querySelector("main");
-      const hamburger = document.querySelector("hamburger-button") as
-        | ({ setToggled: (toggled: boolean) => void } & Element)
-        | null;
-      if (main && hamburger) {
-        console.log("toggled");
-        main.addEventListener("click", () => {
-          hamburger.setToggled(true);
-        });
-      }
-    </script>
+        const main = document.querySelector("main");
+        const hamburger = document.querySelector("hamburger-button") as
+          | ({ setToggled: (toggled: boolean) => void } & Element)
+          | null;
+        if (main && hamburger) {
+          console.log("toggled");
+          main.addEventListener("click", () => {
+            hamburger.setToggled(true);
+          });
+        }
+      </script>
+    </div>
   </body>
 </html>
