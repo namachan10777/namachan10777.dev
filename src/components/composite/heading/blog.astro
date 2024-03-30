@@ -6,6 +6,7 @@ export type Props = {
   date: Date;
   href: string;
   title: string;
+  tags: string[];
   bodyMarkdown: string;
 };
 ---
@@ -15,6 +16,20 @@ export type Props = {
   <h3 class="text-black text-xl font-bold underline">
     <a href={Astro.props.href}>{Astro.props.title}</a>
   </h3>
+  <ul class="flex flex-wrap flex-row">
+    {
+      Astro.props.tags.map((tag) => (
+        <li>
+          <a
+            class="font-mono underline text-black decoration-1"
+            href={`/category/${tag}`}
+          >
+            #{tag}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
   <div class="flex flex-col text-gray-900 gap-2">
     <MarkdownPreview text={Astro.props.bodyMarkdown} limit={255} />
     <a href={Astro.props.href} class="text-blue-700">読む</a>

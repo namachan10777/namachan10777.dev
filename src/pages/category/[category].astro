@@ -19,7 +19,7 @@ export const getStaticPaths = (async () => {
 
 const blogs = (
   await getCollection("blog", (blog) =>
-    blog.data.category.includes(Astro.params.category),
+    blog.data.category.includes(Astro.params.category)
   )
 )
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
@@ -40,6 +40,7 @@ const blogs = (
               bodyMarkdown={blog.body}
               title={blog.data.title}
               href={`/blog/${blog.slug}`}
+              tags={blog.data.category}
               date={blog.data.date}
             />
           </li>
