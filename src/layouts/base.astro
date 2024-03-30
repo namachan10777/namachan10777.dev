@@ -54,81 +54,69 @@ const ogUrl = (() => {
     <meta name="description" content={Astro.props.description} />
     <title>{title}</title>
   </head>
-  <body class="relative">
-    <div class="md:hidden h-0">
+  <body class="relative min-h-dvh">
+    <div class="md:hidden">
       <Header title="namachan10777.dev" />
       <SiteNav />
     </div>
-    <div>
-      <div id="scrollable-content" class="w-full">
-        <div class="grid md:grid-cols-[20rem_1fr]">
-          <div class="md:block hidden sticky h-dvh top-0 left-0">
-            <Sidebar />
-          </div>
-          <div
-            class="min-h-[calc(100vh_-_6rem)] md:min-h-[calc(100vh_-_3rem)] w-full"
-          >
-            <main>
-              <slot />
-            </main>
-            <Footer />
-          </div>
+    <div id="scrollable-content" class="w-full min-h-full h-full">
+      <div class="grid md:grid-cols-[20rem_1fr]">
+        <div class="md:block hidden sticky h-dvh top-0 left-0">
+          <Sidebar />
+        </div>
+        <div
+          class="min-h-[calc(100vh_-_3rem)] w-full h-full flex flex-col justify-between"
+        >
+          <main>
+            <slot />
+          </main>
+          <Footer />
         </div>
       </div>
-      <script>
-        const toggleNav = document.getElementById(
-          "toggle-nav"
-        ) as HTMLElement & {
-          addToggleEventListener: (
-            listener: (ev: { target: HTMLElement; opened: boolean }) => void
-          ) => void;
-        };
-        const siteNav = document.getElementById("site-nav");
-        const scrollableContent = document.getElementById("scrollable-content");
-        if (toggleNav && siteNav && scrollableContent) {
-          customElements.whenDefined("hamburger-button").then(() => {
-            toggleNav.addToggleEventListener(({ opened }) => {
-              if (opened) {
-                siteNav.dataset.show = true.toString();
-                const scrollHeight = window.scrollY;
-                scrollableContent.style.position = "fixed";
-                scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
-                scrollableContent.dataset.scroll = scrollHeight.toString();
-              } else {
-                siteNav.dataset.show = false.toString();
-                scrollableContent.style.position = "unset";
-                scrollableContent.style.transform = "unset";
-                if (scrollableContent.dataset.scroll) {
-                  const scrollHeight = parseInt(
-                    scrollableContent.dataset.scroll,
-                    10
-                  );
-                  window.scroll({ behavior: "instant", top: scrollHeight });
-                }
-              }
-            });
-          });
-        }
-
-        const main = document.querySelector("main");
-        const hamburger = document.querySelector("hamburger-button") as
-          | ({ setToggled: (toggled: boolean) => void } & Element)
-          | null;
-        if (main && hamburger) {
-          console.log("toggled");
-          main.addEventListener("click", () => {
-            hamburger.setToggled(true);
-          });
-        }
-      </script>
     </div>
-    <style is:global>
-      @tailwind components;
-      @layer components {
-        .text-spacing-normal {
-          text-spacing-trim: normal;
-        }
+    <script>
+      const toggleNav = document.getElementById("toggle-nav") as HTMLElement & {
+        addToggleEventListener: (
+          listener: (ev: { target: HTMLElement; opened: boolean }) => void,
+        ) => void;
+      };
+      const siteNav = document.getElementById("site-nav");
+      const scrollableContent = document.getElementById("scrollable-content");
+      if (toggleNav && siteNav && scrollableContent) {
+        customElements.whenDefined("hamburger-button").then(() => {
+          toggleNav.addToggleEventListener(({ opened }) => {
+            if (opened) {
+              siteNav.dataset.show = true.toString();
+              const scrollHeight = window.scrollY;
+              scrollableContent.style.position = "fixed";
+              scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
+              scrollableContent.dataset.scroll = scrollHeight.toString();
+            } else {
+              siteNav.dataset.show = false.toString();
+              scrollableContent.style.position = "unset";
+              scrollableContent.style.transform = "unset";
+              if (scrollableContent.dataset.scroll) {
+                const scrollHeight = parseInt(
+                  scrollableContent.dataset.scroll,
+                  10,
+                );
+                window.scroll({ behavior: "instant", top: scrollHeight });
+              }
+            }
+          });
+        });
       }
-    </style>
+
+      const main = document.querySelector("main");
+      const hamburger = document.querySelector("hamburger-button") as
+        | ({ setToggled: (toggled: boolean) => void } & Element)
+        | null;
+      if (main && hamburger) {
+        console.log("toggled");
+        main.addEventListener("click", () => {
+          hamburger.setToggled(true);
+        });
+      }
+    </script>
   </body>
 </html>

@@ -8,7 +8,7 @@ const categories = [
   ...new Set(
     blogs
       .filter((blog) => blog.data.publish)
-      .flatMap((blog) => blog.data.category)
+      .flatMap((blog) => blog.data.category),
   ).values(),
 ];
 ---
