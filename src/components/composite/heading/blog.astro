@@ -6,7 +6,7 @@ export type Props = {
   date: Date;
   href: string;
   title: string;
-  tags: string[];
+  categories: string[];
   bodyMarkdown: string;
 };
 ---
@@ -18,7 +18,7 @@ export type Props = {
   </h3>
   <ul class="flex flex-wrap flex-row">
     {
-      Astro.props.tags.map((tag) => (
+      Astro.props.categories.map((tag) => (
         <li>
           <a
             class="font-mono underline text-black decoration-1"

@@ -24,7 +24,7 @@ const blogs = (await getCollection("blog"))
               title={blog.data.title}
               date={blog.data.date}
               bodyMarkdown={blog.body}
-              tags={blog.data.category}
+              categories={blog.data.category}
               href={`/blog/${blog.slug}`}
             />
           </li>
