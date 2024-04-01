@@ -17,10 +17,11 @@ import { Icon } from "astro-icon/components";
       <input
         type="text"
         class="w-full focus:outline-none"
+        aria-label="検索する単語を入力してください"
         value=""
         placeholder="search..."
       />
-      <button id="close-search-dialog">
+      <button id="close-search-dialog" aria-label="検索ウィンドウを閉じる">
         <Icon name="material-symbols:cancel" class="text-3xl" />
       </button>
     </div>
@@ -96,7 +97,7 @@ import { Icon } from "astro-icon/components";
             beforeExecuted = Date.now();
             this.pagefind?.search(input.value).then(async (response) => {
               const items = await Promise.all(
-                response.results.map((result) => result.data()),
+                response.results.map((result) => result.data())
               );
               this.updateList(items);
             });
@@ -104,7 +105,7 @@ import { Icon } from "astro-icon/components";
             timeout = setTimeout(() => {
               this.pagefind?.search(input.value).then(async (response) => {
                 const items = await Promise.all(
-                  response.results.map((result) => result.data()),
+                  response.results.map((result) => result.data())
                 );
                 this.updateList(items);
               });
