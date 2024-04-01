@@ -1,83 +1,51 @@
 .md-root p {
-  line-height: 1.9;
-  padding-block: 0.5rem;
+  @apply leading-relaxed py-2;
 }
 
 .md-root h2 {
-  color: var(--color-text-strong);
-  font-weight: bold;
-  font-size: var(--font-size-2xl);
-  margin-block-start: 2rem;
-  margin-block-end: 1rem;
+  @apply text-black font-bold text-2xl mt-8 mb-4;
 }
 
 .md-root h3 {
-  color: var(--color-text-strong);
-  font-weight: bold;
-  font-size: var(--font-size-xl);
-  margin-block-start: 1.5rem;
-  margin-block-end: 1rem;
+  @apply text-black font-bold text-xl mt-6 mb-4;
 }
 
 .md-root h4 {
-  color: var(--color-text-strong);
-  font-weight: bold;
-  font-size: var(--font-size-xl);
-  margin-block-start: 1.5rem;
-  margin-block-end: 1rem;
+  @apply text-black font-bold text-xl mt-6 mb-4;
 }
 
 .md-root h5 {
-  color: var(--color-text-strong);
-  font-weight: bold;
-  font-size: var(--font-size-xl);
-  margin-block-start: 1.5rem;
-  margin-block-end: 1rem;
+  @apply text-black font-bold text-xl mt-6 mb-4;
 }
 
 .md-root h6 {
-  color: var(--color-text-strong);
-  font-weight: bold;
-  font-size: var(--font-size-xl);
-  margin-block-start: 1.5rem;
-  margin-block-end: 1rem;
+  @apply text-black font-bold text-xl mt-6 mb-4;
 }
 
 .md-root code {
-  font-family: var(--mono-family);
-  margin-inline: 0.3em;
-  background-color: var(--bg-code);
-  word-break: break-word;
-  padding: 0.1em;
+  @apply font-mono mx-1 bg-gray-200 break-words p-0.5 rounded-sm;
 }
 
 .md-root ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
+  @apply list-disc pl-6;
 }
 
 .md-root li {
-  margin-block: 0.5rem;
+  @apply my-2;
 }
 
 .md-root img {
-  width: 100%;
-  height: auto;
+  @apply w-full h-auto;
 }
 
 .md-root a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  color: var(--color-link);
+  @apply underline underline-offset-2 text-blue-700;
 }
 
 .md-root sup {
-  font-weight: bold;
-  color: var(--color-link);
-  margin: 0.3rem;
+  @apply font-bold text-blue-700 m-1;
 }
 
 .md-root hr {
-  margin-block: 2rem;
-  border-color: #bbb;
+  @apply my-4 border-gray-300;
 }

@@ -97,7 +97,7 @@ import { Icon } from "astro-icon/components";
             beforeExecuted = Date.now();
             this.pagefind?.search(input.value).then(async (response) => {
               const items = await Promise.all(
-                response.results.map((result) => result.data())
+                response.results.map((result) => result.data()),
               );
               this.updateList(items);
             });
@@ -105,7 +105,7 @@ import { Icon } from "astro-icon/components";
             timeout = setTimeout(() => {
               this.pagefind?.search(input.value).then(async (response) => {
                 const items = await Promise.all(
-                  response.results.map((result) => result.data())
+                  response.results.map((result) => result.data()),
                 );
                 this.updateList(items);
               });
