@@ -8,19 +8,25 @@ import { qwikCity } from "@builder.io/qwik-city/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import contentCollections from "@content-collections/vite";
 import pkg from "./package.json";
-
+import { vanillaExtractPlugin } from "styled-vanilla-extract/vite";
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   [key: string]: unknown;
 };
-
 /**
  * Note that Vite normally starts from `index.html` but the qwikCity plugin makes start at `src/entry.ssr.tsx` instead.
  */
+
 export default defineConfig(({ command, mode }): UserConfig => {
   return {
-    plugins: [qwikCity(), qwikVite(), tsconfigPaths(), contentCollections()],
+    plugins: [
+      qwikCity(),
+      qwikVite(),
+      tsconfigPaths(),
+      contentCollections(),
+      vanillaExtractPlugin(),
+    ],
     // This tells Vite which dependencies to pre-build in dev mode.
     optimizeDeps: {
       // Put problematic deps that break bundling here, mostly those with binaries.
