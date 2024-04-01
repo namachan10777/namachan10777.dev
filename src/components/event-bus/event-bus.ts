@@ -32,20 +32,25 @@ export type Event = {
   message?: any;
 };
 
-export class Bus {
+export class EventBus {
   bus: EventBusElement | null;
-  handlers: Map<string, ((event: Event) => void)[]>;
+  delayedSubscribeRequests: Map<string, ((event: Event) => void)[]>;
+  delayedEmitRequests: Event[];
 
   constructor(id: string) {
-    this.handlers = new Map();
     this.bus = null;
-    const self = this;
+    this.delayedSubscribeRequests = new Map();
+    this.delayedEmitRequests = [];
+
     customElements.whenDefined("event-bus").then(() => {
-      self.bus = document.getElementById(id) as EventBusElement;
-      for (const [key, handlers] of this.handlers.entries()) {
+      this.bus = document.getElementById(id) as EventBusElement;
+      for (const [key, handlers] of this.delayedSubscribeRequests.entries()) {
         for (const handler of handlers) {
-          self.bus.subscribe(key, handler);
+          this.bus.subscribe(key, handler);
         }
+      }
+      for (const event of this.delayedEmitRequests) {
+        this.bus.emit(event);
       }
     });
   }
@@ -53,6 +58,8 @@ export class Bus {
   emit(event: Event) {
     if (this.bus) {
       this.bus.emit(event);
+    } else {
+      this.delayedEmitRequests.push(event);
     }
   }
 
@@ -60,11 +67,11 @@ export class Bus {
     if (this.bus) {
       this.bus.subscribe(event_name, handler);
     } else {
-      const handlers = this.handlers.get(event_name);
+      const handlers = this.delayedSubscribeRequests.get(event_name);
       if (handlers) {
         handlers.push(handler);
       } else {
-        this.handlers.set(event_name, [handler]);
+        this.delayedSubscribeRequests.set(event_name, [handler]);
       }
     }
   }
