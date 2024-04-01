@@ -5,7 +5,12 @@ export type Props = {
   src: Root;
 };
 
-const Markdown = ({ src }: { src: RootContent }) => {
+export interface Section extends Node {
+  type: "section";
+  children: RootContent[];
+}
+
+const Markdown = ({ src }: { src: RootContent | Section }) => {
   switch (src.type) {
     case "text":
       return src.value;
@@ -13,6 +18,14 @@ const Markdown = ({ src }: { src: RootContent }) => {
       return <code>{src.value}</code>;
     case "footnoteReference":
       return <sup>{src.identifier}</sup>;
+    case "section":
+      return (
+        <section>
+          {src.children.map((child) => (
+            <Markdown key={JSON.stringify(child.position)} src={child} />
+          ))}
+        </section>
+      );
     case "list":
       const listInner = src.children.map((item) => (
         <li key={JSON.stringify(item.position)}>
