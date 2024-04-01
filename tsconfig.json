@@ -1,6 +1,7 @@
 {
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
+    "target": "ES2015",
     "baseUrl": ".",
     "paths": {
       "@components/*": ["src/components/*"],
