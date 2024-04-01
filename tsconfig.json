@@ -1,5 +1,6 @@
 {
   "extends": "astro/tsconfigs/strictest",
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.astro", ".eslintrc.cjs"],
   "compilerOptions": {
     "target": "ES2015",
     "baseUrl": ".",
@@ -10,6 +11,7 @@
       "@assets/*": ["src/assets/*"]
     },
     "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsxImportSource": "react",
+    "moduleResolution": "Bundler"
   }
 }

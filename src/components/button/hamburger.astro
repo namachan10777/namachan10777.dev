@@ -26,7 +26,7 @@ const styleVars = {
 </hamburger-button>
 
 <script>
-  import { Bus } from "@components/event-bus/event-bus";
+  import { EventBus } from "@components/event-bus/event-bus";
 
   type Listener = (ev: { target: HamburgetButton; opened: boolean }) => void;
 
@@ -51,7 +51,7 @@ const styleVars = {
         throw new Error("invalid DOM");
       }
 
-      const bus = new Bus("main-bus");
+      const bus = new EventBus("main-bus");
       bus.subscribe("nav-close", () => {
         this.iconRoot.classList.remove("open");
         this.button.ariaLabel = "グローバルナビゲーションを開く";

@@ -73,7 +73,7 @@ export async function ogImage(props: OgImageProps) {
         {
           name: "Noto Sans JP",
           data: (await getFontData(
-            "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400",
+            "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400"
           )) as ArrayBuffer,
           style: "normal",
           weight: 400,
@@ -81,7 +81,7 @@ export async function ogImage(props: OgImageProps) {
         {
           name: "Noto Sans JP",
           data: (await getFontData(
-            "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@600",
+            "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@600"
           )) as ArrayBuffer,
           style: "normal",
           weight: 600,
@@ -89,13 +89,13 @@ export async function ogImage(props: OgImageProps) {
         {
           name: "Roboto Mono",
           data: (await getFontData(
-            "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400",
+            "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400"
           )) as ArrayBuffer,
           style: "normal",
           weight: 400,
         },
       ],
-    },
+    }
   );
 
   return await sharp(Buffer.from(svg)).webp().toBuffer();
@@ -112,7 +112,7 @@ async function getFontData(api: string) {
   ).text();
 
   const resource = css.match(
-    /src: url\((.+)\) format\('(opentype|truetype)'\)/,
+    /src: url\((.+)\) format\('(opentype|truetype)'\)/
   );
 
   if (!resource || !resource[1]) return;

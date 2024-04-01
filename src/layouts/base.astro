@@ -77,11 +77,11 @@ const ogUrl = (() => {
         </div>
       </div>
       <script>
-        import { Bus } from "@components/event-bus/event-bus";
+        import { EventBus } from "@components/event-bus/event-bus";
 
         const siteNav = document.getElementById("site-nav");
         const scrollableContent = document.getElementById("scrollable-content");
-        const bus = new Bus("main-bus");
+        const bus = new EventBus("main-bus");
         if (siteNav && scrollableContent) {
           bus.subscribe("nav-open", () => {
             siteNav.dataset.show = true.toString();
