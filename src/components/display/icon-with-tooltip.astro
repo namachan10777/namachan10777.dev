@@ -10,16 +10,27 @@ const { name, url, tooltip } = Astro.props;
 
 <a href={url} class="group flex flex-col items-start relative">
   <div class="w-6 h-6 flex items-center justify-center">
-    <Icon
-      name={name}
-      class="text-2xl text-gray-700 transition-transform group-hover:scale-110"
-    />
+    <Icon name={name} class="icon" />
   </div>
   <div class="text-sm absolute w-40 top-8">
-    <div
-      class="p-1 rounded-sm w-fit transition-colors bg-transparent text-transparent group-hover:bg-gray-900 group-hover:text-white"
-    >
+    <div class="tooltip">
       {tooltip}
     </div>
   </div>
 </a>
+
+<style>
+  @tailwind components;
+
+  @layer components {
+    .icon {
+      @apply text-2xl text-gray-700 transition-transform;
+      @apply group-hover:scale-110;
+    }
+
+    .tooltip {
+      @apply p-1 rounded-sm w-fit transition-colors bg-transparent text-transparent;
+      @apply group-hover:bg-gray-900 group-hover:text-white;
+    }
+  }
+</style>
