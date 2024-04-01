@@ -4,24 +4,18 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.astro",
-    ".eslintrc.cjs"
+    "eslint.config.js",
+    "astro.config.mjs"
   ],
   "compilerOptions": {
+    "allowJs": true,
     "target": "ES2015",
     "baseUrl": "/Users/namachan/Project/github.com/namachan10777/namachan10777.dev",
     "paths": {
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@layouts/*": [
-        "src/layouts/*"
-      ],
-      "@content": [
-        "src/content/config.ts"
-      ],
-      "@assets/*": [
-        "src/assets/*"
-      ]
+      "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@content": ["src/content/config.ts"],
+      "@assets/*": ["src/assets/*"]
     },
     "jsx": "preserve",
     "jsxImportSource": "solid-js",

@@ -1,16 +1,7 @@
 ---
 interface Props {
-  sizeRem: number;
   id?: string;
 }
-
-const { sizeRem } = Astro.props;
-
-const styleVars = {
-  barLength: `${sizeRem * 0.8}rem`,
-  left: `${sizeRem * 0.1}rem`,
-  barSpace: `${(sizeRem / 2) * 0.5}rem`,
-};
 ---
 
 <hamburger-button id={Astro.props.id} class="h-full">
@@ -85,46 +76,32 @@ const styleVars = {
   customElements.define("hamburger-button", HamburgetButton);
 </script>
 
-<style define:vars={styleVars}>
+<style>
   .root {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 2rem;
+    @apply relative flex flex-row justify-center items-center h-full w-8;
   }
 
   .bar {
-    position: absolute;
-    height: 2px;
-    border-radius: 1px;
-    width: var(--barLength);
-    left: var(--left);
-    top: calc(50% - 1px);
-    transition:
-      width 0.1s linear,
-      transform 0.1s linear;
+    @apply absolute h-[2px] rounded-[1px] w-6 top-[calc(50%_-_1px)] left-1 transition-[width,transform];
   }
 
   .open > .center {
-    width: 0;
+    @apply w-0;
   }
 
   .top {
-    transform: translateY(calc(0rem - var(--barSpace)));
+    @apply -translate-y-2;
   }
 
   .open > .top {
-    transform: rotate(45deg);
+    @apply rotate-45 translate-y-0;
   }
 
   .bottom {
-    transform: translateY(calc(0rem + var(--barSpace)));
+    @apply translate-y-2;
   }
 
   .open > .bottom {
-    transform: rotate(-45deg);
+    @apply -rotate-45 translate-y-0;
   }
 </style>

@@ -1,6 +1,7 @@
 {
   "name": "namachan10777-dev",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "pagefind --site dist --output-path public/pagefind && astro dev",
     "start": "astro dev",
@@ -9,7 +10,7 @@
     "astro": "astro",
     "lint:fmt": "prettier --plugin=prettier-plugin-astro --check .",
     "lint:css": "stylelint **/*.{astro,css}",
-    "lint:eslint": "eslint **/*.{astro,ts}",
+    "lint:eslint": "eslint **/*.{astro,ts,tsx}",
     "lint": "run-p lint:*",
     "fix:fmt": "prettier --plugin=prettier-plugin-astro -w .",
     "fix:css": "stylelint --fix **/*.{astro,css}",
@@ -24,6 +25,7 @@
     "@astrojs/sitemap": "^3.1.2",
     "@astrojs/solid-js": "^4.0.1",
     "@astrojs/tailwind": "^5.1.0",
+    "@eslint/js": "^8.57.0",
     "@iconify-json/lucide": "^1.1.178",
     "@iconify-json/material-symbols": "^1.1.76",
     "@iconify-json/mdi": "^1.1.64",
@@ -62,6 +64,7 @@
     "stylelint-order": "^6.0.4",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.3",
+    "typescript-eslint": "^7.4.0",
     "unified": "^11.0.4"
   },
   "devDependencies": {

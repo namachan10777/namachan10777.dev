@@ -26,6 +26,9 @@ dependencies:
   '@astrojs/tailwind':
     specifier: ^5.1.0
     version: 5.1.0(astro@4.5.12)(tailwindcss@3.4.3)
+  '@eslint/js':
+    specifier: ^8.57.0
+    version: 8.57.0
   '@iconify-json/lucide':
     specifier: ^1.1.178
     version: 1.1.178
@@ -140,6 +143,9 @@ dependencies:
   typescript:
     specifier: ^5.4.3
     version: 5.4.3
+  typescript-eslint:
+    specifier: ^7.4.0
+    version: 7.4.0(eslint@8.57.0)(typescript@5.4.3)
   unified:
     specifier: ^11.0.4
     version: 11.0.4
@@ -7831,6 +7837,25 @@ packages:
     resolution: {integrity: sha512-+laqe5SFL1vN62FPOOJSUDTZxtgsoOXjneYOXIpx5rQ4UMiN89NAtJLpqLqyebv9fgQ/IMeeTX+mQyRnwvJzvg==}
     dependencies:
       semver: 7.6.0
+    dev: false
+
+  /typescript-eslint@7.4.0(eslint@8.57.0)(typescript@5.4.3):
+    resolution: {integrity: sha512-8GYQsb/joknlAZEAs/kqonfrsAc98C5DoellmwHREPqKwSTKSY2YB93IwmvNuX6+WE5QkKc31X9wHo/UcpYXpw==}
+    engines: {node: ^18.18.0 || >=20.0.0}
+    peerDependencies:
+      eslint: ^8.56.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 7.4.0(@typescript-eslint/parser@7.4.0)(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/parser': 7.4.0(eslint@8.57.0)(typescript@5.4.3)
+      '@typescript-eslint/utils': 7.4.0(eslint@8.57.0)(typescript@5.4.3)
+      eslint: 8.57.0
+      typescript: 5.4.3
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /typescript@5.4.3:
