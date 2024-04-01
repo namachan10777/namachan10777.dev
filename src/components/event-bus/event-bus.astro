@@ -1,0 +1,14 @@
+---
+export type Props = {
+  id: string;
+};
+---
+
+<event-bus id={Astro.props.id}>
+  <slot />
+</event-bus>
+
+<script>
+  import { EventBusElement } from "./event-bus";
+  customElements.define("event-bus", EventBusElement);
+</script>

@@ -26,17 +26,21 @@ const styleVars = {
 </hamburger-button>
 
 <script>
+  import { Bus } from "@components/event-bus/event-bus";
+
   type Listener = (ev: { target: HamburgetButton; opened: boolean }) => void;
 
   class HamburgetButton extends HTMLElement {
     listeners: Listener[];
     button: HTMLElement;
     iconRoot: Element;
+    opened: boolean;
 
     constructor() {
       super();
 
       this.listeners = [];
+      this.opened = false;
 
       const button = this.querySelector("button");
       const iconRoot = this.querySelector(".root");
@@ -47,38 +51,34 @@ const styleVars = {
         throw new Error("invalid DOM");
       }
 
-      this.button.addEventListener("click", () => {
-        if (iconRoot.classList.contains("open")) {
-          this.setToggled(true);
-        } else {
-          this.setToggled(false);
-        }
-      });
-    }
-
-    setToggled(toggled: boolean) {
-      if (toggled) {
+      const bus = new Bus("main-bus");
+      bus.subscribe("nav-close", () => {
         this.iconRoot.classList.remove("open");
         this.button.ariaLabel = "グローバルナビゲーションを開く";
-        for (const listener of this.listeners) {
-          listener({ target: this, opened: false });
-        }
-      } else {
+        this.opened = false;
+      });
+
+      bus.subscribe("nav-open", () => {
         this.iconRoot.classList.add("open");
         this.button.ariaLabel = "グローバルナビゲーションを閉じる";
-        for (const listener of this.listeners) {
-          listener({ target: this, opened: true });
-        }
-      }
-    }
+        this.opened = true;
+      });
 
-    addToggleEventListener(listener: Listener) {
-      this.listeners.push(listener);
-    }
-    removeToggleEventListener(listener: Listener) {
-      this.listeners = [
-        ...this.listeners.filter((needle) => needle !== listener),
-      ];
+      bus.subscribe("nav-toggle", () => {
+        if (this.opened) {
+          bus.emit({
+            type: "nav-close",
+          });
+        } else {
+          bus.emit({
+            type: "nav-open",
+          });
+        }
+      });
+
+      this.button.addEventListener("click", () => {
+        bus.emit({ type: "nav-toggle" });
+      });
     }
   }
 

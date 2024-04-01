@@ -23,6 +23,7 @@ module.exports = {
       },
     ],
     "import/order": [2, { alphabetize: { order: "asc" } }],
+    "no-unused-vars": 0,
   },
   overrides: [
     {
