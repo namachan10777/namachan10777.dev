@@ -14,4 +14,11 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkSectionize],
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        external: ["/pagefind/pagefind.js?url"],
+      },
+    },
+  },
 });
