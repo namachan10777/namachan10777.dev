@@ -1,0 +1,64 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<search-dialog
+  class="w-dvw h-dvh fixed top-0 left-0 -z-50 backdrop-blur-sm hidden flex-col items-center"
+>
+  <div
+    class="background-screen bg-[rgba(0,0,0,30%)] absolute top-0 left-0 w-full h-full"
+  >
+  </div>
+  <dialog class="bg-white rounded w-7/12 p-4 mt-[20dvh]">
+    <div class="flex flex-row items-center gap-2">
+      <Icon name="material-symbols:search" class="text-3xl" />
+      <input
+        type="text"
+        class="w-full focus:outline-none"
+        placeholder="search..."
+      />
+    </div>
+    <ul id="candidate-list"></ul>
+  </dialog>
+</search-dialog>
+
+<script>
+  import { EventBus } from "@components/event-bus/event-bus";
+
+  class SearchDialog extends HTMLElement {
+    constructor() {
+      super();
+      const bus = new EventBus("main-bus");
+      const dialog = this.querySelector("dialog");
+      const screen = this.querySelector(".background-screen");
+      const input = this.querySelector("input");
+      if (input && dialog && screen) {
+        screen.addEventListener("click", () => {
+          console.log("off");
+          bus.emit({ type: "search-off" });
+        });
+        bus.subscribe("search-off", () => {
+          this.classList.remove("flex");
+          this.classList.add("hidden");
+
+          this.classList.remove("z-20");
+          this.classList.add("-z-50");
+        });
+        bus.subscribe("search-on", () => {
+          console.log("on");
+
+          this.classList.remove("hidden");
+          this.classList.add("flex");
+
+          this.classList.remove("-z-50");
+          this.classList.add("z-20");
+
+          dialog.show();
+          input.focus();
+        });
+      }
+    }
+  }
+
+  customElements.define("search-dialog", SearchDialog);
+</script>

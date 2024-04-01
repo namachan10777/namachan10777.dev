@@ -5,6 +5,7 @@ import Footer from "./components/footer.astro";
 import Header from "./components/header.astro";
 import Sidebar from "./components/side-pane.astro";
 import SiteNav from "./components/site-nav.astro";
+import SearchDialog from "./components/search-dialog.astro";
 import "./markdown.css";
 
 interface Props {
@@ -61,13 +62,14 @@ const ogUrl = (() => {
         <Header title="namachan10777.dev" />
         <SiteNav />
       </div>
+      <SearchDialog />
       <div id="scrollable-content" class="w-full min-h-full h-full">
         <div class="grid md:grid-cols-[20rem_1fr]">
           <div class="md:block hidden sticky h-dvh top-0 left-0">
             <Sidebar />
           </div>
           <div
-            class="min-h-[calc(100vh_-_3rem)] w-full h-full flex flex-col justify-between"
+            class="min-h-[calc(100vh_-_3rem)] w-full h-full flex flex-col justify-between z-0"
           >
             <main>
               <slot />
@@ -97,7 +99,7 @@ const ogUrl = (() => {
             if (scrollableContent.dataset.scroll) {
               const scrollHeight = parseInt(
                 scrollableContent.dataset.scroll,
-                10,
+                10
               );
               window.scroll({ behavior: "instant", top: scrollHeight });
             }
