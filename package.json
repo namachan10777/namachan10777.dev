@@ -34,6 +34,7 @@
     "@types/react-dom": "^18.2.23",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
+    "@vanilla-extract/css": "^1.14.2",
     "astro": "^4.5.12",
     "astro-icon": "^1.1.0",
     "astro-seo": "^0.8.3",
@@ -64,6 +65,7 @@
     "unified": "^11.0.4"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.6"
+    "@types/jsdom": "^21.1.6",
+    "@vanilla-extract/vite-plugin": "^4.0.7"
   }
 }
