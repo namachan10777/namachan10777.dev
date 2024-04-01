@@ -1,5 +1,6 @@
 ---
 import Hamburger from "@components/button/hamburger.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   title: string;
@@ -9,10 +10,31 @@ interface Props {
 <header
   class="sticky h-12 top-0 bg-white flex flex-row justify-between items-center border-b border-gray-700 z-10 font-mono"
 >
-  <a class="flex flex-row items-center" href="/">
-    <h1 class="text-xl text-black pl-4">{Astro.props.title}</h1>
-  </a>
-  <div class="flex flex-row items-center h-full">
+  <nav class="text-xl text-black pl-4">
+    <a href="/">
+      {Astro.props.title}
+    </a>
+  </nav>
+  <div class="flex flex-row items-center h-full gap-2">
+    <button>
+      <Icon
+        name="material-symbols:search"
+        class="text-2xl"
+        id="enable-search-on-mobile"
+      />
+    </button>
     <Hamburger sizeRem={1.5} id="toggle-nav" />
   </div>
 </header>
+
+<script>
+  import { EventBus } from "@components/event-bus/event-bus";
+
+  const searchButton = document.getElementById("enable-search-on-mobile");
+  const bus = new EventBus("main-bus");
+  if (searchButton) {
+    searchButton.addEventListener("click", () => {
+      bus.emit({ type: "search-on" });
+    });
+  }
+</script>

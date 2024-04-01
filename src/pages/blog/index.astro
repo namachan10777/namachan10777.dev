@@ -16,20 +16,22 @@ const blogs = (await getCollection("blog"))
     <div class="py-2">
       <InfoBar ghPath="src/pages/blog/index.astro" />
     </div>
-    <ul class="flex flex-col gap-12 py-4">
-      {
-        blogs.map((blog) => (
-          <li class="flex flex-col items-center">
-            <ArticleHeading
-              title={blog.data.title}
-              date={blog.data.date}
-              bodyMarkdown={blog.body}
-              categories={blog.data.category}
-              href={`/blog/${blog.slug}`}
-            />
-          </li>
-        ))
-      }
-    </ul>
+    <nav>
+      <ul class="flex flex-col gap-12 py-4" data-pagefind-ignore>
+        {
+          blogs.map((blog) => (
+            <li class="flex flex-col items-center">
+              <ArticleHeading
+                title={blog.data.title}
+                date={blog.data.date}
+                bodyMarkdown={blog.body}
+                categories={blog.data.category}
+                href={`/blog/${blog.slug}`}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </ResponsiveWidth>
 </Base>

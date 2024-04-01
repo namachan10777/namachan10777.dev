@@ -9,43 +9,143 @@ import { Icon } from "astro-icon/components";
     class="background-screen bg-[rgba(0,0,0,30%)] absolute top-0 left-0 w-full h-full"
   >
   </div>
-  <dialog class="bg-white rounded w-7/12 p-4 mt-[20dvh]">
+  <dialog
+    class="bg-white rounded w-11/12 md:w-7/12 p-4 my-8 md:my-[20dvh] flex flex-col gap-4"
+  >
     <div class="flex flex-row items-center gap-2">
       <Icon name="material-symbols:search" class="text-3xl" />
       <input
         type="text"
         class="w-full focus:outline-none"
+        value=""
         placeholder="search..."
       />
+      <button id="close-search-dialog">
+        <Icon name="material-symbols:cancel" class="text-3xl" />
+      </button>
     </div>
-    <ul id="candidate-list"></ul>
+    <ol
+      id="candidate-list"
+      class="overflow-scroll flex flex-col gap-4 max-h-96"
+    >
+    </ol>
   </dialog>
 </search-dialog>
 
 <script>
   import { EventBus } from "@components/event-bus/event-bus";
+  import { type PagefindApi, type Data, loadPagefind } from "./pagefind";
+
+  function createCondidateItem(data: Data): HTMLLIElement {
+    const li = document.createElement("li");
+    const title = document.createElement("a");
+    title.classList.add("text-lg", "underline", "font-bold");
+    title.href = data.url;
+    const preview = document.createElement("p");
+    preview.innerHTML = data.excerpt;
+    preview.classList.add("text-gray-600");
+    title.textContent = data.meta.title;
+    li.appendChild(title);
+    li.appendChild(preview);
+    return li;
+  }
 
   class SearchDialog extends HTMLElement {
+    pagefind?: PagefindApi;
+    list: HTMLOListElement;
+
+    updateList(results: Data[]) {
+      const items = results.map(createCondidateItem);
+      const newList = this.list.cloneNode(false) as HTMLOListElement;
+      for (const item of items) {
+        newList.appendChild(item);
+      }
+      this.list.parentNode?.replaceChild(newList, this.list);
+      this.list = newList;
+    }
+
     constructor() {
       super();
       const bus = new EventBus("main-bus");
       const dialog = this.querySelector("dialog");
       const screen = this.querySelector(".background-screen");
       const input = this.querySelector("input");
-      if (input && dialog && screen) {
-        screen.addEventListener("click", () => {
-          console.log("off");
+      const list = this.querySelector("ol");
+      const closeButton = document.getElementById("close-search-dialog");
+
+      loadPagefind().then((pagefind) => {
+        pagefind.init().then(() => {
+          this.pagefind = pagefind;
+        });
+      });
+      if (input && dialog && screen && list && closeButton) {
+        this.list = list;
+        let timeout: NodeJS.Timeout | null = null;
+        let beforeExecuted = Date.now();
+        closeButton.addEventListener("click", () => {
           bus.emit({ type: "search-off" });
         });
+        input.addEventListener("input", () => {
+          if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+          }
+          if (input.value === "") {
+            this.updateList([]);
+          } else if (Date.now() - beforeExecuted > 300) {
+            beforeExecuted = Date.now();
+            this.pagefind?.search(input.value).then(async (response) => {
+              const items = await Promise.all(
+                response.results.map((result) => result.data()),
+              );
+              this.updateList(items);
+            });
+          } else {
+            timeout = setTimeout(() => {
+              this.pagefind?.search(input.value).then(async (response) => {
+                const items = await Promise.all(
+                  response.results.map((result) => result.data()),
+                );
+                this.updateList(items);
+              });
+            }, 300);
+          }
+        });
+
+        let opened = false;
+
+        document.body.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            bus.emit({ type: "search-off" });
+          }
+          if (e.key === "k" && e.metaKey) {
+            if (opened) {
+              bus.emit({ type: "search-off" });
+            } else {
+              bus.emit({ type: "search-on" });
+            }
+          }
+        });
+
+        screen.addEventListener("click", () => {
+          bus.emit({ type: "search-off" });
+        });
+
         bus.subscribe("search-off", () => {
+          opened = false;
+          bus.emit({ type: "free-background" });
           this.classList.remove("flex");
           this.classList.add("hidden");
 
           this.classList.remove("z-20");
           this.classList.add("-z-50");
+          input.value = "";
+          this.updateList([]);
         });
+
         bus.subscribe("search-on", () => {
-          console.log("on");
+          opened = true;
+          bus.emit({ type: "fix-background" });
 
           this.classList.remove("hidden");
           this.classList.add("flex");
@@ -56,6 +156,8 @@ import { Icon } from "astro-icon/components";
           dialog.show();
           input.focus();
         });
+      } else {
+        throw new Error("invalid dom");
       }
     }
   }

@@ -100,7 +100,7 @@ const blogs = (await getCollection("blog"))
   </ResponsiveWidth>
   <ResponsiveWidth>
     <Section title="Blog">
-      <ol class="flex flex-col gap-6">
+      <ol class="flex flex-col gap-6" data-pagefind-ignore="all">
         {
           blogs.slice(0, 5).map((blog) => (
             <li class="flex flex-col gap-2 ">

@@ -32,20 +32,22 @@ const blogs = (
 >
   <ResponsiveWidth>
     <Breadcrumbs path={["category", Astro.params.category]} />
-    <ul class="flex flex-col gap-12">
-      {
-        blogs.map((blog) => (
-          <li class="flex flex-col items-start">
-            <ArticleHeading
-              bodyMarkdown={blog.body}
-              title={blog.data.title}
-              href={`/blog/${blog.slug}`}
-              categories={blog.data.category}
-              date={blog.data.date}
-            />
-          </li>
-        ))
-      }
-    </ul>
+    <nav>
+      <ul class="flex flex-col gap-12" data-pagefind-ignore="all">
+        {
+          blogs.map((blog) => (
+            <li class="flex flex-col items-start">
+              <ArticleHeading
+                bodyMarkdown={blog.body}
+                title={blog.data.title}
+                href={`/blog/${blog.slug}`}
+                categories={blog.data.category}
+                date={blog.data.date}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </ResponsiveWidth>
 </Base>
