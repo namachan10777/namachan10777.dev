@@ -2,9 +2,9 @@
   "name": "namachan10777-dev",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "pagefind --site dist --output-path public/pagefind && astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && pagefind --site dist --output-path dist/pagefind",
     "preview": "astro preview",
     "astro": "astro",
     "lint:fmt": "prettier --plugin=prettier-plugin-astro --check .",
