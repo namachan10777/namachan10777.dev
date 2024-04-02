@@ -57,76 +57,71 @@ const ogUrl = (() => {
     <title>{title}</title>
   </head>
   <body class="relative min-h-dvh" data-pagefind-body>
-    <EventBus id="main-bus">
-      <div class="sticky top-0 z-10 w-full md:hidden">
-        <Header title="namachan10777.dev" />
-        <SiteNav />
+    <EventBus id="main-bus" />
+    <div class="sticky top-0 z-10 w-full md:hidden">
+      <Header title="namachan10777.dev" />
+      <SiteNav />
+    </div>
+    <SearchDialog client:load />
+    <div class="md:grid md:grid-cols-[20rem_1fr]">
+      <div class="sticky left-0 top-0 hidden h-dvh md:block">
+        <Sidebar />
       </div>
-      <SearchDialog client:load />
-      <div class="h-full min-h-full w-full">
-        <div class="md:grid md:grid-cols-[20rem_1fr]">
-          <div class="sticky left-0 top-0 hidden h-dvh md:block">
-            <Sidebar />
-          </div>
-          <div
-            id="scrollable-content"
-            class="z-0 flex h-full min-h-[calc(100vh_-_3rem)] w-full flex-col justify-between"
-          >
-            <main>
-              <slot />
-            </main>
-            <Footer />
-          </div>
-        </div>
+      <div
+        id="scrollable-content"
+        class="z-0 flex h-full min-h-[calc(100vh_-_3rem)] w-full flex-col justify-between"
+      >
+        <main>
+          <slot />
+        </main>
+        <Footer />
       </div>
-      <script>
-        import { EventBus } from "@components/event-bus/event-bus-client";
+    </div>
+    <script>
+      import { EventBus } from "@components/event-bus/event-bus-client";
 
-        const siteNav = document.getElementById("site-nav");
-        const scrollableContent = document.getElementById("scrollable-content");
-        const bus = new EventBus("main-bus");
+      const siteNav = document.getElementById("site-nav");
+      const scrollableContent = document.getElementById("scrollable-content");
+      const bus = new EventBus("main-bus");
 
-        if (siteNav && scrollableContent) {
-          bus.subscribe("nav-open", () => {
-            siteNav.dataset.show = true.toString();
-            bus.emit({ type: "background-fix" });
+      if (siteNav && scrollableContent) {
+        bus.subscribe("nav-open", () => {
+          siteNav.dataset.show = true.toString();
+          bus.emit({ type: "background-fix" });
+        });
+
+        bus.subscribe("background-fix", () => {
+          const scrollHeight = window.scrollY;
+          scrollableContent.style.position = "fixed";
+          scrollableContent.classList.add("md:left-[10rem]");
+          scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
+          scrollableContent.dataset.scroll = scrollHeight.toString();
+        });
+
+        bus.subscribe("background-release", () => {
+          scrollableContent.style.position = "unset";
+          scrollableContent.style.transform = "unset";
+          if (scrollableContent.dataset.scroll) {
+            const scrollHeight = parseInt(scrollableContent.dataset.scroll, 10);
+            window.scroll({ behavior: "instant", top: scrollHeight });
+          }
+        });
+
+        bus.subscribe("nav-close", () => {
+          siteNav.dataset.show = false.toString();
+          bus.emit({ type: "background-release" });
+        });
+      }
+
+      const main = document.querySelector("main");
+      if (main) {
+        console.log("toggled");
+        main.addEventListener("click", () => {
+          bus.emit({
+            type: "nav-close",
           });
-
-          bus.subscribe("background-fix", () => {
-            const scrollHeight = window.scrollY;
-            scrollableContent.style.position = "fixed";
-            scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
-            scrollableContent.dataset.scroll = scrollHeight.toString();
-          });
-
-          bus.subscribe("background-release", () => {
-            scrollableContent.style.position = "unset";
-            scrollableContent.style.transform = "unset";
-            if (scrollableContent.dataset.scroll) {
-              const scrollHeight = parseInt(
-                scrollableContent.dataset.scroll,
-                10,
-              );
-              window.scroll({ behavior: "instant", top: scrollHeight });
-            }
-          });
-
-          bus.subscribe("nav-close", () => {
-            siteNav.dataset.show = false.toString();
-            bus.emit({ type: "background-release" });
-          });
-        }
-
-        const main = document.querySelector("main");
-        if (main) {
-          console.log("toggled");
-          main.addEventListener("click", () => {
-            bus.emit({
-              type: "nav-close",
-            });
-          });
-        }
-      </script>
-    </EventBus>
+        });
+      }
+    </script>
   </body>
 </html>
