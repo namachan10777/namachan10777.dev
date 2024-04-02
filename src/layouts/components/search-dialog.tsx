@@ -64,7 +64,9 @@ const SearchDialog = () => {
                 }, word());
               }}
             />
-            <IoCloseCircleOutline class="text-2xl" />
+            <button onClick={() => setOpen(false)}>
+              <IoCloseCircleOutline class="text-2xl" />
+            </button>
           </div>
           <ol class="col-start-2 flex max-h-96 flex-col gap-4 overflow-scroll">
             {items().map((item) => (
