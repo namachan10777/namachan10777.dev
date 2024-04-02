@@ -47,9 +47,11 @@ const SearchDialog = () => {
           }}
         ></div>
         <div class="z-50 md:mt-24 flex w-full items-center justify-center p-4">
-          <div class="z-50 grid w-full grid-cols-[2rem_1fr_2rem] gap-4 rounded border bg-white p-6 md:w-4/6">
+          <div class="z-50 grid w-full grid-cols-[2rem_1fr_2rem] gap-4 rounded border bg-white p-4 md:w-4/6">
             <div class="contents">
-              <IoSearchOutline class="w-10 text-2xl" />
+              <div class="flex justify-center items-center h-full w-full">
+                <IoSearchOutline class="w-10 text-2xl" />
+              </div>
               <input
                 type="text"
                 class="w-full focus:outline-none"
@@ -69,11 +71,12 @@ const SearchDialog = () => {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="検索ウィンドウを閉じる"
+                class="flex justify-center items-center h-full w-full"
               >
                 <IoCloseCircleOutline class="text-2xl" />
               </button>
             </div>
-            <ol class="col-start-2 flex max-h-96 flex-col gap-4 overflow-x-clip overflow-y-scroll">
+            <ol class=" col-span-3 md:col-span-1 md:col-start-2 flex max-h-96 flex-col gap-4 overflow-x-clip overflow-y-scroll">
               {items().map((item) => (
                 <li>
                   <a href={item.url}>
