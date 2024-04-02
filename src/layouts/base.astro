@@ -56,7 +56,7 @@ const ogUrl = (() => {
     <meta name="description" content={Astro.props.description} />
     <title>{title}</title>
   </head>
-  <body class="relative min-h-dvh" data-pagefind-body>
+  <body class="relative h-full" data-pagefind-body>
     <EventBus id="main-bus" />
     <div class="sticky top-0 z-10 w-full md:hidden">
       <Header title="namachan10777.dev" />
@@ -64,7 +64,7 @@ const ogUrl = (() => {
     </div>
     <SearchDialog client:load />
     <div class="md:grid md:grid-cols-[20rem_1fr]">
-      <div class="sticky left-0 top-0 hidden h-dvh md:block">
+      <div class="sticky left-0 top-0 hidden max-h-dvh md:block">
         <Sidebar />
       </div>
       <div
