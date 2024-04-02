@@ -1,0 +1,28 @@
+.root {
+  @apply relative flex h-full w-8 flex-row items-center justify-center;
+}
+
+.bar {
+  @apply absolute left-1 top-[calc(50%_-_1px)] h-[2px] w-6 rounded-[1px] transition-[width,transform];
+  @apply bg-black;
+}
+
+.open > .center {
+  @apply w-0;
+}
+
+.top {
+  @apply -translate-y-2;
+}
+
+.open > .top {
+  @apply translate-y-0 rotate-45;
+}
+
+.bottom {
+  @apply translate-y-2;
+}
+
+.open > .bottom {
+  @apply translate-y-0 -rotate-45;
+}
