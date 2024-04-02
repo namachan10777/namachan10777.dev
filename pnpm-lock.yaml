@@ -83,6 +83,9 @@ dependencies:
   sharp:
     specifier: ^0.33.3
     version: 0.33.3
+  solid-icons:
+    specifier: ^1.1.0
+    version: 1.1.0(solid-js@1.8.16)
   solid-js:
     specifier: ^1.8.16
     version: 1.8.16
@@ -7153,6 +7156,14 @@ packages:
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
     dev: true
+
+  /solid-icons@1.1.0(solid-js@1.8.16):
+    resolution: {integrity: sha512-IesTfr/F1ElVwH2E1110s2RPXH4pujKfSs+koT8rwuTAdleO5s26lNSpqJV7D1+QHooJj18mcOiz2PIKs0ic+A==}
+    peerDependencies:
+      solid-js: '*'
+    dependencies:
+      solid-js: 1.8.16
+    dev: false
 
   /solid-js@1.8.16:
     resolution: {integrity: sha512-rja94MNU9flF3qQRLNsu60QHKBDKBkVE1DldJZPIfn2ypIn3NV2WpSbGTQIvsyGPBo+9E2IMjwqnqpbgfWuzeg==}

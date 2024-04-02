@@ -91,12 +91,51 @@ export interface PagefindApi {
   init: () => Promise<void>;
   search: (word: string, option?: SearchOption) => Promise<SearchResponse>;
   debouncedSearch: (
-    word: String,
+    word: string,
     option?: SearchOption,
     debounceTimeMillis?: number,
   ) => Promise<SearchResponse | null>;
 }
 
 export async function loadPagefind(): Promise<PagefindApi> {
-  return (await import("/pagefind/pagefind.js?url")) as any as PagefindApi;
+  return (await import("/pagefind/pagefind.js?url")) as unknown as PagefindApi;
+}
+
+export class Pagefind {
+  private api: PagefindApi | null = null;
+  private readonly debounceDuration: number;
+  private lastCallTime: number;
+  private timeoutHandler: NodeJS.Timeout | null;
+  constructor(debounceDuration?: number) {
+    this.debounceDuration = debounceDuration || 300;
+    this.lastCallTime = Date.now();
+    this.timeoutHandler = null;
+    loadPagefind().then((api) => {
+      this.api = api;
+    });
+  }
+
+  debouncedSearch(
+    callback: (response: SearchResponse) => void,
+    word: string,
+    option?: SearchOption,
+  ) {
+    const now = Date.now();
+    if (this.lastCallTime - now > this.debounceDuration) {
+      this.lastCallTime = now;
+      if (this.api) {
+        this.api.search(word, option).then((response) => callback(response));
+      }
+    } else {
+      if (this.timeoutHandler) {
+        clearTimeout(this.timeoutHandler);
+        this.timeoutHandler = null;
+      }
+      this.timeoutHandler = setTimeout(() => {
+        if (this.api) {
+          this.api.search(word, option).then((response) => callback(response));
+        }
+      }, this.debounceDuration);
+    }
+  }
 }

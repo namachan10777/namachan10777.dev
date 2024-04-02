@@ -3,7 +3,7 @@ import EventBus from "@components/event-bus/event-bus.astro";
 import { SEO } from "astro-seo";
 import Footer from "./components/footer.astro";
 import Header from "./components/header.astro";
-import SearchDialog from "./components/search-dialog.astro";
+import SearchDialog from "./components/search-dialog.tsx";
 import Sidebar from "./components/side-pane.astro";
 import SiteNav from "./components/site-nav.astro";
 import "./markdown.css";
@@ -62,7 +62,7 @@ const ogUrl = (() => {
         <Header title="namachan10777.dev" />
         <SiteNav />
       </div>
-      <SearchDialog />
+      <SearchDialog client:load />
       <div class="h-full min-h-full w-full">
         <div class="md:grid md:grid-cols-[20rem_1fr]">
           <div class="sticky left-0 top-0 hidden h-dvh md:block">

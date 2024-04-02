@@ -1,5 +1,5 @@
 ---
-import SearchOn from "@components/button/search-on.astro";
+import SearchOn from "@components/button/search-on.tsx";
 import { Icon } from "astro-icon/components";
 
 const menuItems = [
@@ -40,7 +40,7 @@ const menuItems = [
 <div class="h-full bg-black p-4 text-white">
   <nav class="text-2xl font-bold"><a href="/">namachan10777.dev</a></nav>
   <div class="py-2">
-    <SearchOn />
+    <SearchOn client:load />
   </div>
   <nav class="py-4">
     <ul class="flex flex-col">
