@@ -52,6 +52,7 @@ const SearchDialog = () => {
             <input
               type="text"
               class="w-full focus:outline-none"
+              aria-label="検索ワードを入力"
               value={word()}
               ref={setInputRef}
               onInput={(e) => {
@@ -64,7 +65,10 @@ const SearchDialog = () => {
                 }, word());
               }}
             />
-            <button onClick={() => setOpen(false)}>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="検索ウィンドウを閉じる"
+            >
               <IoCloseCircleOutline class="text-2xl" />
             </button>
           </div>
