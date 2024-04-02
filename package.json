@@ -20,12 +20,11 @@
   "dependencies": {
     "@astrojs/check": "^0.5.10",
     "@astrojs/mdx": "^2.2.2",
-    "@astrojs/react": "^3.1.0",
     "@astrojs/rss": "^4.0.5",
     "@astrojs/sitemap": "^3.1.2",
-    "@astrojs/solid-js": "^4.0.1",
     "@astrojs/tailwind": "^5.1.0",
     "@iconify-json/material-symbols": "^1.1.76",
+    "@iconify-json/mdi": "^1.1.64",
     "@resvg/resvg-js": "^2.6.2",
     "astro": "^4.5.12",
     "astro-icon": "^1.1.0",
@@ -44,7 +43,6 @@
     "satori": "^0.10.13",
     "satori-html": "^0.3.2",
     "sharp": "^0.33.3",
-    "solid-js": "^1.8.16",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.3",
     "unified": "^11.0.4"
