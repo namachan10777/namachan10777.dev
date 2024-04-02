@@ -5,6 +5,7 @@ import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 import remarkSectionize from "remark-sectionize";
 import solidJs from "@astrojs/solid-js";
+import tsConfigPaths from "vite-tsconfig-paths";
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,6 +23,7 @@ export default defineConfig({
     remarkPlugins: [remarkSectionize],
   },
   vite: {
+    plugins: [tsConfigPaths()],
     build: {
       rollupOptions: {
         external: ["/pagefind/pagefind.js?url"],
