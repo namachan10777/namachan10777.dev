@@ -9,7 +9,7 @@
   ],
   "compilerOptions": {
     "allowJs": true,
-    "target": "ES2015",
+    "target": "ES2017",
     "baseUrl": "/Users/namachan/Project/github.com/namachan10777/namachan10777.dev",
     "paths": {
       "@components/*": ["src/components/*"],
