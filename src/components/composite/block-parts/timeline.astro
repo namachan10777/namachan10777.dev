@@ -10,14 +10,14 @@ const { events } = Astro.props;
   {
     events.map((event) => (
       <>
-        <div class="flex flex-row items-center text-gray-500 font-mono text-sm">
+        <div class="flex flex-row items-center font-mono text-sm text-gray-500">
           {event.date}
         </div>
-        <div class="relative w-full h-hull">
+        <div class="h-hull relative w-full">
           <div class="v-sep-mark" />
           <div class="v-sep-line" />
         </div>
-        <h3 class="text-gray-900 h-full flex flex-row items-center py-4">
+        <h3 class="flex h-full flex-row items-center py-4 text-gray-900">
           {event.title}
         </h3>
       </>
@@ -30,12 +30,12 @@ const { events } = Astro.props;
 
   @layer components {
     .v-sep-line {
-      @apply absolute w-2 h-2 top-[calc(50%_-0.5rem_/_2)] left-[calc(50%_-_0.5rem_/_2)];
+      @apply absolute left-[calc(50%_-_0.5rem_/_2)] top-[calc(50%_-0.5rem_/_2)] h-2 w-2;
       @apply rounded-full border border-gray-900 bg-white;
     }
 
     .v-sep-mark {
-      @apply w-px h-full bg-gray-700 absolute left-[calc(50%_-_1px_/_2)];
+      @apply absolute left-[calc(50%_-_1px_/_2)] h-full w-px bg-gray-700;
     }
   }
 </style>

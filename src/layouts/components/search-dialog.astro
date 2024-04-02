@@ -3,14 +3,14 @@ import { Icon } from "astro-icon/components";
 ---
 
 <search-dialog
-  class="w-dvw h-dvh fixed top-0 left-0 -z-50 backdrop-blur-sm hidden flex-col items-center"
+  class="fixed left-0 top-0 -z-50 hidden h-dvh w-dvw flex-col items-center backdrop-blur-sm"
 >
   <div
-    class="background-screen bg-[rgba(0,0,0,30%)] absolute top-0 left-0 w-full h-full"
+    class="background-screen absolute left-0 top-0 h-full w-full bg-[rgba(0,0,0,30%)]"
   >
   </div>
   <dialog
-    class="bg-white rounded w-11/12 md:w-7/12 p-4 my-8 md:my-[20dvh] flex flex-col gap-4"
+    class="my-8 flex w-11/12 flex-col gap-4 rounded bg-white p-4 md:my-[20dvh] md:w-7/12"
   >
     <div class="flex flex-row items-center gap-2">
       <Icon name="material-symbols:search" class="text-3xl" />
@@ -27,7 +27,7 @@ import { Icon } from "astro-icon/components";
     </div>
     <ol
       id="candidate-list"
-      class="overflow-scroll flex flex-col gap-4 max-h-96"
+      class="flex max-h-96 flex-col gap-4 overflow-scroll"
     >
     </ol>
   </dialog>

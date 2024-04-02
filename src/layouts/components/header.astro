@@ -8,12 +8,12 @@ interface Props {
 ---
 
 <header class="header">
-  <nav class="text-xl text-black pl-4">
+  <nav class="pl-4 text-xl text-black">
     <a href="/">
       {Astro.props.title}
     </a>
   </nav>
-  <div class="flex flex-row items-center h-full gap-2">
+  <div class="flex h-full flex-row items-center gap-2">
     <button aria-label="検索ウィンドウを開く" aria-haspopup="dialog">
       <Icon
         name="material-symbols:search"
@@ -30,9 +30,9 @@ interface Props {
 
   @layer components {
     .header {
-      @apply flex flex-row justify-between items-center;
-      @apply sticky h-12 top-0 z-10;
-      @apply bg-white border-b border-gray-700 font-mono;
+      @apply flex flex-row items-center justify-between;
+      @apply sticky top-0 z-10 h-12;
+      @apply border-b border-gray-700 bg-white font-mono;
     }
   }
 </style>

@@ -29,7 +29,6 @@ export class EventBusElement extends HTMLElement {
 
 export type Event = {
   type: string;
-  message?: any;
 };
 
 export class EventBus {

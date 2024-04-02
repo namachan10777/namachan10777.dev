@@ -10,17 +10,17 @@ const { title, booktitle, href } = Astro.props;
 ---
 
 <li class="flex flex-row">
-  <div class="w-5 flex flex-row justify-center items-center h-6 text-xl mr-2">
+  <div class="mr-2 flex h-6 w-5 flex-row items-center justify-center text-xl">
     <Icon name="material-symbols:link-rounded" />
   </div>
   <div>
     {
       href ? (
-        <a class="underline text-black text-lg font-semibold" href={href}>
+        <a class="text-lg font-semibold text-black underline" href={href}>
           {title}
         </a>
       ) : (
-        <span class="text-black text-lg font-semibold">{title}</span>
+        <span class="text-lg font-semibold text-black">{title}</span>
       )
     }
     <div class="mt-2 text-gray-500">{booktitle}</div>

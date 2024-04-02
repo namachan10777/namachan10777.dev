@@ -78,11 +78,11 @@ interface Props {
 
 <style>
   .root {
-    @apply relative flex flex-row justify-center items-center h-full w-8;
+    @apply relative flex h-full w-8 flex-row items-center justify-center;
   }
 
   .bar {
-    @apply absolute h-[2px] rounded-[1px] w-6 top-[calc(50%_-_1px)] left-1 transition-[width,transform];
+    @apply absolute left-1 top-[calc(50%_-_1px)] h-[2px] w-6 rounded-[1px] transition-[width,transform];
   }
 
   .open > .center {
@@ -94,7 +94,7 @@ interface Props {
   }
 
   .open > .top {
-    @apply rotate-45 translate-y-0;
+    @apply translate-y-0 rotate-45;
   }
 
   .bottom {
@@ -102,6 +102,6 @@ interface Props {
   }
 
   .open > .bottom {
-    @apply -rotate-45 translate-y-0;
+    @apply translate-y-0 -rotate-45;
   }
 </style>

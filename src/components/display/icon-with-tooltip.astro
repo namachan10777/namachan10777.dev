@@ -8,11 +8,11 @@ export type Props = {
 const { name, url, tooltip } = Astro.props;
 ---
 
-<a href={url} class="group flex flex-col items-start relative">
-  <div class="w-6 h-6 flex items-center justify-center">
+<a href={url} class="group relative flex flex-col items-start">
+  <div class="flex h-6 w-6 items-center justify-center">
     <Icon name={name} class="icon" />
   </div>
-  <div class="text-sm absolute w-40 top-8">
+  <div class="absolute top-8 w-40 text-sm">
     <div class="tooltip">
       {tooltip}
     </div>
@@ -29,7 +29,7 @@ const { name, url, tooltip } = Astro.props;
     }
 
     .tooltip {
-      @apply p-1 rounded-sm w-fit transition-colors bg-transparent text-transparent;
+      @apply w-fit rounded-sm bg-transparent p-1 text-transparent transition-colors;
       @apply group-hover:bg-gray-900 group-hover:text-white;
     }
   }

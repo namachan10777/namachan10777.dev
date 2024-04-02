@@ -11,7 +11,7 @@ const height = 630;
 const width = 1200;
 
 export const GET: APIRoute = async ({ params }) => {
-  const article = await getEntryBySlug("blog", params.slug as any);
+  const article = await getEntryBySlug("blog", params.slug as string);
 
   const title = article?.data.title;
   const description = article?.data.description;

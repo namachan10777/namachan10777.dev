@@ -37,7 +37,7 @@ const menuItems = [
 ];
 ---
 
-<div class="h-full bg-black text-white p-4">
+<div class="h-full bg-black p-4 text-white">
   <nav class="text-2xl font-bold"><a href="/">namachan10777.dev</a></nav>
   <div class="py-2">
     <SearchOn />
@@ -46,16 +46,16 @@ const menuItems = [
     <ul class="flex flex-col">
       {
         menuItems.map((item) => (
-          <li class="py-4 border-t border-gray-500">
+          <li class="border-t border-gray-500 py-4">
             <a
               href={item.href}
-              class="flex flex-row items-center text-xl gap-2 underline"
+              class="flex flex-row items-center gap-2 text-xl underline"
             >
               <Icon name={item.icon} class="w-8" />
               <spam>{item.name}</spam>
             </a>
             {item.children ? (
-              <ul class="py-2 flex flex-col gap-2">
+              <ul class="flex flex-col gap-2 py-2">
                 {item.children?.map((child) => (
                   <li class="text-gray-300 underline">
                     <a href={child.href} class="ml-10">

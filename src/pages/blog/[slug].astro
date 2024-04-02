@@ -23,13 +23,13 @@ const { Content } = await article.render();
   <ResponsiveWidth>
     <Breadcrumbs path={["blog", Astro.params.slug]} />
     <div class="my-8">
-      <h1 class="text-black text-3xl font-bold">{article.data.title}</h1>
+      <h1 class="text-3xl font-bold text-black">{article.data.title}</h1>
       <div class="py-2">
         <InfoBar ghPath="src/pages/blog/index.astro" />
       </div>
     </div>
     <nav
-      class="mb-4 underline font-mono font-bold decoration-1 grid gap-4 grid-cols-[repeat(auto-fit,minmax(6rem,max-content))]"
+      class="mb-4 grid grid-cols-[repeat(auto-fit,minmax(6rem,max-content))] gap-4 font-mono font-bold underline decoration-1"
     >
       {
         article.data.category.map((cat) => (

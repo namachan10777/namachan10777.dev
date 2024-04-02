@@ -58,19 +58,19 @@ const ogUrl = (() => {
   </head>
   <body class="relative min-h-dvh" data-pagefind-body>
     <EventBus id="main-bus">
-      <div class="md:hidden sticky top-0 w-full z-10">
+      <div class="sticky top-0 z-10 w-full md:hidden">
         <Header title="namachan10777.dev" />
         <SiteNav />
       </div>
       <SearchDialog />
-      <div class="w-full min-h-full h-full">
+      <div class="h-full min-h-full w-full">
         <div class="md:grid md:grid-cols-[20rem_1fr]">
-          <div class="md:block hidden sticky h-dvh top-0 left-0">
+          <div class="sticky left-0 top-0 hidden h-dvh md:block">
             <Sidebar />
           </div>
           <div
             id="scrollable-content"
-            class="min-h-[calc(100vh_-_3rem)] w-full h-full flex flex-col justify-between z-0"
+            class="z-0 flex h-full min-h-[calc(100vh_-_3rem)] w-full flex-col justify-between"
           >
             <main>
               <slot />

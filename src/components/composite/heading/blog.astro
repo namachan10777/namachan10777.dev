@@ -13,15 +13,15 @@ export type Props = {
 
 <div class="flex flex-col gap-4">
   <div class="font-mono text-gray-600"><Date date={Astro.props.date} /></div>
-  <h3 class="text-black text-xl font-bold underline">
+  <h3 class="text-xl font-bold text-black underline">
     <a href={Astro.props.href}>{Astro.props.title}</a>
   </h3>
-  <ul class="flex flex-wrap flex-row">
+  <ul class="flex flex-row flex-wrap">
     {
       Astro.props.categories.map((tag) => (
         <li>
           <a
-            class="font-mono underline text-black decoration-1"
+            class="font-mono text-black underline decoration-1"
             href={`/category/${tag}`}
           >
             #{tag}
@@ -30,7 +30,7 @@ export type Props = {
       ))
     }
   </ul>
-  <div class="flex flex-col text-gray-900 gap-2">
+  <div class="flex flex-col gap-2 text-gray-900">
     <MarkdownPreview text={Astro.props.bodyMarkdown} limit={255} />
     <a href={Astro.props.href} class="text-blue-700">読む</a>
   </div>

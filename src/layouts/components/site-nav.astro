@@ -20,7 +20,7 @@ const menuItems = [
 ---
 
 <nav id="site-nav" class="nav">
-  <h2 class="text-xl text-gray-500 my-4">Links</h2>
+  <h2 class="my-4 text-xl text-gray-500">Links</h2>
   <ul>
     {
       menuItems.map((item) => (
@@ -40,14 +40,14 @@ const menuItems = [
 
   @layer components {
     .nav {
-      @apply fixed top-12 right-0  w-80 h-[calc(100vh_-_3rem)] translate-x-full z-50;
+      @apply fixed right-0 top-12  z-50 h-[calc(100vh_-_3rem)] w-80 translate-x-full;
       @apply p-4;
-      @apply font-mono max-w-full bg-white border-l border-gray-900 transition-transform;
+      @apply max-w-full border-l border-gray-900 bg-white font-mono transition-transform;
     }
 
     .menu-item {
       @apply flex flex-row items-center gap-2 py-4;
-      @apply text-black text-xl border-t border-gray-900 underline decoration-1;
+      @apply border-t border-gray-900 text-xl text-black underline decoration-1;
     }
   }
 
