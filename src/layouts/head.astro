@@ -1,0 +1,40 @@
+---
+import { SEO } from "astro-seo";
+export type Props = {
+  title: string;
+  description: string;
+  ogUrl: string;
+};
+
+const { title, description, ogUrl } = Astro.props;
+---
+
+<head>
+  <SEO
+    charset="UTF-8"
+    twitter={{
+      creator: "@namachan10777",
+      card: "summary_large_image",
+      site: "@namachan10777",
+      title,
+      image: new URL(ogUrl, Astro.url.origin).toString(),
+      imageAlt: title,
+      description,
+    }}
+    openGraph={{
+      basic: {
+        title: title,
+        type: "article",
+        image: new URL(ogUrl, Astro.url.origin).toString(),
+      },
+      image: {
+        alt: title,
+      },
+    }}
+  />
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="generator" content={Astro.generator} />
+  <meta name="description" content={Astro.props.description} />
+  <title>{title}</title>
+</head>

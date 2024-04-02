@@ -1,11 +1,11 @@
 ---
 import EventBus from "@components/event-bus/event-bus.astro";
-import { SEO } from "astro-seo";
 import Footer from "./components/footer.astro";
 import Header from "./components/header.astro";
 import SearchDialog from "./components/search-dialog.tsx";
 import Sidebar from "./components/side-pane.astro";
 import SiteNav from "./components/site-nav.astro";
+import Head from "./head.astro";
 import "./markdown.css";
 
 interface Props {
@@ -27,35 +27,7 @@ const ogUrl = (() => {
 ---
 
 <html lang="ja" data-theme="default" class="min-h-full">
-  <head>
-    <SEO
-      charset="UTF-8"
-      twitter={{
-        creator: "@namachan10777",
-        card: "summary_large_image",
-        site: "@namachan10777",
-        title,
-        image: new URL(ogUrl, Astro.url.origin).toString(),
-        imageAlt: title,
-        description,
-      }}
-      openGraph={{
-        basic: {
-          title: title,
-          type: "article",
-          image: new URL(ogUrl, Astro.url.origin).toString(),
-        },
-        image: {
-          alt: title,
-        },
-      }}
-    />
-    <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={Astro.props.description} />
-    <title>{title}</title>
-  </head>
+  <Head title={title} description={description} ogUrl={ogUrl} />
   <body class="relative h-full min-h-full" data-pagefind-body>
     <EventBus id="main-bus" />
     <div class="sticky top-0 z-10 w-full md:hidden">
