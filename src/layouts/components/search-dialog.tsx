@@ -46,7 +46,7 @@ const SearchDialog = () => {
             bus.emit({ type: "background-release" });
           }}
         ></div>
-        <div class="z-50 mt-24 flex w-full items-center justify-center p-4">
+        <div class="z-50 md:mt-24 flex w-full items-center justify-center p-4">
           <div class="z-50 grid w-full grid-cols-[2rem_1fr_2rem] gap-4 rounded border bg-white p-6 md:w-4/6">
             <div class="contents">
               <IoSearchOutline class="w-10 text-2xl" />

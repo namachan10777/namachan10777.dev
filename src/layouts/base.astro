@@ -3,10 +3,10 @@ import EventBus from "@components/event-bus/event-bus.astro";
 import Footer from "./components/footer.astro";
 import Header from "./components/header.astro";
 import SearchDialog from "./components/search-dialog.tsx";
-import Sidebar from "./components/side-pane.astro";
 import SiteNav from "./components/site-nav.astro";
 import Head from "./head.astro";
 import "./markdown.css";
+import SidePane from "./components/side-pane.astro";
 
 interface Props {
   title: string;
@@ -30,25 +30,28 @@ const ogUrl = (() => {
   <Head title={title} description={description} ogUrl={ogUrl} />
   <body class="relative h-full min-h-full" data-pagefind-body>
     <EventBus id="main-bus" />
-    <div class="sticky top-0 z-10 w-full md:hidden">
-      <Header title="namachan10777.dev" />
-      <SiteNav />
-    </div>
     <SearchDialog client:load />
-    <div
-      class="min-h-[calc(100%_-_3rem)] md:grid md:min-h-full md:grid-cols-[20rem_1fr]"
-    >
-      <div class="sticky left-0 top-0 hidden h-full md:block md:h-dvh">
-        <Sidebar />
+    <div class="root-container">
+      <div class="sticky top-0 h-dvh hidden md:block">
+        <SidePane />
       </div>
-      <div
-        id="scrollable-content"
-        class="z-0 flex h-full min-h-full w-full flex-col justify-between"
-      >
-        <main class="h-full">
+      <div>
+        <div class="sticky top-0 z-10 md:hidden">
+          <Header title={title} />
+        </div>
+        <div
+          id="site-nav"
+          class="md:hidden translate-x-full fixed top-12 right-0 z-10 transition-transform"
+        >
+          <SiteNav />
+        </div>
+        <main
+          id="scrollable-content"
+          class="flex flex-col justify-between h-full min-h-[calc(100dvh_-_3rem)] md:w-[calc(100dvw_-_20rem)]"
+        >
           <slot />
+          <Footer />
         </main>
-        <Footer />
       </div>
     </div>
     <script>
@@ -60,14 +63,18 @@ const ogUrl = (() => {
 
       if (siteNav && scrollableContent) {
         bus.subscribe("nav-open", () => {
-          siteNav.dataset.show = true.toString();
+          siteNav.classList.add("site-nav-open");
           bus.emit({ type: "background-fix" });
+        });
+
+        bus.subscribe("nav-close", () => {
+          siteNav.classList.remove("site-nav-open");
+          bus.emit({ type: "background-release" });
         });
 
         bus.subscribe("background-fix", () => {
           const scrollHeight = window.scrollY;
           scrollableContent.style.position = "fixed";
-          scrollableContent.classList.add("md:left-[10rem]");
           scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
           scrollableContent.dataset.scroll = scrollHeight.toString();
         });
@@ -79,11 +86,6 @@ const ogUrl = (() => {
             const scrollHeight = parseInt(scrollableContent.dataset.scroll, 10);
             window.scroll({ behavior: "instant", top: scrollHeight });
           }
-        });
-
-        bus.subscribe("nav-close", () => {
-          siteNav.dataset.show = false.toString();
-          bus.emit({ type: "background-release" });
         });
       }
 
@@ -97,5 +99,18 @@ const ogUrl = (() => {
         });
       }
     </script>
+    <style>
+      @tailwind components;
+
+      @layer components {
+        .site-nav-open {
+          @apply translate-x-0;
+        }
+
+        .root-container {
+          @apply md:grid md:grid-cols-[20rem_1fr];
+        }
+      }
+    </style>
   </body>
 </html>

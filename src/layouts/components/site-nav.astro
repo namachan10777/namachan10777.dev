@@ -40,19 +40,14 @@ const menuItems = [
 
   @layer components {
     .nav {
-      @apply fixed right-0 top-12  z-50 h-[calc(100vh_-_3rem)] w-80 translate-x-full;
+      @apply h-[calc(100vh_-_3rem)] w-80;
       @apply p-4;
-      @apply max-w-full border-l border-gray-900 bg-white font-mono transition-transform;
+      @apply max-w-full border-l border-gray-900 bg-white font-mono;
     }
 
     .menu-item {
       @apply flex flex-row items-center gap-2 py-4;
       @apply border-t border-gray-900 text-xl text-black underline decoration-1;
     }
-  }
-
-  /* eslint astro/no-unused-css-selector: 0 */
-  #site-nav[data-show="true"] {
-    @apply translate-x-0;
   }
 </style>
