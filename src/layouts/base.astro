@@ -26,7 +26,7 @@ const ogUrl = (() => {
 })();
 ---
 
-<html lang="ja" data-theme="default" class="h-full">
+<html lang="ja" data-theme="default" class="min-h-full">
   <head>
     <SEO
       charset="UTF-8"
@@ -56,22 +56,24 @@ const ogUrl = (() => {
     <meta name="description" content={Astro.props.description} />
     <title>{title}</title>
   </head>
-  <body class="relative h-full" data-pagefind-body>
+  <body class="relative h-full min-h-full" data-pagefind-body>
     <EventBus id="main-bus" />
     <div class="sticky top-0 z-10 w-full md:hidden">
       <Header title="namachan10777.dev" />
       <SiteNav />
     </div>
     <SearchDialog client:load />
-    <div class="h-full md:grid md:grid-cols-[20rem_1fr]">
-      <div class="sticky left-0 top-0 hidden h-full max-h-dvh md:block">
+    <div
+      class="min-h-[calc(100%_-_3rem)] md:grid md:min-h-full md:grid-cols-[20rem_1fr]"
+    >
+      <div class="sticky left-0 top-0 hidden h-full md:block md:h-dvh">
         <Sidebar />
       </div>
       <div
         id="scrollable-content"
-        class="z-0 flex h-full min-h-[calc(100vh_-_3rem)] w-full flex-col justify-between"
+        class="z-0 flex h-full min-h-full w-full flex-col justify-between"
       >
-        <main>
+        <main class="h-full">
           <slot />
         </main>
         <Footer />
