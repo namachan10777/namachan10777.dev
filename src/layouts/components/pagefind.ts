@@ -1,3 +1,5 @@
+import { isServer } from "solid-js/web";
+
 export type FilterValue = number | string;
 
 export type AttributeCondition =
@@ -110,9 +112,11 @@ export class Pagefind {
     this.debounceDuration = debounceDuration || 300;
     this.lastCallTime = Date.now();
     this.timeoutHandler = null;
-    loadPagefind().then((api) => {
-      this.api = api;
-    });
+    if (!isServer) {
+      loadPagefind().then((api) => {
+        this.api = api;
+      });
+    }
   }
 
   debouncedSearch(
