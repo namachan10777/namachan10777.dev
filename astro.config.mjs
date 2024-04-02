@@ -4,11 +4,20 @@ import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 import remarkSectionize from "remark-sectionize";
+import solidJs from "@astrojs/solid-js";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.namachan10777.dev",
-  integrations: [icon(), sitemap(), tailwind(), mdx()],
+  integrations: [
+    icon(),
+    sitemap(),
+    tailwind(),
+    mdx(),
+    solidJs({
+      exclude: ["src/components/ogp/ogp.tsx"],
+    }),
+  ],
   markdown: {
     remarkPlugins: [remarkSectionize],
   },
