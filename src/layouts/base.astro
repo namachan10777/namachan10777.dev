@@ -80,7 +80,7 @@ const ogUrl = (() => {
         </div>
       </div>
       <script>
-        import { EventBus } from "@components/event-bus/event-bus";
+        import { EventBus } from "@components/event-bus/event-bus-client";
 
         const siteNav = document.getElementById("site-nav");
         const scrollableContent = document.getElementById("scrollable-content");
@@ -89,17 +89,17 @@ const ogUrl = (() => {
         if (siteNav && scrollableContent) {
           bus.subscribe("nav-open", () => {
             siteNav.dataset.show = true.toString();
-            bus.emit({ type: "fix-background" });
+            bus.emit({ type: "background-fix" });
           });
 
-          bus.subscribe("fix-background", () => {
+          bus.subscribe("background-fix", () => {
             const scrollHeight = window.scrollY;
             scrollableContent.style.position = "fixed";
             scrollableContent.style.transform = `translateY(-${scrollHeight}px)`;
             scrollableContent.dataset.scroll = scrollHeight.toString();
           });
 
-          bus.subscribe("free-background", () => {
+          bus.subscribe("background-release", () => {
             scrollableContent.style.position = "unset";
             scrollableContent.style.transform = "unset";
             if (scrollableContent.dataset.scroll) {
@@ -113,7 +113,7 @@ const ogUrl = (() => {
 
           bus.subscribe("nav-close", () => {
             siteNav.dataset.show = false.toString();
-            bus.emit({ type: "free-background" });
+            bus.emit({ type: "background-release" });
           });
         }
 

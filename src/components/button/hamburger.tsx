@@ -1,21 +1,16 @@
-import { EventBus } from "@components/event-bus/event-bus";
 import { createSignal } from "solid-js";
 import "./hamburget.css";
+import { EventBus } from "@components/event-bus/event-bus-client";
 
 const HamburgerButton = () => {
-  const bus = new EventBus("main-bus");
   const [opened, setOpened] = createSignal(false);
-
+  const bus = new EventBus("main-bus");
   bus.subscribe("nav-close", () => {
-    setOpened(() => false);
-    bus.emit({ type: "background-release" });
+    setOpened(false);
   });
-
   bus.subscribe("nav-open", () => {
-    setOpened(() => true);
-    bus.emit({ type: "background-fix" });
+    setOpened(true);
   });
-
   bus.subscribe("nav-toggle", () => {
     if (opened()) {
       bus.emit({ type: "nav-close" });
@@ -23,21 +18,22 @@ const HamburgerButton = () => {
       bus.emit({ type: "nav-open" });
     }
   });
-
   return (
-    <button
-      className={`root ${opened() ? "open" : ""}`}
-      onClick={() => bus.emit({ type: "nav-toggle" })}
-      aria-label={
-        opened()
-          ? "グローバルナビゲーションを閉じる"
-          : "グローバルナビゲーションを開く"
-      }
-    >
-      <div className="bar top"></div>
-      <div className="bar center"></div>
-      <div className="bar bottom"></div>
-    </button>
+    <div className="flex h-full w-full items-center justify-center">
+      <button
+        className={`root ${opened() ? "open" : ""}`}
+        onClick={() => bus.emit({ type: "nav-toggle" })}
+        aria-label={
+          opened()
+            ? "グローバルナビゲーションを閉じる"
+            : "グローバルナビゲーションを開く"
+        }
+      >
+        <div className="bar top"></div>
+        <div className="bar center"></div>
+        <div className="bar bottom"></div>
+      </button>
+    </div>
   );
 };
 

@@ -13,7 +13,7 @@ interface Props {
       {Astro.props.title}
     </a>
   </nav>
-  <div class="flex h-full flex-row items-center gap-2">
+  <div class="flex h-full flex-row items-center gap-2 pr-2">
     <button aria-label="検索ウィンドウを開く" aria-haspopup="dialog">
       <Icon
         name="material-symbols:search"
@@ -21,7 +21,7 @@ interface Props {
         id="enable-search-on-mobile"
       />
     </button>
-    <Hamburger id="toggle-nav" />
+    <Hamburger id="toggle-nav" client:load />
   </div>
 </header>
 
@@ -38,7 +38,7 @@ interface Props {
 </style>
 
 <script>
-  import { EventBus } from "@components/event-bus/event-bus";
+  import { EventBus } from "@components/event-bus/event-bus-client";
 
   const searchButton = document.getElementById("enable-search-on-mobile");
   const bus = new EventBus("main-bus");

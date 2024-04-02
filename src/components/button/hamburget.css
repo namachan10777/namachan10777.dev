@@ -1,5 +1,5 @@
 .root {
-  @apply relative flex h-full w-8 flex-row items-center justify-center;
+  @apply relative flex h-8 w-8 flex-row items-center justify-center;
 }
 
 .bar {

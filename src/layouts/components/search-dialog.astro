@@ -34,7 +34,7 @@ import { Icon } from "astro-icon/components";
 </search-dialog>
 
 <script>
-  import { EventBus } from "@components/event-bus/event-bus";
+  import { EventBus } from "@components/event-bus/event-bus-client";
   import { type PagefindApi, type Data, loadPagefind } from "./pagefind";
 
   function createCondidateItem(data: Data): HTMLLIElement {
