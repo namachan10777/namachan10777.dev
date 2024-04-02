@@ -62,14 +62,19 @@ const SearchDialog = () => {
                   setWord(e.target.value);
                   pagefind.debouncedSearch(async (response) => {
                     const items = await Promise.all(
-                      response.results.map((result) => result.data()),
+                      response.results.map((result) => result.data())
                     );
                     setItems(items);
                   }, word());
                 }}
               />
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setItems([]);
+                  setWord("");
+                  bus.emit({ type: "background-release" });
+                }}
                 aria-label="検索ウィンドウを閉じる"
                 class="flex justify-center items-center h-full w-full"
               >
