@@ -26,7 +26,7 @@ const ogUrl = (() => {
 })();
 ---
 
-<html lang="ja" data-theme="default">
+<html lang="ja" data-theme="default" class="h-full">
   <head>
     <SEO
       charset="UTF-8"
@@ -63,8 +63,8 @@ const ogUrl = (() => {
       <SiteNav />
     </div>
     <SearchDialog client:load />
-    <div class="md:grid md:grid-cols-[20rem_1fr]">
-      <div class="sticky left-0 top-0 hidden max-h-dvh md:block">
+    <div class="h-full md:grid md:grid-cols-[20rem_1fr]">
+      <div class="sticky left-0 top-0 hidden h-full max-h-dvh md:block">
         <Sidebar />
       </div>
       <div

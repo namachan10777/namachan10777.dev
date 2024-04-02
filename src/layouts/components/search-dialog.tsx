@@ -46,42 +46,44 @@ const SearchDialog = () => {
             bus.emit({ type: "background-release" });
           }}
         ></div>
-        <div class="z-50 mt-24 grid w-4/6 grid-cols-[2rem_1fr_2rem] gap-4 rounded bg-white p-6">
-          <div class="contents">
-            <IoSearchOutline class="w-10 text-2xl" />
-            <input
-              type="text"
-              class="w-full focus:outline-none"
-              aria-label="検索ワードを入力"
-              value={word()}
-              ref={setInputRef}
-              onInput={(e) => {
-                setWord(e.target.value);
-                pagefind.debouncedSearch(async (response) => {
-                  const items = await Promise.all(
-                    response.results.map((result) => result.data()),
-                  );
-                  setItems(items);
-                }, word());
-              }}
-            />
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="検索ウィンドウを閉じる"
-            >
-              <IoCloseCircleOutline class="text-2xl" />
-            </button>
+        <div class="z-50 mt-24 flex w-full items-center justify-center p-4">
+          <div class="z-50 grid w-full grid-cols-[2rem_1fr_2rem] gap-4 rounded border bg-white p-6 md:w-4/6">
+            <div class="contents">
+              <IoSearchOutline class="w-10 text-2xl" />
+              <input
+                type="text"
+                class="w-full focus:outline-none"
+                aria-label="検索ワードを入力"
+                value={word()}
+                ref={setInputRef}
+                onInput={(e) => {
+                  setWord(e.target.value);
+                  pagefind.debouncedSearch(async (response) => {
+                    const items = await Promise.all(
+                      response.results.map((result) => result.data()),
+                    );
+                    setItems(items);
+                  }, word());
+                }}
+              />
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="検索ウィンドウを閉じる"
+              >
+                <IoCloseCircleOutline class="text-2xl" />
+              </button>
+            </div>
+            <ol class="col-start-2 flex max-h-96 flex-col gap-4 overflow-x-clip overflow-y-scroll">
+              {items().map((item) => (
+                <li>
+                  <a href={item.url}>
+                    <h3 class="text-lg font-bold">{item.meta.title}</h3>
+                    <p innerHTML={item.excerpt} class="text-sm text-gray-600" />
+                  </a>
+                </li>
+              ))}
+            </ol>
           </div>
-          <ol class="col-start-2 flex max-h-96 flex-col gap-4 overflow-scroll">
-            {items().map((item) => (
-              <li>
-                <a href={item.url}>
-                  <h3 class="text-lg font-bold">{item.meta.title}</h3>
-                  <p innerHTML={item.excerpt} class="text-sm text-gray-600" />
-                </a>
-              </li>
-            ))}
-          </ol>
         </div>
       </div>
     </dialog>
