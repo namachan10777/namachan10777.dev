@@ -62,7 +62,7 @@ const SearchDialog = () => {
                   setWord(e.target.value);
                   pagefind.debouncedSearch(async (response) => {
                     const items = await Promise.all(
-                      response.results.map((result) => result.data())
+                      response.results.map((result) => result.data()),
                     );
                     setItems(items);
                   }, word());
