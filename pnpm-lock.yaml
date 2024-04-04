@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.5.10
     version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.3)
   '@astrojs/mdx':
-    specifier: ^2.2.3
-    version: 2.2.3(astro@4.5.15)
+    specifier: ^2.2.4
+    version: 2.2.4(astro@4.5.15)
   '@astrojs/rss':
     specifier: ^4.0.5
     version: 4.0.5
@@ -279,8 +279,8 @@ packages:
       - supports-color
     dev: false
 
-  /@astrojs/mdx@2.2.3(astro@4.5.15):
-    resolution: {integrity: sha512-7ptlBNLyznPK8rbvgq6/DogxaldPiUaIXY+pkQtzJwwLpZo/mAb1CWXiqnh01VADpB5SFnDqYwDrzs+WMvmkbA==}
+  /@astrojs/mdx@2.2.4(astro@4.5.15):
+    resolution: {integrity: sha512-eXCmftMsWj4vTECrc4vgdaXrA8xIvrmJ9rM37BZNK5anQ2PunUm9N8wbnK2VVTE0CAmW5U8v9y3IGps2RYGUvQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       astro: ^4.0.0
