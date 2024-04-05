@@ -8,7 +8,6 @@ import { qwikCity } from "@builder.io/qwik-city/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import contentCollections from "@content-collections/vite";
 import pkg from "./package.json";
-import { vanillaExtractPlugin } from "styled-vanilla-extract/vite";
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
@@ -25,7 +24,6 @@ export default defineConfig(({ command, mode }): UserConfig => {
       qwikVite(),
       tsconfigPaths(),
       contentCollections(),
-      vanillaExtractPlugin(),
     ],
     // This tells Vite which dependencies to pre-build in dev mode.
     optimizeDeps: {

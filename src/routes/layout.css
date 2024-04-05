@@ -1,0 +1,40 @@
+.root {
+  @apply relative;
+  @apply min-h-[100dvh];
+}
+
+.mobile-sidepane-wrapper {
+  @apply block md:hidden;
+  @apply fixed top-[3rem] right-0;
+  @apply w-[18rem] max-w-[100dvw] h-[calc(100dvh-3rem)];
+  @apply translate-x-full;
+  @apply transition-transform;
+}
+
+.mobile-sidepane-open {
+  @apply translate-x-0;
+}
+
+.desktop-sidepane-wrapper {
+  @apply hidden md:block;
+  @apply h-[100dvh];
+}
+
+.header-wrapper {
+  @apply sticky block md:hidden;
+  @apply h-[3rem];
+}
+
+.two-column-wrapper {
+  @apply min-h-[calc(100dvh_-_3rem)] md:min-h-[100dvh];
+  @apply md:grid;
+  @apply md:grid-cols-[18rem_1fr];
+}
+
+.main-content {
+  @apply min-h-[calc(100dvh_-_5rem)] md:min-h-[calc(100dvh_-_2rem)];
+}
+
+.footer-wrapper {
+  @apply h-[2rem];
+}

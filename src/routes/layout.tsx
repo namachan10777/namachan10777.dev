@@ -1,7 +1,11 @@
-import { component$, Slot, useStyles$ } from "@builder.io/qwik";
+import { component$, Slot, useSignal, useStyles$, useStylesScoped$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import type { RequestHandler } from "@builder.io/qwik-city";
-import styles from "./styles.css?inline";
+import Header from "~/components/layout-parts/header";
+import MobileSidePane from "~/components/layout-parts/mobile-side-pane";
+import style from "./layout.css?inline";
+import DesktopSidePane from "~/components/layout-parts/desktop-side-pane";
+import Footer from "~/components/layout-parts/footer";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -21,12 +25,29 @@ export const useServerTimeLoader = routeLoader$(() => {
 });
 
 export default component$(() => {
-  useStyles$(styles);
+  const sidePaneOpen = useSignal(false);
+  useStylesScoped$(style);
   return (
-    <>
-      <main>
-        <Slot />
-      </main>
-    </>
+    <div class="root">
+      <div class="header-wrapper">
+        <Header sidePaneOpen={sidePaneOpen} />
+      </div>
+      <div class={["mobile-sidepane-wrapper"].concat(sidePaneOpen.value ? ["mobile-sidepane-open"] : [])}>
+        <MobileSidePane />
+      </div>
+      <div class="two-column-wrapper">
+        <div class="desktop-sidepane-wrapper">
+          <DesktopSidePane />
+        </div>
+        <div>
+          <main class="main-content">
+            <Slot />
+          </main>
+          <div class="footer-wrapper">
+            <Footer />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 });
