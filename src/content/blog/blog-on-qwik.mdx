@@ -1,0 +1,239 @@
+---
+title: QwikCityでブログを作り直した
+category:
+  - "tech"
+description: QwikCityによるJamStack構成のブログの構築
+date: 2024-04-06
+publish: true
+---
+
+ブログの書き直し自体がもはや一つの独立した趣味となりつつある。
+今までの軌跡は以下。publish: true
+
+1. https://www.namachan10777.dev/blog/blog-on-nextjs
+2. https://www.namachan10777.dev/blog/blog-on-rust
+3. https://www.namachan10777.dev/blog/blog-on-astrojs
+
+Astroは十分に快適だった。
+最初から静的ビルドを前提にしているのでJSのオブジェクトを自由自在に取り回せる。
+ブラウザ環境とNodeJS環境のAPIの差異を気にする必要はない。
+コンポーネントのライフサイクルも存在しない。
+`key=`も要らない。
+そもそもAstroはUIフレームワークではなく静的サイトジェネレータだからだ。
+フロントエンドで動くJSは`<script>`タグで書けば良い。
+確実にWebブラウザ内でしか動かないから実装も簡単だ。
+大半の個人のWebサイトはほとんど静的に構築可能だ。
+アメリカ人も近所のスーパーに行くだけなら日本車を使う。
+
+問題があるとすれば、現代の多くのWebページは静的なものであっても
+Vanillaで構築するには厄介なUIを抱えがちなことだ。
+例えば[Pagefind](https://pagefind.app)を使った検索UI。
+まぁこれだけならAstroの上で[SolidJS](https://www.solidjs.com)なり[Svelte](https://svelte.dev)を`client:load`すれば済む。
+本質的に面倒なのはコンポーネント間のイベントのつなぎ込みにある。
+ReactのPropsバケツリレーなんて可愛いもので、
+Astroの場合親コンポーネントがAstroだった場合はそもそもバケツリレーが出来ない。
+結果、`document.getElementById`でイベントを相互に送信し合う迷路のような依存関係が生まれるか、
+グローバルなイベントバスというあからさまにスケール困難かつエッジケースの罠が多そうなシステムの再発明になる。
+
+そもそもとして一つでも別のUIフレームワークを用いた時点でバンドルツリーにはそれのランタイムが紛れ込む。
+であれば最初から全部単一のUIフレームワークを用い静的にビルドすれば良いのでは？
+NextやSvelteであればそれでもHydration処理のコストがかかるが、
+[QwikCity](https://qwik.dev/docs/qwikcity)ならHydrationコストの増加を招かずに
+私達の大好きなPropsバケツリレーでイベントをつなぎ込める。最高！
+
+## Markdownの扱いと画像最適化
+
+QwikはイマドキのWebフレームワークとしてSSG機能を備えるし、
+もちろんブログだって作れる。
+ただしAstroはサーバサイドでの実行を主眼に置く「静的サイトジェネレータ」であるのに対して、
+QwikはブラウザとDockerコンテナの両方でJSONに色を付けることを主眼においた「Webアプリケーションフレームワーク」である。
+そのためAstroにあったMarkdownをいい感じにパースしてその上でコンポーネントを自作のもので置き換えられるような機能はない。
+viteで動いているので`import.meta.glob`は使えるが、これだけでは少し不便だ。
+
+[content-collections](https://github.com/sdorra/content-collections)を使えばコンテンツ管理の問題は一部解決する。
+これはAstroのContents Collectionの機能を外部で実現するもので、
+UIフレームワークと密結合しないためにMarkdownのレンダリング周りは弱いがfrontmatterに対するvalidationを書いて型を付ける基本的な機能はある。
+今はまだ機能が少し足りないが、まだ始まったばかりなので今後の改善に期待できるし現状でも十分便利だ。
+
+MarkdownのパースをUIフレームワーク（というよりVite）と連携できないことの問題が最もよく現れるのは
+画像最適化だ。
+単純に`unified`のエコシステムでMarkdownをhtmlに変換するだけでは
+現代の画像表示のベストプラクティス ―― `<img>`に`width`と`height`を付与し、`loading="lazy"`を指定して最適な幅の画像を自動で読み込ませる ――は実現できない。
+なので`contents-collection`のコンテンツをビルド時に変換する機能を使い、`remark`でMarkdownをパースして画像をビルド時に最適化してしまい、
+DOM構築用の情報を`mdast`に埋め込む。
+数式やシンタックスハイライトはまだ作っていないがこれと同じ手法でどうにでもなる。
+コンポーネントへの変換までやってしまうとQwikでの読み込みが出来なくなるので
+ASTをそのまま返して描画は完全にQwikで行う。
+
+無理やり`as unknown as T`を使って誤魔化しているが、
+これは専用の画像表示コンポーネントとこのスクリプトに閉じるのでまぁ許容範囲だと思う。
+より良い手法はまだ思いついていない。`mdast`を定義し直すのはかなり面倒くさい。
+
+
+```typescript
+import { defineConfig, defineCollection } from "@content-collections/core";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkMdx from "remark-mdx";
+import { unified } from "unified";
+import { Image, Root, RootContent } from "mdast";
+import * as fs from "fs/promises";
+import * as path from "path";
+import sharp from "sharp";
+import crypto from "crypto";
+
+export type TransformedImage = {
+  path: string;
+  dim: {
+    w: number;
+    h: number;
+  },
+};
+
+export type WithTransformedImage = {
+  transformed?: TransformedImage[];
+};
+
+export type ImageTransformationConfig = {
+  readonly outputRoot: string;
+  readonly outputSubDir: string;
+  readonly sourceBaseDir: string;
+  readonly scaling: number;
+};
+
+type TransformContext = {
+  readonly filePath: string;
+};
+
+function isAbslutePath(imgUrl: string): boolean {
+  return /^https?:\/\//.test(imgUrl) || imgUrl.startsWith('/');
+}
+
+function srcImgPath(config: ImageTransformationConfig, ctx: TransformContext, imgUrl: string): string {
+  if (isAbslutePath(imgUrl)) {
+    return imgUrl;
+  }
+  const contentDir = /^(.+)\/?$/.exec(config.sourceBaseDir)?.[0];
+  if (contentDir == undefined) {
+    return imgUrl;
+  }
+
+  const srcPath = path.parse(ctx.filePath);
+
+  if (srcPath.dir === '') {
+    return `${contentDir}/${imgUrl}`;
+  }
+  else {
+    return `${contentDir}/${srcPath.dir}/${imgUrl}`;
+  }
+}
+
+// Assume the output format is WebP
+function generateImgDistFileName(config: ImageTransformationConfig, imgUrl: string, width: number, height: number) {
+  if (isAbslutePath(imgUrl)) {
+    return imgUrl;
+  }
+  const baseNameHash = crypto.createHash('sha256').update(imgUrl).digest('base64').slice(0, 8);
+  const baseName = path.parse(imgUrl).base;
+  return `${baseName}-${baseNameHash}-${Math.round(width)}x${Math.round(height)}.webp`;
+}
+
+async function traverseMdAst<T extends RootContent>(config: ImageTransformationConfig, ctx: TransformContext, ast: T) {
+  switch (ast.type) {
+    case "break":
+    case "code":
+    case "definition":
+    case "html":
+    case "footnoteReference":
+    case "imageReference":
+    case "inlineCode":
+    case "text":
+    case "thematicBreak":
+    case "yaml":
+    case "mdxTextExpression":
+    case "mdxFlowExpression":
+    case "mdxjsEsm":
+      return;
+    case "image":
+      if (ast.url.startsWith("https://") || ast.url.startsWith("http://") || ast.url.startsWith("/")) {
+        return;
+      }
+
+      const buffer = await fs.readFile(srcImgPath(config, ctx, ast.url));
+      const image = sharp(buffer);
+      let { width, height } = await image.metadata();
+      if (!(width && height)) return;
+
+      const images: TransformedImage[] = [];
+
+      while (width > 300) {
+        const resized = await image.resize(Math.round(width), Math.round(height)).toBuffer();
+        const fileName = generateImgDistFileName(config, ast.url, width, height);
+        console.log(`INFO: transformed markdown image: ${fileName}`);
+        const distPath = `${config.outputSubDir}/${fileName}`;
+        await fs.writeFile(`${config.outputRoot}/${distPath}`, resized);
+        images.push({
+          path: distPath,
+          dim: {
+            w: width,
+            h: height,
+          }
+        });
+        width *= config.scaling;
+        height *= config.scaling;
+      }
+      if (ast.data) {
+        (ast.data as unknown as WithTransformedImage).transformed = images;
+      }
+      else {
+        (ast as unknown as { data: WithTransformedImage }).data = {
+          transformed: images,
+        };
+      }
+      return;
+    default:
+      await Promise.all(ast.children.map((child) => traverseMdAst(config, ctx, child)))
+  }
+}
+
+async function generateImages(config: ImageTransformationConfig, ctx: TransformContext, ast: Root) {
+  await fs.mkdir(`${config.outputRoot}/${config.outputSubDir}`, { recursive: true });
+  await Promise.all(ast.children.map((child) => traverseMdAst(config, ctx, child)))
+}
+
+
+const blog = defineCollection({
+  name: "blog",
+  directory: "src/content/blog",
+  include: "**/*.mdx",
+  schema: (z) => ({
+    title: z.string(),
+    date: z.string(),
+    category: z.array(z.string()),
+    publish: z.boolean(),
+    description: z.string(),
+  }),
+  transform: async (document) => {
+    const mdast = unified().use(remarkParse).use(remarkGfm).use(remarkMdx).parse(document.content);
+    const config = {
+      outputRoot: "public",
+      outputSubDir: "img",
+      scaling: 0.7,
+      sourceBaseDir: "src/content/blog",
+    };
+    const ctx = {
+      filePath: document._meta.filePath,
+    };
+    await generateImages(config, ctx, mdast);
+    return {
+      ...document,
+      mdast: mdast as any,
+    };
+  },
+});
+
+export default defineConfig({
+  collections: [blog],
+});
+
+```
