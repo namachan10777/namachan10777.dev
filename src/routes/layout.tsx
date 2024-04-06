@@ -1,4 +1,10 @@
-import { component$, Slot, useSignal, useStyles$, useStylesScoped$ } from "@builder.io/qwik";
+import {
+  component$,
+  Slot,
+  useSignal,
+  useStyles$,
+  useStylesScoped$,
+} from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import type { RequestHandler } from "@builder.io/qwik-city";
 import Header from "~/components/layout-parts/header";
@@ -6,6 +12,7 @@ import MobileSidePane from "~/components/layout-parts/mobile-side-pane";
 import style from "./layout.css?inline";
 import DesktopSidePane from "~/components/layout-parts/desktop-side-pane";
 import Footer from "~/components/layout-parts/footer";
+import SearchDialog from "~/components/layout-parts/search-dialog";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -26,18 +33,24 @@ export const useServerTimeLoader = routeLoader$(() => {
 
 export default component$(() => {
   const sidePaneOpen = useSignal(false);
+  const showSearchDialog = useSignal(false);
   useStylesScoped$(style);
   return (
     <div class="root">
       <div class="header-wrapper">
         <Header sidePaneOpen={sidePaneOpen} />
       </div>
-      <div class={["mobile-sidepane-wrapper"].concat(sidePaneOpen.value ? ["mobile-sidepane-open"] : [])}>
-        <MobileSidePane />
+      <div
+        class={["mobile-sidepane-wrapper"].concat(
+          sidePaneOpen.value ? ["mobile-sidepane-open"] : [],
+        )}
+      >
+        <MobileSidePane showSearchDialog={showSearchDialog} />
       </div>
+      <SearchDialog show={showSearchDialog} />
       <div class="two-column-wrapper">
         <div class="desktop-sidepane-wrapper">
-          <DesktopSidePane />
+          <DesktopSidePane showSearchDialog={showSearchDialog} />
         </div>
         <div>
           <main class="main-content">
