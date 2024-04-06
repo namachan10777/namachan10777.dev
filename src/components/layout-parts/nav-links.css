@@ -1,0 +1,7 @@
+@tailwind components;
+
+@layer components {
+  .nav-item {
+    @apply col-span-2 grid grid-cols-[subgrid] items-center gap-1 border-t border-black py-4;
+  }
+}
