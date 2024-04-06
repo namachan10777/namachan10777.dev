@@ -8,7 +8,7 @@ export type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-  { title: "Higher kind life error", href: "/blog", icon: InNotes },
+  { title: "Blog", href: "/blog", icon: InNotes },
   { title: "GitHub", href: "https://github.com/namachan10777", icon: InGithub },
   {
     title: "Twitter",

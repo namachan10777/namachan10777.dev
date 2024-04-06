@@ -1,4 +1,4 @@
-import { Signal, component$ } from "@builder.io/qwik";
+import { type Signal, component$ } from "@builder.io/qwik";
 import OpenSearchDialog from "../button/open-search-dialog";
 
 export type Props = {

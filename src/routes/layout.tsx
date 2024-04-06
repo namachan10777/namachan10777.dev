@@ -2,7 +2,6 @@ import {
   component$,
   Slot,
   useSignal,
-  useStyles$,
   useStylesScoped$,
 } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
@@ -45,7 +44,7 @@ export default component$(() => {
           sidePaneOpen.value ? ["mobile-sidepane-open"] : [],
         )}
       >
-        <MobileSidePane showSearchDialog={showSearchDialog} />
+        <MobileSidePane />
       </div>
       <SearchDialog show={showSearchDialog} />
       <div class="two-column-wrapper">

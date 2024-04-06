@@ -23,11 +23,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "パターンに基づく",
+  title: "恐竜はシンプルに死んで絶滅した",
   meta: [
     {
       name: "description",
-      content: "Qwik site description",
+      content: "namachan10777のプロフィールとブログ",
     },
   ],
 };
