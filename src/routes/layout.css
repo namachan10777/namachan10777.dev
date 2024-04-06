@@ -9,7 +9,7 @@
   .mobile-sidepane-wrapper {
     @apply block md:hidden;
     @apply fixed right-0 top-[3rem];
-    @apply h-[calc(100dvh-3rem)] w-[18rem] max-w-[100dvw];
+    @apply h-[calc(100dvh-3rem)] w-[24rem] max-w-[100dvw];
     @apply translate-x-full;
     @apply transition-transform;
   }
