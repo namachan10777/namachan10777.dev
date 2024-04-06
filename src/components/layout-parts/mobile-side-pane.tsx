@@ -1,15 +1,19 @@
-import { Signal, component$ } from "@builder.io/qwik";
-import OpenSearchDialog from "../button/open-search-dialog";
+import { component$ } from "@builder.io/qwik";
+import { navItems } from "./nav-menu";
 
-export type Props = {
-  showSearchDialog: Signal<boolean>;
-};
-
-export default component$((props: Props) => {
+export default component$(() => {
   return (
     <nav class="flex h-full w-full flex-col border-l border-black">
-      <span>Desktop Nav</span>
-      <OpenSearchDialog show={props.showSearchDialog} />
+      <ul>
+        {navItems.map((item) => (
+          <li key={item.href}>
+            <a href={item.href}>
+              <item.icon />
+              <span>{item.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 });

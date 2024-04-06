@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@qwik-ui/headless": "^0.3.5",
+    "@qwikest/icons": "^0.0.13",
     "@types/mdast": "^4.0.3",
     "remark": "^15.0.1",
     "remark-sectionize": "^2.0.0"

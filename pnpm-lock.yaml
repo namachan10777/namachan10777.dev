@@ -8,6 +8,9 @@ dependencies:
   '@qwik-ui/headless':
     specifier: ^0.3.5
     version: 0.3.5(@builder.io/qwik@1.5.1)
+  '@qwikest/icons':
+    specifier: ^0.0.13
+    version: 0.0.13(@builder.io/qwik@1.5.1)
   '@types/mdast':
     specifier: ^4.0.3
     version: 4.0.3
@@ -1061,6 +1064,15 @@ packages:
     engines: {node: '>=16.0.0'}
     peerDependencies:
       '@builder.io/qwik': ^1.4.0
+    dependencies:
+      '@builder.io/qwik': 1.5.1(@types/node@20.12.5)(undici@6.11.1)
+    dev: false
+
+  /@qwikest/icons@0.0.13(@builder.io/qwik@1.5.1):
+    resolution: {integrity: sha512-e0wY8vmx0nDSUiuCATlk+ojTvdBV4txIGHHWjZW5SRkv4XB8H9+3WSDcLPz0ItUdRyzcrohE9k2jtQI/98aRPA==}
+    engines: {node: '>=15.0.0'}
+    peerDependencies:
+      '@builder.io/qwik': '>=1.0.0'
     dependencies:
       '@builder.io/qwik': 1.5.1(@types/node@20.12.5)(undici@6.11.1)
     dev: false

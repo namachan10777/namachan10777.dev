@@ -1,0 +1,28 @@
+.root {
+  @apply relative h-8 w-8;
+}
+
+.bar {
+  @apply absolute left-1 top-[calc(50%-0.5px)] h-px w-6 bg-black;
+  @apply transition-[width,transform];
+}
+
+.top {
+  @apply -translate-y-2;
+}
+
+.open > .top {
+  @apply translate-y-0 rotate-45;
+}
+
+.open > .mid {
+  @apply w-0;
+}
+
+.btm {
+  @apply translate-y-2;
+}
+
+.open > .btm {
+  @apply translate-y-0 -rotate-45;
+}
