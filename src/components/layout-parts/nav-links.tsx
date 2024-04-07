@@ -1,5 +1,4 @@
-import { component$ } from "@builder.io/qwik";
-import { NavItem, SubNavItem, navItems } from "./nav-menu";
+import type { NavItem, SubNavItem } from "./nav-menu";
 
 export type Props = {
   items: NavItem[];

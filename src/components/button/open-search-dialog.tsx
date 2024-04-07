@@ -1,4 +1,4 @@
-import { Signal, component$ } from "@builder.io/qwik";
+import { type Signal, component$ } from "@builder.io/qwik";
 import { InSearch } from "@qwikest/icons/iconoir";
 
 export type Props = {

@@ -23,9 +23,9 @@ const ProfileCard = () => (
 );
 
 const LatestBlogs = (props: { blogs: typeof allBlogs; limit: number }) => {
-  const latestBlogs = allBlogs
+  const latestBlogs = props.blogs
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
-    .slice(0, Math.min(5, allBlogs.length));
+    .slice(0, Math.min(props.limit, allBlogs.length));
   return (
     <nav>
       <ul class="flex flex-col gap-4">
@@ -46,7 +46,7 @@ const LatestBlogs = (props: { blogs: typeof allBlogs; limit: number }) => {
 };
 
 const Papers = (props: { papers: typeof allPapers }) => {
-  const papers = allPapers.sort((a, b) => b.year - a.year);
+  const papers = props.papers.sort((a, b) => b.year - a.year);
   return (
     <nav>
       <ul class="flex flex-col gap-4">

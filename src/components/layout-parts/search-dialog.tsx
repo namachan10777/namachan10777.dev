@@ -1,4 +1,4 @@
-import { Signal, component$, useStylesScoped$ } from "@builder.io/qwik";
+import { type Signal, component$, useStylesScoped$ } from "@builder.io/qwik";
 import { Modal, ModalContent } from "@qwik-ui/headless";
 import styles from "./search-dialog.css?inline";
 

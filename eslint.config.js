@@ -1,5 +1,4 @@
 import tseslint from "typescript-eslint";
-import typescriptParser from "@typescript-eslint/parser";
 import prettierConfig from "eslint-config-prettier";
 import javascript from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";

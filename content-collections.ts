@@ -3,7 +3,7 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkMdx from "remark-mdx";
 import { unified } from "unified";
-import { Image, Root, RootContent } from "mdast";
+import type { Root, RootContent } from "mdast";
 import * as fs from "fs/promises";
 import * as path from "path";
 import sharp from "sharp";
