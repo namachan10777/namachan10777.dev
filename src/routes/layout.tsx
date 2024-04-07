@@ -53,7 +53,9 @@ export default component$(() => {
         </div>
         <div>
           <main class="main-content">
-            <Slot />
+            <div class="inner-container">
+              <Slot />
+            </div>
           </main>
           <div class="footer-wrapper">
             <Footer />

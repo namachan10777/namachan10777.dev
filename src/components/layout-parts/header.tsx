@@ -1,5 +1,6 @@
 import { type Signal, component$ } from "@builder.io/qwik";
 import Hamburger from "../button/hamburger";
+import Icon from "~/assets/icon.webp?jsx";
 
 export type Props = {
   sidePaneOpen: Signal<boolean>;
@@ -8,8 +9,8 @@ export type Props = {
 export default component$((props: Props) => {
   return (
     <header class="flex h-full w-full flex-row items-center justify-between border-b border-black px-2">
-      <a class="font-bold" href="/">
-        恐竜はシンプルに死んで絶滅した
+      <a class="h-8 w-8" href="/">
+        <Icon class="rounded-full" />
       </a>
       <Hamburger open={props.sidePaneOpen} />
     </header>

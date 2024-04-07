@@ -10,7 +10,7 @@ const SubMenu = (props: { items: SubNavItem[] }) => {
   return (
     <ul class="contents">
       {props.items.map((item) => (
-        <li class="col-start-2 text-lg underline" key={item.href}>
+        <li class="col-start-2 text-lg text-gray-800 underline" key={item.href}>
           <a href={item.href}>{item.title}</a>
         </li>
       ))}
@@ -35,13 +35,13 @@ export default (props: Props) => {
     <section class="grid w-full grid-cols-[2rem_1fr] flex-col">
       <nav class="contents">
         <ul class="contents">
-          <li>
-            {props.title ? (
+          {props.title ? (
+            <li>
               <h2 class="col-start-2 py-4 text-xl font-bold text-gray-600">
                 {props.title}
               </h2>
-            ) : null}
-          </li>
+            </li>
+          ) : null}
           {props.items.map((item) => (
             <Item key={item.href} item={item} />
           ))}
