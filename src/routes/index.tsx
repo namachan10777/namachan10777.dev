@@ -1,6 +1,10 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { allBlogs, allPapers } from "content-collections";
 import Icon from "~/assets/icon.webp?jsx";
+import BlogHeadingShort from "~/components/composite/blog-heading-short";
+import PaperHeading from "~/components/composite/paper-heading";
+import Timeline from "~/components/composite/timeline";
 import Section from "~/components/container/section";
 import Heading from "~/components/display/heading";
 import InlineCode from "~/components/display/inline-code";
@@ -18,6 +22,80 @@ const ProfileCard = () => (
   </section>
 );
 
+const LatestBlogs = (props: { blogs: typeof allBlogs; limit: number }) => {
+  const latestBlogs = allBlogs
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .slice(0, Math.min(5, allBlogs.length));
+  return (
+    <nav>
+      <ul class="flex flex-col gap-4">
+        {latestBlogs.map((blog) => (
+          <li key={blog._meta.fileName}>
+            <a href={`/blog/${blog._meta.fileName}`}>
+              <BlogHeadingShort
+                title={blog.title}
+                description={blog.description}
+                date={blog.date}
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
+
+const Papers = (props: { papers: typeof allPapers }) => {
+  const papers = allPapers.sort((a, b) => b.year - a.year);
+  return (
+    <nav>
+      <ul class="flex flex-col gap-4">
+        {papers.map((paper) => (
+          <li key={paper._meta.fileName}>
+            <PaperHeading
+              title={paper.title}
+              href={paper.href}
+              year={paper.year}
+              booktitle={paper.booktitle}
+            />
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
+
+const events = [
+  { date: "2015-04", title: "香川高等専門学校 機械工学科入学" },
+  { date: "2016-04", title: "香川高等専門学校 電気情報工学科転科" },
+  {
+    date: "2020-03",
+    title: "日本音響学会 春季研究発表会 ポスター発表",
+  },
+  { date: "2020-03", title: "香川高等専門学校 電気情報工学科卒業" },
+  { date: "2020-04", title: "筑波大学 情報学群 情報科学類入学" },
+  {
+    date: "2021-09",
+    title: "クックパッド株式会社 就業型インターン(SRE) (現在退職)",
+  },
+  {
+    date: "2021-12",
+    title: "Taiwan Now! 蘭の舟ロボット設計・開発（電装系）",
+  },
+  {
+    date: "2022-09",
+    title: "京都府広域アートプロジェクト 照明システム開発",
+  },
+  {
+    date: "2023-12",
+    title: "横浜 ヨルノヨ Web音楽同期、照明制御",
+  },
+  {
+    date: "2023-08",
+    title: "株式会社ArkEdge Space インターン（在職）",
+  },
+];
+
 export default component$(() => {
   return (
     <>
@@ -34,18 +112,21 @@ export default component$(() => {
       </Section>
       <Section>
         <Heading level={2}>Region</Heading>
-        <address>
+        <address class="not-italic">
           <InlineCode>ap-northeast-1</InlineCode>
         </address>
       </Section>
       <Section>
         <Heading level={2}>Timeline</Heading>
+        <Timeline events={events} />
       </Section>
       <Section>
         <Heading level={2}>Blog</Heading>
+        <LatestBlogs blogs={allBlogs} limit={5} />
       </Section>
       <Section>
         <Heading level={2}>Papers</Heading>
+        <Papers papers={allPapers} />
       </Section>
     </>
   );

@@ -20,7 +20,7 @@
 
   .desktop-sidepane-wrapper {
     @apply hidden md:block;
-    @apply h-[100dvh];
+    @apply sticky top-0 h-[100dvh] max-h-[100dvh];
   }
 
   .header-wrapper {

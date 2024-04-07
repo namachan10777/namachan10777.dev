@@ -46,7 +46,7 @@
     "remark-mdx": "^3.0.1",
     "remark-parse": "^11.0.0",
     "sharp": "^0.33.3",
-    "tailwindcss": "3.3.3",
+    "tailwindcss": "3.4.3",
     "typescript": "5.3.3",
     "undici": "^6.11.1",
     "unified": "^11.0.4",

@@ -198,6 +198,18 @@ const blog = defineCollection({
   },
 });
 
+const paper = defineCollection({
+  name: "paper",
+  directory: "src/content/paper",
+  include: "**/*.yml",
+  schema: (z) => ({
+    title: z.string(),
+    year: z.number(),
+    booktitle: z.string(),
+    href: z.string().nullish(),
+  }),
+});
+
 export default defineConfig({
-  collections: [blog],
+  collections: [blog, paper],
 });
