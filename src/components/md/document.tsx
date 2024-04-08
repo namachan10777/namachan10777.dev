@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
-import type { Root, RootContent } from "mdast";
+import type { Root, Image, RootContent } from "mdast";
+import type { WithTransformedImage } from "../../../content-collections";
 
 export type Props = {
   src: Root;
@@ -98,6 +99,29 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
           ))}
         </p>
       );
+    case "image": {
+      const data = (
+        src as unknown as (WithTransformedImage | undefined) & Image
+      ).transformed;
+      if (data) {
+        const srcs = data.sort((a, b) => b.dim.w - a.dim.w);
+        const srcset = srcs.map((src) => `${src.path} ${src.dim.w}w`).join(" ");
+        return (
+          <img
+            loading="lazy"
+            decoding="async"
+            class="w-full max-w-full"
+            src={srcs[0].path}
+            width={srcs[0].dim.w}
+            height={srcs[0].dim.h}
+            srcset={srcset}
+            alt={src.alt || undefined}
+          />
+        );
+      } else {
+        return <img src={src.url} alt={src.alt || undefined} />;
+      }
+    }
     default:
       return <span>Unknown type: {src.type}</span>;
   }

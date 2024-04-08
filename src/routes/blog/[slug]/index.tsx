@@ -16,7 +16,7 @@ export const onStaticSiteGenerate: StaticGenerateHandler = async () => {
 export const useMarkdownLoader = routeLoader$(async (req) => {
   const blog = allBlogs.find((blog) => blog._meta.path === req.params.slug);
   if (blog) {
-    return parseMarkdown(blog.content);
+    return blog.mdast as unknown as Root;
   } else {
     throw new Error(`Blog ${req.params.slug} not found`);
   }

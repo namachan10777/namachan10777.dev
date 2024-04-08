@@ -60,10 +60,11 @@ function srcImgPath(
 
 // Assume the output format is WebP
 function generateImgDistFileName(
-  config: ImageTransformationConfig,
   imgUrl: string,
-  width: number,
-  height: number,
+  dim?: {
+    width: number;
+    height: number;
+  },
 ) {
   if (isAbslutePath(imgUrl)) {
     return imgUrl;
@@ -73,8 +74,21 @@ function generateImgDistFileName(
     .update(imgUrl)
     .digest("base64")
     .slice(0, 8);
-  const baseName = path.parse(imgUrl).base;
-  return `${baseName}-${baseNameHash}-${Math.round(width)}x${Math.round(height)}.webp`;
+  const baseName = path.parse(imgUrl).name;
+  if (dim) {
+    return `${baseName}-${baseNameHash}-${Math.round(dim.width)}x${Math.round(dim.height)}.webp`;
+  } else {
+    return `${baseName}-${baseNameHash}.webp`;
+  }
+}
+
+async function exists(path: string): Promise<boolean> {
+  try {
+    await fs.access(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function traverseMdAst<T extends RootContent>(
@@ -114,35 +128,29 @@ async function traverseMdAst<T extends RootContent>(
       const images: TransformedImage[] = [];
 
       while (width > 300) {
-        const resized = await image
-          .resize(Math.round(width), Math.round(height))
-          .toBuffer();
-        const fileName = generateImgDistFileName(
-          config,
-          ast.url,
-          width,
-          height,
-        );
-        console.log(`INFO: transformed markdown image: ${fileName}`);
+        const fileName = generateImgDistFileName(ast.url, { width, height });
         const distPath = `${config.outputSubDir}/${fileName}`;
-        await fs.writeFile(`${config.outputRoot}/${distPath}`, resized);
+        const distPathOnFs = `${config.outputRoot}/${distPath}`;
+
+        if (!(await exists(distPathOnFs))) {
+          const resized = await image
+            .resize(Math.round(width), Math.round(height))
+            .toBuffer();
+          await fs.writeFile(distPathOnFs, resized);
+          console.log(`INFO: transformed markdown image: ${fileName}`);
+        }
+
         images.push({
-          path: distPath,
+          path: `/${distPath}`,
           dim: {
-            w: width,
-            h: height,
+            w: Math.round(width),
+            h: Math.round(height),
           },
         });
         width *= config.scaling;
         height *= config.scaling;
       }
-      if (ast.data) {
-        (ast.data as unknown as WithTransformedImage).transformed = images;
-      } else {
-        (ast as unknown as { data: WithTransformedImage }).data = {
-          transformed: images,
-        };
-      }
+      (ast as unknown as WithTransformedImage).transformed = images;
       return;
     default:
       await Promise.all(
