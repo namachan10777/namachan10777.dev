@@ -2,12 +2,18 @@ import { defineConfig, defineCollection } from "@content-collections/core";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkMdx from "remark-mdx";
+import remarkRetext from "remark-retext";
+import retextEnglish from "retext-english";
+import retextEquality from "retext-english";
+import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import type { Root, RootContent } from "mdast";
 import * as fs from "fs/promises";
 import * as path from "path";
 import sharp from "sharp";
 import crypto from "crypto";
+import { codeToHast, codeToTokens } from "shiki";
+import * as hast from "hast";
 
 export type TransformedImage = {
   path: string;
@@ -97,8 +103,15 @@ async function traverseMdAst<T extends RootContent>(
   ast: T,
 ) {
   switch (ast.type) {
-    case "break":
     case "code":
+      if (ast.lang) {
+        const styled = await codeToHast(ast.value, {
+          lang: ast.lang,
+          theme: "github-light",
+        });
+        (ast as unknown as { hast: hast.Root }).hast = styled;
+      }
+    case "break":
     case "definition":
     case "html":
     case "footnoteReference":
@@ -199,9 +212,18 @@ const blog = defineCollection({
       filePath: document._meta.filePath,
     };
     await generateImages(config, ctx, mdast);
+    const text = await unified()
+      .use(remarkParse)
+      .use(
+        remarkRetext,
+        unified().use(retextEnglish).use(retextEquality) as any,
+      )
+      .use(remarkStringify)
+      .process(document.content);
     return {
       ...document,
       mdast: mdast as any,
+      text: String(text),
     };
   },
 });

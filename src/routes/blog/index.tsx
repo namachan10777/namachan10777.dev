@@ -1,13 +1,14 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
+import BlogHeadingLong from "~/components/composite/blog-heading-long";
 
 export default component$(() => {
   return (
-    <ul>
+    <ul class="flex flex-col gap-8">
       {allBlogs.map((blog) => (
         <li key={blog._meta.path}>
-          <a href={`/blog/${blog._meta.path}`}>{blog.title}</a>
+          <BlogHeadingLong blog={blog} limit={160} />
         </li>
       ))}
     </ul>

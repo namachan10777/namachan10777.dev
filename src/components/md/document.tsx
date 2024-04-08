@@ -1,6 +1,11 @@
 import { component$ } from "@builder.io/qwik";
 import type { Root, Image, RootContent } from "mdast";
 import type { WithTransformedImage } from "../../../content-collections";
+import * as hast from "hast";
+import { hastToHtml, bundledThemes } from "shiki";
+import Codeblock from "./codeblock";
+import Typography from "../display/typography";
+import Heading from "../display/heading";
 
 export type Props = {
   src: Root;
@@ -16,7 +21,7 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
     case "text":
       return src.value;
     case "inlineCode":
-      return <code>{src.value}</code>;
+      return <code class="mx-1 rounded-sm bg-gray-200 p-0.5">{src.value}</code>;
     case "footnoteReference":
       return <sup>{src.identifier}</sup>;
     case "section":
@@ -36,10 +41,12 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
         </li>
       ));
       if (src.ordered) {
-        return <ol>{listInner}</ol>;
+        return <ol class="list-decimal pl-8 leading-snug">{listInner}</ol>;
       } else {
-        return <ul>{listInner}</ul>;
+        return <ul class="list-disc pl-8 leading-snug">{listInner}</ul>;
       }
+    case "thematicBreak":
+      return <hr class="my-4 w-full border-gray-300" />;
     case "footnoteDefinition":
       return (
         <div>
@@ -51,7 +58,7 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
       );
     case "strong":
       return (
-        <strong>
+        <strong class="font-bold">
           {src.children.map((child) => (
             <Markdown src={child} key={JSON.stringify(child.position)} />
           ))}
@@ -61,43 +68,29 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
       const headingInner = src.children.map((child) => (
         <Markdown key={JSON.stringify(child.position)} src={child} />
       ));
-      switch (src.depth) {
-        case 1:
-          return <h1>{headingInner}</h1>;
-        case 2:
-          return <h2>{headingInner}</h2>;
-        case 3:
-          return <h3>{headingInner}</h3>;
-        case 4:
-          return <h4>{headingInner}</h4>;
-        case 5:
-          return <h5>{headingInner}</h5>;
-        case 6:
-          return <h6>{headingInner}</h6>;
-        default:
-          return "unreachable";
-      }
+      return (
+        <Heading level={src.depth == 1 ? 2 : src.depth}>{headingInner}</Heading>
+      );
     case "link":
       return (
-        <a href={src.url}>
+        <a class="mx-0.5 text-blue-700 underline" href={src.url}>
           {src.children.map((child) => (
             <Markdown src={child} key={JSON.stringify(child.position)} />
           ))}
         </a>
       );
     case "code":
-      return (
-        <pre>
-          <code>{src.value}</code>
-        </pre>
-      );
+      const styled = (src as unknown as { hast: hast.Root | undefined }).hast;
+      return <Codeblock hast={styled} src={src.value} />;
     case "paragraph":
       return (
-        <p>
-          {src.children.map((child) => (
-            <Markdown key={JSON.stringify(child.position)} src={child} />
-          ))}
-        </p>
+        <div class="my-4">
+          <Typography>
+            {src.children.map((child) => (
+              <Markdown key={JSON.stringify(child.position)} src={child} />
+            ))}
+          </Typography>
+        </div>
       );
     case "image": {
       const data = (
