@@ -12,6 +12,8 @@
     @apply h-[calc(100dvh-3rem)] w-[24rem] max-w-[100dvw];
     @apply translate-x-full;
     @apply transition-transform;
+    @apply overflow-y-scroll;
+    @apply border-l border-black bg-white;
   }
 
   .mobile-sidepane-open {
@@ -21,6 +23,7 @@
   .desktop-sidepane-wrapper {
     @apply hidden md:block;
     @apply sticky top-0 h-[100dvh] max-h-[100dvh];
+    @apply overflow-y-scroll border-r border-black;
   }
 
   .header-wrapper {

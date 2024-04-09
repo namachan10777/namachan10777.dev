@@ -54,7 +54,6 @@ export default component$(() => {
     if (typeof window !== "undefined") {
       if (!sidePaneOpen.value && !showSearchDialog.value) {
         window.scroll({ behavior: "instant", top: scrollY.value });
-        console.log(`scrolled: ${scrollY.value}`);
       }
     }
   });

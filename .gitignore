@@ -43,3 +43,4 @@ lerna-debug.log*
 # Generated
 .content-collections
 /public/img
+/public/pagefind
