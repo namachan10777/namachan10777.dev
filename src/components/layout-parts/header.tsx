@@ -1,5 +1,6 @@
 import { type Signal, component$ } from "@builder.io/qwik";
 import Hamburger from "../button/hamburger";
+
 import Icon from "~/assets/icon.webp?jsx";
 
 export type Props = {

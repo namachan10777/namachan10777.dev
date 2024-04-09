@@ -5,6 +5,7 @@ import type * as hast from "hast";
 import Codeblock from "./codeblock";
 import Typography from "../display/typography";
 import Heading from "../display/heading";
+import Section from "../container/section";
 
 export type Props = {
   src: Root;
@@ -13,6 +14,7 @@ export type Props = {
 export interface Section extends Node {
   type: "section";
   children: RootContent[];
+  depth: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 class IdGenerator {
@@ -74,9 +76,9 @@ const Markdown = ({
       );
     case "section":
       return (
-        <section class="flex flex-col gap-3">
+        <Section depth={src.depth}>
           <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
-        </section>
+        </Section>
       );
     case "list":
       const listInner = src.children.map((item) => (

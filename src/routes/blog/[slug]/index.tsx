@@ -27,11 +27,11 @@ export default component$(() => {
   const blog = useMarkdownLoader();
   return (
     <article>
-      <header class="py-4">
+      <header class="py-6">
         <span class="text-gray-600">{blog.value.date}</span>
         <h1 class="my-2 text-3xl font-bold text-black">{blog.value.title}</h1>
         <nav>
-          <ul class="flex flex-row flex-wrap">
+          <ul class="mt-4 flex flex-row flex-wrap">
             {blog.value.category.map((category) => (
               <li key={category}>
                 <Badge href={`/category/${category}`}>{category}</Badge>

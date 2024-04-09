@@ -102,7 +102,7 @@ export default component$(() => {
       <div class="w-full p-4">
         <ProfileCard />
       </div>
-      <Section>
+      <Section depth={2}>
         <Heading level={2}>Profile</Heading>
         <Typography>
           分散ストレージ、KVSなどソフトウェア技術で実現されるデータの永続化、
@@ -110,21 +110,21 @@ export default component$(() => {
           非同期ランタイムなどによるOS機能のユーザランドへの移転に興味があります。
         </Typography>
       </Section>
-      <Section>
+      <Section depth={2}>
         <Heading level={2}>Region</Heading>
         <address class="not-italic">
           <InlineCode>ap-northeast-1</InlineCode>
         </address>
       </Section>
-      <Section>
+      <Section depth={2}>
         <Heading level={2}>Timeline</Heading>
         <Timeline events={events} />
       </Section>
-      <Section>
+      <Section depth={2}>
         <Heading level={2}>Blog</Heading>
         <LatestBlogs blogs={allBlogs} limit={5} />
       </Section>
-      <Section>
+      <Section depth={2}>
         <Heading level={2}>Papers</Heading>
         <Papers papers={allPapers} />
       </Section>
