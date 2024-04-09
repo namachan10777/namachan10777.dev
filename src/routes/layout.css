@@ -32,11 +32,13 @@
     @apply min-h-[calc(100dvh_-_3rem)] md:min-h-[100dvh];
     @apply md:grid;
     @apply md:grid-cols-[18rem_1fr];
+    @apply max-w-[100dvhw];
   }
 
   .main-content {
     @apply min-h-[calc(100dvh_-_5rem)] md:min-h-[calc(100dvh_-_2rem)];
     @apply flex flex-col items-center p-4;
+    @apply md:max-w-[calc(100dvw-18rem)];
   }
 
   .inner-container {

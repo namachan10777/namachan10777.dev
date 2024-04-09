@@ -51,15 +51,13 @@ export default component$(() => {
         <div class="desktop-sidepane-wrapper">
           <DesktopSidePane showSearchDialog={showSearchDialog} />
         </div>
-        <div>
-          <main class="main-content">
-            <div class="inner-container">
-              <Slot />
-            </div>
-          </main>
-          <div class="footer-wrapper">
-            <Footer />
+        <main class="main-content">
+          <div class="inner-container">
+            <Slot />
           </div>
+        </main>
+        <div class="footer-wrapper">
+          <Footer />
         </div>
       </div>
     </div>
