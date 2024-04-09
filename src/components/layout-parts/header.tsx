@@ -8,7 +8,7 @@ export type Props = {
 
 export default component$((props: Props) => {
   return (
-    <header class="flex h-full w-full flex-row items-center justify-between border-b border-black px-2">
+    <header class="flex h-full w-full flex-row items-center justify-between border-b border-black bg-white px-2">
       <a class="h-8 w-8" href="/">
         <Icon class="rounded-full" />
       </a>

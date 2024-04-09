@@ -3,6 +3,8 @@ import {
   Slot,
   useSignal,
   useStylesScoped$,
+  useTask$,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import type { RequestHandler } from "@builder.io/qwik-city";
@@ -33,7 +35,28 @@ export const useServerTimeLoader = routeLoader$(() => {
 export default component$(() => {
   const sidePaneOpen = useSignal(false);
   const showSearchDialog = useSignal(false);
+  const scrollY = useSignal(0);
   useStylesScoped$(style);
+  const freezeMainContent = sidePaneOpen.value || showSearchDialog.value;
+  useTask$(({ track }) => {
+    track(() => sidePaneOpen.value);
+    track(() => showSearchDialog.value);
+    if (typeof window !== "undefined") {
+      if (sidePaneOpen.value || showSearchDialog.value) {
+        scrollY.value = window.scrollY;
+      }
+    }
+  });
+  useVisibleTask$(({ track }) => {
+    track(() => sidePaneOpen.value);
+    track(() => showSearchDialog.value);
+    if (typeof window !== "undefined") {
+      if (!sidePaneOpen.value && !showSearchDialog.value) {
+        window.scroll({ behavior: "instant", top: scrollY.value });
+        console.log(`scrolled: ${scrollY.value}`);
+      }
+    }
+  });
   return (
     <div class="root">
       <div class="header-wrapper">
@@ -51,13 +74,22 @@ export default component$(() => {
         <div class="desktop-sidepane-wrapper">
           <DesktopSidePane showSearchDialog={showSearchDialog} />
         </div>
-        <main class="main-content">
-          <div class="inner-container">
-            <Slot />
+        <div
+          class={freezeMainContent ? ["freeze-scrollable"] : []}
+          style={{
+            transform: freezeMainContent
+              ? `translateY(-${scrollY.value}px)`
+              : "unset",
+          }}
+        >
+          <main class="main-content">
+            <div class="inner-container">
+              <Slot />
+            </div>
+          </main>
+          <div class="footer-wrapper">
+            <Footer />
           </div>
-        </main>
-        <div class="footer-wrapper">
-          <Footer />
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@
 
   .mobile-sidepane-wrapper {
     @apply block md:hidden;
-    @apply fixed right-0 top-[3rem];
+    @apply fixed right-0 top-[3rem] z-10;
     @apply h-[calc(100dvh-3rem)] w-[24rem] max-w-[100dvw];
     @apply translate-x-full;
     @apply transition-transform;
@@ -24,7 +24,7 @@
   }
 
   .header-wrapper {
-    @apply sticky block md:hidden;
+    @apply sticky top-0 z-10 block md:hidden;
     @apply h-[3rem];
   }
 
@@ -39,6 +39,10 @@
     @apply min-h-[calc(100dvh_-_5rem)] md:min-h-[calc(100dvh_-_2rem)];
     @apply flex flex-col items-center p-4;
     @apply md:max-w-[calc(100dvw-18rem)];
+  }
+
+  .freeze-scrollable {
+    @apply fixed max-w-[100dvw] md:left-[18rem];
   }
 
   .inner-container {
