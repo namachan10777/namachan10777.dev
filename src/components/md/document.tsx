@@ -15,28 +15,73 @@ export interface Section extends Node {
   children: RootContent[];
 }
 
-const Markdown = ({ src }: { src: RootContent | Section }) => {
+class IdGenerator {
+  id: number;
+  map: Map<string, number>;
+  constructor() {
+    this.id = 0;
+    this.map = new Map();
+  }
+
+  get(strId: string): number {
+    const assigned = this.map.get(strId);
+    if (assigned) {
+      return assigned;
+    } else {
+      this.id += 1;
+      this.map.set(strId, this.id);
+      return this.id;
+    }
+  }
+}
+
+const MarkdownChildren = (props: {
+  srcs: RootContent[];
+  idGenerator: IdGenerator;
+}) => {
+  return (
+    <>
+      {props.srcs.map((child) => (
+        <Markdown
+          key={JSON.stringify(child.position)}
+          src={child}
+          idGenerator={props.idGenerator}
+        />
+      ))}
+    </>
+  );
+};
+
+const Markdown = ({
+  src,
+  idGenerator,
+}: {
+  src: RootContent | Section;
+  idGenerator: IdGenerator;
+}) => {
   switch (src.type) {
     case "text":
       return src.value;
     case "inlineCode":
       return <code class="mx-1 rounded-sm bg-gray-200 p-0.5">{src.value}</code>;
     case "footnoteReference":
-      return <sup>{src.identifier}</sup>;
+      return (
+        <sup>
+          <a href={`#${src.identifier}`} class="mx-1 text-blue-600">
+            [{idGenerator.get(src.identifier)}]
+          </a>
+        </sup>
+      );
     case "section":
       return (
-        <section>
-          {src.children.map((child) => (
-            <Markdown key={JSON.stringify(child.position)} src={child} />
-          ))}
+        <section class="flex flex-col gap-3">
+          <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
         </section>
       );
     case "list":
       const listInner = src.children.map((item) => (
         <li key={JSON.stringify(item.position)}>
-          {item.children.map((child) => (
-            <Markdown key={JSON.stringify(child.position)} src={child} />
-          ))}
+          <MarkdownChildren srcs={item.children} idGenerator={idGenerator} />
         </li>
       ));
       if (src.ordered) {
@@ -48,34 +93,42 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
       return <hr class="my-4 w-full border-gray-300" />;
     case "footnoteDefinition":
       return (
-        <div>
-          <sup>{src.identifier}</sup>
-          {src.children.map((child) => (
-            <Markdown key={JSON.stringify(child.position)} src={child} />
-          ))}
-        </div>
+        <section class="flex flex-row gap-4">
+          <header>
+            <h3 class="" id={src.identifier}>
+              {idGenerator.get(src.identifier)}
+            </h3>
+          </header>
+          <div class="text-sm">
+            <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
+          </div>
+        </section>
       );
     case "strong":
       return (
         <strong class="font-bold">
-          {src.children.map((child) => (
-            <Markdown src={child} key={JSON.stringify(child.position)} />
-          ))}
+          <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
         </strong>
       );
     case "heading":
       const headingInner = src.children.map((child) => (
-        <Markdown key={JSON.stringify(child.position)} src={child} />
+        <Markdown
+          key={JSON.stringify(child.position)}
+          src={child}
+          idGenerator={idGenerator}
+        />
       ));
       return (
-        <Heading level={src.depth == 1 ? 2 : src.depth}>{headingInner}</Heading>
+        <div class="pb-1">
+          <Heading level={src.depth == 1 ? 2 : src.depth}>
+            {headingInner}
+          </Heading>
+        </div>
       );
     case "link":
       return (
         <a class="mx-0.5 text-blue-700 underline" href={src.url}>
-          {src.children.map((child) => (
-            <Markdown src={child} key={JSON.stringify(child.position)} />
-          ))}
+          <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
         </a>
       );
     case "code":
@@ -83,13 +136,9 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
       return <Codeblock hast={styled} src={src.value} />;
     case "paragraph":
       return (
-        <div class="my-4">
-          <Typography>
-            {src.children.map((child) => (
-              <Markdown key={JSON.stringify(child.position)} src={child} />
-            ))}
-          </Typography>
-        </div>
+        <Typography>
+          <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
+        </Typography>
       );
     case "image": {
       const data = (
@@ -120,11 +169,10 @@ const Markdown = ({ src }: { src: RootContent | Section }) => {
 };
 
 export default component$(({ src }: Props) => {
+  const generator = new IdGenerator();
   return (
-    <>
-      {src.children.map((child) => (
-        <Markdown key={JSON.stringify(child.position)} src={child} />
-      ))}
-    </>
+    <article class="flex flex-col gap-8">
+      <MarkdownChildren srcs={src.children} idGenerator={generator} />
+    </article>
   );
 });

@@ -5,5 +5,4 @@
 
 .heading {
   @apply font-bold;
-  @apply mb-4 mt-2;
 }

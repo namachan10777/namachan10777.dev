@@ -14,6 +14,7 @@ import sharp from "sharp";
 import crypto from "crypto";
 import { codeToHast } from "shiki";
 import type * as hast from "hast";
+import remarkSectionize from "remark-sectionize";
 
 export type TransformedImage = {
   path: string;
@@ -203,6 +204,8 @@ const blog = defineCollection({
       .use(remarkGfm)
       .use(remarkMdx)
       .parse(document.content);
+    const sectionizer = remarkSectionize();
+    sectionizer(mdast);
     const config = {
       outputRoot: "public",
       outputSubDir: "img",
