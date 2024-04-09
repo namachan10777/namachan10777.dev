@@ -1,8 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import type { Root, Image, RootContent } from "mdast";
 import type { WithTransformedImage } from "../../../content-collections";
-import * as hast from "hast";
-import { hastToHtml, bundledThemes } from "shiki";
+import type * as hast from "hast";
 import Codeblock from "./codeblock";
 import Typography from "../display/typography";
 import Heading from "../display/heading";

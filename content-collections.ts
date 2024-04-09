@@ -12,8 +12,8 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import sharp from "sharp";
 import crypto from "crypto";
-import { codeToHast, codeToTokens } from "shiki";
-import * as hast from "hast";
+import { codeToHast } from "shiki";
+import type * as hast from "hast";
 
 export type TransformedImage = {
   path: string;
@@ -111,6 +111,7 @@ async function traverseMdAst<T extends RootContent>(
         });
         (ast as unknown as { hast: hast.Root }).hast = styled;
       }
+      return;
     case "break":
     case "definition":
     case "html":

@@ -5,7 +5,7 @@ import {
 } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import MarkdownDocument from "../../../components/md/document";
-import { Root } from "mdast";
+import type { Root } from "mdast";
 import Badge from "~/components/display/badge";
 
 export const onStaticSiteGenerate: StaticGenerateHandler = async () => {

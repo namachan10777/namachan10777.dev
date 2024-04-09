@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { NumberLiteralType } from "typescript";
 import Typography from "~/components/display/typography";
 import Badge from "~/components/display/badge";
 
@@ -29,7 +28,9 @@ export default component$((props: Props) => {
       <nav class="my-2">
         <ul>
           {blog.category.map((category) => (
-            <Badge href={`/category/${category}`}>{category}</Badge>
+            <Badge key={category} href={`/category/${category}`}>
+              {category}
+            </Badge>
           ))}
         </ul>
       </nav>

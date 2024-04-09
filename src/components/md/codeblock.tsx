@@ -1,6 +1,6 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
 import type * as hast from "hast";
-import { codeToHast, hastToHtml } from "shiki";
+import { hastToHtml } from "shiki";
 import styles from "./codeblock.css?inline";
 
 export type Props = {
