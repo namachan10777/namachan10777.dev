@@ -1,4 +1,5 @@
 import { Options, PagefindApi, loadPagefind } from "~/misc/pagefind";
+import { useStore } from "@builder.io/qwik";
 
 interface UsePagefindArg {
     api: PagefindApi,
