@@ -27,7 +27,7 @@
     "@iconify-json/material-symbols": "^1.1.77",
     "@iconify-json/mdi": "^1.1.66",
     "@resvg/resvg-js": "^2.6.2",
-    "astro": "^4.5.16",
+    "astro": "^4.5.17",
     "astro-icon": "^1.1.0",
     "astro-seo": "^0.8.3",
     "jsdom": "^24.0.0",
