@@ -8,7 +8,7 @@ import MarkdownDocument from "../../../components/md/document";
 import type { Root } from "mdast";
 import Badge from "~/components/display/badge";
 
-export const onStaticSiteGenerate: StaticGenerateHandler = async () => {
+export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
     params: allBlogs.map((blog) => ({ slug: blog._meta.path })),
   };
