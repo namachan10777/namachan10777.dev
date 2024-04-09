@@ -28,7 +28,7 @@ export function usePagefind(options?: Options): {
 
 export function useDebounceQrl(qrl: QRL<TaskFn>, debounce: number) {
   const state = useStore<{
-    timeoutHandler: null | NoSerialize<ReturnType<typeof setTimeout>>;
+    timeoutHandler: null | number;
     lastExecuted: number;
   }>({
     timeoutHandler: null,
@@ -44,12 +44,10 @@ export function useDebounceQrl(qrl: QRL<TaskFn>, debounce: number) {
       state.lastExecuted = Date.now();
       qrl(ctx);
     } else {
-      state.timeoutHandler = noSerialize(
-        setTimeout(() => {
-          state.lastExecuted = Date.now();
-          qrl(ctx);
-        }, debounce),
-      );
+      state.timeoutHandler = setTimeout(() => {
+        state.lastExecuted = Date.now();
+        qrl(ctx);
+      }, debounce) as unknown as number;
     }
   });
 }
