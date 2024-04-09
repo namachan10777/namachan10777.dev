@@ -7,7 +7,7 @@ import {
 } from "@builder.io/qwik";
 import { Modal, ModalContent } from "@qwik-ui/headless";
 import styles from "./search-dialog.css?inline";
-import type { Data } from "~/misc/pagefind";
+import type { Data } from "~/lib/pagefind";
 import { useDebounce$, usePagefind } from "~/lib/hooks";
 import { InUndo, InSearch } from "@qwikest/icons/iconoir";
 

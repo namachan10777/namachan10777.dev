@@ -2,17 +2,17 @@ export type FilterValue = number | string;
 
 export type AttributeCondition =
   | {
-      any: FilterValue[];
-    }
+    any: FilterValue[];
+  }
   | {
-      all: FilterValue[];
-    }
+    all: FilterValue[];
+  }
   | {
-      not: FilterValue[];
-    }
+    not: FilterValue[];
+  }
   | {
-      none: FilterValue[];
-    }
+    none: FilterValue[];
+  }
   | FilterValue
   | FilterValue[];
 
@@ -106,5 +106,7 @@ export interface PagefindApi {
 }
 
 export async function loadPagefind(): Promise<PagefindApi> {
-  return (await import("/pagefind/pagefind.js?url")) as unknown as PagefindApi;
+  const path = "/pagefind/pagefind.js";
+  const module = import.meta.env.DEV ? await import("/pagefind/pagefind.js?url") : await import(path);
+  return module as unknown as PagefindApi;
 }

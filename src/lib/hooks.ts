@@ -5,8 +5,7 @@ import {
   useVisibleTask$,
   implicit$FirstArg,
 } from "@builder.io/qwik";
-import type { Options, PagefindApi } from "~/misc/pagefind";
-import { loadPagefind } from "~/misc/pagefind";
+import { type Options, type PagefindApi, loadPagefind } from "~/lib/pagefind";
 
 export function usePagefind(options?: Options): {
   api: NoSerialize<PagefindApi> | null;
