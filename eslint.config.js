@@ -8,7 +8,14 @@ const compat = new FlatCompat();
 
 export default tseslint.config(
   {
-    ignores: ["dist", "node_modules", ".content-collections", "server", "tmp"],
+    ignores: [
+      "dist",
+      "node_modules",
+      ".content-collections",
+      "server",
+      "tmp",
+      "public/pagefind",
+    ],
   },
   javascript.configs.recommended,
   eslintConfigPrettier,
