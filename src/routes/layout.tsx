@@ -6,7 +6,7 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { routeLoader$, useLocation } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import type { RequestHandler } from "@builder.io/qwik-city";
 import Header from "~/components/layout-parts/header";
 import MobileSidePane from "~/components/layout-parts/mobile-side-pane";
@@ -35,7 +35,6 @@ export const useServerTimeLoader = routeLoader$(() => {
 export default component$(() => {
   const sidePaneOpen = useSignal(false);
   const showSearchDialog = useSignal(false);
-  const location = useLocation();
   const scrollY = useSignal(0);
   useStylesScoped$(style);
   const freezeMainContent = sidePaneOpen.value || showSearchDialog.value;
@@ -48,12 +47,6 @@ export default component$(() => {
       }
     }
   });
-  useVisibleTask$(({ track }) => {
-    track(() => location.url);
-    sidePaneOpen.value = false;
-    showSearchDialog.value = false;
-  });
-
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => sidePaneOpen.value);
