@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
 
 export type Event = {
   title: string;
@@ -30,9 +29,9 @@ export default component$((props: Props) => {
           <CenterMark />
           <span class="py-2">
             {event.href ? (
-              <Link class="underline" href={event.href}>
+              <a class="underline" href={event.href}>
                 {event.title}
-              </Link>
+              </a>
             ) : (
               event.title
             )}

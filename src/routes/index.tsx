@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import { allBlogs, allPapers } from "content-collections";
 import Icon from "~/assets/icon.webp?jsx";
 import BlogHeadingShort from "~/components/composite/blog-heading-short";
@@ -32,13 +32,13 @@ const LatestBlogs = (props: { blogs: typeof allBlogs; limit: number }) => {
       <ul class="flex flex-col gap-4">
         {latestBlogs.map((blog) => (
           <li key={blog._meta.fileName}>
-            <Link href={`/blog/${blog._meta.path}`}>
+            <a href={`/blog/${blog._meta.path}`}>
               <BlogHeadingShort
                 title={blog.title}
                 description={blog.description}
                 date={blog.date}
               />
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

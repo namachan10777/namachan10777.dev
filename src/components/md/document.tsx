@@ -6,7 +6,6 @@ import Codeblock from "./codeblock";
 import Typography from "../display/typography";
 import Heading from "../display/heading";
 import Section from "../container/section";
-import { Link } from "@builder.io/qwik-city";
 
 export type Props = {
   src: Root;
@@ -130,9 +129,9 @@ const Markdown = ({
       );
     case "link":
       return (
-        <Link class="mx-0.5 text-blue-700 underline" href={src.url}>
+        <a class="mx-0.5 text-blue-700 underline" href={src.url}>
           <MarkdownChildren srcs={src.children} idGenerator={idGenerator} />
-        </Link>
+        </a>
       );
     case "code":
       const styled = (src as unknown as { hast: hast.Root | undefined }).hast;

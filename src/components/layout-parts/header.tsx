@@ -3,7 +3,6 @@ import Hamburger from "../button/hamburger";
 
 import Icon from "~/assets/icon.webp?jsx";
 import { InSearch } from "@qwikest/icons/iconoir";
-import { Link } from "@builder.io/qwik-city";
 
 export type Props = {
   sidePaneOpen: Signal<boolean>;
@@ -13,9 +12,9 @@ export type Props = {
 export default component$((props: Props) => {
   return (
     <header class="flex h-full w-full flex-row items-center justify-between border-b border-black bg-white px-2">
-      <Link class="h-8 w-8" href="/">
+      <a class="h-8 w-8" href="/">
         <Icon alt="ホームへ戻る" class="rounded-full" />
-      </Link>
+      </a>
       <div class="flex flex-row gap-2">
         <button
           aria-label="検索ダイアログを開く"

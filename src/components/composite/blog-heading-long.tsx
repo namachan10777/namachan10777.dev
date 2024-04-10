@@ -1,7 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import Typography from "~/components/display/typography";
 import Badge from "~/components/display/badge";
-import { Link } from "@builder.io/qwik-city";
 
 export type Props = {
   blog: {
@@ -22,9 +21,9 @@ export default component$((props: Props) => {
     <section>
       <header>
         <span class="text-sm text-gray-600">{blog.date}</span>
-        <Link href={`/blog/${blog._meta.path}`}>
+        <a href={`/blog/${blog._meta.path}`}>
           <h3 class="text-lg font-bold underline">{blog.title}</h3>
-        </Link>
+        </a>
       </header>
       <nav class="my-2">
         <ul>
