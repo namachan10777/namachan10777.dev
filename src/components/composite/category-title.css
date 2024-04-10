@@ -1,0 +1,4 @@
+.category-title::before {
+  content: "#";
+  @apply mr-1;
+}
