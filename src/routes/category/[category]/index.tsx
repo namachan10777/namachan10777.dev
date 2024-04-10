@@ -1,12 +1,13 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
-import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
+import type { StaticGenerateHandler } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import BlogHeadingLong from "~/components/composite/blog-heading-long";
 import styles from "./index.css?inline";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
-    params: [...new Set(...allBlogs.flatMap((blog) => blog.category))].map(
+    params: [...new Set(allBlogs.flatMap((blog) => blog.category))].map(
       (category) => ({ category }),
     ),
   };
