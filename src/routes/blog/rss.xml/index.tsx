@@ -1,4 +1,4 @@
-import { RequestHandler } from "@builder.io/qwik-city";
+import type { RequestHandler } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import { Builder } from "xml2js";
 

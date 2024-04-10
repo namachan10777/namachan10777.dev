@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+import type {
+  DocumentHead} from "@builder.io/qwik-city";
 import {
-  DocumentHead,
   routeLoader$,
   type StaticGenerateHandler,
 } from "@builder.io/qwik-city";

@@ -7,21 +7,23 @@ import { ogMetaTags } from "~/lib/og-meta-tags";
 export default component$(() => {
   const categories = new Set(...allBlogs.map((blog) => blog.category));
   return (
-    <ul class="flex flex-col gap-8">
-      {[...categories.values()].map((category) => (
-        <li key={category}>
-          <CategoryHeading
-            category={category}
-            articles={allBlogs
-              .filter((blog) => blog.category.includes(category))
-              .map((article) => ({
-                path: `/blog/${article._meta.path}`,
-                title: article.title,
-              }))}
-          />
-        </li>
-      ))}
-    </ul>
+    <nav>
+      <ul class="flex flex-col gap-8">
+        {[...categories.values()].map((category) => (
+          <li key={category}>
+            <CategoryHeading
+              category={category}
+              articles={allBlogs
+                .filter((blog) => blog.category.includes(category))
+                .map((article) => ({
+                  path: `/blog/${article._meta.path}`,
+                  title: article.title,
+                }))}
+            />
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 });
 

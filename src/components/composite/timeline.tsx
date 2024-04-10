@@ -20,7 +20,7 @@ const CenterMark = () => {
 
 export default component$((props: Props) => {
   return (
-    <ol class="grid grid-cols-[3.5rem_2rem_1fr] items-center">
+    <ol class="grid grid-cols-[4rem_2rem_1fr] items-center">
       {props.events.map((event) => (
         <li key={event.date.toString()} class="contents">
           <div>

@@ -1,4 +1,4 @@
-import { DocumentMeta } from "@builder.io/qwik-city";
+import type { DocumentMeta } from "@builder.io/qwik-city";
 
 export type OgType =
   | "music.song"

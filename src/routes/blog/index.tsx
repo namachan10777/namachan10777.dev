@@ -6,13 +6,15 @@ import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export default component$(() => {
   return (
-    <ul class="flex flex-col gap-8">
-      {allBlogs.map((blog) => (
-        <li key={blog._meta.path}>
-          <BlogHeadingLong blog={blog} limit={160} />
-        </li>
-      ))}
-    </ul>
+    <nav>
+      <ul class="flex flex-col gap-8">
+        {allBlogs.map((blog) => (
+          <li key={blog._meta.path}>
+            <BlogHeadingLong blog={blog} limit={160} />
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 });
 
