@@ -2,6 +2,7 @@ import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import BlogHeadingLong from "~/components/composite/blog-heading-long";
+import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export default component$(() => {
   return (
@@ -15,6 +16,22 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
+export const head: DocumentHead = ({ url }) => ({
   title: "Blog",
-};
+  meta: [
+    {
+      name: "description",
+      content: "ブログ記事一覧",
+    },
+    ...ogMetaTags({
+      title: "Blog",
+      description: "ブログ記事一覧",
+      imgUrl: `${url}og.webp`,
+      type: "website",
+      twitter: {
+        imgType: "summary_large_image",
+        username: "namachan10777",
+      },
+    }),
+  ],
+});

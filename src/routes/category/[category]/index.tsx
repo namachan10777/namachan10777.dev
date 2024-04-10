@@ -1,9 +1,13 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
-import type { StaticGenerateHandler } from "@builder.io/qwik-city";
+import type {
+  DocumentHead,
+  StaticGenerateHandler,
+} from "@builder.io/qwik-city";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import BlogHeadingLong from "~/components/composite/blog-heading-long";
 import styles from "./index.css?inline";
+import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
@@ -41,3 +45,25 @@ export default component$(() => {
     </>
   );
 });
+
+export const head: DocumentHead = ({ params, url }) => {
+  return {
+    title: `#${params.category}`,
+    meta: [
+      {
+        name: "description",
+        content: `${params.category}に関する記事`,
+      },
+      ...ogMetaTags({
+        title: `#${params.category}`,
+        description: `${params.category}に関する記事`,
+        imgUrl: `${url}og.webp`,
+        type: "website",
+        twitter: {
+          imgType: "summary_large_image",
+          username: "namachan10777",
+        },
+      }),
+    ],
+  };
+};

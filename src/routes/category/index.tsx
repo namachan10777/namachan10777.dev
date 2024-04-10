@@ -2,6 +2,7 @@ import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import CategoryHeading from "~/components/composite/category-heading";
+import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export default component$(() => {
   const categories = new Set(...allBlogs.map((blog) => blog.category));
@@ -24,6 +25,22 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Blog",
-};
+export const head: DocumentHead = ({ url }) => ({
+  title: "Blog category",
+  meta: [
+    {
+      name: "description",
+      content: "ブログのカテゴリ一覧",
+    },
+    ...ogMetaTags({
+      title: "Blog category",
+      description: "ブログのカテゴリ一覧",
+      imgUrl: `${url}og.webp`,
+      type: "website",
+      twitter: {
+        imgType: "summary_large_image",
+        username: "namachan10777",
+      },
+    }),
+  ],
+});

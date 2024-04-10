@@ -9,6 +9,7 @@ import Section from "~/components/container/section";
 import Heading from "~/components/display/heading";
 import InlineCode from "~/components/display/inline-code";
 import Typography from "~/components/display/typography";
+import { ogMetaTags } from "~/lib/og-meta-tags";
 
 const ProfileCard = () => (
   <section class="flex flex-col items-center gap-4">
@@ -132,12 +133,22 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
+export const head: DocumentHead = ({ url }) => ({
   title: "/var/log/namachan-10777.log",
   meta: [
     {
       name: "description",
       content: "namachan10777のプロフィールとブログ",
     },
+    ...ogMetaTags({
+      title: "/var/log/namachan-10777.log",
+      description: "namachan10777のプロフィールとブログ",
+      imgUrl: `${url}og.webp`,
+      type: "profile",
+      twitter: {
+        imgType: "summary_large_image",
+        username: "namachan10777",
+      },
+    }),
   ],
-};
+});

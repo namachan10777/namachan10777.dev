@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import {
+  DocumentHead,
   routeLoader$,
   type StaticGenerateHandler,
 } from "@builder.io/qwik-city";
@@ -7,6 +8,7 @@ import { allBlogs } from "content-collections";
 import MarkdownDocument from "../../../components/md/document";
 import type { Root } from "mdast";
 import Badge from "~/components/display/badge";
+import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
@@ -44,3 +46,26 @@ export default component$(() => {
     </article>
   );
 });
+
+export const head: DocumentHead = ({ resolveValue, url }) => {
+  const blog = resolveValue(useMarkdownLoader);
+  return {
+    title: blog.title,
+    meta: [
+      {
+        name: "description",
+        content: blog.description,
+      },
+      ...ogMetaTags({
+        title: blog.title,
+        description: blog.description,
+        imgUrl: `${url}og.webp`,
+        type: "article",
+        twitter: {
+          imgType: "summary_large_image",
+          username: "namachan10777",
+        },
+      }),
+    ],
+  };
+};
