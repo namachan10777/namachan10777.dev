@@ -10,7 +10,6 @@ import styles from "./search-dialog.css?inline";
 import type { Data } from "~/lib/pagefind";
 import { useDebounce$, usePagefind } from "~/lib/hooks";
 import { InUndo, InSearch } from "@qwikest/icons/iconoir";
-import { Link } from "@builder.io/qwik-city";
 
 export type Props = {
   show: Signal<boolean>;
