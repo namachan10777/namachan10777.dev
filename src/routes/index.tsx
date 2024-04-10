@@ -32,7 +32,7 @@ const LatestBlogs = (props: { blogs: typeof allBlogs; limit: number }) => {
       <ul class="flex flex-col gap-4">
         {latestBlogs.map((blog) => (
           <li key={blog._meta.fileName}>
-            <a href={`/blog/${blog._meta.fileName}`}>
+            <a href={`/blog/${blog._meta.path}`}>
               <BlogHeadingShort
                 title={blog.title}
                 description={blog.description}
