@@ -60,7 +60,7 @@ export default component$(() => {
   return (
     <div class="root">
       <div class="header-wrapper">
-        <Header sidePaneOpen={sidePaneOpen} />
+        <Header sidePaneOpen={sidePaneOpen} showSearch={showSearchDialog} />
       </div>
       <div
         class={["mobile-sidepane-wrapper"].concat(

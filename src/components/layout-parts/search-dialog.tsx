@@ -50,17 +50,24 @@ export default component$((props: Props) => {
             bind:value={query}
             class="w-full p-2 focus:outline-none"
           />
-          <InUndo class="text-xl" />
+          <button
+            onClick$={() => {
+              props.show.value = false;
+            }}
+          >
+            <InUndo class="text-xl" />
+          </button>
         </div>
         <ul class="flex flex-col gap-4 border-t px-2 py-2">
           {queried.results.map((result) => (
             <li key={result.id}>
               <a href={result.data.url}>
                 <section class="flex flex-col gap-2">
-                  <header class="text-lg font-bold underline">
+                  <header class="font-bold underline md:text-lg">
                     {result.data.meta.title}
                   </header>
                   <summary
+                    class="text-sm md:text-base"
                     dangerouslySetInnerHTML={result.data.excerpt}
                   ></summary>
                 </section>

@@ -6,7 +6,7 @@
   }
 
   .root {
-    @apply md:mt-24 md:w-1/2;
+    @apply mt-4 max-h-[calc(50%)] w-11/12 md:mb-24 md:mt-24 md:max-h-full md:w-1/2;
     @apply rounded border border-black;
   }
 }

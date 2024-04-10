@@ -2,9 +2,11 @@ import { type Signal, component$ } from "@builder.io/qwik";
 import Hamburger from "../button/hamburger";
 
 import Icon from "~/assets/icon.webp?jsx";
+import { InSearch } from "@qwikest/icons/iconoir";
 
 export type Props = {
   sidePaneOpen: Signal<boolean>;
+  showSearch: Signal<boolean>;
 };
 
 export default component$((props: Props) => {
@@ -13,7 +15,16 @@ export default component$((props: Props) => {
       <a class="h-8 w-8" href="/">
         <Icon class="rounded-full" />
       </a>
-      <Hamburger open={props.sidePaneOpen} />
+      <div class="flex flex-row gap-2">
+        <button
+          onClick$={() => {
+            props.showSearch.value = true;
+          }}
+        >
+          <InSearch class="text-2xl" />
+        </button>
+        <Hamburger open={props.sidePaneOpen} />
+      </div>
     </header>
   );
 });
