@@ -14,7 +14,7 @@ import { ogMetaTags } from "~/lib/og-meta-tags";
 const ProfileCard = () => (
   <section class="flex flex-col items-center gap-4">
     <div class="h-24 w-24 overflow-hidden rounded-full">
-      <Icon />
+      <Icon alt="namachan10777のアイコン画像" />
     </div>
     <div class="flex flex-col items-center gap-2">
       <h1 class="text-3xl font-bold text-black">namachan10777</h1>
