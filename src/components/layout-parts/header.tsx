@@ -17,6 +17,7 @@ export default component$((props: Props) => {
       </a>
       <div class="flex flex-row gap-2">
         <button
+          aria-label="検索ダイアログを開く"
           onClick$={() => {
             props.showSearch.value = true;
           }}
