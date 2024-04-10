@@ -1,4 +1,7 @@
-import type { RequestHandler, StaticGenerateHandler } from "@builder.io/qwik-city";
+import type {
+  RequestHandler,
+  StaticGenerateHandler,
+} from "@builder.io/qwik-city";
 import { allBlogs } from "content-collections";
 import { ogImage } from "~/components/og/og";
 
