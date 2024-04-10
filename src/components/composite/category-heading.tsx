@@ -1,5 +1,6 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import styles from "./category-title.css?inline";
+import { Link } from "@builder.io/qwik-city";
 
 export type Props = {
   category: string;
@@ -16,9 +17,9 @@ export default component$((props: Props) => {
       <ul class="flex flex-col gap-2 py-2">
         {props.articles.map((article) => (
           <li key={article.path}>
-            <a href={article.path} class="text-blue-700 underline">
+            <Link href={article.path} class="text-blue-700 underline">
               {article.title}
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

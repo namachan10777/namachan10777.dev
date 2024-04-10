@@ -1,5 +1,5 @@
 .badge {
-  @apply rounded-full border border-black px-2 py-0.5 font-mono text-sm decoration-1 underline-offset-2;
+  @apply rounded-full border border-black px-2 pb-0.5 pt-1 font-mono text-sm decoration-1 underline-offset-2;
 }
 
 .badge::before {

@@ -1,3 +1,4 @@
+import { Link } from "@builder.io/qwik-city";
 import type { NavItem, SubNavItem } from "./nav-menu";
 
 export type Props = {
@@ -10,7 +11,7 @@ const SubMenu = (props: { items: SubNavItem[] }) => {
     <ul class="contents">
       {props.items.map((item) => (
         <li class="col-start-2  text-gray-800 underline" key={item.href}>
-          <a href={item.href}>{item.title}</a>
+          <Link href={item.href}>{item.title}</Link>
         </li>
       ))}
     </ul>
@@ -20,10 +21,10 @@ const SubMenu = (props: { items: SubNavItem[] }) => {
 const Item = (props: { item: NavItem }) => {
   return (
     <li class="col-span-2 grid grid-cols-[subgrid] items-center gap-1 border-t border-black py-4 first:border-none">
-      <a href={props.item.href} class="contents">
+      <Link href={props.item.href} class="contents">
         <props.item.icon class="text-xl" />
         <span class="py-2 text-xl font-bold underline">{props.item.title}</span>
-      </a>
+      </Link>
       {props.item.submenu ? <SubMenu items={props.item.submenu} /> : null}
     </li>
   );

@@ -61,7 +61,7 @@ export default component$((props: Props) => {
         <ul class="flex flex-col gap-4 border-t px-2 py-2">
           {queried.results.map((result) => (
             <li key={result.id}>
-              <a href={result.data.url}>
+              <Link href={result.data.url}>
                 <section class="flex flex-col gap-2">
                   <header class="font-bold underline md:text-lg">
                     {result.data.meta.title}
@@ -71,7 +71,7 @@ export default component$((props: Props) => {
                     dangerouslySetInnerHTML={result.data.excerpt}
                   ></summary>
                 </section>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
