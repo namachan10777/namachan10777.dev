@@ -27,7 +27,7 @@ export default component$((props: Props) => {
             <span class="font-mono text-sm text-gray-600">{event.date}</span>
           </div>
           <CenterMark />
-          <h4 class="py-2">
+          <span class="py-2">
             {event.href ? (
               <a class="underline" href={event.href}>
                 {event.title}
@@ -35,7 +35,7 @@ export default component$((props: Props) => {
             ) : (
               event.title
             )}
-          </h4>
+          </span>
         </li>
       ))}
     </ol>

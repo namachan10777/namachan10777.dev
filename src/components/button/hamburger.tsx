@@ -9,6 +9,9 @@ export default component$((props: Props) => {
   useStylesScoped$(styles);
   return (
     <button
+      aria-label={
+        props.open.value ? "ナビゲーションを閉じる" : "ナビゲーションを開く"
+      }
       class={["root"].concat(props.open.value ? ["open"] : [])}
       onClick$={() => {
         props.open.value = !props.open.value;

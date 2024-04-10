@@ -8,6 +8,7 @@ export type Props = {
 export default component$((props: Props) => {
   return (
     <button
+      aria-label="検索ダイアログを開く"
       class="flex w-full flex-row items-center gap-2 rounded-sm border bg-gray-100 px-4 py-1 text-xl transition-colors hover:bg-gray-200"
       onClick$={() => {
         props.show.value = true;
