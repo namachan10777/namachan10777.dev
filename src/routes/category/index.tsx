@@ -5,7 +5,9 @@ import CategoryHeading from "~/components/composite/category-heading";
 import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export default component$(() => {
-  const categories = new Set(...allBlogs.map((blog) => blog.category));
+  const categories = new Set(
+    allBlogs.filter((blog) => blog.publish).flatMap((blog) => blog.category),
+  );
   return (
     <nav>
       <ul class="flex flex-col gap-8">
@@ -14,6 +16,7 @@ export default component$(() => {
             <CategoryHeading
               category={category}
               articles={allBlogs
+                .filter((blog) => blog.publish)
                 .filter((blog) => blog.category.includes(category))
                 .map((article) => ({
                   path: `/blog/${article._meta.path}`,

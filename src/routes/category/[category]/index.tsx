@@ -11,16 +11,20 @@ import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
-    params: [...new Set(allBlogs.flatMap((blog) => blog.category))].map(
-      (category) => ({ category }),
-    ),
+    params: [
+      ...new Set(
+        allBlogs
+          .filter((blog) => blog.publish)
+          .flatMap((blog) => blog.category),
+      ),
+    ].map((category) => ({ category })),
   };
 };
 
 export const useCategoryLoader = routeLoader$(async (req) => {
-  const blogs = allBlogs.filter((blog) =>
-    blog.category.includes(req.params.category),
-  );
+  const blogs = allBlogs
+    .filter((blog) => blog.publish)
+    .filter((blog) => blog.category.includes(req.params.category));
   return {
     category: req.params.category,
     blogs,

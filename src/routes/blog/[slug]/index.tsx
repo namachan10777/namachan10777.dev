@@ -1,6 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import type {
-  DocumentHead} from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import {
   routeLoader$,
   type StaticGenerateHandler,
@@ -13,7 +12,9 @@ import { ogMetaTags } from "~/lib/og-meta-tags";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
-    params: allBlogs.map((blog) => ({ slug: blog._meta.path })),
+    params: allBlogs
+      .filter((blog) => blog.publish)
+      .map((blog) => ({ slug: blog._meta.path })),
   };
 };
 

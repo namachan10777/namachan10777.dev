@@ -7,7 +7,9 @@ import { ogImage } from "~/components/og/og";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
-    params: allBlogs.map((blog) => ({ slug: blog._meta.path })),
+    params: allBlogs
+      .filter((blog) => blog.publish)
+      .map((blog) => ({ slug: blog._meta.path })),
   };
 };
 

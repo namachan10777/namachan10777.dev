@@ -15,6 +15,7 @@ export type NavItem = {
 };
 
 const blogSubmenu: SubNavItem[] = allBlogs
+  .filter((blog) => blog.publish)
   .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
   .map((blog) => ({ title: blog.title, href: `/blog/${blog._meta.path}` }))
   .slice(0, Math.min(3, allBlogs.length));

@@ -123,7 +123,10 @@ export default component$(() => {
       </Section>
       <Section depth={2}>
         <Heading level={2}>Blog</Heading>
-        <LatestBlogs blogs={allBlogs} limit={5} />
+        <LatestBlogs
+          blogs={allBlogs.filter((blog) => blog.publish)}
+          limit={5}
+        />
       </Section>
       <Section depth={2}>
         <Heading level={2}>Papers</Heading>

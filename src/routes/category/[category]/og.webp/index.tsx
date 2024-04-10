@@ -7,9 +7,13 @@ import { ogImage } from "~/components/og/og";
 
 export const onStaticGenerate: StaticGenerateHandler = async () => {
   return {
-    params: [...new Set(allBlogs.flatMap((blog) => blog.category))].map(
-      (category) => ({ category }),
-    ),
+    params: [
+      ...new Set(
+        allBlogs
+          .filter((blog) => blog.publish)
+          .flatMap((blog) => blog.category),
+      ),
+    ].map((category) => ({ category })),
   };
 };
 
