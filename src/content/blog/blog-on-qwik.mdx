@@ -306,7 +306,6 @@ QwikCityは静的ビルド時は`?url`を無視してチャンク分割を試み
 このワークアラウンドをラップしたのが以下の関数だ。
 
 ```typescript
-
 export async function loadPagefind(): Promise<PagefindApi> {
   const path = "/pagefind/pagefind.js";
   const module = import.meta.env.DEV
@@ -327,7 +326,6 @@ Qwikのコードはあまり読めていないので`noSerialize`でどうして
 かなり緊急脱出ハッチ的だが、
 少なくとも`useVisibleTask$`で取ってきたモジュールを保存しておく、
 という目的には十分使える。
-
 
 ```typescript
 import type { NoSerialize, QRL, TaskFn } from "@builder.io/qwik";
@@ -384,7 +382,6 @@ export function useDebounceQrl(qrl: QRL<TaskFn>, debounce: number) {
 }
 
 export const useDebounce$ = /*#__PURE__*/ implicit$FirstArg(useDebounceQrl);
-
 ```
 
 ## QwikCity雑感
