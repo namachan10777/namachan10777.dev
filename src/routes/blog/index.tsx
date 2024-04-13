@@ -10,6 +10,7 @@ export default component$(() => {
       <ul class="flex flex-col gap-8">
         {allBlogs
           .filter((blog) => blog.publish)
+          .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
           .map((blog) => (
             <li key={blog._meta.path}>
               <BlogHeadingLong blog={blog} limit={160} />
