@@ -55,7 +55,7 @@
     "pagefind": "^1.1.0",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
-    "prettier-plugin-tailwindcss": "^0.5.13",
+    "prettier-plugin-tailwindcss": "^0.5.14",
     "react": "^18.3.1",
     "remark-gfm": "^4.0.0",
     "remark-mdx": "^3.0.1",
