@@ -27,8 +27,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       retext-equality:
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^7.1.0
+        version: 7.1.0
       sharp:
         specifier: ^0.33.3
         version: 0.33.3
@@ -2568,8 +2568,8 @@ packages:
   retext-english@5.0.0:
     resolution: {integrity: sha512-BS4Ycj2cMbxNMcXqnM+TL+aMHM0Fzalm08fHCiHaNbBs4jx1RBbpC4oeWOptBNUf8cBTi2Qrs81b9yn/KND65A==}
 
-  retext-equality@7.0.0:
-    resolution: {integrity: sha512-ZbrjgdgREO7EyEqvLDYnHTsMa8qxTZj+ijT61Grw8X6w0ZsbwajjQdQw+Wwd24Uqt7rlrqYs38NunoyrH8zbCg==}
+  retext-equality@7.1.0:
+    resolution: {integrity: sha512-YzrGxIfubNetpi5xEZXFaWKaQNdDHYal0JNaIllTRO+vkjO0FRuGgLoYixR1BYR3vx7k6p7c+MdVM1NxTlC+MQ==}
 
   reusify@1.0.4:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
@@ -5806,7 +5806,7 @@ snapshots:
       parse-english: 7.0.0
       unified: 11.0.4
 
-  retext-equality@7.0.0:
+  retext-equality@7.1.0:
     dependencies:
       '@types/nlcst': 2.0.3
       devlop: 1.1.0
