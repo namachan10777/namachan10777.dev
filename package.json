@@ -76,7 +76,7 @@
     "remark-sectionize": "^2.0.0",
     "remark-stringify": "^11.0.0",
     "retext-english": "^5.0.0",
-    "retext-equality": "^7.0.0",
+    "retext-equality": "^7.1.0",
     "sharp": "^0.33.3",
     "shiki": "^1.4.0",
     "xml2js": "^0.6.2"
