@@ -37,7 +37,7 @@
     "@content-collections/cli": "^0.1.2",
     "@content-collections/core": "^0.4.1",
     "@content-collections/vite": "^0.2.1",
-    "@eslint/eslintrc": "^3.0.2",
+    "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.2.0",
     "@qwik-ui/headless": "^0.3.8",
     "@qwikest/icons": "^0.0.13",
