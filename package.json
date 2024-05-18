@@ -44,7 +44,7 @@
     "@types/eslint": "^8.56.10",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "@types/react": "^18.3.2",
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.19",
