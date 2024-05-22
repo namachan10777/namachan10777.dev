@@ -43,8 +43,8 @@ importers:
         specifier: ^1.5.5
         version: 1.5.5(@types/node@20.12.12)(undici@6.18.0)
       '@builder.io/qwik-city':
-        specifier: ^1.5.4
-        version: 1.5.4(@types/node@20.12.12)(rollup@4.17.2)
+        specifier: ^1.5.5
+        version: 1.5.5(@types/node@20.12.12)(rollup@4.17.2)
       '@content-collections/cli':
         specifier: ^0.1.2
         version: 0.1.2(@content-collections/core@0.4.1)
@@ -158,8 +158,8 @@ packages:
     resolution: {integrity: sha512-Nms86NXrsaeU9vbBJKni6gXiEXZ4CVpYVzEjDH9Sb8vmZ3UljyA1GSOJl/6LGPO8EHLuSF9H+IxNXHPX8QHJ4g==}
     engines: {node: '>=6.9.0'}
 
-  '@builder.io/qwik-city@1.5.4':
-    resolution: {integrity: sha512-8zmEkVv2eBtLUGdntf3Ryd5GcvHvuMt1PiSu6wTpqYwUmZwWMfSqNsxuEE6+bndTcOKVAZNwvdvjQfcGE0peOQ==}
+  '@builder.io/qwik-city@1.5.5':
+    resolution: {integrity: sha512-Xi/1WqrB91CpZcAXs43OC87+7h89hJczJp43FXUMrvTHGeUsR/udhpz6SZWI/mHh0PFNx6f0A59tPmtDDzYl0Q==}
     engines: {node: '>=16.8.0 <18.0.0 || >=18.11'}
 
   '@builder.io/qwik@1.5.5':
@@ -3033,7 +3033,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@builder.io/qwik-city@1.5.4(@types/node@20.12.12)(rollup@4.17.2)':
+  '@builder.io/qwik-city@1.5.5(@types/node@20.12.12)(rollup@4.17.2)':
     dependencies:
       '@mdx-js/mdx': 3.0.1
       '@types/mdx': 2.0.13
