@@ -32,7 +32,7 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.5.4",
+    "@builder.io/qwik": "^1.5.5",
     "@builder.io/qwik-city": "^1.5.4",
     "@content-collections/cli": "^0.1.2",
     "@content-collections/core": "^0.4.1",
