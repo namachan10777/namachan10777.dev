@@ -61,8 +61,8 @@ importers:
         specifier: ^9.4.0
         version: 9.4.0
       '@qwik-ui/headless':
-        specifier: ^0.3.8
-        version: 0.3.8(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))
+        specifier: ^0.4.2
+        version: 0.4.2(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))
       '@qwikest/icons':
         specifier: ^0.0.13
         version: 0.0.13(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))
@@ -394,6 +394,15 @@ packages:
     resolution: {integrity: sha512-fdI7VJjP3Rvc70lC4xkFXHB0fiPeojiL1PxVG6t1ZvXQrarj893PweuBTujxDUFk0Fxj4R7PIIAZ/aiiyZPZcg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@floating-ui/core@1.6.2':
+    resolution: {integrity: sha512-+2XpQV9LLZeanU4ZevzRnGFg2neDeKHgFLjP6YLW+tly0IvrhqT4u8enLGjLH3qeh85g19xY5rsAusfwTdn5lg==}
+
+  '@floating-ui/dom@1.6.5':
+    resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
+
+  '@floating-ui/utils@0.2.2':
+    resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
+
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
@@ -559,6 +568,9 @@ packages:
     resolution: {integrity: sha512-q9CRWjpHCMIh5sVyefoD1cA7PkvILqCZsnSOEUUivORLjxCO/Irmue2DprETiNgEqktDBZaM1Bi+jrarx1XdCg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
+  '@oddbird/popover-polyfill@0.4.3':
+    resolution: {integrity: sha512-kBS0ZAwH8kZqFl0mV89KPK4cLYl2ZoKSfYngK4dz1eLAhKzTK0yu4LrvLdMeM7JhjWK6GxBtiY+cl1s6vR2pUg==}
+
   '@pagefind/darwin-arm64@1.1.0':
     resolution: {integrity: sha512-SLsXNLtSilGZjvqis8sX42fBWsWAVkcDh1oerxwqbac84HbiwxpxOC2jm8hRwcR0Z55HPZPWO77XeRix/8GwTg==}
     cpu: [arm64]
@@ -664,11 +676,11 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@qwik-ui/headless@0.3.8':
-    resolution: {integrity: sha512-kNr1W5QoT7itoxWMLSFrkA/M4cV9izYURHox+6pmH64zpXRuJJMjg7pvzhHW0ZAFSzEOJ5JhP4mPFWjMdRAMgQ==}
+  '@qwik-ui/headless@0.4.2':
+    resolution: {integrity: sha512-gbkgwNc16jJb6aRgodRDGsd7ciDEvuTBuj4jFTJQlhcio4WpvAoEBFQO1g6R5QWtPc/XLi3OKLcrxJYhZ9Hc3Q==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      '@builder.io/qwik': ^1.4.0
+      '@builder.io/qwik': ^1.5.5
 
   '@qwikest/icons@0.0.13':
     resolution: {integrity: sha512-e0wY8vmx0nDSUiuCATlk+ojTvdBV4txIGHHWjZW5SRkv4XB8H9+3WSDcLPz0ItUdRyzcrohE9k2jtQI/98aRPA==}
@@ -998,6 +1010,9 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  body-scroll-lock-upgrade@1.1.0:
+    resolution: {integrity: sha512-nnfVAS+tB7CS9RaksuHVTpgHWHF7fE/ptIBJnwZrMqImIvWJF1OGcLnMpBhC6qhkx9oelvyxmWXwmIJXCV98Sw==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -1442,6 +1457,9 @@ packages:
 
   flatted@3.3.1:
     resolution: {integrity: sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==}
+
+  focus-trap@7.5.4:
+    resolution: {integrity: sha512-N7kHdlgsO/v+iD/dMoJKtsSqs5Dz/dXZVebRgJw23LDk+jMi/974zyiOYDziY2JPp8xivq9BmUGwIJMiuSBi7w==}
 
   for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -2589,6 +2607,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
+  tabbable@6.2.0:
+    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
+
   tailwindcss@3.4.3:
     resolution: {integrity: sha512-U7sxQk/n397Bmx4JHbJx/iSOOv5G+II3f1kpLpY2QeUv5DcPdcTsYLlusZfq1NthHS1c1cZoyFmmkex1rzke0A==}
     engines: {node: '>=14.0.0'}
@@ -3118,6 +3139,17 @@ snapshots:
 
   '@eslint/js@9.4.0': {}
 
+  '@floating-ui/core@1.6.2':
+    dependencies:
+      '@floating-ui/utils': 0.2.2
+
+  '@floating-ui/dom@1.6.5':
+    dependencies:
+      '@floating-ui/core': 1.6.2
+      '@floating-ui/utils': 0.2.2
+
+  '@floating-ui/utils@0.2.2': {}
+
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -3275,6 +3307,8 @@ snapshots:
     dependencies:
       semver: 7.6.2
 
+  '@oddbird/popover-polyfill@0.4.3': {}
+
   '@pagefind/darwin-arm64@1.1.0':
     optional: true
 
@@ -3349,9 +3383,14 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@qwik-ui/headless@0.3.8(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))':
+  '@qwik-ui/headless@0.4.2(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))':
     dependencies:
       '@builder.io/qwik': 1.5.5(@types/node@20.13.0)(undici@6.18.2)
+      '@floating-ui/core': 1.6.2
+      '@floating-ui/dom': 1.6.5
+      '@oddbird/popover-polyfill': 0.4.3
+      body-scroll-lock-upgrade: 1.1.0
+      focus-trap: 7.5.4
 
   '@qwikest/icons@0.0.13(@builder.io/qwik@1.5.5(@types/node@20.13.0)(undici@6.18.2))':
     dependencies:
@@ -3672,6 +3711,8 @@ snapshots:
   base64-js@0.0.8: {}
 
   binary-extensions@2.3.0: {}
+
+  body-scroll-lock-upgrade@1.1.0: {}
 
   boolbase@1.0.0: {}
 
@@ -4226,6 +4267,10 @@ snapshots:
       rimraf: 3.0.2
 
   flatted@3.3.1: {}
+
+  focus-trap@7.5.4:
+    dependencies:
+      tabbable: 6.2.0
 
   for-each@0.3.3:
     dependencies:
@@ -5800,6 +5845,8 @@ snapshots:
       css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.0.1
+
+  tabbable@6.2.0: {}
 
   tailwindcss@3.4.3:
     dependencies:
