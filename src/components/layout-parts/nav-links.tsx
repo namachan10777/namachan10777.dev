@@ -9,7 +9,7 @@ const SubMenu = (props: { items: SubNavItem[] }) => {
   return (
     <ul class="contents">
       {props.items.map((item) => (
-        <li class="col-start-2  text-gray-800 underline" key={item.href}>
+        <li class="col-start-2 text-gray-800 underline" key={item.href}>
           <a href={item.href}>{item.title}</a>
         </li>
       ))}

@@ -4,7 +4,7 @@ import { navItems } from "./nav-menu";
 
 export default component$(() => {
   return (
-    <div class="h-full  p-4">
+    <div class="h-full p-4">
       <NavLinks items={navItems} title="Links" />
     </div>
   );
