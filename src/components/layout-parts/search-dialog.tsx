@@ -5,7 +5,7 @@ import {
   useSignal,
   useStore,
 } from "@builder.io/qwik";
-import { Modal, ModalContent } from "@qwik-ui/headless";
+import { Modal } from "@qwik-ui/headless";
 import styles from "./search-dialog.css?inline";
 import type { Data } from "~/lib/pagefind";
 import { useDebounce$, usePagefind } from "~/lib/hooks";
@@ -40,8 +40,8 @@ export default component$((props: Props) => {
   }, 300);
 
   return (
-    <Modal bind:show={props.show} class={["root", scopeId]}>
-      <ModalContent class="p-2">
+    <Modal.Root bind:show={props.show}>
+      <Modal.Panel class={["root", "p-4", scopeId]}>
         <div class="flex flex-row items-center gap-1 px-2">
           <InSearch class="text-xl" />
           <input
@@ -75,7 +75,7 @@ export default component$((props: Props) => {
             </li>
           ))}
         </ul>
-      </ModalContent>
-    </Modal>
+      </Modal.Panel>
+    </Modal.Root>
   );
 });
