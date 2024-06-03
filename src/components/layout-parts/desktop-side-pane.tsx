@@ -9,7 +9,7 @@ export type Props = {
 
 export default component$((props: Props) => {
   return (
-    <nav class="flex h-full w-full flex-col gap-2  p-4">
+    <nav class="flex h-full w-full flex-col gap-2 p-4">
       <div class="py-2">
         <h2 class="text-xl font-bold underline">
           <a href="/">namachan10777.dev</a>
