@@ -107,6 +107,7 @@ export interface PagefindApi {
 
 export async function loadPagefind(): Promise<PagefindApi> {
   const path = "/pagefind/pagefind.js";
+  /* @vite-ignore */
   const module = import.meta.env.DEV
     ? await import("/pagefind/pagefind.js?url")
     : await import(path);
