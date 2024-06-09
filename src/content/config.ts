@@ -8,7 +8,7 @@ const postCollection = defineCollection({
     description: z.string(),
     publish: z.boolean(),
     tags: z.array(z.string()),
-  })
+  }),
 });
 
 export const collections = {
