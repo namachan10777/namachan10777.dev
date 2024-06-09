@@ -9,6 +9,7 @@ import Typography from "@components/Typography.astro";
 import { Code } from "astro:components";
 import Publication from "@components/publication.astro";
 import PostPreview from "@components/PostPreview.astro";
+import A from "@components/mdx/a.astro";
 
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getDate() - a.data.date.getDate(),
@@ -59,7 +60,7 @@ let contact = [
       }
     </ol>
   </Section>
-  <Section title="Posts">
+  <Section title="Posts" href="/post">
     <ol class="flex flex-col gap-y-6">
       {
         posts.slice(0, Math.min(3, posts.length)).map((post) => (
@@ -69,6 +70,6 @@ let contact = [
         ))
       }
     </ol>
-    <a href="/post">read more</a>
+    <A href="/post">read more</A>
   </Section>
 </Base>

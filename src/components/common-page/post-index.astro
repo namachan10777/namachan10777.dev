@@ -2,6 +2,8 @@
 import { PAGE_SIZE } from "@lib/constant";
 import { paginated } from "@lib/collection-helper";
 import { getCollection } from "astro:content";
+import PostPreview from "@components/PostPreview.astro";
+import A from "@components/mdx/a.astro";
 
 export type Props = {
   index: number;
@@ -18,24 +20,56 @@ const tags = [
 ];
 ---
 
-<ul>
+<ul class="flex flex-wrap gap-4 py-2">
   {
     tags.map((tag) => (
       <li>
-        <a href={`/post/tag/${tag}`}>#{tag}</a>
+        <a
+          class="underline font-mono font-semibold text-blue-700"
+          href={`/post/tag/${tag}`}
+        >
+          #{tag}
+        </a>
       </li>
     ))
   }
 </ul>
-<ol>
+<ol class="py-2 flex flex-col gap-6">
   {
     posts.map((post) => (
       <li>
-        <a href={`/post/${post.slug}`}>{post.data.title}</a>
+        <PostPreview post={post} />
       </li>
     ))
   }
 </ol>
-{index == 1 && <a href="/post">prev</a>}
-{index > 1 && <a href={`/post/page/${index}`}>prev</a>}
-{index < pages.length - 1 && <a href={`/post/page/${index + 2}`}>next</a>}
+
+<hr class="my-4" />
+<nav class="w-full">
+  <div class="grid grid-cols-3">
+    {
+      index == 1 && (
+        <div class=" col-start-1">
+          <A href="/post">←prev</A>
+        </div>
+      )
+    }
+    {
+      index > 1 && (
+        <div class="col-start-1">
+          <A href={`/post/page/${index}`}>←prev</A>
+        </div>
+      )
+    }
+    <div class="col-start-2 text-center">
+      {`${index} of ${pages.length}`}
+    </div>
+    {
+      index < pages.length - 1 && (
+        <div class=" col-start-3 text-end">
+          <A href={`/post/page/${index + 2}`}>next →</A>
+        </div>
+      )
+    }
+  </div>
+</nav>

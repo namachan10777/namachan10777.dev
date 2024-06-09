@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
+import PostPreview from "@components/PostPreview.astro";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("post");
@@ -21,11 +22,16 @@ const posts = (
 ---
 
 <Base title={`posts of #${Astro.params.tag}`}>
-  <ol>
+  <h1
+    class="before:content-['#'] font-bold text-4xl before:text-gray-600 before:text-3xl my-4"
+  >
+    {Astro.params.tag}
+  </h1>
+  <ol class="flex flex-col gap-6">
     {
       posts.map((post) => (
         <li>
-          <a href={`/post/${post.slug}`}>{post.data.title}</a>
+          <PostPreview post={post} />
         </li>
       ))
     }

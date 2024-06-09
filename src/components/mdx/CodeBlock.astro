@@ -1,0 +1,11 @@
+---
+import { Code } from "astro:components";
+import type { BundledLanguage } from "shiki";
+
+export interface Props {
+  code: string;
+  lang: BundledLanguage;
+}
+---
+
+<Code lang={Astro.props.lang} code={Astro.props.code} />

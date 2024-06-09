@@ -10,7 +10,11 @@ export type Props = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{Astro.props.title}</title>
   </head>
-  <body class="px-4">
-    <slot />
+  <body>
+    <main class="w-full flex flex-col items-center">
+      <div class="px-4 md:w-3/5">
+        <slot />
+      </div>
+    </main>
   </body>
 </html>

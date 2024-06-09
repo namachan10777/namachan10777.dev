@@ -1,0 +1,7 @@
+---
+export interface Props {
+  href: string;
+}
+---
+
+<a href={Astro.props.href} class="underline text-blue-700"><slot /></a>

@@ -3,6 +3,16 @@ import Base from "@layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getEntry } from "astro:content";
 import { getCollection } from "astro:content";
+import Hr from "@components/mdx/hr.astro";
+import Typography from "@components/Typography.astro";
+import A from "@components/mdx/a.astro";
+import Code from "@components/mdx/code.astro";
+import H2 from "@components/mdx/h2.astro";
+import H3 from "@components/mdx/h3.astro";
+import H4 from "@components/mdx/h4.astro";
+import Section from "@components/mdx/section.astro";
+import Ul from "@components/mdx/ul.astro";
+import Ol from "@components/mdx/ol.astro";
 
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post");
@@ -21,8 +31,40 @@ const { Content } = await entry.render();
 ---
 
 <Base title={entry.data.title}>
-  <ul>
-    {entry.data.tags.map((tag) => <li>{tag}</li>)}
+  <h1
+    class="before:content-['#'] text-4xl font-bold before:text-3xl before:text-gray-600 my-4"
+  >
+    {entry.data.title}
+  </h1>
+  <ul class="flex flex-wrap grid-4 my-4">
+    {
+      entry.data.tags.map((tag) => (
+        <li>
+          <a
+            href={`/post/tag/${tag}`}
+            class="underline font-mono font-bold text-blue-700"
+          >
+            #{tag}
+          </a>
+        </li>
+      ))
+    }
   </ul>
-  <Content />
+  <Content
+    components={{
+      hr: Hr,
+      p: Typography,
+      a: A,
+      code: Code,
+      h1: H2,
+      h2: H2,
+      h3: H3,
+      h4: H4,
+      h5: H4,
+      h6: H4,
+      section: Section,
+      ul: Ul,
+      ol: Ol,
+    }}
+  />
 </Base>
