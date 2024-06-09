@@ -1,6 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getEntryBySlug } from "astro:content";
+import { getEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
 import Image from "@components/mdx/image.astro";
@@ -11,7 +11,7 @@ export const getStaticPaths = (async () => {
   }));
 }) satisfies GetStaticPaths;
 
-const entry = await getEntryBySlug("post", Astro.params.slug);
+const entry = await getEntry("post", Astro.params.slug);
 const { Content } = await entry.render();
 ---
 
