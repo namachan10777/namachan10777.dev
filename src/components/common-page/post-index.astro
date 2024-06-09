@@ -1,0 +1,41 @@
+---
+import { PAGE_SIZE } from "@lib/constant";
+import { paginated } from "@lib/posts";
+import { getCollection } from "astro:content";
+
+export type Props = {
+  index: number;
+};
+
+const index = Astro.props.index;
+const pages = await paginated("post", PAGE_SIZE);
+const posts = pages[Astro.props.index]!.sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
+
+const tags = [
+  ...new Set((await getCollection("post")).flatMap((post) => post.data.tags)),
+];
+---
+
+<ul>
+  {
+    tags.map((tag) => (
+      <li>
+        <a href={`/post/tag/${tag}`}>#{tag}</a>
+      </li>
+    ))
+  }
+</ul>
+<ol>
+  {
+    posts.map((post) => (
+      <li>
+        <a href={`/post/${post.slug}`}>{post.data.title}</a>
+      </li>
+    ))
+  }
+</ol>
+{index == 1 && <a href="/post">prev</a>}
+{index > 1 && <a href={`/post/page/${index}`}>prev</a>}
+{index < pages.length - 1 && <a href={`/post/page/${index + 2}`}>next</a>}

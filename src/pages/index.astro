@@ -1,7 +1,48 @@
 ---
 import Base from "@layouts/Base.astro";
+import { getCollection } from "astro:content";
+const events = (await getCollection("event")).sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
+const posts = (await getCollection("post")).sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
+const pubs = (await getCollection("pub")).sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
 ---
 
 <Base title="namachan10777">
-  <a href="/post">post</a>
+  <section>
+    <h2>Events</h2>
+    <ol>
+      {
+        events.map((event) => (
+          <li>
+            <span>{event.data.date.toString()}</span>
+            <h3>{event.data.title}</h3>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+  <section>
+    <h2>Publications</h2>
+    <ol>
+      {pubs.map((pub) => <li>{pub.data.title}</li>)}
+    </ol>
+  </section>
+  <section>
+    <h2>Posts</h2>
+    <ol>
+      {
+        posts.slice(0, Math.min(3, posts.length)).map((post) => (
+          <li>
+            <a href={`/post/${post.slug}`}>{post.data.title}</a>
+          </li>
+        ))
+      }
+    </ol>
+    <a href="/post">read more</a>
+  </section>
 </Base>

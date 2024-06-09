@@ -1,17 +1,8 @@
 ---
-import { getCollection } from "astro:content";
+import PostIndex from "@components/common-page/post-index.astro";
 import Base from "@layouts/Base.astro";
-const posts = await getCollection("post");
 ---
 
-<Base title="post">
-  <ul>
-    {
-      posts.map((post) => (
-        <li>
-          <a href={`/post/${post.slug}`}>{post.data.title}</a>
-        </li>
-      ))
-    }
-  </ul>
+<Base title="posts">
+  <PostIndex index={0} />
 </Base>

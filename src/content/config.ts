@@ -17,7 +17,7 @@ const pub = defineCollection({
     title: z.string(),
     booktitle: z.string(),
     href: z.string().nullish(),
-    year: z.number(),
+    date: z.date(),
   }),
 });
 

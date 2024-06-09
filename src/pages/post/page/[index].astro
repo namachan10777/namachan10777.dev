@@ -1,0 +1,19 @@
+---
+import type { GetStaticPaths } from "astro";
+import Base from "@layouts/Base.astro";
+import { paginated } from "@lib/posts";
+import { PAGE_SIZE } from "@lib/constant";
+import PostIndex from "@components/common-page/post-index.astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await paginated("post", PAGE_SIZE);
+  return [...posts.keys()]
+    .map((index) => index)
+    .filter((index) => index !== 0)
+    .map((index) => ({ params: { index: index + 1 }, props: { index } }));
+}) satisfies GetStaticPaths;
+---
+
+<Base title={`posts (${Astro.params.index})`}>
+  <PostIndex index={Astro.props.index} />
+</Base>
