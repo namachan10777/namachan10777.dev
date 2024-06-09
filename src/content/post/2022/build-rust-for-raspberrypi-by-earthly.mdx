@@ -1,0 +1,48 @@
+---
+tags: ["tech"]
+date: 2022-06-07
+description: Earthlyはコンテナビルドツールとして便利だが、組み込みのような開発環境構築が面倒なビルドにも便利
+title: EarthlyでRaspberryPi向けにビルドする
+publish: true
+---
+
+RaspberryPi向けのビルドとなると依存管理とかが面倒なのでmuslを使いたい。
+GNU libcの方がパフォーマンス良いと言ってもRaspberyPiならパフォーマンスとか関係ないし。
+
+ただ`hyper`とか`tokio::net`とか使おうとすると`openssl`やら`ring`やら（muslでビルドしようとすると`aarch64-linux-musl-gcc`を要求される）が引っ付いてきて、
+[`cross`](https://github.com/cross-rs/cross)では荷が重く、ローカルに構築するには依存が増えてローカルが汚染される。
+Dockerの`buildx`でマルチアーキなビルドが出来ることを利用してクロスコンパイルすると楽だが、やや目的外な雰囲気がある。
+
+[Earthly](https://earthly.dev)は`make` + `Docker`といったソフトウェアで、`Makefile`っぽくDockerイメージのビルドを書ける上、
+バイナリのコンパイルのようなDockerだとやや無理矢理感のある事も自然に書ける。VSCode向けの[Extension](https://marketplace.visualstudio.com/items?itemName=earthly.earthfile-syntax-highlighting)もある。
+
+サンプルはこんな感じ。ほとんど公式サイトに載ってるexampleそのまんま。
+
+Rustをビルドする時はからの`main.rs`を作成してビルドしてからソースコードを運んできてビルドすることで依存を毎回ビルドするのをスキップ出来る。
+ここでは`reqwest`に`default-features=false, features=["rustls-webpki-roots"]`を使って`openssl`と`ca-certificates`への依存を追い出しているが、DockerなのでOpenSSLを持って来れば`native-tls`でのビルドも簡単。
+
+`FROM`文で`aarch64`向けのイメージのDigestを指定してクロスコンパイルさせている。この例だとバイナリをそのまま出しているが、
+大抵の場合はここからDockerイメージをビルドするだろう。
+
+```plaintext
+VERSION 0.6
+FROM rust:latest@sha256:97fa23369c500e6b41bf9091b4af614e6728498c81a0c1717c73480085eefb9e
+WORKDIR /work
+
+all:
+    BUILD +build
+
+build:
+    RUN mkdir src
+    RUN echo "fn main(){}" > src/main.rs
+    COPY Cargo.toml .
+    COPY Cargo.lock .
+    RUN apt-get update && apt-get install -y musl-dev musl-tools
+    RUN ln -sf $(which musl-gcc) /usr/local/bin/aarch64-linux-musl-gcc
+    RUN rustup target install aarch64-unknown-linux-musl
+    RUN cargo build --release --target=aarch64-unknown-linux-musl
+
+    COPY src src
+    RUN cargo build --release --target=aarch64-unknown-linux-musl
+    SAVE ARTIFACT target/aarch64-unknown-linux-musl/release/something-awesome AS LOCAL something-awesome
+```

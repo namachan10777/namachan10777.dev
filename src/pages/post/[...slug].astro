@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getEntryBySlug } from "astro:content";
+import { getCollection } from "astro:content";
+import Base from "@layouts/Base.astro";
+import Image from "@components/mdx/image.astro";
+
+export const getStaticPaths = (async () => {
+  return (await getCollection("post")).map((post) => ({
+    params: { slug: post.slug },
+  }));
+}) satisfies GetStaticPaths;
+
+const entry = await getEntryBySlug("post", Astro.params.slug);
+const { Content } = await entry.render();
+---
+
+<Base title={entry.data.title}>
+  <Content
+    components={{
+      img: Image,
+    }}
+  />
+</Base>

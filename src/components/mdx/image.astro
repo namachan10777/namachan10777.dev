@@ -1,0 +1,30 @@
+---
+import { Picture } from "astro:assets";
+
+export interface Props {
+  alt: string;
+  src: ImageMetadata;
+}
+---
+
+<div class="root">
+  <Picture
+    alt={Astro.props.alt}
+    src={Astro.props.src}
+    formats={["webp"]}
+    class="pic"
+  />
+</div>
+
+<style>
+  .root {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pic {
+    width: 100%;
+    height: auto;
+  }
+</style>
