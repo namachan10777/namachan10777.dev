@@ -26,6 +26,11 @@ const event = defineCollection({
   schema: z.object({
     date: z.date(),
     title: z.string(),
+    dateDetailLevel: z.union([
+      z.literal("day"),
+      z.literal("month"),
+      z.literal("year"),
+    ]),
   }),
 });
 

@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Typography from "./Typography.astro";
+
+export interface Props {
+  post: CollectionEntry<"post">;
+}
+const { post } = Astro.props;
+---
+
+<article>
+  <span class="font-mono text-gray-600 mb-2"
+    >{post.data.date.toISOString().slice(0, 10)}</span
+  >
+  <h3 class="text-xl font-bold">{post.data.title}</h3>
+  <div class="mt-2">
+    <Typography>
+      {post.body.slice(0, Math.min(120, post.body.length))}...
+    </Typography>
+  </div>
+</article>

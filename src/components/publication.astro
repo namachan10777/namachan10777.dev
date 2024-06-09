@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+export interface Props {
+  pub: CollectionEntry<"pub">;
+}
+
+const { data } = Astro.props.pub;
+---
+
+<div>
+  <span class="text-gray-600 font-mono">{data.date.getFullYear()}</span>
+  <h3 class="text-lg font-semibold">
+    {
+      data.href ? (
+        <a class="underline " href={data.href}>
+          {data.title}
+        </a>
+      ) : (
+        data.title
+      )
+    }
+  </h3>
+  <span class="text-gray-800">{data.booktitle}</span>
+</div>

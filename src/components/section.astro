@@ -1,0 +1,16 @@
+---
+export type Props = {
+  title: string;
+  href?: string;
+};
+const { href, title } = Astro.props;
+---
+
+<section class="py-3">
+  <h2
+    class="text-3xl font-bold mb-4 before:content-['#'] before:text-gray-500 before:text-2xl"
+  >
+    {href ? <a href={href}>{title}</a> : title}
+  </h2>
+  <slot />
+</section>

@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+export interface Props {
+  events: CollectionEntry<"event">[];
+}
+const date = ({ data }: CollectionEntry<"event">) => {
+  switch (data.dateDetailLevel) {
+    case "day":
+      return `${data.date.getFullYear()}-${data.date.getMonth() + 1}-${data.date.getDate()}`;
+    case "month":
+      return `${data.date.getFullYear()}-${data.date.getMonth() + 1}`;
+    case "year":
+      return data.date.getFullYear().toString();
+  }
+};
+
+const events = Astro.props.events.sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
+---
+
+<ol class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-4">
+  {
+    events.map((event) => (
+      <li class="contents">
+        <span>
+          <span class="font-mono text-gray-700">{date(event)}</span>
+        </span>
+        <h3 class="text-lg">{event.data.title}</h3>
+      </li>
+    ))
+  }
+</ol>
