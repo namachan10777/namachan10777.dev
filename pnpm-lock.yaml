@@ -94,8 +94,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(eslint@8.57.0)
       eslint-plugin-qwik:
-        specifier: ^1.5.5
-        version: 1.5.5(eslint@8.57.0)
+        specifier: ^1.5.6
+        version: 1.5.6(eslint@8.57.0)
       node-fetch-cache:
         specifier: ^4.1.1
         version: 4.1.1
@@ -1332,8 +1332,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-qwik@1.5.5:
-    resolution: {integrity: sha512-0mWNC9al7ynL1rrH23lAH0WiIQGr5ttmGSvMBpXrULD+XFjryzcyGlhfUVsxlpzkNsvIRtTnrUiqWFUue6O9XA==}
+  eslint-plugin-qwik@1.5.6:
+    resolution: {integrity: sha512-DfCEdv1OqneTQIJZpENe1qXcepDLwMJU4LrGBK5ePEx0BEINzb49fLRpNIp+Q0RrHLDTSiCNJT3nq4KWyl8jiQ==}
     engines: {node: '>=16.8.0 <18.0.0 || >=18.11'}
     peerDependencies:
       eslint: ^8.57.0
@@ -4101,7 +4101,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-qwik@1.5.5(eslint@8.57.0):
+  eslint-plugin-qwik@1.5.6(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
       jsx-ast-utils: 3.3.5
