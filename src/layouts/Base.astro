@@ -1,5 +1,6 @@
 ---
 import Header from "@components/header.astro";
+import Sidepane from "@components/sidepane.astro";
 export type Props = {
   title: string;
 };
@@ -11,12 +12,67 @@ export type Props = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{Astro.props.title}</title>
   </head>
-  <body>
+  <body data-nav-state="close" class="overflow-y-scroll">
     <Header />
-    <main class="w-full flex flex-col items-center">
-      <div class="px-4 md:w-3/5">
-        <slot />
+    <div class="relative">
+      <main class="w-full flex flex-col items-center">
+        <div class="px-4 md:w-3/5">
+          <slot />
+        </div>
+      </main>
+      <div id="sidepane">
+        <Sidepane />
       </div>
-    </main>
+      <div
+        id="sidepane-bg"
+        class="fixed top-12 right-0 w-full h-full backdrop-blur-sm"
+        style={{ display: "none" }}
+      >
+      </div>
+    </div>
   </body>
 </html>
+
+<style>
+  body[data-nav-state="close"] #sidepane-bg {
+    display: none;
+  }
+
+  #sidepane {
+    @apply max-w-full transition-transform top-12 fixed right-0 h-full bg-white border-l;
+    width: 24rem;
+  }
+
+  body[data-nav-state="close"] #sidepane {
+    transform: translateX(24rem);
+  }
+</style>
+
+<script>
+  import { menuTopicDef, topics } from "@lib/global-topic";
+  const open = topics.topic(menuTopicDef);
+  let scrollHeight = 0;
+  const bg = document.getElementById("sidepane-bg")!;
+  bg.addEventListener("click", () => {
+    open.put(false);
+  });
+  bg.addEventListener("touchstart", () => {
+    open.put(false);
+  });
+  open.listen((isOpen) => {
+    if (isOpen) {
+      document.body.dataset.navState = "open";
+      scrollHeight = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollHeight}px`;
+    } else {
+      document.body.dataset.navState = "close";
+      document.body.style.top = "";
+      document.body.style.position = "";
+      window.scrollTo({
+        top: scrollHeight,
+        behavior: "instant",
+      });
+    }
+  });
+</script>

@@ -1,12 +1,12 @@
 ---
-import { Hamburger } from "@components/hamburger";
+import { ToggleButton } from "@components/hamburger";
 ---
 
 <header
-  class="border-b py-2 flex flex-row justify-between sticky top-0 bg-white"
+  class="z-10 border-b h-12 py-2 flex flex-row justify-between sticky top-0 bg-white"
 >
   <a href="/" class="text-lg font-bold mx-2">namachan10777</a>
   <div class="mx-4 flex flex-row items-center">
-    <Hamburger client:load />
+    <ToggleButton client:load />
   </div>
 </header>

@@ -12,7 +12,18 @@ import icon from "astro-icon";
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.namachan10777.dev",
-  integrations: [solidJs(), sitemap(), mdx(), pagefind(), tailwind(), icon()],
+  integrations: [
+    solidJs(),
+    sitemap(),
+    mdx(),
+    pagefind(),
+    tailwind(),
+    icon({
+      include: {
+        iconoir: ["*"],
+      },
+    }),
+  ],
   markdown: {
     remarkPlugins: [remarkSectionize],
   },

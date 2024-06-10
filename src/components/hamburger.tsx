@@ -3,7 +3,7 @@ import { createTopic } from "@lib/topic/solid";
 import { IoMenu, IoClose } from "solid-icons/io";
 import type { Component } from "solid-js";
 
-export const Hamburger: Component = () => {
+export const ToggleButton: Component = () => {
   const [open, setOpen] = createTopic(menuTopicDef);
 
   return (
