@@ -61,7 +61,7 @@ importers:
         specifier: ^9.4.0
         version: 9.4.0
       '@qwik-ui/headless':
-        specifier: ^0.4.2
+        specifier: ^0.4.4
         version: 0.4.4(@builder.io/qwik@1.5.6(@types/node@20.14.2)(undici@6.18.2))
       '@qwikest/icons':
         specifier: ^0.0.13

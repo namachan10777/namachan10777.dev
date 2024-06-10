@@ -39,7 +39,7 @@
     "@content-collections/vite": "^0.2.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.4.0",
-    "@qwik-ui/headless": "^0.4.2",
+    "@qwik-ui/headless": "^0.4.4",
     "@qwikest/icons": "^0.0.13",
     "@types/eslint": "^8.56.10",
     "@types/hast": "^3.0.4",
