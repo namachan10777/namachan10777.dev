@@ -7,14 +7,16 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import tailwind from "@astrojs/tailwind";
 import remarkSectionize from "remark-sectionize";
 
+import icon from "astro-icon";
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.namachan10777.dev",
-  integrations: [solidJs(), sitemap(), mdx(), pagefind(), tailwind()],
+  integrations: [solidJs(), sitemap(), mdx(), pagefind(), tailwind(), icon()],
   markdown: {
-    remarkPlugins: [remarkSectionize],
+    remarkPlugins: [remarkSectionize]
   },
   vite: {
-    plugins: [tsConfigPaths()],
-  },
+    plugins: [tsConfigPaths()]
+  }
 });
