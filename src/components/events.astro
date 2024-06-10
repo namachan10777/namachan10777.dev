@@ -25,9 +25,9 @@ const events = Astro.props.events.sort(
     events.map((event) => (
       <li class="contents">
         <span>
-          <span class="font-mono text-gray-700">{date(event)}</span>
+          <span class="font-mono text-gray-700 text-sm">{date(event)}</span>
         </span>
-        <h3 class="text-lg">{event.data.title}</h3>
+        <h3>{event.data.title}</h3>
       </li>
     ))
   }

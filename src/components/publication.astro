@@ -10,7 +10,7 @@ const { data } = Astro.props.pub;
 
 <div>
   <span class="text-gray-600 font-mono">{data.date.getFullYear()}</span>
-  <h3 class="text-lg font-semibold">
+  <h3 class="font-semibold">
     {
       data.href ? (
         <a class="underline text-blue-600" href={data.href}>
@@ -21,5 +21,5 @@ const { data } = Astro.props.pub;
       )
     }
   </h3>
-  <span class="text-gray-800">{data.booktitle}</span>
+  <span class="text-gray-800 text-sm">{data.booktitle}</span>
 </div>

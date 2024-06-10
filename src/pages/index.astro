@@ -3,13 +3,14 @@ import Base from "@layouts/Base.astro";
 import { getCollection } from "astro:content";
 import Section from "@components/section.astro";
 import Event from "@components/events.astro";
-import Icon from "@asset/icon.webp";
+import MyIcon from "@asset/icon.webp";
 import { Picture } from "astro:assets";
 import Typography from "@components/typography.astro";
 import { Code } from "astro:components";
 import Publication from "@components/publication.astro";
 import PostPreview from "@components/post-preview.astro";
 import Anchor from "@components/mdx/anchor.astro";
+import { Icon } from "astro-icon/components";
 
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getDate() - a.data.date.getDate(),
@@ -22,8 +23,7 @@ const pubs = (await getCollection("pub")).sort(
 );
 
 const profileCode = `\
-let region = "ap-northeast-1";
-let langs = hashset!{Lang::Ja, Lang::En};
+let region = "Tsukuba, 🇯🇵";
 let contact = [
   format!("{}@{}", "admin", "namachan10777.dev"),
   format!("{}@{}", "mnakano", "hpcs.cs.tsukuba.ac.jp"),
@@ -32,14 +32,37 @@ let contact = [
 ---
 
 <Base title="namachan10777">
-  <div class="flex flex-col items-center gap-4">
+  <div class="flex flex-col items-center gap-4 mt-4">
     <div class="w-36">
-      <Picture src={Icon} alt="icon" class="rounded-full w-full h-auto" />
+      <Picture src={MyIcon} alt="icon" class="rounded-full w-full h-auto" />
     </div>
     <h1 class="text-3xl font-bold">namachan10777</h1>
     <span class="text-2xl font-bold text-gray-600">Masaki Nakano</span>
   </div>
   <Section title="Profile">
+    <div class="flex flex-col gap-2">
+      <Anchor href="https://github.com/namachan10777">
+        <Icon
+          name="iconoir:github"
+          class="text-2xl text-blue-700 inline-block mr-1"
+        />
+        namachan10777
+      </Anchor>
+      <Anchor href="https://x.com/namachan10777">
+        <Icon
+          name="iconoir:x"
+          class="text-2xl text-blue-700 inline-block mr-1"
+        />
+        namachan10777
+      </Anchor>
+      <Anchor href="/post">
+        <Icon
+          name="iconoir:post"
+          class="text-2xl text-blue-700 inline-block mr-1"
+        />
+        posts
+      </Anchor>
+    </div>
     <Typography>
       A student at University of Tsukuba. Studying in distributed storage system
       in HPC.</Typography
