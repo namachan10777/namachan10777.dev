@@ -14,9 +14,9 @@ export default defineConfig({
   site: "https://www.namachan10777.dev",
   integrations: [solidJs(), sitemap(), mdx(), pagefind(), tailwind(), icon()],
   markdown: {
-    remarkPlugins: [remarkSectionize]
+    remarkPlugins: [remarkSectionize],
   },
   vite: {
-    plugins: [tsConfigPaths()]
-  }
+    plugins: [tsConfigPaths()],
+  },
 });
