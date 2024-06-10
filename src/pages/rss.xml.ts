@@ -1,0 +1,20 @@
+import rss, { type RSSFeedItem } from "@astrojs/rss";
+import type { APIRoute } from "astro";
+import { getCollection } from "astro:content";
+const posts: RSSFeedItem[] = (await getCollection("post"))
+  .sort((a, b) => b.data.date.getDate() - a.data.date.getDate())
+  .map((post) => ({
+    title: post.data.title,
+    pubDate: post.data.date,
+    description: post.data.description,
+    link: `/post/${post.slug}`,
+  }));
+
+export const GET: APIRoute = (ctx) => {
+  return rss({
+    title: "namachan10777.dev",
+    description: "namachan10777.dev",
+    site: ctx.site!,
+    items: posts,
+  });
+};
