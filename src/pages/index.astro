@@ -5,11 +5,11 @@ import Section from "@components/section.astro";
 import Event from "@components/events.astro";
 import Icon from "@asset/icon.webp";
 import { Picture } from "astro:assets";
-import Typography from "@components/Typography.astro";
+import Typography from "@components/typography.astro";
 import { Code } from "astro:components";
 import Publication from "@components/publication.astro";
-import PostPreview from "@components/PostPreview.astro";
-import A from "@components/mdx/a.astro";
+import PostPreview from "@components/post-preview.astro";
+import Anchor from "@components/mdx/anchor.astro";
 
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getDate() - a.data.date.getDate(),
@@ -70,6 +70,6 @@ let contact = [
         ))
       }
     </ol>
-    <A href="/post">read more</A>
+    <Anchor href="/post">read more</Anchor>
   </Section>
 </Base>

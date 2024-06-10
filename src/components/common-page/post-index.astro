@@ -2,8 +2,8 @@
 import { PAGE_SIZE } from "@lib/constant";
 import { paginated } from "@lib/collection-helper";
 import { getCollection } from "astro:content";
-import PostPreview from "@components/PostPreview.astro";
-import A from "@components/mdx/a.astro";
+import PostPreview from "@components/post-preview.astro";
+import Anchor from "@components/mdx/anchor.astro";
 
 export type Props = {
   index: number;
@@ -50,14 +50,14 @@ const tags = [
     {
       index == 1 && (
         <div class=" col-start-1">
-          <A href="/post">←prev</A>
+          <Anchor href="/post">←prev</Anchor>
         </div>
       )
     }
     {
       index > 1 && (
         <div class="col-start-1">
-          <A href={`/post/page/${index}`}>←prev</A>
+          <Anchor href={`/post/page/${index}`}>←prev</Anchor>
         </div>
       )
     }
@@ -67,7 +67,7 @@ const tags = [
     {
       index < pages.length - 1 && (
         <div class=" col-start-3 text-end">
-          <A href={`/post/page/${index + 2}`}>next →</A>
+          <Anchor href={`/post/page/${index + 2}`}>next →</Anchor>
         </div>
       )
     }
