@@ -16,6 +16,9 @@ const { post } = Astro.props;
   <h3 class="text-lg font-bold">
     <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
+  <div class="mt-1 font-mono text-sm font-semibold flex flex-wrap">
+    {post.data.tags.map((tag) => <Anchor href={`/tag/${tag}`}>#{tag}</Anchor>)}
+  </div>
   <div class="mt-2">
     <Typography>
       {post.body.slice(0, Math.min(120, post.body.length))}...

@@ -23,13 +23,8 @@ const tags = [
 <ul class="flex flex-wrap gap-4 py-2">
   {
     tags.map((tag) => (
-      <li>
-        <a
-          class="underline font-mono font-semibold text-blue-700"
-          href={`/post/tag/${tag}`}
-        >
-          #{tag}
-        </a>
+      <li class="font-mono font-semibold">
+        <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
       </li>
     ))
   }
