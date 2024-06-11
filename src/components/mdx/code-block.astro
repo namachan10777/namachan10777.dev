@@ -6,6 +6,13 @@ export interface Props {
   code: string;
   lang: BundledLanguage;
 }
+
+const { lang, code } = Astro.props;
 ---
 
-<Code lang={Astro.props.lang} code={Astro.props.code} />
+<Code
+  lang={lang}
+  code={code}
+  class="max-w-[calc(100vw-1rem)] overflow-x-scroll"
+  theme={"github-light"}
+/>

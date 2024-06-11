@@ -39,13 +39,8 @@ const { Content } = await entry.render();
   <ul class="flex flex-wrap grid-4 my-4">
     {
       entry.data.tags.map((tag) => (
-        <li>
-          <a
-            href={`/post/tag/${tag}`}
-            class="underline font-mono font-bold text-blue-700"
-          >
-            #{tag}
-          </a>
+        <li class="font-mono font-semibold">
+          <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
         </li>
       ))
     }

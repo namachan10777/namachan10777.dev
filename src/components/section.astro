@@ -1,4 +1,6 @@
 ---
+import Anchor from "./mdx/anchor.astro";
+
 export type Props = {
   title: string;
   href?: string;
@@ -10,15 +12,7 @@ const { href, title } = Astro.props;
   <h2
     class="text-3xl font-bold mb-4 before:content-['#'] before:text-gray-500 before:text-2xl"
   >
-    {
-      href ? (
-        <a class="underline text-blue-700" href={href}>
-          {title}
-        </a>
-      ) : (
-        title
-      )
-    }
+    {href ? <Anchor href={href}>{title}</Anchor> : title}
   </h2>
   <slot />
 </section>

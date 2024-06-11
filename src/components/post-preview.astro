@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Typography from "./typography.astro";
+import Anchor from "@components/mdx/anchor.astro";
 
 export interface Props {
   post: CollectionEntry<"post">;
@@ -12,10 +13,8 @@ const { post } = Astro.props;
   <span class="font-mono text-gray-600 mb-2"
     >{post.data.date.toISOString().slice(0, 10)}</span
   >
-  <h3 class="text-lg font-bold underline text-blue-700">
-    <a href={`/post/${post.slug}`}>
-      {post.data.title}
-    </a>
+  <h3 class="text-lg font-bold">
+    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
   <div class="mt-2">
     <Typography>

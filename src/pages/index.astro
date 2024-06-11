@@ -6,7 +6,7 @@ import Event from "@components/events.astro";
 import MyIcon from "@asset/icon.webp";
 import { Picture } from "astro:assets";
 import Typography from "@components/typography.astro";
-import { Code } from "astro:components";
+import CodeBlock from "@components/mdx/code-block.astro";
 import Publication from "@components/publication.astro";
 import PostPreview from "@components/post-preview.astro";
 import Anchor from "@components/mdx/anchor.astro";
@@ -40,26 +40,17 @@ let contact = [
     <span class="text-2xl font-bold text-gray-600">Masaki Nakano</span>
   </div>
   <Section title="Profile">
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 font-bold">
       <Anchor href="https://github.com/namachan10777">
-        <Icon
-          name="iconoir:github"
-          class="text-2xl text-blue-700 inline-block mr-1"
-        />
+        <Icon name="iconoir:github" class="text-2xl inline-block mr-1" />
         namachan10777
       </Anchor>
       <Anchor href="https://x.com/namachan10777">
-        <Icon
-          name="iconoir:x"
-          class="text-2xl text-blue-700 inline-block mr-1"
-        />
+        <Icon name="iconoir:x" class="text-2xl inline-block mr-1" />
         namachan10777
       </Anchor>
       <Anchor href="/post">
-        <Icon
-          name="iconoir:post"
-          class="text-2xl text-blue-700 inline-block mr-1"
-        />
+        <Icon name="iconoir:post" class="text-2xl inline-block mr-1" />
         posts
       </Anchor>
     </div>
@@ -67,7 +58,7 @@ let contact = [
       A student at University of Tsukuba. Studying in distributed storage system
       in HPC.</Typography
     >
-    <Code code={profileCode} lang={"rust"} theme={"github-light"} />
+    <CodeBlock code={profileCode} lang="rust" />
   </Section>
   <Section title="Timeline">
     <Event events={events} />
