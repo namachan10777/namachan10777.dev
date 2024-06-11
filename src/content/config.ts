@@ -1,4 +1,5 @@
 import { defineCollection, z } from "astro:content";
+import { dateDetailLevelValidator } from "@lib/util";
 
 const post = defineCollection({
   type: "content",
@@ -26,11 +27,7 @@ const event = defineCollection({
   schema: z.object({
     date: z.date(),
     title: z.string(),
-    dateDetailLevel: z.union([
-      z.literal("day"),
-      z.literal("month"),
-      z.literal("year"),
-    ]),
+    dateDetailLevel: dateDetailLevelValidator,
   }),
 });
 

@@ -6,14 +6,14 @@ import pagefind from "astro-pagefind";
 import tsConfigPaths from "vite-tsconfig-paths";
 import tailwind from "@astrojs/tailwind";
 import remarkSectionize from "remark-sectionize";
-
 import icon from "astro-icon";
+
+import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.namachan10777.dev",
   integrations: [
-    solidJs(),
     sitemap(),
     mdx(),
     pagefind(),
@@ -23,6 +23,7 @@ export default defineConfig({
         iconoir: ["*"],
       },
     }),
+    react(),
   ],
   markdown: {
     remarkPlugins: [remarkSectionize],
