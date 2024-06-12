@@ -1,8 +1,6 @@
 import { defineConfig } from "astro/config";
-import solidJs from "@astrojs/solid-js";
 import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
-import pagefind from "astro-pagefind";
 import tsConfigPaths from "vite-tsconfig-paths";
 import tailwind from "@astrojs/tailwind";
 import remarkSectionize from "remark-sectionize";
@@ -16,7 +14,6 @@ export default defineConfig({
   integrations: [
     sitemap(),
     mdx(),
-    pagefind(),
     tailwind(),
     icon({
       include: {
