@@ -30,7 +30,12 @@ const entry = await getEntry("post", Astro.params.slug);
 const { Content } = await entry.render();
 ---
 
-<Base title={entry.data.title}>
+<Base
+  title={entry.data.title}
+  description={entry.data.description}
+  imageUrl={`https://www.namachan10777.dev/post/${entry.slug}.webp`}
+  og={{ type: "article", tags: entry.data.tags }}
+>
   <h1
     class="before:content-['#'] text-4xl font-bold before:text-3xl before:text-gray-600 my-4"
   >

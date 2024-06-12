@@ -21,7 +21,12 @@ const posts = (
 ).sort((a, b) => b.data.date.getDate() - a.data.date.getDate());
 ---
 
-<Base title={`posts of #${Astro.params.tag}`}>
+<Base
+  title={`posts of #${Astro.params.tag}`}
+  description={`posts in #${Astro.params.tag}`}
+  imageUrl={`https://www.namachan10777.dev/post/tag/${Astro.params.tag}`}
+  og={{ type: "website" }}
+>
   <h1
     class="before:content-['#'] font-bold text-4xl before:text-gray-600 before:text-3xl my-4"
   >

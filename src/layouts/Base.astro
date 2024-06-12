@@ -1,8 +1,24 @@
 ---
 import Header from "@components/header.astro";
 import Footer from "@components/footer.astro";
+import { SEO } from "astro-seo";
+
+interface OgArticle {
+  type: "article";
+  tags?: string[];
+}
+
+interface OgWebsite {
+  type: "website";
+}
+
+export type Og = OgArticle | OgWebsite;
+
 export type Props = {
   title: string;
+  description: string;
+  imageUrl: string;
+  og: Og;
 };
 ---
 
@@ -11,6 +27,33 @@ export type Props = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{Astro.props.title}</title>
+    <SEO
+      twitter={{
+        card: "summary_large_image",
+        creator: "@namachan10777",
+        title: Astro.props.title,
+        description: Astro.props.description,
+        site: "@namachan10777",
+        image: Astro.props.imageUrl,
+      }}
+      openGraph={{
+        basic: {
+          title: Astro.props.title,
+          type: Astro.props.og.type,
+          image: Astro.props.imageUrl,
+        },
+        optional: {
+          description: Astro.props.description,
+          siteName: "namachan10777.dev",
+        },
+        article:
+          Astro.props.og.type === "article"
+            ? {
+                tags: Astro.props.og.tags,
+              }
+            : undefined,
+      }}
+    />
   </head>
   <body data-nav-state="close" class="flex flex-col items-center px-6">
     <div class="px4 md:w-3/5">
