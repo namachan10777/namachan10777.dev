@@ -1,4 +1,4 @@
 :8080 {
-  root * dist
-  file_server
+	root * dist
+	file_server
 }
