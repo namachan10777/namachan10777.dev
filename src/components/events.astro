@@ -1,4 +1,5 @@
 ---
+import { renderDate } from "@lib/util";
 import type { CollectionEntry } from "astro:content";
 
 export interface Props {
@@ -15,7 +16,9 @@ const events = Astro.props.events.sort(
     events.map((event) => (
       <li class="contents">
         <span>
-          <span class="font-mono text-gray-700 text-sm">{event}</span>
+          <span class="font-mono text-gray-700 text-sm">
+            {renderDate(event.data.dateDetailLevel, event.data.date)}
+          </span>
         </span>
         <h3>{event.data.title}</h3>
       </li>
