@@ -73,8 +73,9 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{Astro.props.title}</title>
     <SEO
+      title={Astro.props.title}
+      description={Astro.props.description}
       twitter={{
         card: "summary_large_image",
         creator: "@namachan10777",
