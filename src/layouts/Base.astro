@@ -58,6 +58,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
       position: idx + 1,
       item: {
         "@type": "ListItem",
+        "@id": `${Astro.site!.origin}${fragment.absolute}`,
         name:
           typeof fragment.display === "string"
             ? fragment.display

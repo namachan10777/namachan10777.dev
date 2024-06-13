@@ -43,7 +43,7 @@ const { Content } = await entry.render();
   path={[
     { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
     { display: "post", absolute: "/post" },
-    { display: entry.slug, absolute: `/post/${entry.slug}` },
+    { display: entry.data.title, absolute: `/post/${entry.slug}` },
   ]}
 >
   <h1
