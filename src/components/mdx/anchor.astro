@@ -1,7 +1,12 @@
 ---
 export interface Props {
   href: string;
+  label?: string;
 }
 ---
 
-<a href={Astro.props.href} class="underline text-emerald-600"><slot /></a>
+<a
+  href={Astro.props.href}
+  aria-label={Astro.props.label}
+  class="underline text-emerald-700"><slot /></a
+>

@@ -126,15 +126,14 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
           <nav>
             {
               Astro.props.path.flatMap((path, idx) => {
-                const anchor = (
-                  <Anchor href={path.absolute}>
-                    {typeof path.display === "string" ? (
-                      path.display
-                    ) : (
+                const anchor =
+                  typeof path.display === "string" ? (
+                    <Anchor href={path.absolute}>{path.display}</Anchor>
+                  ) : (
+                    <Anchor href={path.absolute} label={path.display.name}>
                       <Icon class="inline-block" name={path.display.icon} />
-                    )}
-                  </Anchor>
-                );
+                    </Anchor>
+                  );
                 if (idx == 0) {
                   return [anchor];
                 } else {
