@@ -21,6 +21,14 @@ const pages = await paginated("post", PAGE_SIZE);
   description={`posts page ${Astro.params.index + 1} of ${pages.length}`}
   imagePath={`post/page/${Astro.props.index + 1}.webp`}
   og={{ type: "website" }}
+  path={[
+    { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
+    { display: "post", absolute: "/post" },
+    {
+      display: `page ${Astro.props.index + 1}`,
+      absolute: `/post/page/${Astro.props.index + 1}`,
+    },
+  ]}
 >
   <PostIndex index={Astro.props.index} />
 </Base>

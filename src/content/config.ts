@@ -3,13 +3,15 @@ import { dateDetailLevelValidator } from "@lib/util";
 
 const post = defineCollection({
   type: "content",
-  schema: z.object({
-    title: z.string(),
-    date: z.date(),
-    description: z.string(),
-    publish: z.boolean(),
-    tags: z.array(z.string()),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.date(),
+      description: z.string(),
+      publish: z.boolean(),
+      tags: z.array(z.string()),
+      images: z.array(image()).nullish(),
+    }),
 });
 
 const pub = defineCollection({

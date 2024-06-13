@@ -1,11 +1,12 @@
 ---
-import Header from "@components/header.astro";
-import Footer from "@components/footer.astro";
 import { SEO } from "astro-seo";
+import Anchor from "@components/mdx/anchor.astro";
+import { Icon } from "astro-icon/components";
 
 interface OgArticle {
   type: "article";
   tags?: string[];
+  images?: string[];
 }
 
 interface OgWebsite {
@@ -14,12 +15,57 @@ interface OgWebsite {
 
 export type Og = OgArticle | OgWebsite;
 
+export interface PathFragment {
+  absolute: string;
+  display:
+    | string
+    | {
+        icon: string;
+        name: string;
+      };
+}
+
 export type Props = {
   title: string;
   description: string;
   imagePath: string;
   og: Og;
+  path: PathFragment[];
 };
+
+function articleJsonLD(article: OgArticle): string {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: Astro.props.title,
+    image: article.images?.map((path) => `${Astro.site!.origin}${path}`),
+    author: [
+      {
+        "@type": "Person",
+        name: "Masaki Nakano",
+        url: Astro.site,
+      },
+    ],
+  });
+}
+
+function breadcrumbsJsonLD(path: PathFragment[]): string {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: path.map((fragment, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      item: {
+        "@type": "ListItem",
+        name:
+          typeof fragment.display === "string"
+            ? fragment.display
+            : fragment.display.name,
+      },
+    })),
+  });
+}
 ---
 
 <html lang="ja">
@@ -54,17 +100,58 @@ export type Props = {
             : undefined,
       }}
     />
+    {
+      Astro.props.og.type === "article" && (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={articleJsonLD(Astro.props.og)}
+        />
+      )
+    }
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={breadcrumbsJsonLD(Astro.props.path)}
+    />
   </head>
   <body data-nav-state="close" class="flex flex-col items-center px-6">
     <div class="px4 md:w-3/5">
       <div class="h-12 w-full">
-        <Header />
+        <header
+          class="border-b flex flex-row justify-between bg-white h-full items-center"
+        >
+          <nav>
+            {
+              Astro.props.path.flatMap((path, idx) => {
+                const anchor = (
+                  <Anchor href={path.absolute}>
+                    {typeof path.display === "string" ? (
+                      path.display
+                    ) : (
+                      <Icon class="inline-block" name={path.display.icon} />
+                    )}
+                  </Anchor>
+                );
+                if (idx == 0) {
+                  return [anchor];
+                } else {
+                  return [<span class="mx-2">/</span>, anchor];
+                }
+              })
+            }
+          </nav>
+        </header>
       </div>
       <main class="min-h-[calc(100dvh-7rem)]">
         <slot />
       </main>
       <div class="h-12 w-full">
-        <Footer />
+        <footer
+          class="text-gray-600 h-full flex justify-center items-center text-sm border-t"
+        >
+          ©2020-2024 Masaki Nakano
+        </footer>
       </div>
     </div>
   </body>

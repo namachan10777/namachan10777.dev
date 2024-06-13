@@ -26,6 +26,14 @@ const posts = (
   description={`posts in #${Astro.params.tag}`}
   imagePath={`post/tag/${Astro.params.tag}`}
   og={{ type: "website" }}
+  path={[
+    { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
+    { display: "post", absolute: "/post" },
+    {
+      display: `#${Astro.params.tag}`,
+      absolute: `/post/tag/${Astro.params.tag}`,
+    },
+  ]}
 >
   <h1
     class="before:content-['#'] font-bold text-4xl before:text-gray-600 before:text-3xl my-4"
