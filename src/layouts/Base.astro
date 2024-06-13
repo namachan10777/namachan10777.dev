@@ -17,7 +17,7 @@ export type Og = OgArticle | OgWebsite;
 export type Props = {
   title: string;
   description: string;
-  imageUrl: string;
+  imagePath: string;
   og: Og;
 };
 ---
@@ -34,17 +34,17 @@ export type Props = {
         title: Astro.props.title,
         description: Astro.props.description,
         site: "@namachan10777",
-        image: Astro.props.imageUrl,
+        image: `${Astro.site}${Astro.props.imagePath}`,
       }}
       openGraph={{
         basic: {
           title: Astro.props.title,
           type: Astro.props.og.type,
-          image: Astro.props.imageUrl,
+          image: `${Astro.site}${Astro.props.imagePath}`,
         },
         optional: {
           description: Astro.props.description,
-          siteName: "namachan10777.dev",
+          siteName: "www.namachan10777.dev",
         },
         article:
           Astro.props.og.type === "article"

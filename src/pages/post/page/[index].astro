@@ -19,7 +19,7 @@ const pages = await paginated("post", PAGE_SIZE);
 <Base
   title={`posts (${Astro.params.index})`}
   description={`posts page ${Astro.params.index + 1} of ${pages.length}`}
-  imageUrl={`https://www.namachan10777.dev/post/page/${Astro.props.index + 1}.webp`}
+  imagePath={`post/page/${Astro.props.index + 1}.webp`}
   og={{ type: "website" }}
 >
   <PostIndex index={Astro.props.index} />

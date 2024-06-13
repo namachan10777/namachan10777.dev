@@ -33,7 +33,7 @@ const { Content } = await entry.render();
 <Base
   title={entry.data.title}
   description={entry.data.description}
-  imageUrl={`https://www.namachan10777.dev/post/${entry.slug}.webp`}
+  imagePath={`post/${entry.slug}.webp`}
   og={{ type: "article", tags: entry.data.tags }}
 >
   <h1
