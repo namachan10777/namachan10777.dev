@@ -25,13 +25,13 @@ export interface PathFragment {
       };
 }
 
-export type Props = {
+export interface Props {
   title: string;
   description: string;
   imagePath: string;
   og: Og;
   path: PathFragment[];
-};
+}
 
 function articleJsonLD(article: OgArticle): string {
   return JSON.stringify({
@@ -118,10 +118,10 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     />
   </head>
   <body data-nav-state="close" class="flex flex-col items-center px-6">
-    <div class="px4 md:w-3/5">
+    <div class="px-4 md:w-3/5">
       <div class="h-12 w-full">
         <header
-          class="border-b flex flex-row justify-between bg-white h-full items-center"
+          class="flex h-full flex-row items-center justify-between border-b bg-white"
         >
           <nav>
             {
@@ -149,7 +149,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
       </main>
       <div class="h-12 w-full">
         <footer
-          class="text-gray-600 h-full flex justify-center items-center text-sm border-t"
+          class="flex h-full items-center justify-center border-t text-sm text-gray-600"
         >
           ©2020-2024 Masaki Nakano
         </footer>

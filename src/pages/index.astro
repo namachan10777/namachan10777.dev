@@ -38,9 +38,9 @@ let contact = [
   og={{ type: "website" }}
   path={[{ display: { name: "profile", icon: "iconoir:home" }, absolute: "/" }]}
 >
-  <div class="flex flex-col items-center gap-3 mt-4">
+  <div class="mt-4 flex flex-col items-center gap-3">
     <div class="w-36">
-      <Picture src={MyIcon} alt="icon" class="rounded-full w-full h-auto" />
+      <Picture src={MyIcon} alt="icon" class="h-auto w-full rounded-full" />
     </div>
     <h1 class="text-3xl font-bold">namachan10777</h1>
     <span class="text-2xl font-bold text-gray-600">Masaki Nakano</span>
@@ -48,15 +48,15 @@ let contact = [
   <Section title="Profile">
     <div class="flex flex-col gap-2 font-bold">
       <Anchor href="https://github.com/namachan10777">
-        <Icon name="iconoir:github" class="text-2xl inline-block mr-1" />
+        <Icon name="iconoir:github" class="mr-1 inline-block text-2xl" />
         namachan10777
       </Anchor>
       <Anchor href="https://x.com/namachan10777">
-        <Icon name="iconoir:x" class="text-2xl inline-block mr-1" />
+        <Icon name="iconoir:x" class="mr-1 inline-block text-2xl" />
         namachan10777
       </Anchor>
       <Anchor href="/post">
-        <Icon name="iconoir:post" class="text-2xl inline-block mr-1" />
+        <Icon name="iconoir:post" class="mr-1 inline-block text-2xl" />
         posts
       </Anchor>
     </div>
@@ -90,11 +90,11 @@ let contact = [
         ))
       }
     </ol>
-    <span class="text-xl font-bold group">
+    <span class="group text-xl font-bold">
       <Anchor href="/post">
         <Icon
           name="iconoir:arrow-right-circle"
-          class="inline-block mr-2 group-hover:scale-110 transition-transform"
+          class="mr-2 inline-block transition-transform group-hover:scale-110"
         />
         記事をもっと読む
       </Anchor>

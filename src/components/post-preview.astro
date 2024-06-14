@@ -10,13 +10,13 @@ const { post } = Astro.props;
 ---
 
 <article>
-  <span class="font-mono text-gray-600 mb-2"
+  <span class="mb-2 font-mono text-gray-600"
     >{post.data.date.toISOString().slice(0, 10)}</span
   >
   <h3 class="text-lg font-bold">
     <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
-  <div class="mt-1 font-mono text-sm font-semibold flex flex-wrap">
+  <div class="mt-1 flex flex-wrap font-mono text-sm font-semibold">
     {post.data.tags.map((tag) => <Anchor href={`/tag/${tag}`}>#{tag}</Anchor>)}
   </div>
   <div class="mt-2">

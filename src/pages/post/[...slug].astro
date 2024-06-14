@@ -18,7 +18,9 @@ import Image from "astro/components/Image.astro";
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post");
   const posts = collection.map((post) => {
-    const [_, year, name] = /^(\d{4})\/(.+)$/.exec(post.slug)!;
+    const matched = /^(\d{4})\/(.+)$/.exec(post.slug)!;
+    const year = matched[1];
+    const name = matched[2];
     return {
       params: { slug: post.slug },
       props: { year, name },
@@ -47,11 +49,11 @@ const { Content } = await entry.render();
   ]}
 >
   <h1
-    class="before:content-['#'] text-4xl font-bold before:text-3xl before:text-gray-600 my-4"
+    class="my-4 text-4xl font-bold before:text-3xl before:text-gray-600 before:content-['#']"
   >
     {entry.data.title}
   </h1>
-  <ul class="flex flex-wrap grid-4 my-4">
+  <ul class="my-4 flex flex-wrap">
     {
       entry.data.tags.map((tag) => (
         <li class="font-mono font-semibold">

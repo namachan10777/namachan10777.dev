@@ -10,9 +10,9 @@ const { data } = Astro.props.pub;
 ---
 
 <div>
-  <span class="text-gray-600 font-mono">{data.date.getFullYear()}</span>
+  <span class="font-mono text-gray-600">{data.date.getFullYear()}</span>
   <h3 class="font-semibold">
     {data.href ? <Anchor href={data.href}>{data.title}</Anchor> : data.title}
   </h3>
-  <span class="text-gray-800 text-sm">{data.booktitle}</span>
+  <span class="text-sm text-gray-800">{data.booktitle}</span>
 </div>

@@ -7,24 +7,12 @@ export interface Props {
 }
 ---
 
-<div class="root">
+<div class=" block size-full">
   <Picture
     alt={Astro.props.alt}
     src={Astro.props.src}
     formats={["webp"]}
-    class="pic"
+    class=" h-auto w-full"
   />
 </div>
 
-<style>
-  .root {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .pic {
-    width: 100%;
-    height: auto;
-  }
-</style>

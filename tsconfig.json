@@ -11,5 +11,6 @@
       "@asset/*": ["./src/assets/*"],
       "@fonts/*": ["./fonts/*"]
     }
-  }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.astro", "eslint.config.mjs"]
 }

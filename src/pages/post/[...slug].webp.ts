@@ -5,7 +5,9 @@ import { ogArticlePreviewSVG } from "@lib/og";
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post");
   const posts = collection.map((post) => {
-    const [_, year, name] = /^(\d{4})\/(.+)$/.exec(post.slug)!;
+    const matched = /^(\d{4})\/(.+)$/.exec(post.slug)!;
+    const year = matched[1];
+    const name = matched[2];
     return {
       params: { slug: post.slug },
       props: { year, name },

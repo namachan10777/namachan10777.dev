@@ -11,12 +11,12 @@ const events = Astro.props.events.sort(
 );
 ---
 
-<ol class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-4">
+<ol class="grid grid-cols-[auto_1fr] gap-4">
   {
     events.map((event) => (
       <li class="contents">
         <span>
-          <span class="font-mono text-gray-700 text-sm">
+          <span class="font-mono text-sm text-gray-700">
             {renderDate(event.data.dateDetailLevel, event.data.date)}
           </span>
         </span>

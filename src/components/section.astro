@@ -1,16 +1,16 @@
 ---
 import Anchor from "./mdx/anchor.astro";
 
-export type Props = {
+export interface Props {
   title: string;
   href?: string;
-};
+}
 const { href, title } = Astro.props;
 ---
 
-<section class="py-6 flex flex-col gap-2">
+<section class="flex flex-col gap-2 py-6">
   <h2
-    class="text-2xl font-bold mb-4 before:content-['#'] before:text-gray-500 before:text-2xl"
+    class="mb-4 text-2xl font-bold before:text-2xl before:text-gray-500 before:content-['#']"
   >
     {href ? <Anchor href={href}>{title}</Anchor> : title}
   </h2>
