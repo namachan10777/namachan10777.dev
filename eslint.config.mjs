@@ -12,7 +12,7 @@ export default typescript.config(
   ...typescript.configs.stylistic,
   ...astro.configs["flat/recommended"],
   ...astro.configs["flat/jsx-a11y-strict"],
-  ...tailwind.configs['flat/recommended'],
+  ...tailwind.configs["flat/recommended"],
   {
     files: ["*.astro"],
     languageOptions: {
