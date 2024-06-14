@@ -1,6 +1,7 @@
 import rss, { type RSSFeedItem } from "@astrojs/rss";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+
 const posts: RSSFeedItem[] = (await getCollection("post"))
   .sort((a, b) => b.data.date.getDate() - a.data.date.getDate())
   .map((post) => ({

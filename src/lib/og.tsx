@@ -1,6 +1,6 @@
+import { downloadGoogleFont } from "@lib/google-font-download";
 import { renderDate } from "@lib/util";
 import { ImageResponse } from "@vercel/og";
-import { downloadGoogleFont } from "@lib/google-font-download";
 
 export interface Article {
   title: string;

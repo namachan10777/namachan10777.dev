@@ -1,5 +1,5 @@
-import type { APIRoute } from "astro";
 import { ogArticlePreviewSVG } from "@lib/og";
+import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ site }) => {
   return await ogArticlePreviewSVG({

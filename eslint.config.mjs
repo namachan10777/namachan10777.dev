@@ -1,8 +1,8 @@
-import astro from "eslint-plugin-astro";
-import astroParser from "astro-eslint-parser";
-import typescript from "typescript-eslint";
 import typescriptParser from "@typescript-eslint/parser";
+import astroParser from "astro-eslint-parser";
+import astro from "eslint-plugin-astro";
 import tailwind from "eslint-plugin-tailwindcss";
+import typescript from "typescript-eslint";
 
 export default typescript.config(
   {

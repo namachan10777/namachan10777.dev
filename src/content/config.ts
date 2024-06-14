@@ -1,5 +1,5 @@
-import { defineCollection, z } from "astro:content";
 import { dateDetailLevelValidator } from "@lib/util";
+import { defineCollection, z } from "astro:content";
 
 const post = defineCollection({
   type: "content",
