@@ -28,3 +28,5 @@ export function renderDate(level: DataDetailLevel, date: Date): string {
       return toS(4, date.getFullYear());
   }
 }
+
+export const PAGE_SIZE = 16;

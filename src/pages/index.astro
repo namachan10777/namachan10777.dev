@@ -55,7 +55,7 @@ let contact = [
         <Icon name="iconoir:x" class="mr-1 inline-block text-2xl" />
         namachan10777
       </Anchor>
-      <Anchor href="/post">
+      <Anchor href="/post/page/1">
         <Icon name="iconoir:post" class="mr-1 inline-block text-2xl" />
         posts
       </Anchor>
@@ -80,7 +80,7 @@ let contact = [
       }
     </ol>
   </Section>
-  <Section title="Posts" href="/post">
+  <Section title="Posts" href="/post/page/1">
     <ol class="flex flex-col gap-y-6">
       {
         posts.slice(0, Math.min(3, posts.length)).map((post) => (
@@ -91,7 +91,7 @@ let contact = [
       }
     </ol>
     <span class="group text-xl font-bold">
-      <Anchor href="/post">
+      <Anchor href="/post/page/1">
         <Icon
           name="iconoir:arrow-right-circle"
           class="mr-2 inline-block transition-transform group-hover:scale-110"

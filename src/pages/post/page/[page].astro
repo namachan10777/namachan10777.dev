@@ -1,0 +1,80 @@
+---
+import type { GetStaticPaths } from "astro";
+import Base from "@layouts/Base.astro";
+import { getCollection } from "astro:content";
+import Anchor from "@components/mdx/anchor.astro";
+import PostPreview from "@components/post-preview.astro";
+import { PAGE_SIZE } from "@lib/util";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCollection("post");
+  return paginate(
+    posts.sort((a, b) => b.data.date.getDate() - a.data.date.getDate()),
+    { pageSize: PAGE_SIZE },
+  );
+}) satisfies GetStaticPaths;
+
+const tags = [
+  ...new Set((await getCollection("post")).flatMap((post) => post.data.tags)),
+];
+
+const { page } = Astro.props;
+---
+
+<Base
+  title={`posts (${page.currentPage})`}
+  description={`posts page ${page.currentPage} of ${page.lastPage}`}
+  imagePath={`${page.url.current}.webp`}
+  og={{ type: "website" }}
+  path={[
+    { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
+    { display: "post", absolute: `/post/page/1` },
+  ].concat(
+    page.currentPage == 1
+      ? [
+          {
+            display: `page ${page.currentPage}`,
+            absolute: `/post/page/${page.currentPage}`,
+          },
+        ]
+      : [],
+  )}
+>
+  <ul class="flex flex-wrap gap-4 py-2">
+    {
+      tags.map((tag) => (
+        <li class="font-mono font-semibold">
+          <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
+        </li>
+      ))
+    }
+  </ul>
+  <ol class="flex flex-col gap-6 py-2">
+    {
+      page.data.map((post) => (
+        <li>
+          <PostPreview post={post} />
+        </li>
+      ))
+    }
+  </ol>
+  <nav class="grid grid-cols-3 my-2 text-gray-600">
+    {
+      page.url.prev && (
+        <div class=" col-start-1">
+          <Anchor href={page.url.prev}>prev</Anchor>
+        </div>
+      )
+    }
+    <div class="col-start-2 text-center">
+      {page.currentPage} / {page.lastPage}
+    </div>
+    {
+      page.url.next && (
+        <div class=" col-start-3 text-end">
+          <Anchor href={page.url.next}>next →</Anchor>
+        </div>
+      )
+    }
+  </nav>
+</Base>

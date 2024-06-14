@@ -17,7 +17,11 @@ const { post } = Astro.props;
     <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
   <div class="mt-1 flex flex-wrap font-mono text-sm font-semibold">
-    {post.data.tags.map((tag) => <Anchor href={`/tag/${tag}`}>#{tag}</Anchor>)}
+    {
+      post.data.tags.map((tag) => (
+        <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
+      ))
+    }
   </div>
   <div class="mt-2">
     <Typography>

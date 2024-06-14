@@ -14,6 +14,7 @@ import Section from "@components/mdx/section.astro";
 import UnorderedList from "@components/mdx/unordered-list.astro";
 import OrderedList from "@components/mdx/ordered-list.astro";
 import Image from "astro/components/Image.astro";
+import { PAGE_SIZE } from "@lib/util";
 
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post");
@@ -31,6 +32,12 @@ export const getStaticPaths = (async () => {
 
 const entry = await getEntry("post", Astro.params.slug);
 const { Content } = await entry.render();
+const pageIndex =
+  Math.floor(
+    (await getCollection("post"))
+      .sort((a, b) => b.data.date.getDate() - a.data.date.getDate())
+      .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE,
+  ) + 1;
 ---
 
 <Base
@@ -44,7 +51,7 @@ const { Content } = await entry.render();
   }}
   path={[
     { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
-    { display: "post", absolute: "/post" },
+    { display: "post", absolute: `/post/page/${pageIndex}` },
     { display: entry.data.title, absolute: `/post/${entry.slug}` },
   ]}
 >
