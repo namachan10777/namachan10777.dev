@@ -10,6 +10,7 @@ import tsConfigPaths from "vite-tsconfig-paths";
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.namachan10777.dev",
+  prefetch: true,
   integrations: [
     sitemap(),
     mdx(),
