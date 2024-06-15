@@ -10,7 +10,7 @@ import PostPreviewList from "@components/composite/post-preview-list.astro";
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getCollection("post");
   return paginate(
-    posts.sort((a, b) => a.data.date.getDate() - b.data.date.getDate()),
+    posts.sort((a, b) => a.data.date.getTime() - b.data.date.getTime()),
     { pageSize: PAGE_SIZE },
   );
 }) satisfies GetStaticPaths;

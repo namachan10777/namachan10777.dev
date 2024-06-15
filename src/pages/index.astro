@@ -15,13 +15,13 @@ import { Icon } from "astro-icon/components";
 import Code from "astro/components/Code.astro";
 
 const events = (await getCollection("event")).sort(
-  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 const posts = (await getCollection("post")).sort(
-  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 const pubs = (await getCollection("pub")).sort(
-  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
 const links = [

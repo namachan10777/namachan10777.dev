@@ -19,7 +19,7 @@ const posts = (
   await getCollection("post", (post) =>
     post.data.tags.includes(Astro.params.tag),
   )
-).sort((a, b) => a.data.date.getDate() - b.data.date.getDate());
+).sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
 ---
 
 <Base

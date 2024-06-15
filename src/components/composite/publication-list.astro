@@ -7,7 +7,7 @@ export interface Props {
 }
 
 const pubs = Astro.props.pubs.sort(
-  (b, a) => b.data.date.getDate() - a.data.date.getDate(),
+  (b, a) => b.data.date.getTime() - a.data.date.getTime(),
 );
 ---
 

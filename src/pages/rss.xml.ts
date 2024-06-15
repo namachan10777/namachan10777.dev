@@ -3,7 +3,7 @@ import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 
 const posts: RSSFeedItem[] = (await getCollection("post"))
-  .sort((a, b) => a.data.date.getDate() - b.data.date.getDate())
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
   .map((post) => ({
     title: post.data.title,
     pubDate: post.data.date,

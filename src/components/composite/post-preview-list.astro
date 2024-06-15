@@ -7,7 +7,7 @@ export interface Props {
 }
 
 const posts = Astro.props.posts.sort(
-  (b, a) => b.data.date.getDate() - a.data.date.getDate(),
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 ---
 
