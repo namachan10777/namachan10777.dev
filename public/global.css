@@ -129,6 +129,7 @@
   --fg-hr: rgba(0, 0, 0, 0.3);
   --fg-normal: rgba(0, 0, 0.9);
   --fg-strong: rgba(0, 0, 0, 1) --font-size-2xl: 1.5rem;
+  --fg-linenum: rgba(0, 0, 0, 0.4);
 
   --font-size-3xl: 1.875rem;
   --font-size-2xl: 1.5rem;

@@ -23,7 +23,7 @@ import { Icon } from "astro-icon/components";
         navigator.clipboard.writeText(pre.textContent!).then(() => {
           message.textContent = "copied!";
           if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(() => {
+          timeout = window.setTimeout(() => {
             message.textContent = "copy";
           }, 1000);
         });
@@ -81,6 +81,19 @@ import { Icon } from "astro-icon/components";
     }
     pre {
       background-color: var(--bg-codeblock);
+      overflow-x: scroll;
+      font-size: var(--font-size-sm);
+    }
+
+    pre :global(code) {
+      counter-reset: line;
+    }
+
+    pre :global(code) :global(span[class="line"])::before {
+      counter-increment: line;
+      content: counter(line);
+      margin-right: 1.25rem;
+      color: var(--fg-linenum);
     }
   }
   @layer patch {
