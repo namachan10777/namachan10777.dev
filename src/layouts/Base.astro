@@ -7,6 +7,8 @@ interface OgArticle {
   type: "article";
   tags?: string[];
   images?: string[];
+  createdAt: Date;
+  modifiedAt?: Date;
 }
 
 interface OgWebsite {
@@ -39,6 +41,8 @@ function articleJsonLD(article: OgArticle): string {
     "@type": "Article",
     headline: Astro.props.title,
     image: article.images?.map((path) => `${Astro.site!.origin}${path}`),
+    datePublished: article.createdAt.toISOString(),
+    dateModified: article.modifiedAt?.toISOString(),
     author: [
       {
         "@type": "Person",
