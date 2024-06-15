@@ -14,6 +14,14 @@ Qwikは好きです。resumableという概念は俺達の魂を震えさせる�
 そもそも個人ブログでのイベントハンドリングは大したことがないのでベタ書きでも大して変わらなかった。
 とはいえ、アイランドアーキテクチャに対する問題意識は依然持っているため、そのうち適当な文章を書こうと思う。
 
+Astroに戻るにあたり
+
+https://www.haxibami.net/blog/posts/blog-astro-renewal
+
+https://www.haxibami.net/blog/posts/blog-renewal
+
+を参考にした
+
 ## styling
 
 https://blog.uhy.ooo/entry/2022-10-01/tailwind/
@@ -48,7 +56,7 @@ URL構造は変えた。あまり変えるべきじゃないが、ちょっと�
 `/post/page/1`にリダイレクトさせた。
 ページネーションされたURLのみを採用したのはAstroの`paginate`を使いたかったから。本当に便利です。
 
-## SEOまわり
+## SEOまわり {{id: "seo"}}
 
 `@astrojs/sitemap`と`astro-seo`を導入。
 OpenGraphとX向けのタグは`astro-seo`で提供し、
@@ -76,7 +84,7 @@ bun add @astrojs/rss
 `remark-math` + `rehype-katex`。CSSとfontをいい感じにminifyしたいが……。
 
 $$
-0 = e^{-j\pi} + 1
+0 = e^{-j\i} + 1
 $$
 
 ## TODO 
