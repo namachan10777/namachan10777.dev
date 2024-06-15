@@ -1,11 +1,36 @@
 ---
+import { parse } from "node-html-parser";
 
+const plaintext = parse(await Astro.slots.render("default")).textContent;
 ---
 
-<pre><slot /></pre>
+<code-block class="root">
+  <button>
+    
+  </button>
+  <pre><slot /></pre>
+  <pre class="text-store">{plaintext}</pre>
+</code-block>
 
+<script>
+  class CodeBlock extends HTMLElement {
+    constructor() {
+      super();
+    }
+  }
+
+  customElements.define("code-block", CodeBlock);
+</script>
 <style>
+  .root {
+    display: block;
+    position: relative;
+
+  }
   @layer component {
+    .text-store {
+      display: none;
+    }
     pre {
       background-color: var(--bg-codeblock);
     }
@@ -13,6 +38,7 @@
   @layer patch {
     pre > :global(code) {
       background-color: inherit;
+      padding: 0;
     }
   }
 </style>
