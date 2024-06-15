@@ -2,18 +2,19 @@
 export interface Props {
   href: string;
   label?: string;
+  id?: string;
 }
 
-const { href, label } = Astro.props;
+const { href, label, id } = Astro.props;
 ---
 
 {
   href.startsWith("http") ? (
-    <a href={href} aria-label={label}>
+    <a id={id} href={href} aria-label={label}>
       <slot />
     </a>
   ) : (
-    <a href={href} aria-label={label} data-astro-prefetch>
+    <a id={id} href={href} aria-label={label} data-astro-prefetch>
       <slot />
     </a>
   )
