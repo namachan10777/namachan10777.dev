@@ -29,9 +29,16 @@
     "astro-seo": "^0.8.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "remark-gfm": "^4.0.0",
+    "remark-retext": "^6.0.0",
     "remark-sectionize": "^2.0.0",
+    "remark-stringify": "^11.0.0",
+    "retext-english": "^5.0.0",
+    "retext-equality": "^7.1.0",
+    "retext-stringify": "^4.0.0",
     "sharp": "^0.33.4",
     "typescript": "^5.4.5",
+    "unified": "^11.0.4",
     "vite-tsconfig-paths": "^4.3.2"
   },
   "devDependencies": {

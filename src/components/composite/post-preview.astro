@@ -2,11 +2,25 @@
 import type { CollectionEntry } from "astro:content";
 import Typography from "@components/mdx/typography.astro";
 import Anchor from "@components/mdx/anchor.astro";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRetext from "remark-retext";
+import { unified } from "unified";
+import retextEnglish from "retext-english";
+import retextStringify from "retext-stringify";
+import retextEquality from "retext-equality";
 
 export interface Props {
   post: CollectionEntry<"post">;
 }
 const { post } = Astro.props;
+const vfile = await unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRetext, unified().use(retextEnglish).use(retextEquality) as any)
+  .use(retextStringify)
+  .process(post.body);
+const text = vfile.toString();
 ---
 
 <article>
@@ -23,7 +37,7 @@ const { post } = Astro.props;
   </div>
   <div class="preview">
     <Typography>
-      {post.body.slice(0, Math.min(120, post.body.length))}...
+      {text.slice(0, Math.min(120, post.body.length))}...
     </Typography>
   </div>
 </article>
