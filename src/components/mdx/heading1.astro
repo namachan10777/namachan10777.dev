@@ -1,5 +1,11 @@
-<h1>
-  <slot />
+---
+import HeadingInner from "./heading-inner.astro";
+interface Props {
+    id?: string;
+}
+---
+<h1 id={Astro.props.id}>
+  <HeadingInner id={Astro.props.id}><slot /></HeadingInner>
 </h1>
 
 <style>

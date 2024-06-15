@@ -34,7 +34,7 @@ export default defineConfig({
       remarkGfm,
       remarkMath,
     ],
-    rehypePlugins: [rehypeKatex, rehypeSlug, rehypeAutolinkHeadings],
+    rehypePlugins: [rehypeKatex, rehypeSlug],
     syntaxHighlight: "shiki",
     shikiConfig: {
       themes: {
