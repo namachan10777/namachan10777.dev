@@ -28,13 +28,13 @@ const text = vfile.toString();
   <h3 class="heading">
     <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
-  <div>
+  <nav class="tags">
     {
       post.data.tags.map((tag) => (
         <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
       ))
     }
-  </div>
+  </nav>
   <div class="preview">
     <Typography>
       {text.slice(0, Math.min(120, post.body.length))}...
@@ -44,6 +44,10 @@ const text = vfile.toString();
 
 <style>
   @layer component {
+    .tags {
+      font-family: var(--font-mono);
+    }
+
     .date {
       color: var(--fg-weak);
       font-family: var(--font-mono);
