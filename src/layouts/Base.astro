@@ -2,6 +2,7 @@
 import { SEO } from "astro-seo";
 import Anchor from "@components/mdx/anchor.astro";
 import { Icon } from "astro-icon/components";
+import { ViewTransitions } from "astro:transitions";
 
 interface OgArticle {
   type: "article";
@@ -116,6 +117,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
       type="application/ld+json"
       set:html={breadcrumbsJsonLD(Astro.props.path)}
     />
+    <ViewTransitions />
   </head>
   <body data-nav-state="close" class="flex flex-col items-center px-6">
     <div class="px-4 md:w-3/5">
