@@ -18,6 +18,7 @@ import Picture from "@components/mdx/image.astro";
 import { PAGE_SIZE, renderDate } from "@lib/util";
 import Pre from "@components/mdx/pre.astro";
 import Tags from "@components/composite/tags.astro";
+import Giscus from "@components/composite/giscus.astro";
 
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post");
@@ -102,6 +103,7 @@ const pageIndex =
       ol: OrderedList,
     }}
   />
+  <Giscus />
 </Base>
 
 <style>
