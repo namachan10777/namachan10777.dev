@@ -11,7 +11,9 @@ export interface Props {
     {
       Astro.props.tags.map((tag) => (
         <li>
-          <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
+          <a class="anchor" href={`/post/tag/${tag}`}>
+            #{tag}
+          </a>
         </li>
       ))
     }
@@ -20,6 +22,15 @@ export interface Props {
 
 <style>
   @layer component {
+    .anchor {
+      text-decoration: underline;
+      transition: color 0.1s;
+    }
+
+    .anchor:hover {
+      color: var(--fg-link);
+    }
+
     .list {
       display: flex;
       flex-wrap: wrap;
