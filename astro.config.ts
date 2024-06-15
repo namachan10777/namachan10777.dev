@@ -3,10 +3,9 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeKatex from "rehype-katex";
+import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
-import { remarkHeadingId } from "remark-custom-heading-id";
 import remarkGemoji from "remark-gemoji";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -28,14 +27,16 @@ export default defineConfig({
     react(),
   ],
   markdown: {
-    remarkPlugins: [
-      remarkSectionize,
-      remarkGemoji,
-      remarkGfm,
-      remarkMath,
+    remarkPlugins: [remarkSectionize, remarkGemoji, remarkGfm, remarkMath],
+    rehypePlugins: [
+      rehypeKatex,
+      rehypeSlug,
+      [
+        rehypePrettyCode,
+        { theme: { dark: "github-dark", light: "github-light" } },
+      ],
     ],
-    rehypePlugins: [rehypeKatex, rehypeSlug],
-    syntaxHighlight: "shiki",
+    syntaxHighlight: false,
     shikiConfig: {
       themes: {
         light: "github-light",

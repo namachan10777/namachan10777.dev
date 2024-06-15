@@ -1,5 +1,13 @@
 ---
 import { Icon } from "astro-icon/components";
+export interface Props {
+  style?: {
+    "--shiki-dark": string;
+    "--shiki-light": string;
+    "--shiki-dark-bg": string;
+    "--shiki-light-bg": string;
+  };
+}
 ---
 
 <code-block class="root">
@@ -33,7 +41,12 @@ import { Icon } from "astro-icon/components";
 
   customElements.define("code-block", CodeBlock);
 </script>
-<style>
+<style define:vars={Astro.props.style ? {
+  'shiki-light': Astro.props.style['--shiki-light'],
+  'shiki-dark': Astro.props.style['--shiki-dark'],
+  'shiki-light-bg': Astro.props.style['--shiki-light-bg'],
+  'shiki-dark-bg': Astro.props.style['--shiki-dark-bg'],
+} : {}}>
   @layer component {
     .root {
       display: block;
@@ -86,11 +99,23 @@ import { Icon } from "astro-icon/components";
       counter-reset: line;
     }
 
-    pre :global(code) :global(span[class="line"])::before {
+    pre :global(code) :global(span[data-line])::before {
       counter-increment: line;
       content: counter(line);
-      margin-right: 1.25rem;
+      margin-right: 1rem;
+      display: inline-block;
+      text-align: right;
       color: var(--fg-linenum);
+      width: 3rem;
+    }
+
+    pre {
+      color: var(--shiki-light);
+      background-color: var(--shiki-light-bg);
+    }
+
+    pre :global(span) {
+      color: var(--shiki-light);
     }
   }
   @layer patch {
