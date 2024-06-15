@@ -67,14 +67,24 @@ bun add @astrojs/rss
 
 `@vercel/og`を使って素朴な画像を生成。フォントはローカルに持っておくと重いので都度Google Fontsからダウンロードするヘルパスクリプトを書いた。
 
-## TODO
+## emoji 
+
+:v: `remark-gemoji`
+
+## 数式
+
+`remark-math` + `rehype-katex`。CSSとfontをいい感じにminifyしたいが……。
+
+$$
+0 = e^{-j\pi} + 1
+$$
+
+## TODO 
 
 - Link card
 - サイト内検索（pagefindを使いvanillaで頑張る予定）
   - AstroのCSSと手でnodeを作ることの相性が微妙かも
-- KaTeX
 - いい感じの脚注
-- emoji
 - ページ内anchor
 - code blockのタイトル対応
 - dark-mode

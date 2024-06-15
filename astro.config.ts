@@ -3,6 +3,13 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeKatex from "rehype-katex";
+import rehypeSlug from "rehype-slug";
+import { remarkHeadingId } from "remark-custom-heading-id";
+import remarkGemoji from "remark-gemoji";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import tsConfigPaths from "vite-tsconfig-paths";
 
@@ -21,7 +28,13 @@ export default defineConfig({
     react(),
   ],
   markdown: {
-    remarkPlugins: [remarkSectionize],
+    remarkPlugins: [
+      remarkSectionize,
+      remarkGemoji,
+      remarkGfm,
+      remarkMath,
+    ],
+    rehypePlugins: [rehypeKatex, rehypeSlug, rehypeAutolinkHeadings],
     syntaxHighlight: "shiki",
     shikiConfig: {
       themes: {
