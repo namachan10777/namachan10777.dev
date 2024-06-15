@@ -122,6 +122,7 @@
     "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
   --bg-code: #ddd;
   --bg-codeblock: #fff;
+  --bg-mask: rgba(255, 255, 255, 0.5);
 
   --fg-link: #11a129;
   --fg-weak: rgba(0, 0, 0, 0.7);

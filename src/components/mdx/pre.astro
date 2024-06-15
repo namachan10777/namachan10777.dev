@@ -1,33 +1,81 @@
 ---
-import { parse } from "node-html-parser";
-
-const plaintext = parse(await Astro.slots.render("default")).textContent;
+import { Icon } from "astro-icon/components";
 ---
 
 <code-block class="root">
-  <button>
-    
+  <button class="copy-button">
+    <span class="copy-message">copy</span>
+    <Icon name="iconoir:copy" class="copy-icon" />
   </button>
   <pre><slot /></pre>
-  <pre class="text-store">{plaintext}</pre>
 </code-block>
 
 <script>
   class CodeBlock extends HTMLElement {
     constructor() {
       super();
+      const button = this.querySelector(".copy-button")!;
+      const pre = this.querySelector("pre")!;
+      const message = this.querySelector(".copy-message")!;
+      let timeout: undefined | number;
+
+      button.addEventListener("click", () => {
+        navigator.clipboard.writeText(pre.textContent!).then(() => {
+          message.textContent = "copied!";
+          if (timeout) clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            message.textContent = "copy";
+          }, 1000);
+        });
+      });
     }
   }
 
   customElements.define("code-block", CodeBlock);
 </script>
 <style>
-  .root {
-    display: block;
-    position: relative;
-
-  }
   @layer component {
+    .root {
+      display: block;
+      position: relative;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0.5rem;
+      color: var(--fg-weak);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .copy-message {
+      opacity: 0;
+      padding: 0.5rem;
+      border-radius: 0.2rem;
+      background-color: var(--bg-codeblock);
+      transition: opacity 0.1s;
+      font-weight: bold;
+    }
+
+    .copy-icon {
+      font-size: var(--font-size-2xl);
+      transition: transform 0.1s;
+    }
+
+    .copy-button:hover > .copy-message {
+      opacity: 1;
+    }
+
+    .copy-button:hover > .copy-icon {
+      transform: scale(1.1);
+    }
+
     .text-store {
       display: none;
     }
