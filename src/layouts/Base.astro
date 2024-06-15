@@ -149,6 +149,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
         @media screen and (min-width: 640px) {
           .body-inner {
             width: 60%;
+            max-width: 60%;
           }
         }
 
@@ -168,6 +169,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
           display: flex;
           flex-direction: column;
           gap: 1rem;
+          max-width: calc(100vw - 3rem);
         }
 
         footer {
