@@ -1,9 +1,10 @@
 ---
 import HeadingInner from "./heading-inner.astro";
 interface Props {
-    id?: string;
+  id?: string;
 }
 ---
+
 <h1 id={Astro.props.id}>
   <HeadingInner id={Astro.props.id}><slot /></HeadingInner>
 </h1>
@@ -11,7 +12,7 @@ interface Props {
 <style>
   @layer component {
     h1 {
-      margin-block: 1rem;
+      margin-block: 0.5rem;
       font-size: var(--font-size-3xl);
       line-height: 2.5rem;
       font-weight: bold;

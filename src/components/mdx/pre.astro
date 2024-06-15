@@ -41,12 +41,16 @@ export interface Props {
 
   customElements.define("code-block", CodeBlock);
 </script>
-<style define:vars={Astro.props.style ? {
-  'shiki-light': Astro.props.style['--shiki-light'],
-  'shiki-dark': Astro.props.style['--shiki-dark'],
-  'shiki-light-bg': Astro.props.style['--shiki-light-bg'],
-  'shiki-dark-bg': Astro.props.style['--shiki-dark-bg'],
-} : {}}>
+<style
+  define:vars={Astro.props.style
+    ? {
+        "shiki-light": Astro.props.style["--shiki-light"],
+        "shiki-dark": Astro.props.style["--shiki-dark"],
+        "shiki-light-bg": Astro.props.style["--shiki-light-bg"],
+        "shiki-dark-bg": Astro.props.style["--shiki-dark-bg"],
+      }
+    : {}}
+>
   @layer component {
     .root {
       display: block;

@@ -60,19 +60,21 @@ const pageIndex =
     { display: entry.data.title, absolute: `/post/${entry.slug}` },
   ]}
 >
-  <div class="timestamp">
-    <span class="timestamp-row">
-      <span>ctime</span>
-      {renderDate("day", entry.data.date)}
-    </span>
-    <span class="timestamp-row">
-      <span>mtime</span>
-      {renderDate("day", entry.data.date)}
-    </span>
+  <div>
+    <Heading1>
+      {entry.data.title}
+    </Heading1>
+    <div class="timestamp">
+      <span class="timestamp-row">
+        <span>ctime</span>
+        {renderDate("day", entry.data.date)}
+      </span>
+      <span class="timestamp-row">
+        <span>mtime</span>
+        {renderDate("day", entry.data.date)}
+      </span>
+    </div>
   </div>
-  <Heading1>
-    {entry.data.title}
-  </Heading1>
 
   <div class="tags-container">
     <Tags tags={entry.data.tags} />
@@ -107,7 +109,8 @@ const pageIndex =
     display: grid;
     grid-template-columns: auto 1fr;
     column-gap: 1rem;
-    row-gap: 0.5rem;
+    row-gap: 0.3rem;
+    font-size: var(--font-size-sm);
   }
 
   .timestamp-row {
