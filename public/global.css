@@ -125,6 +125,7 @@
 
   --fg-link: #11a129;
   --fg-weak: rgba(0, 0, 0, 0.7);
+  --fg-hr: rgba(0, 0, 0, 0.3);
   --fg-normal: rgba(0, 0, 0.9);
   --fg-strong: rgba(0, 0, 0, 1) --font-size-2xl: 1.5rem;
 
