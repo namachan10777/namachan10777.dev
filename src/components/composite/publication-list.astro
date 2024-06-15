@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Publication from "@components/composite/publication.astro";
+
+export interface Props {
+  pubs: CollectionEntry<"pub">[];
+}
+
+const pubs = Astro.props.pubs.sort(
+  (b, a) => b.data.date.getDate() - a.data.date.getDate(),
+);
+---
+
+<ol>
+  {
+    pubs.map((pub) => (
+      <li>
+        <Publication pub={pub} />
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  @layer component {
+    ol {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+</style>

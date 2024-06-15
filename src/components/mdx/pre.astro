@@ -1,0 +1,18 @@
+---
+
+---
+
+<pre><slot /></pre>
+
+<style>
+  @layer component {
+    pre {
+      background-color: var(--bg-codeblock);
+    }
+  }
+  @layer patch {
+    pre > :global(code) {
+      background-color: inherit;
+    }
+  }
+</style>

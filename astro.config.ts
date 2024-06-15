@@ -1,7 +1,6 @@
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import remarkSectionize from "remark-sectionize";
@@ -14,7 +13,6 @@ export default defineConfig({
   integrations: [
     sitemap(),
     mdx(),
-    tailwind(),
     icon({
       include: {
         iconoir: ["*"],
@@ -24,6 +22,14 @@ export default defineConfig({
   ],
   markdown: {
     remarkPlugins: [remarkSectionize],
+    syntaxHighlight: "shiki",
+    shikiConfig: {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+    },
+    smartypants: false,
   },
   vite: {
     plugins: [tsConfigPaths()],

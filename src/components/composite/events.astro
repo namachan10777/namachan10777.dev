@@ -1,0 +1,45 @@
+---
+import { renderDate } from "@lib/util";
+import type { CollectionEntry } from "astro:content";
+
+export interface Props {
+  events: CollectionEntry<"event">[];
+}
+
+const events = Astro.props.events.sort(
+  (a, b) => b.data.date.getDate() - a.data.date.getDate(),
+);
+---
+
+<ol class="root">
+  {
+    events.map((event) => (
+      <li class="event">
+        <span class="date">
+          {renderDate(event.data.dateDetailLevel, event.data.date)}
+        </span>
+        <h3>{event.data.title}</h3>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  @layer component {
+    .root {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+    }
+
+    .event {
+      display: contents;
+    }
+
+    .date {
+      font-family: var(--font-mono);
+      font-size: var(--font-size-sm);
+      color: var(--fg-weak);
+    }
+  }
+</style>

@@ -7,11 +7,25 @@ export interface Props {
 }
 ---
 
-<div class="block size-full">
+<div class="container">
   <Picture
     alt={Astro.props.alt}
     src={Astro.props.src}
     formats={["webp"]}
-    class="h-auto w-full"
+    class="picture"
   />
 </div>
+
+<style>
+  @layer component {
+    .container {
+      width: 100%;
+      height: 100%;
+    }
+
+    .picture {
+      height: auto;
+      width: 100%;
+    }
+  }
+</style>

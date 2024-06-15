@@ -3,8 +3,10 @@ import type { GetStaticPaths } from "astro";
 import Base from "@layouts/Base.astro";
 import { getCollection } from "astro:content";
 import Anchor from "@components/mdx/anchor.astro";
-import PostPreview from "@components/post-preview.astro";
+import PostPreview from "@components/composite/post-preview.astro";
 import { PAGE_SIZE } from "@lib/util";
+import Tags from "@components/composite/tags.astro";
+import PostPreviewList from "@components/composite/post-preview-list.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getCollection("post");
@@ -40,25 +42,11 @@ const { page } = Astro.props;
       : [],
   )}
 >
-  <ul class="flex flex-wrap gap-4 py-2">
-    {
-      tags.map((tag) => (
-        <li class="font-mono font-semibold">
-          <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
-        </li>
-      ))
-    }
-  </ul>
-  <ol class="flex flex-col gap-6 py-2">
-    {
-      page.data.map((post) => (
-        <li>
-          <PostPreview post={post} />
-        </li>
-      ))
-    }
-  </ol>
-  <nav class="my-2 grid grid-cols-3 text-gray-600">
+  <div class="tags-container">
+    <Tags tags={tags} />
+  </div>
+  <PostPreviewList posts={page.data} />
+  <nav class="page-nav">
     {
       page.url.prev && (
         <div class=" col-start-1">
@@ -66,15 +54,42 @@ const { page } = Astro.props;
         </div>
       )
     }
-    <div class="col-start-2 text-center">
+    <div class="current">
       {page.currentPage} / {page.lastPage}
     </div>
     {
       page.url.next && (
-        <div class=" col-start-3 text-end">
+        <div class="next">
           <Anchor href={page.url.next}>next →</Anchor>
         </div>
       )
     }
   </nav>
 </Base>
+
+<style>
+  .page-nav {
+    display: grid;
+    grid-column: 1fr 1fr 1fr;
+    margin-block: 1rem;
+    color: var(--fg-weak);
+  }
+  .prev {
+    grid-column-start: 1;
+    justify-content: start;
+  }
+
+  .current {
+    grid-column-start: 2;
+    justify-content: center;
+  }
+
+  .next {
+    grid-column-start: 3;
+    justify-content: end;
+  }
+
+  .tags-container {
+    margin-block: 1rem;
+  }
+</style>

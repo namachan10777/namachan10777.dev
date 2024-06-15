@@ -1,16 +1,18 @@
 ---
 import Base from "@layouts/Base.astro";
 import { getCollection } from "astro:content";
-import Section from "@components/section.astro";
-import Event from "@components/events.astro";
-import MyIcon from "@asset/icon.webp";
-import { Picture } from "astro:assets";
-import Typography from "@components/typography.astro";
-import CodeBlock from "@components/mdx/code-block.astro";
-import Publication from "@components/publication.astro";
-import PostPreview from "@components/post-preview.astro";
+import Section from "@components/mdx/section.astro";
+import Heading2 from "@components/mdx/heading2.astro";
+import Event from "@components/composite/events.astro";
+import NameAndIcon from "@components/composite/name-and-icon.astro";
+import Typography from "@components/mdx/typography.astro";
+import Pre from "@components/mdx/pre.astro";
+import PostPreviewList from "@components/composite/post-preview-list.astro";
+import PublicationList from "@components/composite/publication-list.astro";
 import Anchor from "@components/mdx/anchor.astro";
+import Links from "@components/composite/links.astro";
 import { Icon } from "astro-icon/components";
+import Code from "astro/components/Code.astro";
 
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getDate() - a.data.date.getDate(),
@@ -21,6 +23,24 @@ const posts = (await getCollection("post")).sort(
 const pubs = (await getCollection("pub")).sort(
   (a, b) => b.data.date.getDate() - a.data.date.getDate(),
 );
+
+const links = [
+  {
+    text: "GitHub",
+    href: "https://github.com/namachan10777",
+    icon: "iconoir:github",
+  },
+  {
+    text: "X",
+    href: "https://x.com/namachan10777",
+    icon: "iconoir:x",
+  },
+  {
+    text: "Post",
+    href: "/post/page/1",
+    icon: "iconoir:post",
+  },
+];
 
 const profileCode = `\
 let region = "Tsukuba, 🇯🇵";
@@ -38,66 +58,47 @@ let contact = [
   og={{ type: "website" }}
   path={[{ display: { name: "profile", icon: "iconoir:home" }, absolute: "/" }]}
 >
-  <div class="mt-4 flex flex-col items-center gap-3">
-    <div class="w-36">
-      <Picture src={MyIcon} alt="icon" class="h-auto w-full rounded-full" />
-    </div>
-    <h1 class="text-3xl font-bold">namachan10777</h1>
-    <span class="text-2xl font-bold text-gray-600">Masaki Nakano</span>
-  </div>
-  <Section title="Profile">
-    <div class="flex flex-col gap-2 font-bold">
-      <Anchor href="https://github.com/namachan10777">
-        <Icon name="iconoir:github" class="mr-1 inline-block text-2xl" />
-        namachan10777
-      </Anchor>
-      <Anchor href="https://x.com/namachan10777">
-        <Icon name="iconoir:x" class="mr-1 inline-block text-2xl" />
-        namachan10777
-      </Anchor>
-      <Anchor href="/post/page/1">
-        <Icon name="iconoir:post" class="mr-1 inline-block text-2xl" />
-        posts
-      </Anchor>
-    </div>
+  <NameAndIcon />
+  <Section>
+    <Heading2>Profile</Heading2>
+    <Links links={links} />
     <Typography>
       A student at University of Tsukuba. Studying in distributed storage system
       in HPC.</Typography
     >
-    <CodeBlock code={profileCode} lang="rust" />
+    <Pre><Code lang="rust" code={profileCode} /></Pre>
   </Section>
-  <Section title="Timeline">
+  <Section>
+    <Heading2>Timeline</Heading2>
     <Event events={events} />
   </Section>
-  <Section title="Publications">
-    <ol class="flex flex-col gap-4">
-      {
-        pubs.map((pub) => (
-          <li>
-            <Publication pub={pub} />
-          </li>
-        ))
-      }
-    </ol>
+  <Section>
+    <Heading2>Publications</Heading2>
+    <PublicationList pubs={pubs.slice(0, Math.min(3, pubs.length))} />
   </Section>
-  <Section title="Posts" href="/post/page/1">
-    <ol class="flex flex-col gap-y-6">
-      {
-        posts.slice(0, Math.min(3, posts.length)).map((post) => (
-          <li>
-            <PostPreview post={post} />
-          </li>
-        ))
-      }
-    </ol>
-    <span class="group text-xl font-bold">
+  <Section>
+    <Heading2>
+      <Anchor href="/post/page/1">Posts</Anchor>
+    </Heading2>
+    <PostPreviewList posts={posts.slice(0, Math.min(3, posts.length))} />
+    <span class="readmore">
       <Anchor href="/post/page/1">
-        <Icon
-          name="iconoir:arrow-right-circle"
-          class="mr-2 inline-block transition-transform group-hover:scale-110"
-        />
+        <Icon name="iconoir:arrow-right-circle" class="readmore-icon" />
         記事をもっと読む
       </Anchor>
     </span>
   </Section>
 </Base>
+
+<style>
+  .readmore-icon {
+    margin-inline-end: 0.5rem;
+    display: inline-block;
+  }
+  .readmore .readmore-icon {
+    transition: transform 0.2s;
+  }
+  .readmore:hover .readmore-icon {
+    transform: scale(1.1);
+  }
+</style>

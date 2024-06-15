@@ -1,0 +1,58 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Typography from "@components/mdx/typography.astro";
+import Anchor from "@components/mdx/anchor.astro";
+
+export interface Props {
+  post: CollectionEntry<"post">;
+}
+const { post } = Astro.props;
+---
+
+<article>
+  <span class="date">{post.data.date.toISOString().slice(0, 10)}</span>
+  <h3 class="heading">
+    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
+  </h3>
+  <div>
+    {
+      post.data.tags.map((tag) => (
+        <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
+      ))
+    }
+  </div>
+  <div class="preview">
+    <Typography>
+      {post.body.slice(0, Math.min(120, post.body.length))}...
+    </Typography>
+  </div>
+</article>
+
+<style>
+  @layer component {
+    .date {
+      color: var(--fg-weak);
+      font-family: var(--font-mono);
+      font-size: var(--font-size-sm);
+    }
+
+    .heading {
+      margin-block-start: 0.25rem;
+      margin-block-end: 0.5rem;
+      font-size: var(--font-size-lg);
+      font-weight: bold;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: var(--font-size-sm);
+      font-weight: bold;
+    }
+
+    .preview {
+      margin-block-start: 0.5rem;
+    }
+  }
+</style>

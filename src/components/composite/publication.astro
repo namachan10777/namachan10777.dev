@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Anchor from "../mdx/anchor.astro";
+
+export interface Props {
+  pub: CollectionEntry<"pub">;
+}
+
+const { data } = Astro.props.pub;
+---
+
+<div>
+  <span class="year">{data.date.getFullYear()}</span>
+  <h3 class="title">
+    {data.href ? <Anchor href={data.href}>{data.title}</Anchor> : data.title}
+  </h3>
+  <span class="booktitle">{data.booktitle}</span>
+</div>
+
+<style>
+  @layer component {
+    .year {
+      font-family: var(--font-mono);
+      color: var(--fg-weak);
+      font-size: var(--font-size-sm);
+    }
+
+    .title {
+      font-weight: bold;
+    }
+
+    .booktitle {
+      font-size: var(--font-size-sm);
+      color: var(--fg-weak);
+    }
+  }
+</style>

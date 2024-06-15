@@ -1,5 +1,20 @@
-<h2
-  class="my-2 text-2xl font-bold before:text-xl before:text-gray-600 before:content-['#']"
->
+<h2>
   <slot />
 </h2>
+
+<style>
+  @layer component {
+    h2 {
+      margin-block: 0.5rem;
+      font-size: var(--font-size-2xl);
+      line-height: 2rem;
+      font-weight: bold;
+      color: var(--fg-strong);
+    }
+    h2::before {
+      content: "#";
+      font-size: var(--font-size-xl);
+      color: var(--fg-weak);
+    }
+  }
+</style>

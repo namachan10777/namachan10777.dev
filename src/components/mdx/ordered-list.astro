@@ -1,3 +1,12 @@
-<ol class="list-decimal pl-6">
+<ol>
   <slot />
 </ol>
+
+<style>
+  @layer component {
+    ol {
+      list-style: decimal;
+      padding-inline-start: 1.5rem;
+    }
+  }
+</style>

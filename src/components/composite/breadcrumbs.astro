@@ -1,0 +1,57 @@
+---
+import Anchor from "@components/mdx/anchor.astro";
+import { Icon } from "astro-icon/components";
+
+export interface PathFragment {
+  absolute: string;
+  display: string | { name: string; icon: string };
+}
+
+export interface Props {
+  path: PathFragment[];
+}
+---
+
+<nav>
+  {
+    Astro.props.path.flatMap((path, idx) => {
+      const anchor =
+        typeof path.display === "string" ? (
+          <Anchor href={path.absolute}>{path.display}</Anchor>
+        ) : (
+          <Anchor href={path.absolute} label={path.display.name}>
+            <span class="centering">
+              <Icon class="icon" name={path.display.icon} />
+            </span>
+          </Anchor>
+        );
+      if (idx == 0) {
+        return [anchor];
+      } else {
+        return [<span class="separator">/</span>, anchor];
+      }
+    })
+  }
+</nav>
+
+<style>
+  @layer component {
+    .centering {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 100%;
+    }
+    nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .icon {
+      display: inline-block;
+    }
+    .separator {
+      margin-inline: 0.5rem;
+    }
+  }
+</style>

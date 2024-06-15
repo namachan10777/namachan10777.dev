@@ -9,17 +9,21 @@ const { href, label } = Astro.props;
 
 {
   href.startsWith("http") ? (
-    <a href={href} aria-label={label} class="text-emerald-700 underline">
+    <a href={href} aria-label={label}>
       <slot />
     </a>
   ) : (
-    <a
-      href={href}
-      aria-label={label}
-      class="text-emerald-700 underline"
-      data-astro-prefetch
-    >
+    <a href={href} aria-label={label} data-astro-prefetch>
       <slot />
     </a>
   )
 }
+
+<style>
+  @layer component {
+    a {
+      color: var(--fg-link);
+      text-decoration: underline;
+    }
+  }
+</style>

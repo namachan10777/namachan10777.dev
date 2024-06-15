@@ -1,3 +1,12 @@
-<ul class="list-disc pl-6">
+<ul>
   <slot />
 </ul>
+
+<style>
+  @layer component {
+    ul {
+      list-style: disc;
+      padding-inline-start: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import PostPreview from "@components/composite/post-preview.astro";
+
+export interface Props {
+  posts: CollectionEntry<"post">[];
+}
+
+const posts = Astro.props.posts.sort(
+  (b, a) => b.data.date.getDate() - a.data.date.getDate(),
+);
+---
+
+<ol>
+  {
+    posts.map((post) => (
+      <li>
+        <PostPreview post={post} />
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  @layer component {
+    ol {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+  }
+</style>

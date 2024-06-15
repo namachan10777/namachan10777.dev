@@ -1,19 +1,19 @@
-<h3>
+<h6>
   <slot />
-</h3>
+</h6>
 
 <style>
   @layer component {
-    h3 {
+    h6 {
       margin-block: 0.5rem;
-      font-size: var(--font-size-xl);
-      line-height: 1.5rem;
+      font-size: var(--font-size-lg);
+      line-height: 1.25rem;
       font-weight: bold;
       color: var(--fg-strong);
     }
-    h3::before {
+    h6::before {
       content: "#";
-      font-size: var(--font-size-lg);
+      font-size: var(--font-size-base);
       color: var(--fg-weak);
     }
   }

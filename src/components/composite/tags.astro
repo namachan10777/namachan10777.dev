@@ -1,0 +1,34 @@
+---
+import Anchor from "@components/mdx/anchor.astro";
+
+export interface Props {
+  tags: string[];
+}
+---
+
+<nav>
+  <ul class="list">
+    {
+      Astro.props.tags.map((tag) => (
+        <li>
+          <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  @layer component {
+    .list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .list li {
+      font-family: var(--font-mono);
+      font-weight: bold;
+    }
+  }
+</style>

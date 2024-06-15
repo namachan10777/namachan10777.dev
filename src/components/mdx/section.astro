@@ -1,3 +1,14 @@
-<section class="my-4 flex flex-col gap-4">
+<section>
   <slot />
 </section>
+
+<style>
+  @layer component {
+    section {
+      margin-block: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+</style>
