@@ -40,7 +40,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@typescript-eslint/parser": "^7.13.0",
     "astro-eslint-parser": "^1.0.2",
-    "eslint": "^9.4.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-astro": "^1.2.2",
     "eslint-plugin-tailwindcss": "^3.17.3",
     "prettier": "^3.3.2",
