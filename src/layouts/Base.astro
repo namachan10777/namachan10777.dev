@@ -2,6 +2,8 @@
 import { SEO } from "astro-seo";
 import { ViewTransitions } from "astro:transitions";
 import Breadcrumbs from "@components/composite/breadcrumbs.astro";
+import "./global.css";
+import "./katex.css";
 
 interface OgArticle {
   type: "article";
@@ -79,8 +81,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
-    <link rel="stylesheet" href="/global.css" />
-    <link rel="stylesheet" href="/katex.css" />
+    <style is:inline> @layer reset, component, patch; </style>
     <SEO
       title={Astro.props.title}
       description={Astro.props.description}
