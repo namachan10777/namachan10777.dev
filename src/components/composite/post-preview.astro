@@ -26,14 +26,12 @@ const text = vfile.toString();
 <article>
   <span class="date">{post.data.date.toISOString().slice(0, 10)}</span>
   <h3 class="heading">
-    <a class="anchor" href={`/post/${post.slug}`}>{post.data.title}</a>
+    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
   <nav class="tags">
     {
       post.data.tags.map((tag) => (
-        <a href={`/post/tag/${tag}`} class="anchor">
-          #{tag}
-        </a>
+        <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
       ))
     }
   </nav>
@@ -46,18 +44,8 @@ const text = vfile.toString();
 
 <style>
   @layer component {
-    .anchor {
-      text-decoration: underline;
-      transition: color 0.1s;
-    }
-
-    .anchor:hover {
-      color: var(--fg-link);
-    }
-
     .tags {
       font-family: var(--font-mono);
-      font-weight: bold;
       font-size: var(--font-size-sm);
       display: flex;
       flex-wrap: wrap;

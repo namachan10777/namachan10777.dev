@@ -12,29 +12,13 @@ const { data } = Astro.props.pub;
 <div>
   <span class="year">{data.date.getFullYear()}</span>
   <h3 class="title">
-    {
-      data.href ? (
-        <a class="anchor" href={data.href}>
-          {data.title}
-        </a>
-      ) : (
-        data.title
-      )
-    }
+    {data.href ? <Anchor href={data.href}>{data.title}</Anchor> : data.title}
   </h3>
   <span class="booktitle">{data.booktitle}</span>
 </div>
 
 <style>
   @layer component {
-    .anchor {
-      text-decoration: underline;
-    }
-
-    .anchor:hover {
-      color: var(--fg-link);
-    }
-
     .year {
       font-family: var(--font-mono);
       color: var(--fg-weak);
