@@ -47,12 +47,5 @@ export default defineConfig({
   },
   vite: {
     plugins: [tsConfigPaths()],
-    build: {
-      cssMinify: "lightningcss",
-    },
-    css: {
-      transformer: "lightningcss",
-      lightningcss: {},
-    },
   },
 });
