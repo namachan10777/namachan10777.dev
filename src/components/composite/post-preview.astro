@@ -14,6 +14,7 @@ export interface Props {
   post: CollectionEntry<"post">;
 }
 const { post } = Astro.props;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const vfile = await unified()
   .use(remarkParse)
   .use(remarkGfm)
