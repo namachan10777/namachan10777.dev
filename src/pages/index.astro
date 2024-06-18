@@ -92,8 +92,7 @@ let contact = [
   @layer component {
     .links {
       display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
+      flex-flow: row wrap;
       gap: 2rem;
       font-weight: bold;
     }
@@ -103,13 +102,16 @@ let contact = [
       display: inline-block;
       font-size: var(--font-size-2xl);
     }
+
     .readmore-icon {
       margin-inline-end: 0.5rem;
       display: inline-block;
     }
+
     .readmore .readmore-icon {
       transition: transform 0.2s;
     }
+
     .readmore:hover .readmore-icon {
       transform: scale(1.1);
     }

@@ -10,8 +10,10 @@
     "astro": "astro",
     "lint.eslint": "eslint .",
     "lint.fmt": "prettier --check .",
+    "lint.stylelint": "stylelint '**/*.{astro,css}'",
     "fix.eslint": "eslint --fix .",
-    "fix.fmt": "prettier --write ."
+    "fix.fmt": "prettier --write .",
+    "fix.stylelint": "stylelint --fix '**/*.{astro,css}'"
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
@@ -62,6 +64,9 @@
     "node-html-parser": "^6.1.13",
     "prettier": "^3.3.2",
     "prettier-plugin-astro": "^0.14.0",
+    "stylelint": "^16.6.1",
+    "stylelint-config-html": "^1.1.0",
+    "stylelint-config-standard": "^36.0.0",
     "typescript-eslint": "^7.13.0"
   }
 }

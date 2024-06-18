@@ -9,9 +9,7 @@
           - The "symbol *" part is to solve Firefox SVG sprite bug
           - The "html" element is excluded, otherwise a bug in Chrome breaks the CSS hyphens property (https://github.com/elad2412/the-new-css-reset/issues/36)
         */
-  *:where(
-      :not(html, iframe, canvas, img, svg, video, audio):not(svg *, symbol *)
-    ) {
+  *:where(:not(html, iframe, canvas, img, svg, video, audio, svg *, symbol *)) {
     all: unset;
     display: revert;
   }
@@ -25,8 +23,6 @@
 
   /* Fix mobile Safari increase font-size on landscape mode */
   html {
-    -moz-text-size-adjust: none;
-    -webkit-text-size-adjust: none;
     text-size-adjust: none;
   }
 
@@ -68,7 +64,6 @@
 
   /* minimum style to allow to style meter element */
   meter {
-    -webkit-appearance: revert;
     appearance: revert;
   }
 
@@ -90,7 +85,7 @@
 
   /* revert for bug in Chromium browsers
           - fix for the content editable attribute will work properly.
-          - webkit-user-select: auto; added for Safari in case of using user-select:none on wrapper element*/
+          - webkit-user-select: auto; added for Safari in case of using user-select:none on wrapper element */
   :where([contenteditable]:not([contenteditable="false"])) {
     -moz-user-modify: read-write;
     -webkit-user-modify: read-write;
@@ -118,26 +113,23 @@
 
 :root {
   --font-mono: ui-monospace, monospace, sans-serif;
-  --font-sans-serif: -apple-system, "Helvetica Neue", Arial,
-    "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  --font-sans-serif: -apple-system, "Helvetica Neue", arial,
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", meiryo, sans-serif;
   --bg-code: #eee;
   --bg-codeblock: #fff;
-  --bg-mask: rgba(255, 255, 255, 0.5);
-
+  --bg-mask: rgb(255 255 255 / 50%);
   --fg-link: #1c33b6;
-  --fg-weak: rgba(0, 0, 0, 0.7);
-  --fg-hr: rgba(0, 0, 0, 0.3);
-  --fg-normal: rgba(0, 0, 0.9);
-  --fg-strong: rgba(0, 0, 0, 1) --font-size-2xl: 1.5rem;
-  --fg-linenum: rgba(0, 0, 0, 0.4);
-
+  --fg-weak: rgb(0 0 0 / 70%);
+  --fg-hr: rgb(0 0 0 / 30%);
+  --fg-normal: rgb(0 0 0.9);
+  --fg-strong: rgb(0 0 0 / 100%);
+  --fg-linenum: rgb(0 0 0 / 40%);
   --font-size-3xl: 1.875rem;
   --font-size-2xl: 1.5rem;
   --font-size-xl: 1.25rem;
   --font-size-lg: 1.125rem;
   --font-size-base: 1rem;
   --font-size-sm: 0.875rem;
-
   --header-height: 3rem;
   --footer-height: 3rem;
 }

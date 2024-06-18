@@ -93,12 +93,6 @@ export interface Props {
       transform: scale(1.1);
     }
 
-    pre {
-      background-color: var(--bg-codeblock);
-      overflow-x: scroll;
-      font-size: var(--font-size-sm);
-    }
-
     pre :global(code) {
       counter-reset: line;
     }
@@ -115,6 +109,8 @@ export interface Props {
     }
 
     pre {
+      overflow-x: scroll;
+      font-size: var(--font-size-sm);
       color: var(--shiki-light);
       background-color: var(--shiki-light-bg);
     }
@@ -123,6 +119,7 @@ export interface Props {
       color: var(--shiki-light);
     }
   }
+
   @layer patch {
     pre > :global(code) {
       background-color: inherit;
