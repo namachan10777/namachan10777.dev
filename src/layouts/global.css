@@ -1,3 +1,5 @@
+@layer reset, component, patch;
+
 @layer reset {
   /***
           The new CSS reset - version 1.11.2 (last updated 15.11.2023)

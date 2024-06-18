@@ -46,6 +46,12 @@ export default defineConfig({
     smartypants: false,
   },
   vite: {
+    css: {
+      transformer: "lightningcss",
+    },
+    build: {
+      cssMinify: true,
+    },
     plugins: [tsConfigPaths()],
   },
 });
