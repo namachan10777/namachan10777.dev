@@ -11,9 +11,11 @@
     "lint.eslint": "eslint .",
     "lint.fmt": "prettier --check .",
     "lint.stylelint": "stylelint '**/*.{astro,css}'",
+    "lint": "run-p lint.*",
     "fix.eslint": "eslint --fix .",
     "fix.fmt": "prettier --write .",
-    "fix.stylelint": "stylelint --fix '**/*.{astro,css}'"
+    "fix.stylelint": "stylelint --fix '**/*.{astro,css}'",
+    "fix": "run-s fix.*"
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
@@ -62,6 +64,7 @@
     "eslint-plugin-astro": "^1.2.2",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "node-html-parser": "^6.1.13",
+    "npm-run-all2": "^6.2.0",
     "prettier": "^3.3.2",
     "prettier-plugin-astro": "^0.14.0",
     "stylelint": "^16.6.1",
