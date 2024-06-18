@@ -4,13 +4,12 @@ import { getCollection } from "astro:content";
 import Section from "@components/mdx/section.astro";
 import Heading2 from "@components/mdx/heading2.astro";
 import Event from "@components/composite/events.astro";
-import NameAndIcon from "@components/composite/name-and-icon.astro";
+import NameAndIcon from "@components/composite/top-profile.astro";
 import Typography from "@components/mdx/typography.astro";
 import Pre from "@components/mdx/pre.astro";
 import PostPreviewList from "@components/composite/post-preview-list.astro";
 import PublicationList from "@components/composite/publication-list.astro";
 import Anchor from "@components/mdx/anchor.astro";
-import Links from "@components/composite/links.astro";
 import { Icon } from "astro-icon/components";
 import Code from "astro/components/Code.astro";
 
@@ -58,10 +57,9 @@ let contact = [
   og={{ type: "website" }}
   path={[{ display: { name: "profile", icon: "iconoir:home" }, absolute: "/" }]}
 >
-  <NameAndIcon />
+  <NameAndIcon links={links} />
   <Section>
     <Heading2>Profile</Heading2>
-    <Links links={links} />
     <Typography>
       A student at University of Tsukuba. Studying in distributed storage system
       in HPC.</Typography
@@ -91,14 +89,29 @@ let contact = [
 </Base>
 
 <style>
-  .readmore-icon {
-    margin-inline-end: 0.5rem;
-    display: inline-block;
-  }
-  .readmore .readmore-icon {
-    transition: transform 0.2s;
-  }
-  .readmore:hover .readmore-icon {
-    transform: scale(1.1);
+  @layer component {
+    .links {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+      font-weight: bold;
+    }
+
+    .link-icon {
+      margin-inline-end: 0.5rem;
+      display: inline-block;
+      font-size: var(--font-size-2xl);
+    }
+    .readmore-icon {
+      margin-inline-end: 0.5rem;
+      display: inline-block;
+    }
+    .readmore .readmore-icon {
+      transition: transform 0.2s;
+    }
+    .readmore:hover .readmore-icon {
+      transform: scale(1.1);
+    }
   }
 </style>
