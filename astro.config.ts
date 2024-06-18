@@ -2,6 +2,7 @@ import remarkLinkCard from "./src/remark/plugin/link-card";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
@@ -59,6 +60,6 @@ export default defineConfig({
     build: {
       cssMinify: true,
     },
-    plugins: [tsConfigPaths()],
+    plugins: [tsConfigPaths(), vanillaExtractPlugin()],
   },
 });

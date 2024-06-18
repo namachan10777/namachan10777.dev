@@ -1,4 +1,6 @@
 ---
+import * as styles from "./anchor.css";
+
 export interface Props {
   href: string;
   label?: string;
@@ -10,23 +12,18 @@ const { href, label, id } = Astro.props;
 
 {
   href.startsWith("http") ? (
-    <a id={id} href={href} aria-label={label}>
+    <a id={id} href={href} aria-label={label} class={styles.root}>
       <slot />
     </a>
   ) : (
-    <a id={id} href={href} aria-label={label} data-astro-prefetch>
+    <a
+      id={id}
+      href={href}
+      aria-label={label}
+      class={styles.root}
+      data-astro-prefetch
+    >
       <slot />
     </a>
   )
 }
-
-<style>
-  @layer component {
-    a {
-      color: var(--fg-link);
-      text-decoration: underline;
-      display: inline-flex;
-      align-items: center;
-    }
-  }
-</style>
