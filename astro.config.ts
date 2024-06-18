@@ -1,3 +1,4 @@
+import remarkLinkCard from "./src/remark/plugin/link-card";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -27,7 +28,13 @@ export default defineConfig({
     react(),
   ],
   markdown: {
-    remarkPlugins: [remarkSectionize, remarkGemoji, remarkGfm, remarkMath],
+    remarkPlugins: [
+      remarkSectionize,
+      remarkGemoji,
+      remarkGfm,
+      remarkMath,
+      remarkLinkCard,
+    ],
     rehypePlugins: [
       rehypeKatex,
       rehypeSlug,

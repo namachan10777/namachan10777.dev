@@ -9,7 +9,8 @@
       "@layouts/*": ["./src/layouts/*"],
       "@lib/*": ["./src/lib/*"],
       "@asset/*": ["./src/assets/*"],
-      "@fonts/*": ["./fonts/*"]
+      "@fonts/*": ["./fonts/*"],
+      "~/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.astro", "eslint.config.mjs"]
