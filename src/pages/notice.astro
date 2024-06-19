@@ -1,8 +1,8 @@
 ---
+import Base from "@layouts/Base.astro";
 import Anchor from "@components/mdx/anchor.astro";
 import Heading1 from "@components/mdx/heading1.astro";
 import Heading2 from "@components/mdx/heading2.astro";
-import Base from "@layouts/Base.astro";
 import licenseChecker, { type ModuleInfos } from "license-checker-rseidelsohn";
 
 async function checkLicense(): Promise<ModuleInfos> {
