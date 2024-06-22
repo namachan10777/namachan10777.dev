@@ -21,6 +21,8 @@
   --light-fg-normal: rgb(0 0 0 / 85%);
   --light-fg-strong: rgb(0 0 0 / 100%);
   --light-fg-linenum: rgb(0 0 0 / 40%);
+  --light-fg-thumb: #bbb;
+  --light-fg-track: #ddd;
 
   --dark-bg: #202020;
   --dark-bg-code: #303030;
@@ -32,6 +34,8 @@
   --dark-fg-normal: rgb(255 255 255 / 85%);
   --dark-fg-strong: rgb(255 255 255 / 100%);
   --dark-fg-linenum: rgb(255 255 255 / 40%);
+  --dark-fg-thumb: #555;
+  --dark-fg-track: #333;
 }
 
 body {
@@ -53,6 +57,8 @@ body {
   --fg-normal: var(--light-fg-normal);
   --fg-strong: var(--light-fg-strong);
   --fg-linenum: var(--light-fg-linenum);
+  --fg-thumb: var(--light-fg-thumb);
+  --fg-track: var(--light-fg-track);
 }
 
 :root:has(#theme-switcher[data-theme="dark"]) {
@@ -66,4 +72,6 @@ body {
   --fg-normal: var(--dark-fg-normal);
   --fg-strong: var(--dark-fg-strong);
   --fg-linenum: var(--dark-fg-linenum);
+  --fg-thumb: var(--dark-fg-thumb);
+  --fg-track: var(--dark-fg-track);
 }
