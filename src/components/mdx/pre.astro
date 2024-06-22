@@ -75,7 +75,8 @@ export interface Props {
       opacity: 0;
       padding: 0.5rem;
       border-radius: 0.2rem;
-      background-color: var(--bg-codeblock);
+      background-color: var(--bg-mask);
+      backdrop-filter: blur(5px);
       transition: opacity 0.1s;
       font-weight: bold;
     }
@@ -113,19 +114,19 @@ export interface Props {
       font-size: var(--font-size-sm);
     }
 
-    :global(body):has([data-theme="dark"]) pre {
+    :global(body):has(theme-switcher[data-theme="dark"]) pre {
       background-color: var(--shiki-dark-bg);
     }
 
-    :global(body):has([data-theme="dark"]) pre :global(span) {
+    :global(body):has(theme-switcher[data-theme="dark"]) pre :global(span) {
       color: var(--shiki-dark);
     }
 
-    :global(body):has([data-theme="light"]) pre {
+    :global(body):has(theme-switcher[data-theme="light"]) pre {
       background-color: var(--shiki-light-bg);
     }
 
-    :global(body):has([data-theme="light"]) pre :global(span) {
+    :global(body):has(theme-switcher[data-theme="light"]) pre :global(span) {
       color: var(--shiki-light);
     }
   }

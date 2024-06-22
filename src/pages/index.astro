@@ -12,6 +12,7 @@ import PublicationList from "@components/composite/publication-list.astro";
 import Anchor from "@components/mdx/anchor.astro";
 import { Icon } from "astro-icon/components";
 import Code from "astro/components/Code.astro";
+import Codeblock from "@components/composite/codeblock.astro";
 
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
@@ -64,7 +65,7 @@ let contact = [
       A student at University of Tsukuba. Studying in distributed storage system
       in HPC.</Typography
     >
-    <Pre><Code lang="rust" code={profileCode} theme={"github-light"} /></Pre>
+    <Codeblock lang="rust" content={profileCode} />
   </Section>
   <Section>
     <Heading2>Timeline</Heading2>

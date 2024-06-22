@@ -16,20 +16,20 @@
   --light-bg-codeblock: #fff;
   --light-bg-mask: rgb(255 255 255 / 50%);
   --light-fg-link: #1c33b6;
-  --light-fg-weak: rgb(0 0 0 / 70%);
+  --light-fg-weak: rgb(0 0 0 / 65%);
   --light-fg-hr: rgb(0 0 0 / 30%);
-  --light-fg-normal: rgb(0 0 0.9);
+  --light-fg-normal: rgb(0 0 0 / 85%);
   --light-fg-strong: rgb(0 0 0 / 100%);
   --light-fg-linenum: rgb(0 0 0 / 40%);
 
-  --dark-bg: black;
-  --dark-bg-code: #111;
-  --dark-bg-codeblock: #fff;
+  --dark-bg: #202020;
+  --dark-bg-code: #303030;
+  --dark-bg-codeblock: #303030;
   --dark-bg-mask: rgb(0 0 0 / 50%);
-  --dark-fg-link: #999db4;
-  --dark-fg-weak: rgb(255 255 255 / 70%);
+  --dark-fg-link: #9aa6e2;
+  --dark-fg-weak: rgb(255 255 255 / 65%);
   --dark-fg-hr: rgb(255 255 255 / 30%);
-  --dark-fg-normal: rgb(255 255 255.9);
+  --dark-fg-normal: rgb(255 255 255 / 85%);
   --dark-fg-strong: rgb(255 255 255 / 100%);
   --dark-fg-linenum: rgb(255 255 255 / 40%);
 }
