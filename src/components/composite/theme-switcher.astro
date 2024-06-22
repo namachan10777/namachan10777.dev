@@ -1,0 +1,75 @@
+---
+import type { Theme } from "~/lib/theme";
+import { Icon } from "astro-icon/components";
+
+export interface Props {
+  id: string;
+  initial: Theme;
+}
+---
+
+<theme-switcher id={Astro.props.id} data-initial-theme={Astro.props.initial}>
+  <button>
+    <Icon class:list={["icon", "light-icon"]} name="iconoir:sun-light" />
+    <Icon class:list={["icon", "dark-icon"]} name="iconoir:half-moon" />
+  </button>
+</theme-switcher>
+
+<style>
+  .icon {
+    font-size: var(--font-size-2xl);
+  }
+
+  theme-switcher[data-theme="light"] .dark-icon {
+    display: none;
+  }
+
+  theme-switcher[data-theme="dark"] .light-icon {
+    display: none;
+  }
+</style>
+
+<script>
+  import { cycleTheme, type Theme, sanitizeTheme } from "~/lib/theme";
+
+  function restoreTheme(initial?: string): Theme {
+    const saved = localStorage.getItem("theme");
+    if (saved) {
+      return sanitizeTheme(saved);
+    } else {
+      const theme = sanitizeTheme(initial);
+      localStorage.setItem("theme", theme);
+      return theme;
+    }
+  }
+
+  class ThemeSwitcher extends HTMLElement {
+    #button: HTMLButtonElement;
+
+    constructor() {
+      super();
+      this.#button = this.querySelector("button")!;
+      this.#button.addEventListener("click", () => this.#toggleTheme());
+      this.dataset.theme = restoreTheme(this.dataset.initialTheme);
+    }
+
+    #setTheme(theme: Theme) {
+      this.dataset.theme = theme;
+      localStorage.setItem("theme", theme);
+    }
+
+    #getTheme() {
+      if (this.dataset.theme) {
+        return sanitizeTheme(this.dataset.theme);
+      } else {
+        return restoreTheme(this.dataset.initialTheme);
+      }
+    }
+
+    #toggleTheme() {
+      this.#setTheme(cycleTheme(this.#getTheme()));
+    }
+  }
+
+  customElements.define("theme-switcher", ThemeSwitcher);
+</script>

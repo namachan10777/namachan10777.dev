@@ -1,131 +1,7 @@
-@layer reset, component, patch;
-
-@layer reset {
-  /***
-          The new CSS reset - version 1.11.2 (last updated 15.11.2023)
-          GitHub page: https://github.com/elad2412/the-new-css-reset
-        ***/
-
-  /*
-          Remove all the styles of the "User-Agent-Stylesheet", except for the 'display' property
-          - The "symbol *" part is to solve Firefox SVG sprite bug
-          - The "html" element is excluded, otherwise a bug in Chrome breaks the CSS hyphens property (https://github.com/elad2412/the-new-css-reset/issues/36)
-        */
-  *:where(:not(html, iframe, canvas, img, svg, video, audio, svg *, symbol *)) {
-    all: unset;
-    display: revert;
-  }
-
-  /* Preferred box-sizing value */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  /* Fix mobile Safari increase font-size on landscape mode */
-  html {
-    text-size-adjust: none;
-  }
-
-  /* Reapply the pointer cursor for anchor tags */
-  a,
-  button {
-    cursor: revert;
-  }
-
-  /* Remove list styles (bullets/numbers) */
-  ol,
-  ul,
-  menu,
-  summary {
-    list-style: none;
-  }
-
-  /* For images to not be able to exceed their container */
-  img {
-    max-inline-size: 100%;
-    max-block-size: 100%;
-  }
-
-  /* removes spacing between cells in tables */
-  table {
-    border-collapse: collapse;
-  }
-
-  /* Safari - solving issue when using user-select:none on the <body> text input doesn't working */
-  input,
-  textarea {
-    user-select: auto;
-  }
-
-  /* revert the 'white-space' property for textarea elements on Safari */
-  textarea {
-    white-space: revert;
-  }
-
-  /* minimum style to allow to style meter element */
-  meter {
-    appearance: revert;
-  }
-
-  /* preformatted text - use only for this feature */
-  :where(pre) {
-    all: revert;
-    box-sizing: border-box;
-  }
-
-  /* reset default text opacity of input placeholder */
-  ::placeholder {
-    color: unset;
-  }
-
-  /* fix the feature of 'hidden' attribute.display:revert; revert to element instead of attribute */
-  :where([hidden]) {
-    display: none;
-  }
-
-  /* revert for bug in Chromium browsers
-          - fix for the content editable attribute will work properly.
-          - webkit-user-select: auto; added for Safari in case of using user-select:none on wrapper element */
-  :where([contenteditable]:not([contenteditable="false"])) {
-    -moz-user-modify: read-write;
-    -webkit-user-modify: read-write;
-    overflow-wrap: break-word;
-    line-break: after-white-space;
-    user-select: auto;
-  }
-
-  /* apply back the draggable feature - exist only in Chromium and Safari */
-  :where([draggable="true"]) {
-    -webkit-user-drag: element;
-  }
-
-  /* Revert Modal native behavior */
-  :where(dialog:modal) {
-    all: revert;
-    box-sizing: border-box;
-  }
-
-  /* Remove details summary webkit styles */
-  ::-webkit-details-marker {
-    display: none;
-  }
-}
-
 :root {
   --font-mono: ui-monospace, monospace, sans-serif;
   --font-sans-serif: -apple-system, "Helvetica Neue", arial,
     "Hiragino Kaku Gothic ProN", "Hiragino Sans", meiryo, sans-serif;
-  --bg-code: #eee;
-  --bg-codeblock: #fff;
-  --bg-mask: rgb(255 255 255 / 50%);
-  --fg-link: #1c33b6;
-  --fg-weak: rgb(0 0 0 / 70%);
-  --fg-hr: rgb(0 0 0 / 30%);
-  --fg-normal: rgb(0 0 0.9);
-  --fg-strong: rgb(0 0 0 / 100%);
-  --fg-linenum: rgb(0 0 0 / 40%);
   --font-size-3xl: 1.875rem;
   --font-size-2xl: 1.5rem;
   --font-size-xl: 1.25rem;
@@ -134,4 +10,60 @@
   --font-size-sm: 0.875rem;
   --header-height: 3rem;
   --footer-height: 3rem;
+
+  --light-bg: white;
+  --light-bg-code: #eee;
+  --light-bg-codeblock: #fff;
+  --light-bg-mask: rgb(255 255 255 / 50%);
+  --light-fg-link: #1c33b6;
+  --light-fg-weak: rgb(0 0 0 / 70%);
+  --light-fg-hr: rgb(0 0 0 / 30%);
+  --light-fg-normal: rgb(0 0 0.9);
+  --light-fg-strong: rgb(0 0 0 / 100%);
+  --light-fg-linenum: rgb(0 0 0 / 40%);
+
+  --dark-bg: black;
+  --dark-bg-code: #111;
+  --dark-bg-codeblock: #fff;
+  --dark-bg-mask: rgb(0 0 0 / 50%);
+  --dark-fg-link: #999db4;
+  --dark-fg-weak: rgb(255 255 255 / 70%);
+  --dark-fg-hr: rgb(255 255 255 / 30%);
+  --dark-fg-normal: rgb(255 255 255.9);
+  --dark-fg-strong: rgb(255 255 255 / 100%);
+  --dark-fg-linenum: rgb(255 255 255 / 40%);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg-normal);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+:root:has(#theme-switcher[data-theme="light"]) {
+  --bg: var(--light-bg);
+  --bg-code: var(--light-bg-code);
+  --bg-codeblock: var(--light-bg-codeblock);
+  --bg-mask: var(--light-bg-mask);
+  --fg-link: var(--light-fg-link);
+  --fg-weak: var(--light-fg-weak);
+  --fg-hr: var(--light-fg-hr);
+  --fg-normal: var(--light-fg-normal);
+  --fg-strong: var(--light-fg-strong);
+  --fg-linenum: var(--light-fg-linenum);
+}
+
+:root:has(#theme-switcher[data-theme="dark"]) {
+  --bg: var(--dark-bg);
+  --bg-code: var(--dark-bg-code);
+  --bg-codeblock: var(--dark-bg-codeblock);
+  --bg-mask: var(--dark-bg-mask);
+  --fg-link: var(--dark-fg-link);
+  --fg-weak: var(--dark-fg-weak);
+  --fg-hr: var(--dark-fg-hr);
+  --fg-normal: var(--dark-fg-normal);
+  --fg-strong: var(--dark-fg-strong);
+  --fg-linenum: var(--dark-fg-linenum);
 }

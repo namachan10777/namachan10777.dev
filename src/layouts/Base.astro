@@ -1,9 +1,11 @@
 ---
+import "./reset.css";
 import "./global.css";
 import "./katex.css";
 import { SEO } from "astro-seo";
 import { ViewTransitions } from "astro:transitions";
 import Breadcrumbs from "@components/composite/breadcrumbs.astro";
+import ThemeSwitcher from "@components/composite/theme-switcher.astro";
 
 interface OgArticle {
   type: "article";
@@ -81,9 +83,6 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
-    <style is:inline>
-      @layer reset, component, patch;
-    </style>
     <slot name="head" />
     <SEO
       title={Astro.props.title}
@@ -134,6 +133,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     <div class="body-inner">
       <header>
         <Breadcrumbs path={Astro.props.path} />
+        <ThemeSwitcher id="theme-switcher" initial="light" transition:persist />
       </header>
       <main>
         <slot />
@@ -141,8 +141,6 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
       <footer><span>©2020-2024 Masaki Nakano</span></footer>
     </div>
     <style>
-      @layer reset, component, patch;
-
       @layer component {
         body {
           display: flex;
@@ -191,5 +189,9 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
         }
       }
     </style>
+    <script>
+      const theme = localStorage.getItem("theme") || "dark";
+      document.body.dataset.theme = theme;
+    </script>
   </body>
 </html>
