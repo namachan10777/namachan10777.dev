@@ -30,7 +30,12 @@ export interface Props {
 </style>
 
 <script>
-  import { cycleTheme, type Theme, sanitizeTheme } from "~/lib/theme";
+  import {
+    cycleTheme,
+    type Theme,
+    sanitizeTheme,
+    giscusTheme,
+  } from "~/lib/theme";
 
   function restoreTheme(initial?: string): Theme {
     const saved = localStorage.getItem("theme");
@@ -45,16 +50,43 @@ export interface Props {
 
   class ThemeSwitcher extends HTMLElement {
     #button: HTMLButtonElement;
+    #theme: Theme;
+    #initialized = false;
 
     constructor() {
       super();
       this.#button = this.querySelector("button")!;
       this.#button.addEventListener("click", () => this.#toggleTheme());
-      this.dataset.theme = restoreTheme(this.dataset.initialTheme);
+      this.#theme = restoreTheme(this.dataset.initialTheme);
+      window.addEventListener("message", () => {
+        if (!this.#initialized) {
+          this.#setTheme(this.#theme);
+          this.#initialized = true;
+        }
+      });
+      this.#setTheme(this.#theme);
     }
 
     #setTheme(theme: Theme) {
       this.dataset.theme = theme;
+
+      const giscus = document.querySelector(
+        'iframe[class="giscus-frame"]',
+      ) as HTMLIFrameElement | null;
+
+      if (giscus) {
+        giscus.contentWindow?.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: giscusTheme[theme],
+              },
+            },
+          },
+          "https://giscus.app",
+        );
+      }
+
       localStorage.setItem("theme", theme);
     }
 

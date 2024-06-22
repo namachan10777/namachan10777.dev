@@ -111,11 +111,21 @@ export interface Props {
     pre {
       overflow-x: scroll;
       font-size: var(--font-size-sm);
-      color: var(--shiki-light);
+    }
+
+    :global(body):has([data-theme="dark"]) pre {
+      background-color: var(--shiki-dark-bg);
+    }
+
+    :global(body):has([data-theme="dark"]) pre :global(span) {
+      color: var(--shiki-dark);
+    }
+
+    :global(body):has([data-theme="light"]) pre {
       background-color: var(--shiki-light-bg);
     }
 
-    pre :global(span) {
+    :global(body):has([data-theme="light"]) pre :global(span) {
       color: var(--shiki-light);
     }
   }

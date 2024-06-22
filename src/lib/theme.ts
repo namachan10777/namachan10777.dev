@@ -18,3 +18,8 @@ export function cycleTheme(theme: Theme): Theme {
       return "dark";
   }
 }
+
+export const giscusTheme: { [key in Theme]: string } = {
+  light: "light",
+  dark: "dark",
+};
