@@ -1,15 +1,17 @@
 ---
-import type { Theme } from "~/lib/theme";
+import { type Theme, ariaLabel } from "~/lib/theme";
 import { Icon } from "astro-icon/components";
 
 export interface Props {
   id: string;
   initial: Theme;
 }
+
+const { id, initial } = Astro.props;
 ---
 
-<theme-switcher id={Astro.props.id} data-initial-theme={Astro.props.initial}>
-  <button>
+<theme-switcher id={id} data-initial-theme={initial}>
+  <button aria-label={ariaLabel[initial]}>
     <Icon class:list={["icon", "light-icon"]} name="iconoir:sun-light" />
     <Icon class:list={["icon", "dark-icon"]} name="iconoir:half-moon" />
   </button>
@@ -19,23 +21,25 @@ export interface Props {
   .icon {
     font-size: var(--font-size-2xl);
     color: var(--fg-strong);
-  }
-
-  theme-switcher[data-theme="light"] .dark-icon {
     display: none;
   }
 
-  theme-switcher[data-theme="dark"] .light-icon {
-    display: none;
+  theme-switcher[data-theme="light"] .light-icon {
+    display: block;
+  }
+
+  theme-switcher[data-theme="dark"] .dark-icon {
+    display: block;
   }
 </style>
 
 <script>
   import {
-    cycleTheme,
     type Theme,
+    cycleTheme,
     sanitizeTheme,
     giscusTheme,
+    ariaLabel,
   } from "~/lib/theme";
 
   function restoreTheme(initial?: string): Theme {
@@ -74,6 +78,8 @@ export interface Props {
       const giscus = document.querySelector(
         'iframe[class="giscus-frame"]',
       ) as HTMLIFrameElement | null;
+
+      this.#button.ariaLabel = ariaLabel[theme];
 
       if (giscus) {
         giscus.contentWindow?.postMessage(

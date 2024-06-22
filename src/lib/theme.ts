@@ -23,3 +23,8 @@ export const giscusTheme: { [key in Theme]: string } = {
   light: "light",
   dark: "dark",
 };
+
+export const ariaLabel: { [key in Theme]: string } = {
+  dark: "ライトモードにする",
+  light: "ダークモードにする",
+};
