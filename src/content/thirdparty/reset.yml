@@ -1,0 +1,5 @@
+src: src/layouts/reset.css
+from:
+  - title: The New Reset CSS
+    href: "https://github.com/elad2412/the-new-css-reset"
+    license: MIT

@@ -1,0 +1,8 @@
+src: src/remark/plugin/link-card.ts
+from:
+  - title: haxibami.net
+    href: https://github.com/haxibami/haxibami.net/blob/main/src/lib/remark-link-card.ts
+    license: MIT
+  - title: haxibami.net
+    href: https://github.com/haxibami/haxibami.net/blob/main/src/lib/mdast-util-node-is.ts
+    license: MIT

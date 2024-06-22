@@ -1,0 +1,5 @@
+src: src/layouts/katex.css
+from:
+  - title: KaTeX
+    href: https://github.com/KaTeX/KaTeX
+    license: MIT

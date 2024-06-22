@@ -4,6 +4,7 @@ import Anchor from "@components/mdx/anchor.astro";
 import Heading1 from "@components/mdx/heading1.astro";
 import Heading2 from "@components/mdx/heading2.astro";
 import licenseChecker, { type ModuleInfos } from "license-checker-rseidelsohn";
+import { getCollection } from "astro:content";
 
 async function checkLicense(): Promise<ModuleInfos> {
   return new Promise((resolve, reject) => {
@@ -24,43 +25,7 @@ async function checkLicense(): Promise<ModuleInfos> {
 
 const moduleInfos = await checkLicense();
 
-const sourceLicenses: Record<
-  string,
-  { from: { title: string; href: string; license: string }[] }
-> = {
-  "src/remark/plugin/link-card.ts": {
-    from: [
-      {
-        title: "haxibami.net",
-        href: "https://github.com/haxibami/haxibami.net/blob/main/src/lib/remark-link-card.ts",
-        license: "MIT",
-      },
-      {
-        title: "haxibami.net",
-        href: "https://github.com/haxibami/haxibami.net/blob/main/src/lib/mdast-util-node-is.ts",
-        license: "MIT",
-      },
-    ],
-  },
-  "src/layouts/reset.css": {
-    from: [
-      {
-        title: "The new reset css",
-        href: "https://github.com/elad2412/the-new-css-reset",
-        license: "MIT",
-      },
-    ],
-  },
-  "src/layouts/katex.css": {
-    from: [
-      {
-        title: "KaTeX",
-        href: "https://github.com/KaTeX/KaTeX",
-        license: "MIT",
-      },
-    ],
-  },
-};
+const sourceLicenses = await getCollection("thirdparty");
 ---
 
 <Base
@@ -89,14 +54,14 @@ const sourceLicenses: Record<
       </thead>
       <tbody
         >{
-          Object.entries(sourceLicenses).map(([source, { from }]) => {
-            const sourceHref = `https://github.com/namachan10777/namachan10777.dev/blob/master/${source}`;
+          sourceLicenses.map(({ data: { src, from } }) => {
+            const sourceHref = `https://github.com/namachan10777/namachan10777.dev/blob/master/${src}`;
             return from.map(({ title, href, license }, index) => (
               <tr>
                 {index === 0 ? (
                   <td rowspan={from.length}>
                     <Anchor href={sourceHref}>
-                      <code class="source-file-name">{source}</code>
+                      <code class="source-file-name">{src}</code>
                     </Anchor>
                   </td>
                 ) : null}

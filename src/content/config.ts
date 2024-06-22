@@ -34,8 +34,23 @@ const event = defineCollection({
   }),
 });
 
+const thirdparty = defineCollection({
+  type: "data",
+  schema: z.object({
+    src: z.string(),
+    from: z.array(
+      z.object({
+        title: z.string(),
+        href: z.string().url(),
+        license: z.literal("MIT"),
+      }),
+    ),
+  }),
+});
+
 export const collections = {
   post,
   pub,
   event,
+  thirdparty,
 };
