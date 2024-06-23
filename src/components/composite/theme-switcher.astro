@@ -1,5 +1,5 @@
 ---
-import { type Theme, ariaLabel } from "~/lib/theme";
+import { type Theme, ariaLabel } from "@lib/theme";
 import { Icon } from "astro-icon/components";
 
 export interface Props {
@@ -34,8 +34,8 @@ const { id, initial } = Astro.props;
 </style>
 
 <script>
-  import type { Theme, ThemeAdapter, ThemeProvider } from "~/lib/theme";
-  import { ariaLabel } from "~/lib/theme";
+  import type { Theme } from "~/lib/theme";
+  import { adapters, ariaLabel } from "~/lib/theme";
 
   function sanitizeTheme(theme?: string): Theme {
     switch (theme) {
@@ -67,20 +67,23 @@ const { id, initial } = Astro.props;
     }
   }
 
-  class ThemeSwitcher extends HTMLElement implements ThemeProvider {
+  class ThemeSwitcher extends HTMLElement {
     #button: HTMLButtonElement;
-    #adapters = new Set<ThemeAdapter>();
 
     constructor() {
       super();
       this.#button = this.querySelector("button")!;
       this.#button.addEventListener("click", () => this.#toggleTheme());
-      this.#setTheme(this.#getTheme());
+      const theme = this.#getTheme();
+      for (const adapter of adapters) {
+        adapter.init(theme);
+      }
+      this.#setTheme(theme);
     }
 
     #setTheme(theme: Theme) {
       this.dataset.theme = theme;
-      for (const adapter of this.#adapters) {
+      for (const adapter of adapters) {
         adapter.apply(theme);
       }
       this.#button.ariaLabel = ariaLabel[theme];
@@ -97,11 +100,6 @@ const { id, initial } = Astro.props;
 
     #toggleTheme() {
       this.#setTheme(cycleTheme(this.#getTheme()));
-    }
-
-    register(adapter: ThemeAdapter) {
-      adapter.init(this.#getTheme());
-      this.#adapters.add(adapter);
     }
   }
 

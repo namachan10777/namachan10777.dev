@@ -1,3 +1,5 @@
+import { GiscusAdapter } from "./giscus";
+
 export type Theme = "light" | "dark";
 
 export const ariaLabel: { [key in Theme]: string } = {
@@ -5,11 +7,9 @@ export const ariaLabel: { [key in Theme]: string } = {
   light: "ダークモードにする",
 };
 
-export interface ThemeProvider {
-  register(themeAdapter: ThemeAdapter): void;
-}
-
 export interface ThemeAdapter {
   init(theme: Theme): void;
   apply(theme: Theme): void;
 }
+
+export const adapters: ThemeAdapter[] = [new GiscusAdapter()];
