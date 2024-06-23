@@ -34,13 +34,27 @@ const { id, initial } = Astro.props;
 </style>
 
 <script>
-  import {
-    type Theme,
-    cycleTheme,
-    sanitizeTheme,
-    giscusTheme,
-    ariaLabel,
-  } from "~/lib/theme";
+  import type { Theme, ThemeAdapter, ThemeProvider } from "~/lib/theme";
+  import { ariaLabel } from "~/lib/theme";
+
+  function sanitizeTheme(theme?: string): Theme {
+    switch (theme) {
+      case "light":
+      case "dark":
+        return theme;
+      default:
+        return "light";
+    }
+  }
+
+  function cycleTheme(theme: Theme): Theme {
+    switch (theme) {
+      case "dark":
+        return "light";
+      case "light":
+        return "dark";
+    }
+  }
 
   function restoreTheme(initial?: string): Theme {
     const saved = localStorage.getItem("theme");
@@ -53,47 +67,23 @@ const { id, initial } = Astro.props;
     }
   }
 
-  class ThemeSwitcher extends HTMLElement {
+  class ThemeSwitcher extends HTMLElement implements ThemeProvider {
     #button: HTMLButtonElement;
-    #theme: Theme;
-    #initialized = false;
+    #adapters = new Set<ThemeAdapter>();
 
     constructor() {
       super();
       this.#button = this.querySelector("button")!;
       this.#button.addEventListener("click", () => this.#toggleTheme());
-      this.#theme = restoreTheme(this.dataset.initialTheme);
-      window.addEventListener("message", () => {
-        if (!this.#initialized) {
-          this.#setTheme(this.#theme);
-          this.#initialized = true;
-        }
-      });
-      this.#setTheme(this.#theme);
+      this.#setTheme(this.#getTheme());
     }
 
     #setTheme(theme: Theme) {
       this.dataset.theme = theme;
-
-      const giscus = document.querySelector(
-        'iframe[class="giscus-frame"]',
-      ) as HTMLIFrameElement | null;
-
-      this.#button.ariaLabel = ariaLabel[theme];
-
-      if (giscus) {
-        giscus.contentWindow?.postMessage(
-          {
-            giscus: {
-              setConfig: {
-                theme: giscusTheme[theme],
-              },
-            },
-          },
-          "https://giscus.app",
-        );
+      for (const adapter of this.#adapters) {
+        adapter.apply(theme);
       }
-
+      this.#button.ariaLabel = ariaLabel[theme];
       localStorage.setItem("theme", theme);
     }
 
@@ -107,6 +97,11 @@ const { id, initial } = Astro.props;
 
     #toggleTheme() {
       this.#setTheme(cycleTheme(this.#getTheme()));
+    }
+
+    register(adapter: ThemeAdapter) {
+      adapter.init(this.#getTheme());
+      this.#adapters.add(adapter);
     }
   }
 
