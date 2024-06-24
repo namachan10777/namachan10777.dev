@@ -50,7 +50,7 @@ export default defineConfig({
         dark: "github-dark",
       },
     },
-    smartypants: false,
+    smartypants: true,
   },
   vite: {
     css: {
