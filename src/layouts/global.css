@@ -1,5 +1,5 @@
 :root {
-  --font-mono: ui-monospace, monospace, sans-serif;
+  --font-mono: Consolas, 'Courier New', Courier, Monaco, ui-monospace, monospace;
   --font-sans-serif: -apple-system, "Helvetica Neue", arial,
     "Hiragino Kaku Gothic ProN", "Hiragino Sans", meiryo, sans-serif;
   --font-size-3xl: 1.875rem;
