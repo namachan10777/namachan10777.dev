@@ -3,7 +3,7 @@ import type { APIRoute, GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection("post");
+  const posts = await getCollection("post", (post) => post.data.publish);
   const tags = new Set(posts.flatMap((post) => post.data.tags));
   return [...tags].map((tag) => ({
     params: {
@@ -13,8 +13,9 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 export const GET: APIRoute = async ({ params, site }) => {
-  const posts = await getCollection("post", (post) =>
-    post.data.tags.includes(params.tag!),
+  const posts = await getCollection(
+    "post",
+    (post) => post.data.tags.includes(params.tag!) && post.data.publish,
   );
   return await ogArticlePreviewSVG({
     title: params.tag!,

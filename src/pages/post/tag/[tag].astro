@@ -6,7 +6,7 @@ import Heading1 from "@components/mdx/heading1.astro";
 import PostPreviewList from "@components/composite/post-preview-list.astro";
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection("post");
+  const posts = await getCollection("post", (post) => post.data.publish);
   const tags = new Set(posts.flatMap((post) => post.data.tags));
   return [...tags].map((tag) => ({
     params: {
@@ -16,8 +16,9 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const posts = (
-  await getCollection("post", (post) =>
-    post.data.tags.includes(Astro.params.tag),
+  await getCollection(
+    "post",
+    (post) => post.data.tags.includes(Astro.params.tag) && post.data.publish,
   )
 ).sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
 ---

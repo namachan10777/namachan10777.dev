@@ -21,7 +21,7 @@ import Tags from "@components/composite/tags.astro";
 import Giscus from "@components/composite/giscus.astro";
 
 export const getStaticPaths = (async () => {
-  const collection = await getCollection("post");
+  const collection = await getCollection("post", (post) => post.data.publish);
   const posts = collection.map((post) => {
     const matched = /^(\d{4})\/(.+)$/.exec(post.slug)!;
     const year = matched[1];
@@ -38,7 +38,7 @@ const entry = await getEntry("post", Astro.params.slug);
 const { Content } = await entry.render();
 const pageIndex =
   Math.floor(
-    (await getCollection("post"))
+    (await getCollection("post", (post) => post.data.publish))
       .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
       .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE,
   ) + 1;

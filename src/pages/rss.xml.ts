@@ -2,7 +2,9 @@ import rss, { type RSSFeedItem } from "@astrojs/rss";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 
-const posts: RSSFeedItem[] = (await getCollection("post"))
+const posts: RSSFeedItem[] = (
+  await getCollection("post", (post) => post.data.publish)
+)
   .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
   .map((post) => ({
     title: post.data.title,

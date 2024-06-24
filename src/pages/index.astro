@@ -15,7 +15,7 @@ import Codeblock from "@components/composite/codeblock.astro";
 const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
-const posts = (await getCollection("post")).sort(
+const posts = (await getCollection("post", (post) => post.data.publish)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 const pubs = (await getCollection("pub")).sort(

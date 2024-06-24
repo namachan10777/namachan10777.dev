@@ -8,7 +8,7 @@ import Tags from "@components/composite/tags.astro";
 import PostPreviewList from "@components/composite/post-preview-list.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getCollection("post");
+  const posts = await getCollection("post", (post) => post.data.publish);
   return paginate(
     posts.sort((a, b) => a.data.date.getTime() - b.data.date.getTime()),
     { pageSize: PAGE_SIZE },
