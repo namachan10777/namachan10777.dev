@@ -32,6 +32,7 @@
     "@vercel/og": "^0.6.2",
     "astro": "^4.10.2",
     "astro-icon": "^1.1.0",
+    "astro-pagefind": "^1.5.0",
     "astro-seo": "^0.8.4",
     "hast-util-to-html": "^9.0.1",
     "license-checker": "^25.0.1",
@@ -54,8 +55,8 @@
     "retext-english": "^5.0.0",
     "retext-equality": "^7.1.0",
     "retext-stringify": "^4.0.0",
-    "shiki": "^1.9.0",
     "sharp": "^0.33.4",
+    "shiki": "^1.9.0",
     "typescript": "^5.4.5",
     "unified": "^11.0.4",
     "vite-tsconfig-paths": "^4.3.2"

@@ -12,6 +12,9 @@ import { Icon } from "astro-icon/components";
           <Icon name="iconoir:xmark" class="close-icon" />
         </button>
       </search>
+      <nav>
+        <ul class="founds"></ul>
+      </nav>
     </search>
   </dialog>
 </search-dialog>
@@ -36,6 +39,26 @@ import { Icon } from "astro-icon/components";
     height: 2rem;
   }
 
+  .founds {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .founds :global(.found-title) {
+    font-size: var(--font-size-lg);
+    color: var(--fg-link);
+  }
+
+  .founds :global(.found-excerpt) {
+    font-size: var(--font-size-sm);
+    color: var(--fg-weak);
+  }
+
+  .founds :global(mark) {
+    background-color: yellow;
+  }
+
   dialog {
     padding: 0;
     border: none;
@@ -48,6 +71,7 @@ import { Icon } from "astro-icon/components";
 
 <script>
   import type { SearchDialog } from "~/lib/search-dialog";
+  import type { Pagefind } from "~/lib/pagefind";
 
   interface DebouncerOption {
     timeout?: number;
@@ -98,6 +122,8 @@ import { Icon } from "astro-icon/components";
     #scrollY = 0;
     readonly #debouncer: Debouncer<string>;
     readonly #textInput: HTMLInputElement;
+    #pagefind: Pagefind | null = null;
+    #founds: HTMLUListElement;
 
     constructor() {
       super();
@@ -105,17 +131,50 @@ import { Icon } from "astro-icon/components";
       this.#textInput = this.querySelector(
         "input.text-input",
       )! as HTMLInputElement;
+      this.#founds = this.querySelector("ul.founds")!;
       this.#debouncer = new Debouncer((value) => {
         this.#applyNewQueryDirectly(value);
       });
       this.#setupDialogCloseHandler();
       this.#setupInputHandler();
+      (async () => {
+        const pagefind = (await import(
+          /* @vite-ignore */
+          `${"/pagefind/pagefind.js"}`
+        )) as unknown as Pagefind;
+        await pagefind.init();
+        this.#pagefind = pagefind;
+      })();
     }
 
     #setupInputHandler() {
       this.#textInput.addEventListener("input", (event) => {
         const target = event.target as HTMLInputElement;
-        this.#debouncer.put(target.value);
+        if (this.#pagefind) {
+          this.#pagefind.debouncedSearch(target.value).then(async (founds) => {
+            if (founds) {
+              const pages = await Promise.all(
+                founds.results.map((found) => found.data()),
+              );
+              const elements = pages.map((page) => {
+                const title = document.createElement("a");
+                title.textContent = page.meta.title;
+                title.href = page.url;
+                title.classList.add("found-title");
+
+                const excerpt = document.createElement("p");
+                excerpt.classList.add("found-excerpt");
+                excerpt.innerHTML = page.excerpt;
+
+                const li = document.createElement("li");
+                li.appendChild(title);
+                li.appendChild(excerpt);
+                return li;
+              });
+              this.#founds.replaceChildren(...elements);
+            }
+          });
+        }
       });
     }
 
