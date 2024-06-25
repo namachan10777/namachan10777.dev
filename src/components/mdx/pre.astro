@@ -94,6 +94,14 @@ export interface Props {
       transform: scale(1.1);
     }
 
+    pre {
+      overflow-x: auto;
+      scrollbar-color: var(--fg-thumb) var(--fg-track);
+      font-size: var(--font-size-sm);
+      padding-block: 1rem;
+      border-radius: 0.2rem;
+    }
+
     pre :global(code) {
       counter-reset: line;
       font-family: var(--font-mono);
@@ -108,12 +116,6 @@ export interface Props {
       color: var(--fg-linenum);
       font-size: var(--font-size-sm);
       width: calc(var(--font-size-sm) * 2);
-    }
-
-    pre {
-      overflow-x: auto;
-      scrollbar-color: var(--fg-thumb) var(--fg-track);
-      font-size: var(--font-size-sm);
     }
 
     :global(body):has(theme-switcher[data-theme="dark"]) pre {

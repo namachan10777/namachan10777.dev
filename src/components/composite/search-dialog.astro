@@ -24,8 +24,7 @@ import { Icon } from "astro-icon/components";
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    column-gap: 1rem;
-    row-gap: 2rem;
+    gap: 2rem 1rem;
   }
 
   .search-box {
@@ -104,7 +103,6 @@ import { Icon } from "astro-icon/components";
 
   dialog {
     padding: 1rem;
-    border: none;
     background-color: var(--bg);
     border: solid var(--fg-normal) 1px;
     margin-top: 4rem;
@@ -112,7 +110,7 @@ import { Icon } from "astro-icon/components";
     width: 100%;
   }
 
-  @media screen and (min-width: 768px) {
+  @media screen and (width >= 768px) {
     dialog {
       width: 50%;
       margin-inline: auto;

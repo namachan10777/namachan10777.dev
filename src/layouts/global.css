@@ -11,7 +11,6 @@
   --font-size-sm: 0.875rem;
   --header-height: 3rem;
   --footer-height: 3rem;
-
   --light-bg: white;
   --light-bg-code: #eee;
   --light-bg-codeblock: #fff;
@@ -24,8 +23,7 @@
   --light-fg-linenum: rgb(0 0 0 / 40%);
   --light-fg-thumb: #bbb;
   --light-fg-track: #ddd;
-  --light-bg-mark: rgb(255, 238, 84);
-
+  --light-bg-mark: rgb(255 238 84);
   --dark-bg: #202020;
   --dark-bg-code: #303030;
   --dark-bg-codeblock: #303030;
@@ -38,7 +36,7 @@
   --dark-fg-linenum: rgb(255 255 255 / 40%);
   --dark-fg-thumb: #555;
   --dark-fg-track: #333;
-  --dark-bg-mark: rgb(121, 109, 7);
+  --dark-bg-mark: rgb(121 109 7);
 }
 
 body {
