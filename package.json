@@ -3,25 +3,19 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-
     "build.astro": "bunx --bun astro build",
     "build.pagefind": "bunx --bun pagefind --site dist",
     "build.pagefind-dev": "bunx --bun pagefind --site dist --output-path public/dist",
     "build": "run-s build.astro build.pagefind",
-
     "dev.astro": "bunx --bun astro dev",
     "dev": "run-s build.astro build.pagefind-dev dev.astro",
-
     "preview": "bunx --bun astro preview",
-
     "astro": "astro",
-
     "lint.astro": "bunx --bun astro check",
     "lint.eslint": "eslint .",
     "lint.fmt": "prettier --check .",
     "lint.stylelint": "stylelint '**/*.{astro,css}'",
     "lint": "run-p lint.*",
-
     "fix.eslint": "eslint --fix .",
     "fix.fmt": "prettier --write .",
     "fix.stylelint": "stylelint --fix '**/*.{astro,css}'",
