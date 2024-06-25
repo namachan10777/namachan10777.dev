@@ -1,0 +1,71 @@
+<search-dialog>
+  <dialog>
+    <search><slot /></search>
+  </dialog>
+</search-dialog>
+
+<style>
+  dialog {
+    padding: 0;
+  }
+
+  dialog::backdrop {
+    backdrop-filter: blur(5px);
+  }
+
+  search {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import type { SearchDialog } from "~/lib/search-dialog";
+  class SearchDialogElement extends HTMLElement implements SearchDialog {
+    #dialog: HTMLDialogElement;
+    #scrollY = 0;
+
+    constructor() {
+      super();
+      this.#dialog = this.querySelector("dialog")!;
+
+      this.#dialog.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement | null;
+        if (target && target.closest("search") === null) {
+          this.close();
+        }
+      });
+
+      this.#dialog.addEventListener("touchstart", (event) => {
+        const target = event.target as HTMLElement | null;
+        if (target && target.closest("search") === null) {
+          this.close();
+        }
+      });
+
+      this.#dialog.addEventListener("close", () => {
+        document.body.style.position = "";
+        window.scrollTo({
+          top: this.#scrollY,
+          behavior: "instant",
+        });
+        document.body.style.overflow = "";
+        document.body.style.top = "";
+      });
+    }
+
+    showModal(): void {
+      this.#dialog.showModal();
+      this.#scrollY = window.scrollY;
+      document.body.style.overflowY = "scroll";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${this.#scrollY}px`;
+    }
+
+    close(): void {
+      this.#dialog.close();
+    }
+  }
+
+  customElements.define("search-dialog", SearchDialogElement);
+</script>

@@ -1,0 +1,26 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<search-on>
+  <button><Icon name="iconoir:search" /></button>
+</search-on>
+
+<script>
+  class SearchOn extends HTMLElement {
+    constructor() {
+      super();
+      const button = this.querySelector("button")!;
+      button.addEventListener("click", () => {
+        const dialog = document.querySelector(
+          "search-dialog",
+        )! as HTMLDialogElement;
+        if (dialog) {
+          dialog.showModal();
+        }
+      });
+    }
+  }
+
+  customElements.define("search-on", SearchOn);
+</script>
