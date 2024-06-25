@@ -3,15 +3,25 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "bunx --bun astro dev",
-    "start": "bunx --bun astro dev",
-    "build": "bunx --bun astro check && bunx --bun astro build",
+
+    "build.astro": "bunx --bun astro build",
+    "build.pagefind": "bunx --bun pagefind --site dist",
+    "build.pagefind-dev": "bunx --bun pagefind --site dist --output-path public/dist",
+    "build": "run-s build.astro build.pagefind",
+
+    "dev.astro": "bunx --bun astro dev",
+    "dev": "run-s build.astro build.pagefind-dev dev.astro",
+
     "preview": "bunx --bun astro preview",
+
     "astro": "astro",
+
+    "lint.astro": "bunx --bun astro check",
     "lint.eslint": "eslint .",
     "lint.fmt": "prettier --check .",
     "lint.stylelint": "stylelint '**/*.{astro,css}'",
     "lint": "run-p lint.*",
+
     "fix.eslint": "eslint --fix .",
     "fix.fmt": "prettier --write .",
     "fix.stylelint": "stylelint --fix '**/*.{astro,css}'",
@@ -32,12 +42,12 @@
     "@vercel/og": "^0.6.2",
     "astro": "^4.10.2",
     "astro-icon": "^1.1.0",
-    "astro-pagefind": "^1.5.0",
     "astro-seo": "^0.8.4",
     "hast-util-to-html": "^9.0.1",
     "license-checker": "^25.0.1",
     "license-checker-rseidelsohn": "^4.3.0",
     "lightningcss": "^1.25.1",
+    "pagefind": "^1.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rehype-autolink-headings": "^7.1.0",

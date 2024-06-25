@@ -3,7 +3,6 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
-import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import rehypePrettyCode from "rehype-pretty-code";
@@ -26,7 +25,6 @@ export default defineConfig({
         iconoir: ["*"],
       },
     }),
-    pagefind(),
     react(),
   ],
   markdown: {
