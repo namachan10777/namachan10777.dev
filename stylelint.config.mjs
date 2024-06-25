@@ -14,5 +14,6 @@ export default {
     "dist/**",
     ".astro/**",
     "src/layouts/katex.css",
+    "public/pagefind/**",
   ],
 };

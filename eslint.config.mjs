@@ -5,7 +5,13 @@ import typescript from "typescript-eslint";
 
 export default typescript.config(
   {
-    ignores: ["node_modules/", "dist/", ".astro/", "src/env.d.ts"],
+    ignores: [
+      "node_modules/",
+      "dist/",
+      ".astro/",
+      "src/env.d.ts",
+      "public/pagefind",
+    ],
   },
   ...typescript.configs.strict,
   ...typescript.configs.stylistic,
