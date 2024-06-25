@@ -7,7 +7,7 @@
     "build.pagefind": "bunx --bun pagefind --site dist",
     "build.pagefind-dev": "bunx --bun pagefind --site dist --output-path public/pagefind",
     "build": "run-s build.astro build.pagefind",
-    "prepare": "run-s build.astro build.pagefind-dev",
+    "dev.prepare": "run-s build.astro build.pagefind-dev",
     "dev": "bunx --bun astro dev",
     "preview": "bunx --bun astro preview",
     "astro": "astro",
