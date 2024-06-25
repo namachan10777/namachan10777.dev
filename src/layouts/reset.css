@@ -101,6 +101,10 @@
     -webkit-user-drag: element;
   }
 
+  :where(dialog) {
+    border: none;
+  }
+
   /* Revert Modal native behavior */
   :where(dialog:modal) {
     all: revert;

@@ -1,34 +1,129 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
 <search-dialog>
   <dialog>
-    <search><slot /></search>
+    <search>
+      <search class="search-box">
+        <Icon name="iconoir:search" class="search-icon" />
+        <input type="text" class="text-input" />
+        <button class="close-button">
+          <Icon name="iconoir:xmark" class="close-icon" />
+        </button>
+      </search>
+    </search>
   </dialog>
 </search-dialog>
 
 <style>
+  .search-box {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .search-icon {
+    font-size: var(--font-size-2xl);
+  }
+
+  .close-icon {
+    font-size: var(--font-size-2xl);
+  }
+
+  .text-input {
+    height: 2rem;
+  }
+
   dialog {
     padding: 0;
+    border: none;
   }
 
   dialog::backdrop {
     backdrop-filter: blur(5px);
   }
-
-  search {
-    width: 100%;
-    height: 100%;
-  }
 </style>
 
 <script>
   import type { SearchDialog } from "~/lib/search-dialog";
+
+  interface DebouncerOption {
+    timeout?: number;
+  }
+
+  class Debouncer<T> {
+    readonly #callback: (value: T) => void;
+    readonly #timeoutMillis: number;
+
+    #timeoutHandler: Timer | null = null;
+    #beforeAppliedAtMillis: number = Date.now();
+    #value: T | null = null;
+
+    constructor(
+      private readonly callback: (value: T) => void,
+      option?: DebouncerOption,
+    ) {
+      this.#callback = callback;
+      this.#timeoutMillis = option?.timeout ?? 500;
+    }
+
+    put(value: T) {
+      this.#value = value;
+      if (this.#timeoutHandler !== null) {
+        clearTimeout(this.#timeoutHandler);
+        this.#timeoutHandler = null;
+        const now = Date.now();
+        if (
+          now - this.#beforeAppliedAtMillis >= this.#timeoutMillis &&
+          this.#value !== null
+        ) {
+          this.#callback(this.#value);
+          this.#beforeAppliedAtMillis = now;
+        }
+      }
+      this.#timeoutHandler = setTimeout(() => {
+        if (this.#value !== null) {
+          this.#callback(this.#value);
+        }
+        this.#timeoutHandler = null;
+        this.#beforeAppliedAtMillis = Date.now();
+      }, this.#timeoutMillis);
+    }
+  }
+
   class SearchDialogElement extends HTMLElement implements SearchDialog {
-    #dialog: HTMLDialogElement;
+    readonly #dialog: HTMLDialogElement;
     #scrollY = 0;
+    readonly #debouncer: Debouncer<string>;
+    readonly #textInput: HTMLInputElement;
 
     constructor() {
       super();
       this.#dialog = this.querySelector("dialog")!;
+      this.#textInput = this.querySelector(
+        "input.text-input",
+      )! as HTMLInputElement;
+      this.#debouncer = new Debouncer((value) => {
+        this.#applyNewQueryDirectly(value);
+      });
+      this.#setupDialogCloseHandler();
+      this.#setupInputHandler();
+    }
 
+    #setupInputHandler() {
+      this.#textInput.addEventListener("input", (event) => {
+        const target = event.target as HTMLInputElement;
+        this.#debouncer.put(target.value);
+      });
+    }
+
+    #applyNewQueryDirectly(query: string) {
+      console.log(query);
+    }
+
+    #setupDialogCloseHandler() {
       this.#dialog.addEventListener("click", (event) => {
         const target = event.target as HTMLElement | null;
         if (target && target.closest("search") === null) {
@@ -44,14 +139,24 @@
       });
 
       this.#dialog.addEventListener("close", () => {
-        document.body.style.position = "";
-        window.scrollTo({
-          top: this.#scrollY,
-          behavior: "instant",
-        });
-        document.body.style.overflow = "";
-        document.body.style.top = "";
+        this.#closeHandler();
       });
+
+      const closeButton = this.querySelector("button.close-button")!;
+      closeButton.addEventListener("click", () => {
+        this.close();
+      });
+    }
+
+    #closeHandler() {
+      this.#textInput.value = "";
+      document.body.style.position = "";
+      window.scrollTo({
+        top: this.#scrollY,
+        behavior: "instant",
+      });
+      document.body.style.overflow = "";
+      document.body.style.top = "";
     }
 
     showModal(): void {
