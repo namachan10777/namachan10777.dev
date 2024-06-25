@@ -1,13 +1,19 @@
-name: Deploy
+name: Check and deploy
 on:
-  workflow_run:
-    workflows: ["Check"]
-    branches: ["master"]
-    types:
-      - completed
+  - push
+  - pull_request
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run lint
   deploy:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    needs: check
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
