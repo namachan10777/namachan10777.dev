@@ -126,54 +126,9 @@ import { Icon } from "astro-icon/components";
   import type { SearchDialog } from "~/lib/search-dialog";
   import type { Pagefind } from "~/lib/pagefind";
 
-  interface DebouncerOption {
-    timeout?: number;
-  }
-
-  class Debouncer<T> {
-    readonly #callback: (value: T) => void;
-    readonly #timeoutMillis: number;
-
-    #timeoutHandler: Timer | null = null;
-    #beforeAppliedAtMillis: number = Date.now();
-    #value: T | null = null;
-
-    constructor(
-      private readonly callback: (value: T) => void,
-      option?: DebouncerOption,
-    ) {
-      this.#callback = callback;
-      this.#timeoutMillis = option?.timeout ?? 500;
-    }
-
-    put(value: T) {
-      this.#value = value;
-      if (this.#timeoutHandler !== null) {
-        clearTimeout(this.#timeoutHandler);
-        this.#timeoutHandler = null;
-        const now = Date.now();
-        if (
-          now - this.#beforeAppliedAtMillis >= this.#timeoutMillis &&
-          this.#value !== null
-        ) {
-          this.#callback(this.#value);
-          this.#beforeAppliedAtMillis = now;
-        }
-      }
-      this.#timeoutHandler = setTimeout(() => {
-        if (this.#value !== null) {
-          this.#callback(this.#value);
-        }
-        this.#timeoutHandler = null;
-        this.#beforeAppliedAtMillis = Date.now();
-      }, this.#timeoutMillis);
-    }
-  }
-
   class SearchDialogElement extends HTMLElement implements SearchDialog {
     readonly #dialog: HTMLDialogElement;
     #scrollY = 0;
-    readonly #debouncer: Debouncer<string>;
     readonly #textInput: HTMLInputElement;
     #pagefind: Pagefind | null = null;
     #founds: HTMLUListElement;
@@ -185,9 +140,6 @@ import { Icon } from "astro-icon/components";
         "input.text-input",
       )! as HTMLInputElement;
       this.#founds = this.querySelector("ul.founds")!;
-      this.#debouncer = new Debouncer((value) => {
-        this.#applyNewQueryDirectly(value);
-      });
       this.#setupDialogCloseHandler();
       this.#setupInputHandler();
       (async () => {
@@ -229,10 +181,6 @@ import { Icon } from "astro-icon/components";
           });
         }
       });
-    }
-
-    #applyNewQueryDirectly(query: string) {
-      console.log(query);
     }
 
     #setupDialogCloseHandler() {
