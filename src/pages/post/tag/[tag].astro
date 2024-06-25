@@ -28,6 +28,7 @@ const posts = (
   description={`posts in #${Astro.params.tag}`}
   imagePath={`post/tag/${Astro.params.tag}`}
   og={{ type: "website" }}
+  ignorePagefind={true}
   path={[
     { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
     { display: "post", absolute: "/post/page/1" },

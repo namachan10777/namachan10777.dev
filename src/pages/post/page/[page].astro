@@ -27,6 +27,7 @@ const { page } = Astro.props;
   description={`posts page ${page.currentPage} of ${page.lastPage}`}
   imagePath={`${page.url.current}.webp`}
   og={{ type: "website" }}
+  ignorePagefind={true}
   path={[
     { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
     { display: "post", absolute: `/post/page/1` },

@@ -25,29 +25,52 @@ import { Icon } from "astro-icon/components";
     flex-direction: row;
     gap: 0.5rem;
     align-items: center;
+    width: 100%;
   }
 
   .search-icon {
     font-size: var(--font-size-2xl);
+    color: var(--fg-strong);
   }
 
   .close-icon {
     font-size: var(--font-size-2xl);
+    color: var(--fg-strong);
+  }
+
+  .close-button {
+    border-radius: 999px;
+    background-color: var(--bg-mask);
+    opacity: 0.7;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.1s;
+  }
+
+  .close-button:hover {
+    opacity: 1;
   }
 
   .text-input {
     height: 2rem;
+    color: var(--fg-normal);
+    width: 100%;
   }
 
   .founds {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding-block: 1rem;
   }
 
   .founds :global(.found-title) {
     font-size: var(--font-size-lg);
     color: var(--fg-link);
+    font-weight: bold;
   }
 
   .founds :global(.found-excerpt) {
@@ -56,12 +79,24 @@ import { Icon } from "astro-icon/components";
   }
 
   .founds :global(mark) {
-    background-color: yellow;
+    background-color: var(--bg-mark);
   }
 
   dialog {
-    padding: 0;
+    padding: 1rem;
     border: none;
+    background-color: var(--bg);
+    border: solid var(--fg-normal) 1px;
+    margin-top: 4rem;
+    margin-inline: 1rem;
+    width: 100%;
+  }
+
+  @media screen and (min-width: 768px) {
+    dialog {
+      width: 50%;
+      margin-inline: auto;
+    }
   }
 
   dialog::backdrop {

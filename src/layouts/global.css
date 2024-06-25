@@ -11,10 +11,11 @@
   --font-size-sm: 0.875rem;
   --header-height: 3rem;
   --footer-height: 3rem;
+
   --light-bg: white;
   --light-bg-code: #eee;
   --light-bg-codeblock: #fff;
-  --light-bg-mask: rgb(255 255 255 / 50%);
+  --light-bg-mask: rgb(200 200 200 / 50%);
   --light-fg-link: #1c33b6;
   --light-fg-weak: rgb(0 0 0 / 65%);
   --light-fg-hr: rgb(0 0 0 / 30%);
@@ -23,10 +24,12 @@
   --light-fg-linenum: rgb(0 0 0 / 40%);
   --light-fg-thumb: #bbb;
   --light-fg-track: #ddd;
+  --light-bg-mark: rgb(255, 238, 84);
+
   --dark-bg: #202020;
   --dark-bg-code: #303030;
   --dark-bg-codeblock: #303030;
-  --dark-bg-mask: rgb(0 0 0 / 50%);
+  --dark-bg-mask: rgb(55 55 55 / 50%);
   --dark-fg-link: #9aa6e2;
   --dark-fg-weak: rgb(255 255 255 / 65%);
   --dark-fg-hr: rgb(255 255 255 / 30%);
@@ -35,6 +38,7 @@
   --dark-fg-linenum: rgb(255 255 255 / 40%);
   --dark-fg-thumb: #555;
   --dark-fg-track: #333;
+  --dark-bg-mark: rgb(121, 109, 7);
 }
 
 body {
@@ -58,6 +62,7 @@ body {
   --fg-linenum: var(--light-fg-linenum);
   --fg-thumb: var(--light-fg-thumb);
   --fg-track: var(--light-fg-track);
+  --bg-mark: var(--light-bg-mark);
 }
 
 :root:has(#theme-switcher[data-theme="dark"]) {
@@ -73,4 +78,5 @@ body {
   --fg-linenum: var(--dark-fg-linenum);
   --fg-thumb: var(--dark-fg-thumb);
   --fg-track: var(--dark-fg-track);
+  --bg-mark: var(--dark-bg-mark);
 }

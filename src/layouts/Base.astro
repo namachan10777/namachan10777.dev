@@ -39,6 +39,7 @@ export interface Props {
   imagePath: string;
   og: Og;
   path: PathFragment[];
+  ignorePagefind?: boolean;
 }
 
 function articleJsonLD(article: OgArticle): string {
@@ -131,12 +132,18 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     />
     <ViewTransitions />
   </head>
-  <body>
+  <body data-pagefind-ignore={Astro.props.ignorePagefind ? "" : null}>
     <div class="body-inner">
       <header>
         <Breadcrumbs path={Astro.props.path} />
-        <SearchOn />
-        <ThemeSwitcher id="theme-switcher" initial="light" transition:persist />
+        <div class="header-toolbox">
+          <SearchOn />
+          <ThemeSwitcher
+            id="theme-switcher"
+            initial="light"
+            transition:persist
+          />
+        </div>
       </header>
       <SearchDialog />
       <main>
@@ -196,6 +203,12 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
           font-size: var(--font-size-sm);
           color: var(--fg-weak);
         }
+      }
+
+      .header-toolbox {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
       }
     </style>
     <script>

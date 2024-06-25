@@ -70,24 +70,30 @@ let contact = [
     <Event events={events} />
   </Section>
   <Section>
-    <Heading2>Publications</Heading2>
-    <PublicationList pubs={pubs.slice(0, Math.min(3, pubs.length))} />
+    <nav>
+      <Heading2>Publications</Heading2>
+      <PublicationList pubs={pubs.slice(0, Math.min(3, pubs.length))} />
+    </nav>
   </Section>
   <Section>
-    <Heading2>
-      <Anchor href="/post/page/1">Posts</Anchor>
-    </Heading2>
-    <PostPreviewList posts={posts.slice(0, Math.min(3, posts.length))} />
-    <span class="readmore">
-      <Anchor href="/post/page/1">
-        <Icon name="iconoir:arrow-right-circle" class="readmore-icon" />
-        記事をもっと読む
-      </Anchor>
-    </span>
+    <nav>
+      <Heading2>
+        <Anchor href="/post/page/1">Posts</Anchor>
+      </Heading2>
+      <PostPreviewList posts={posts.slice(0, Math.min(3, posts.length))} />
+      <span class="readmore">
+        <Anchor href="/post/page/1">
+          <Icon name="iconoir:arrow-right-circle" class="readmore-icon" />
+          記事をもっと読む
+        </Anchor>
+      </span>
+    </nav>
   </Section>
   <Section>
-    <Heading2><Anchor href="/notice">Notice</Anchor></Heading2>
-    このサイトについての3rd party license
+    <nav>
+      <Heading2><Anchor href="/notice">Notice</Anchor></Heading2>
+      このサイトについての3rd party license
+    </nav>
   </Section>
 </Base>
 
