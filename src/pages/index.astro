@@ -70,23 +70,23 @@ let contact = [
     <Event events={events} />
   </Section>
   <Section>
-    <nav>
+    <nav class="nav-list">
       <Heading2>Publications</Heading2>
       <PublicationList pubs={pubs.slice(0, Math.min(3, pubs.length))} />
     </nav>
   </Section>
   <Section>
-    <nav>
+    <nav class="nav-list">
       <Heading2>
         <Anchor href="/post/page/1">Posts</Anchor>
       </Heading2>
       <PostPreviewList posts={posts.slice(0, Math.min(3, posts.length))} />
-      <span class="readmore">
+      <div class="readmore">
         <Anchor href="/post/page/1">
           <Icon name="iconoir:arrow-right-circle" class="readmore-icon" />
           記事をもっと読む
         </Anchor>
-      </span>
+      </div>
     </nav>
   </Section>
   <Section>
@@ -99,6 +99,15 @@ let contact = [
 
 <style>
   @layer component {
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .readmore {
+      margin-block-start: 0.5rem;
+    }
+
     .links {
       display: flex;
       flex-flow: row wrap;

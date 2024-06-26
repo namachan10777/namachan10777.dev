@@ -29,7 +29,6 @@ export class GiscusAdapter implements ThemeAdapter {
       case "created":
       case "initialized":
         if (this.#state.giscus.contentWindow && this.#theme) {
-          console.log(this.#state, this.#theme);
           this.#state.giscus.contentWindow.postMessage(
             { giscus: { setConfig: { theme: giscusTheme[this.#theme] } } },
             "https://giscus.app",
@@ -45,7 +44,6 @@ export class GiscusAdapter implements ThemeAdapter {
 
     window.addEventListener("message", (event) => {
       if (event.origin !== "https://giscus.app") return;
-      console.log(event);
       if (this.#state.type === "uninitialized") {
         this.#state = {
           type: "created",
