@@ -3,12 +3,12 @@ import { Icon } from "astro-icon/components";
 ---
 
 <search-dialog>
-  <dialog>
+  <dialog aria-label="検索ダイアログ">
     <search class="contents-root">
       <search class="search-box">
         <Icon name="iconoir:search" class="search-icon" />
         <input type="text" class="text-input" />
-        <button class="close-button">
+        <button class="close-button" aria-label="検索ダイアログを閉じる">
           <Icon name="iconoir:xmark" class="close-icon" />
         </button>
       </search>
