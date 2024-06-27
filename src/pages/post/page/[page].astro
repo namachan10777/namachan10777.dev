@@ -28,10 +28,7 @@ const { page } = Astro.props;
   imagePath={`${page.url.current}.webp`}
   og={{ type: "website" }}
   ignorePagefind={true}
-  path={[
-    { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
-    { display: "post", absolute: `/post/page/1` },
-  ].concat(
+  path={[{ display: "post", absolute: `/post/page/1` }].concat(
     page.currentPage == 1
       ? [
           {

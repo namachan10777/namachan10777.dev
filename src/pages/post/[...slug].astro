@@ -56,7 +56,6 @@ const pageIndex =
     modifiedAt: entry.data.modified || undefined,
   }}
   path={[
-    { display: { name: "profile", icon: "iconoir:home" }, absolute: "/" },
     { display: "post", absolute: `/post/page/${pageIndex}` },
     { display: entry.data.title, absolute: `/post/${entry.slug}` },
   ]}
