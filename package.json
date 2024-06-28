@@ -1,6 +1,6 @@
 {
   "workspaces": [
-    "web"
+    "packages/**"
   ],
   "devDependencies": {
     "prettier": "^3.3.2"

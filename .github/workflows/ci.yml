@@ -10,6 +10,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun run lint
+        working-directory: ./packages/web
   deploy:
     runs-on: ubuntu-latest
     needs: check
@@ -17,11 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+
       - run: bun install
       - run: bun run build
+        working-directory: ./packages/web
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=${{ secrets.CF_PROJECT_NAME }} --branch=main
+          command: pages deploy packages/web/dist --project-name=${{ secrets.CF_PROJECT_NAME }} --branch=main
