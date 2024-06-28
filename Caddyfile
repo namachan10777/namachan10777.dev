@@ -1,4 +1,0 @@
-:8080 {
-	root * dist
-	file_server
-}
