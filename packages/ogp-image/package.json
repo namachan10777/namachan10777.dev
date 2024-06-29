@@ -1,0 +1,14 @@
+{
+  "name": "ogp-image",
+  "module": "index.tsx",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vercel/og": "^0.6.2"
+  }
+}

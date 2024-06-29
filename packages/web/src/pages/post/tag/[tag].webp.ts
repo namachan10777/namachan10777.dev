@@ -1,4 +1,4 @@
-import { ogArticlePreviewSVG } from "@lib/og";
+import { ogArticlePreviewSVG } from "ogp-image";
 import type { APIRoute, GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 

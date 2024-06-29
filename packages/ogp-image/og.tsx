@@ -1,6 +1,17 @@
-import { downloadGoogleFont } from "@lib/google-font-download";
-import { renderDate } from "@lib/util";
+import { downloadGoogleFont } from "./google-font-download";
 import { ImageResponse } from "@vercel/og";
+
+function zeroPadded(num: number, length: number): string {
+  const s = num.toString();
+  return num.toString().padStart(length, "0");
+}
+
+function renderDate(date: Date): string {
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString();
+  const day = date.getDate().toString();
+  return `${year.padStart(4, "0")}/${month.padStart(2, "0")}/${day.padStart(2, "0")}`;
+}
 
 export interface Article {
   title: string;
@@ -13,13 +24,14 @@ const notoSansRegular = await downloadGoogleFont({
   family: "Noto Sans JP",
   weight: 400,
 });
+
 const notoSansBold = await downloadGoogleFont({
   family: "Noto Sans JP",
   weight: 700,
 });
 
 export async function ogArticlePreviewSVG(
-  article: Article,
+  article: Article
 ): Promise<ImageResponse> {
   const response = new ImageResponse(
     (
@@ -35,7 +47,7 @@ export async function ogArticlePreviewSVG(
             </h1>
             {article.date && (
               <span tw="font-mono text-2xl text-gray-600">
-                {renderDate("day", article.date)}
+                {renderDate(article.date)}
               </span>
             )}
           </header>
@@ -71,7 +83,7 @@ export async function ogArticlePreviewSVG(
           style: "normal",
         },
       ],
-    },
+    }
   );
   return response;
 }

@@ -1,6 +1,5 @@
 import remarkLinkCard from "./src/remark/plugin/link-card";
 import mdx from "@astrojs/mdx";
-import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
@@ -25,7 +24,6 @@ export default defineConfig({
         iconoir: ["*"],
       },
     }),
-    react(),
   ],
   markdown: {
     remarkPlugins: [
