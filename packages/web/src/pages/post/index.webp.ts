@@ -1,5 +1,5 @@
-import { ogArticlePreviewSVG } from "ogp-image";
 import type { APIRoute } from "astro";
+import { ogArticlePreviewSVG } from "ogp-image";
 
 export const GET: APIRoute = async ({ site }) => {
   return await ogArticlePreviewSVG({

@@ -1,4 +1,3 @@
-import remarkLinkCard from "./src/remark/plugin/link-card";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
@@ -26,13 +25,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    remarkPlugins: [
-      remarkSectionize,
-      remarkGemoji,
-      remarkGfm,
-      remarkMath,
-      remarkLinkCard,
-    ],
+    remarkPlugins: [remarkSectionize, remarkGemoji, remarkGfm, remarkMath],
     rehypePlugins: [
       rehypeKatex,
       rehypeSlug,
@@ -42,12 +35,6 @@ export default defineConfig({
       ],
     ],
     syntaxHighlight: false,
-    shikiConfig: {
-      themes: {
-        light: "github-light",
-        dark: "github-dark",
-      },
-    },
     smartypants: true,
   },
   vite: {

@@ -1,6 +1,6 @@
-import { ogArticlePreviewSVG } from "ogp-image";
 import type { APIRoute, GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
+import { ogArticlePreviewSVG } from "ogp-image";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("post", (post) => post.data.publish);
