@@ -29,7 +29,7 @@ const pageIndex =
   Math.floor(
     (await getCollection("post", (post) => post.data.publish))
       .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
-      .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE
+      .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE,
   ) + 1;
 ---
 
