@@ -3,22 +3,11 @@ import Base from "@layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getEntry } from "astro:content";
 import { getCollection } from "astro:content";
-import Hr from "@components/mdx/hr.astro";
-import Typography from "@components/mdx/typography.astro";
-import Anchor from "@components/mdx/anchor.astro";
-import Code from "@components/mdx/code.astro";
 import Heading1 from "@components/mdx/heading1.astro";
-import Heading2 from "@components/mdx/heading2.astro";
-import Heading3 from "@components/mdx/heading3.astro";
-import Heading4 from "@components/mdx/heading4.astro";
-import Section from "@components/mdx/section.astro";
-import UnorderedList from "@components/mdx/unordered-list.astro";
-import OrderedList from "@components/mdx/ordered-list.astro";
-import Picture from "@components/mdx/image.astro";
 import { PAGE_SIZE, renderDate } from "@lib/util";
-import Pre from "@components/mdx/pre.astro";
 import Tags from "@components/composite/tags.astro";
 import Giscus from "@components/composite/giscus.astro";
+import MdArticle from "@components/composite/MdArticle.astro";
 
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post", (post) => post.data.publish);
@@ -40,7 +29,7 @@ const pageIndex =
   Math.floor(
     (await getCollection("post", (post) => post.data.publish))
       .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
-      .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE,
+      .findIndex((post) => post.slug === entry.slug) / PAGE_SIZE
   ) + 1;
 ---
 
@@ -83,25 +72,9 @@ const pageIndex =
   <div class="tags-container">
     <Tags tags={entry.data.tags} />
   </div>
-  <Content
-    components={{
-      hr: Hr,
-      p: Typography,
-      a: Anchor,
-      img: Picture,
-      code: Code,
-      pre: Pre,
-      h1: Heading2,
-      h2: Heading2,
-      h3: Heading3,
-      h4: Heading4,
-      h5: Heading4,
-      h6: Heading4,
-      section: Section,
-      ul: UnorderedList,
-      ol: OrderedList,
-    }}
-  />
+  <MdArticle>
+    <Content />
+  </MdArticle>
   <Giscus />
 </Base>
 

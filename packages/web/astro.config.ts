@@ -1,5 +1,6 @@
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import { transformerCopyButton } from "@rehype-pretty/transformers";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
@@ -31,7 +32,15 @@ export default defineConfig({
       rehypeSlug,
       [
         rehypePrettyCode,
-        { theme: { dark: "github-dark", light: "github-light" } },
+        {
+          theme: { dark: "github-dark", light: "github-light" },
+          transformers: [
+            transformerCopyButton({
+              visibility: "always",
+              feedbackDuration: 3_000,
+            }),
+          ],
+        },
       ],
     ],
     syntaxHighlight: false,
