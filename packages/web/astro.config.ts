@@ -9,6 +9,7 @@ import remarkGemoji from "remark-gemoji";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
+import { shikiCopyButton } from "shiki-copy-button";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 // https://astro.build/config
@@ -33,7 +34,7 @@ export default defineConfig({
         rehypePrettyCode,
         {
           theme: { dark: "github-dark", light: "github-light" },
-          transformers: [],
+          transformers: [shikiCopyButton()],
         },
       ],
     ],

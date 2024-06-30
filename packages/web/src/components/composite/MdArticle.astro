@@ -2,6 +2,23 @@
   <slot />
 </article>
 
+<script>
+  document.querySelectorAll("button.shiki-copy-button").forEach((element) => {
+    const button = element as HTMLButtonElement;
+    console.log(button);
+    button.addEventListener("click", () => {
+      const text = button.parentNode?.querySelector("code")?.textContent;
+      if (text) {
+        navigator.clipboard.writeText(text);
+        button.dataset.copied = "true";
+        setTimeout(() => {
+          button.dataset.copied = "false";
+        }, 1500);
+      }
+    });
+  });
+</script>
+
 <style>
   @layer component {
     article {
@@ -31,6 +48,22 @@
       padding: 0.5rem;
       border-radius: 0.2rem;
       scrollbar-color: var(--fg-thumb) var(--fg-track);
+      position: relative;
+    }
+
+    article :global(pre button.shiki-copy-button) {
+      position: absolute;
+      right: 0.3rem;
+      top: 0.3rem;
+    }
+
+    article :global(pre button[data-copied="true"] .shiki-copy-button-copy) {
+      display: none;
+    }
+
+    article
+      :global(pre button:not([data-copied="true"]) .shiki-copy-button-check) {
+      display: none;
     }
 
     article :global(pre code) {
