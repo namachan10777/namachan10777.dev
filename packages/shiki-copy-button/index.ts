@@ -40,6 +40,7 @@ export function shikiCopyButton(): ShikiTransformer {
           tagName: "button",
           properties: {
             class: "shiki-copy-button",
+            "aria-label": "コードをコピーする",
           },
           children: [copy, check],
         },

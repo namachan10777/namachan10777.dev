@@ -5,7 +5,6 @@
 <script>
   document.querySelectorAll("button.shiki-copy-button").forEach((element) => {
     const button = element as HTMLButtonElement;
-    console.log(button);
     button.addEventListener("click", () => {
       const text = button.parentNode?.querySelector("code")?.textContent;
       if (text) {
@@ -55,6 +54,7 @@
       position: absolute;
       right: 0.3rem;
       top: 0.3rem;
+      cursor: pointer;
     }
 
     article :global(pre button[data-copied="true"] .shiki-copy-button-copy) {
