@@ -40,7 +40,7 @@ Markdownは意味論上見出しタグも本文もフラットにレンダリン
 Web標準に`<section />`タグがあるので対応した。
 Astroはmarkdown処理にremarkプラグインを簡単に入れられるので`astro.config.js`を弄るだけで済む。
 
-```typescript
+```typescript showLineNumbers
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";

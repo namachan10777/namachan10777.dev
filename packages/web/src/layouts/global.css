@@ -46,7 +46,7 @@ body {
     background-color 0.2s;
 }
 
-:root:has(#theme-switcher[data-theme="light"]) {
+:root:has(body[data-theme="light"]) {
   --bg: var(--light-bg);
   --bg-code: var(--light-bg-code);
   --bg-codeblock: var(--light-bg-codeblock);
@@ -62,7 +62,7 @@ body {
   --bg-mark: var(--light-bg-mark);
 }
 
-:root:has(#theme-switcher[data-theme="dark"]) {
+:root:has(body[data-theme="dark"]) {
   --bg: var(--dark-bg);
   --bg-code: var(--dark-bg-code);
   --bg-codeblock: var(--dark-bg-codeblock);

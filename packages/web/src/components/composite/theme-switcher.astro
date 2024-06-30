@@ -34,11 +34,11 @@ const { id, initial } = Astro.props;
     cursor: pointer;
   }
 
-  theme-switcher[data-theme="light"] .light-icon {
+  body[data-theme="light"] theme-switcher .light-icon {
     display: block;
   }
 
-  theme-switcher[data-theme="dark"] .dark-icon {
+  body[data-theme="dark"] theme-switcher .dark-icon {
     display: block;
   }
 </style>
@@ -92,7 +92,7 @@ const { id, initial } = Astro.props;
     }
 
     #setTheme(theme: Theme) {
-      this.dataset.theme = theme;
+      document.body.dataset.theme = theme;
       for (const adapter of adapters) {
         adapter.apply(theme);
       }
@@ -101,8 +101,8 @@ const { id, initial } = Astro.props;
     }
 
     #getTheme() {
-      if (this.dataset.theme) {
-        return sanitizeTheme(this.dataset.theme);
+      if (document.body.dataset.theme) {
+        return sanitizeTheme(document.body.dataset.theme);
       } else {
         return restoreTheme(this.dataset.initialTheme);
       }
