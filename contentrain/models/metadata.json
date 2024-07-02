@@ -1,0 +1,11 @@
+[
+  {
+    "name": "post",
+    "modelId": "post",
+    "path": "packages/web/src/content/post",
+    "localization": false,
+    "type": "MD",
+    "createdBy": "user",
+    "isServerless": false
+  }
+]
