@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import {post} from "#site/content";
+console.log(post);
 
 export default component$(() => {
   return (

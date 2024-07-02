@@ -1,0 +1,100 @@
+---
+tags: ["tech"]
+date: 2024-06-15
+description: QwikをやめてAstronに戻ってきた。Astro最高!
+title: 結局Astroに戻ってきた
+publish: true
+---
+
+Qwikは好きです。resumableという概念は俺達の魂を震えさせる。
+が、しかしQwikはそれなりにバグに遭遇しやすい。特にSSGをしているとそう。
+それに静的サイトを作ることには特化していない。それはそう。
+
+アイランドアーキテクチャのつらみを感じてQwikに移ったわけだったが、
+そもそも個人ブログでのイベントハンドリングは大したことがないのでベタ書きでも大して変わらなかった。
+とはいえ、アイランドアーキテクチャに対する問題意識は依然持っているため、そのうち適当な文章を書こうと思う。
+
+Astroに戻るにあたり
+
+https://www.haxibami.net/blog/posts/blog-astro-renewal
+
+https://www.haxibami.net/blog/posts/blog-renewal
+
+を参考にした
+
+## styling
+
+https://blog.uhy.ooo/entry/2022-10-01/tailwind/
+
+生CSS。tailwindは好きだが、最近tailwindの運用の難しさを感じ始めている。
+
+tailwindの利点としてはjsへの依存が少ない（静的解析はあるが、無くても動くしバンドルサイズも致命的なサイズになったりしない）こと、
+class名の部分にutilityを書けるのでcolocationがあること、あとは値に制限があるので割り切りを生みやすいことだろう。
+
+jsへの依存の少なさは強力だ。新興フレームワークでも大体サポートされている（`vanilla-extract`や`emotion`はそうはいかない）。
+これは単にtailwindが人気というだけではなく、ビルドシステムへの介入が少なく簡単に導入出来るからだろう。これははっきりと大きな利点ではある。あるが、
+astroはCSSを自動で`data-`属性でスコーピングしてくれる。これで十分じゃないか？
+
+colocationも嬉しい。私はラップトップでの作業が多いので画面を複数開かずに済むのは便利だ。とはいえコンポーネントのサイズを常識的な範囲に納めていれば、
+これもAstroのCSSで十分ワークする。そしてReactならinline styleのCSSフレームワークがある。文字列のclass名はやたら長くなりがち（まぁ`@apply`でまとめればいいんだけど）なのもあり、
+強いかと言われると微妙だ。
+
+そして値に制限があることの利点が一番怪しい。フォントサイズやパディングは良いだろうが、
+色は非連続なだけで自由に選べてしまう。これはデザインシステムを整備すればこの限りではないが、規模が小さいうちからデザインシステムを整備するのはちょっと面倒。
+
+というわけでtailwindは剥がしてAstroのCSSだけで書いた。
+`@layer`を使って`reset`、`component`、`patch`の3レイヤに分け、page内のスタイルはレイヤーなしとした。
+`patch`という謎のレイヤーはMDXだとinline codeもcode blockも同じ`code`タグとして処理されるので、
+`pre`直下にある`code`タグの`component`レベルのスタイルを上書きするために導入した。
+かなりad-hocなレイヤーだが、mdxをそのまま使っている以上仕方ない。
+名前的にad-hocなのが明らかだし、これはこれでいいかな。
+
+## URL設計
+
+URL構造は変えた。あまり変えるべきじゃないが、ちょっと今までのURL構造に不満があったので最後の更新のつもりで再設計。
+投稿は`/blog`から`/post`に名前を変更し、記事は全て西暦で分けることにした。ページネーションも導入し、`/post/index.html`を廃止して
+`/post/page/1`にリダイレクトさせた。
+ページネーションされたURLのみを採用したのはAstroの`paginate`を使いたかったから。本当に便利です。
+
+## SEOまわり {{id: "seo"}}
+
+`@astrojs/sitemap`と`astro-seo`を導入。
+OpenGraphとX向けのタグは`astro-seo`で提供し、
+JSON-LDデータはJSONを作る関数を書いて`set:html`で導入。
+`Article`と`Breadcrumbs`しか出していないが、他に出せるものもない。
+
+## RSS
+
+```sh
+bun add @astrojs/rss
+```
+
+をして`rss.xml.ts`にGETハンドラを書くだけ。
+
+## OpenGraph 画像
+
+`@vercel/og`を使って素朴な画像を生成。フォントはローカルに持っておくと重いので都度Google Fontsからダウンロードするヘルパスクリプトを書いた。
+
+## emoji
+
+:v: `remark-gemoji`
+
+## 数式
+
+`remark-math` + `rehype-katex`。CSSとfontをいい感じにminifyしたいが……。
+
+$$
+0 = e^{-j\pi} + 1
+$$
+
+## TODO
+
+- Link card
+- サイト内検索（pagefindを使いvanillaで頑張る予定）
+  - AstroのCSSと手でnodeを作ることの相性が微妙かも
+- いい感じの脚注
+- ページ内anchor
+- code blockのタイトル対応
+- dark-mode
+- 表と図のfigureと参照。これは欲しい
+- クライアント画面幅による画像出し分け
