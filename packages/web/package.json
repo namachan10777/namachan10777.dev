@@ -59,7 +59,7 @@
     "shiki": "^1.10.0",
     "shiki-copy-button": "workspace:*",
     "svg-parser": "^2.0.4",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.3",
     "unified": "^11.0.5",
     "vite-tsconfig-paths": "^4.3.2"
   },
