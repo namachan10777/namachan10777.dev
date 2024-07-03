@@ -1,5 +1,5 @@
 {
-  "name": "remark-sectionize",
+  "name": "@types/remark-sectionize",
   "module": "index.d.ts",
   "type": "module",
   "devDependencies": {
