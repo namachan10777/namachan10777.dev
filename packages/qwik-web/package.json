@@ -17,7 +17,7 @@
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/static/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
-    "build.velite": "velite build",
+    "build.velite": "bunx --bun velite build",
     "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
     "dev": "vite --mode ssr",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
@@ -53,6 +53,7 @@
     "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-sectionize": "^2.0.0",
+    "remark-image-extract": "workspace:*",
     "shiki": "^1.10.1",
     "unified": "^11.0.5",
     "velite": "^0.1.0"

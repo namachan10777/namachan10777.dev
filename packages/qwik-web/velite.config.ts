@@ -1,21 +1,13 @@
 // @ts-check
 
-import rehypePrettyCode from "rehype-pretty-code";
 import remarkGemoji from "remark-gemoji";
 import remarkGfm from "remark-gfm";
+import remarkImageExtract from "remark-image-extract";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkSectionize from "remark-sectionize";
 import { unified } from "unified";
 import { defineConfig, s } from "velite";
-
-const parser = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkMath)
-  .use(remarkGemoji)
-  .use(rehypePrettyCode)
-  .use(remarkSectionize);
 
 export default defineConfig({
   collections: {
@@ -30,16 +22,24 @@ export default defineConfig({
           description: s.string(),
           publish: s.boolean(),
           tags: s.array(s.string()),
-          content: s
-            .custom()
-            .transform((_, { meta }) => parser.parse(meta.content)),
+          content: s.custom().transform(async (_, { meta }) => {
+            const mdast = unified()
+              .use(remarkParse)
+              .use(remarkGfm)
+              .use(remarkMath)
+              .use(remarkGemoji)
+              .use(remarkSectionize)
+              .parse(meta.content);
+            await remarkImageExtract({ documentPath: meta.path })(mdast);
+            return mdast;
+          }),
           excerpt: s.excerpt(),
         })
         .transform((data, { meta }) => {
-          const slug = /\d{4}\/.+\.md$/.exec(meta.path)?.[1];
+          const matched = /post\/(\d{4}\/[^/]+\.md)$/.exec(meta.path);
           return {
             ...data,
-            slug: slug || "",
+            slug: matched ? matched[1] : "",
           };
         }),
     },
