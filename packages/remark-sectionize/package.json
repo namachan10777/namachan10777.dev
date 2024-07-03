@@ -1,0 +1,12 @@
+{
+  "name": "remark-sectionize",
+  "module": "index.d.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/mdast": "^4.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
