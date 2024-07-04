@@ -1,13 +1,13 @@
 ---
-import Base from "@layouts/Base.astro";
+import Base from "~/layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getEntry } from "astro:content";
 import { getCollection } from "astro:content";
-import Heading1 from "@components/heading1.astro";
-import { PAGE_SIZE, renderDate } from "@lib/util";
-import Tags from "@components/composite/tags.astro";
-import Giscus from "@components/composite/giscus.astro";
-import MdArticle from "@components/composite/MdArticle.astro";
+import Heading1 from "~/components/heading1.astro";
+import { PAGE_SIZE, renderDate } from "~/lib/util";
+import Tags from "~/components/composite/tags.astro";
+import Giscus from "~/components/composite/giscus.astro";
+import MdArticle from "~/components/composite/MdArticle.astro";
 
 export const getStaticPaths = (async () => {
   const collection = await getCollection("post", (post) => post.data.publish);

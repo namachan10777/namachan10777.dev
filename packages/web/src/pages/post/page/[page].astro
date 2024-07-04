@@ -1,11 +1,11 @@
 ---
-import Base from "@layouts/Base.astro";
+import Base from "~/layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
-import Anchor from "@components/anchor.astro";
-import { PAGE_SIZE } from "@lib/util";
-import Tags from "@components/composite/tags.astro";
-import PostPreviewList from "@components/composite/post-preview-list.astro";
+import Anchor from "~/components/anchor.astro";
+import { PAGE_SIZE } from "~/lib/util";
+import Tags from "~/components/composite/tags.astro";
+import PostPreviewList from "~/components/composite/post-preview-list.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getCollection("post", (post) => post.data.publish);

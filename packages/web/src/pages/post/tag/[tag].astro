@@ -1,9 +1,9 @@
 ---
-import Base from "@layouts/Base.astro";
+import Base from "~/layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
-import Heading1 from "@components/heading1.astro";
-import PostPreviewList from "@components/composite/post-preview-list.astro";
+import Heading1 from "~/components/heading1.astro";
+import PostPreviewList from "~/components/composite/post-preview-list.astro";
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection("post", (post) => post.data.publish);

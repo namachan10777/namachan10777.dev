@@ -5,13 +5,14 @@
     "jsxImportSource": "react",
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@layouts/*": ["./src/layouts/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@asset/*": ["./src/assets/*"],
-      "@fonts/*": ["./fonts/*"],
       "~/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.astro", "eslint.config.mjs"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.astro",
+    "eslint.config.mjs",
+    "src/pages/index.mdx"
+  ]
 }

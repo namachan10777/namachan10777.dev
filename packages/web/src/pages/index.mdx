@@ -2,17 +2,17 @@
 layout: ~/layouts/derive/Index.astro
 ---
 
-import Anchor from "@components/anchor.astro";
-import Codeblock from "@components/composite/codeblock.astro";
-import Event from "@components/composite/events.astro";
-import PostPreviewList from "@components/composite/post-preview-list.astro";
-import PublicationList from "@components/composite/publication-list.astro";
-import NameAndIcon from "@components/composite/top-profile.astro";
-import Heading2 from "@components/heading2.astro";
-import Section from "@components/section.astro";
-import Typography from "@components/typography.astro";
-import Base from "@layouts/Base.astro";
 import { Icon } from "astro-icon/components";
+import Anchor from "~/components/anchor.astro";
+import Codeblock from "~/components/composite/codeblock.astro";
+import Event from "~/components/composite/events.astro";
+import PostPreviewList from "~/components/composite/post-preview-list.astro";
+import PublicationList from "~/components/composite/publication-list.astro";
+import NameAndIcon from "~/components/composite/top-profile.astro";
+import Heading2 from "~/components/heading2.astro";
+import Section from "~/components/section.astro";
+import Typography from "~/components/typography.astro";
+import Base from "~/layouts/Base.astro";
 import { links, events, pubs, posts } from "~/page-assets";
 
 <NameAndIcon links={links} />
