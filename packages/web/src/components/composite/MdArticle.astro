@@ -55,33 +55,37 @@
       padding: 0;
     }
 
-    article :global(pre button.shiki-copy-button) {
+    article :global(figure[data-rehype-pretty-code-figure]) {
+      position: relative;
+    }
+
+    article :global(button.shiki-copy-button) {
       position: absolute;
       right: 0.3rem;
       top: 0.3rem;
       cursor: pointer;
+      z-index: 10;
     }
 
-    article :global(pre .shiki-copy-button-icon) {
+    article :global(.shiki-copy-button-icon) {
       padding: 0.1rem;
     }
 
-    article :global(pre .shiki-copy-button-check) {
+    article :global(.shiki-copy-button-check) {
       color: var(--fg-link);
     }
 
-    article :global(pre .shiki-copy-button-copy):hover {
+    article :global(.shiki-copy-button-copy):hover {
       background-color: var(--bg-code);
       transition: background-color 0.2s;
       border-radius: 0.2rem;
     }
 
-    article :global(pre button[data-copied="true"] .shiki-copy-button-copy) {
+    article :global(button[data-copied="true"] .shiki-copy-button-copy) {
       display: none;
     }
 
-    article
-      :global(pre button:not([data-copied="true"]) .shiki-copy-button-check) {
+    article :global(button:not([data-copied="true"]) .shiki-copy-button-check) {
       display: none;
     }
 

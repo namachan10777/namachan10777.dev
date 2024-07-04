@@ -1,8 +1,8 @@
-import type { ShikiTransformer } from "shiki";
 import { getIconData } from "@iconify/utils";
 import { icons, type IconifyJSON } from "@iconify-json/iconoir";
-import type { ElementContent, Element } from "hast";
+import type { ElementContent, Element, Root } from "hast";
 import { parse } from "svg-parser";
+import { visit } from "unist-util-visit";
 
 function iconSvgHast(icons: IconifyJSON, name: string): Element {
   const icon = getIconData(icons, name)!;
@@ -21,9 +21,32 @@ function iconSvgHast(icons: IconifyJSON, name: string): Element {
   };
 }
 
-export function shikiCopyButton(): ShikiTransformer {
-  return {
-    pre: (hast) => {
+function isObject(value: unknown): value is Object {
+  return typeof value === "object" && value !== null;
+}
+
+function isElement(value: unknown): value is Element {
+  return isObject(value) && "type" in value && value.type === "element";
+}
+
+function isFigure(value: unknown): value is Element & { tagName: "figure" } {
+  return isElement(value) && value.tagName === "figure";
+}
+
+function isRehypePrettyCodeFigure(
+  value: unknown
+): value is Element & { tagName: "figure" } {
+  return (
+    isFigure(value) &&
+    "properties" in value &&
+    isObject(value.properties) &&
+    "data-rehype-pretty-code-figure" in value.properties
+  );
+}
+
+export function shikiCopyButton(): (root: Root) => void {
+  return function (hast: Root) {
+    visit(hast, isRehypePrettyCodeFigure, (figure, index, parent) => {
       const copy = iconSvgHast(icons, "copy");
       const check = iconSvgHast(icons, "check");
       copy.properties.class = [
@@ -34,7 +57,7 @@ export function shikiCopyButton(): ShikiTransformer {
         "shiki-copy-button-check",
         "shiki-copy-button-icon",
       ].join(" ");
-      hast.children = [
+      figure.children = [
         {
           type: "element",
           tagName: "button",
@@ -44,8 +67,8 @@ export function shikiCopyButton(): ShikiTransformer {
           },
           children: [copy, check],
         },
-        ...hast.children,
+        ...figure.children,
       ];
-    },
+    });
   };
 }

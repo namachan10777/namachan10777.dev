@@ -34,9 +34,9 @@ export default defineConfig({
         rehypePrettyCode,
         {
           theme: { dark: "github-dark", light: "github-light" },
-          transformers: [shikiCopyButton()],
         },
       ],
+      shikiCopyButton,
     ],
     syntaxHighlight: false,
     smartypants: true,
