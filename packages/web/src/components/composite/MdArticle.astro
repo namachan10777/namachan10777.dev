@@ -57,6 +57,20 @@
       cursor: pointer;
     }
 
+    article :global(pre .shiki-copy-button-icon) {
+      padding: 0.1rem;
+    }
+
+    article :global(pre .shiki-copy-button-check) {
+      color: var(--fg-link);
+    }
+
+    article :global(pre .shiki-copy-button-copy):hover {
+      background-color: var(--bg-code);
+      transition: background-color 0.2s;
+      border-radius: 0.2rem;
+    }
+
     article :global(pre button[data-copied="true"] .shiki-copy-button-copy) {
       display: none;
     }
