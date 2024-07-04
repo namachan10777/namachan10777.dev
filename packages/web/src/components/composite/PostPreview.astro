@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import Typography from "~/components/typography.astro";
-import Anchor from "~/components/anchor.astro";
+import Typography from "~/components/Typography.astro";
+import Anchor from "~/components/Anchor.astro";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRetext from "remark-retext";
@@ -9,7 +9,7 @@ import { unified } from "unified";
 import retextEnglish from "retext-english";
 import retextStringify from "retext-stringify";
 import retextEquality from "retext-equality";
-import Tags from "~/components/composite/tags.astro";
+import Tags from "~/components/composite/Tags.astro";
 
 export interface Props {
   post: CollectionEntry<"post">;

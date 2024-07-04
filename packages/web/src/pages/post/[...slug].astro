@@ -3,10 +3,10 @@ import Base from "~/layouts/Base.astro";
 import type { GetStaticPaths } from "astro";
 import { getEntry } from "astro:content";
 import { getCollection } from "astro:content";
-import Heading1 from "~/components/heading1.astro";
+import Heading1 from "~/components/Heading1.astro";
 import { PAGE_SIZE, renderDate } from "~/lib/util";
-import Tags from "~/components/composite/tags.astro";
-import Giscus from "~/components/composite/giscus.astro";
+import Tags from "~/components/composite/Tags.astro";
+import Giscus from "~/components/composite/Giscus.astro";
 import MdArticle from "~/components/composite/MdArticle.astro";
 
 export const getStaticPaths = (async () => {
