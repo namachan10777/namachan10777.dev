@@ -1,0 +1,47 @@
+---
+layout: ~/layouts/derive/Index.astro
+---
+
+import Anchor from "@components/anchor.astro";
+import Codeblock from "@components/composite/codeblock.astro";
+import Event from "@components/composite/events.astro";
+import PostPreviewList from "@components/composite/post-preview-list.astro";
+import PublicationList from "@components/composite/publication-list.astro";
+import NameAndIcon from "@components/composite/top-profile.astro";
+import Heading2 from "@components/heading2.astro";
+import Section from "@components/section.astro";
+import Typography from "@components/typography.astro";
+import Base from "@layouts/Base.astro";
+import { Icon } from "astro-icon/components";
+import { links, events, pubs, posts } from "~/page-assets";
+
+<NameAndIcon links={links} />
+
+## Profile
+
+A student at University of Tsukuba. Studying in distributed storage system
+in HPC.
+
+```rust
+let region = "Tsukuba, 🇯🇵";
+let contact = [
+  format!("{}@{}", "admin", "namachan10777.dev"),
+  format!("{}@{}", "mnakano", "hpcs.cs.tsukuba.ac.jp"),
+];
+```
+
+## Timeline
+
+<Event events={events} />
+
+## Publications
+
+<PublicationList pubs={pubs.slice(0, Math.min(3, pubs.length))} />
+
+## [Posts](/post/page/1)
+
+<PostPreviewList posts={posts.slice(0, Math.min(3, posts.length))} />
+
+## [Notice](/notice)
+
+このサイトについての3rd party license

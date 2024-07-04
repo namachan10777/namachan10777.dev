@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import PostPreview from "@components/composite/post-preview.astro";
+import Anchor from "@components/anchor.astro";
+import { Icon } from "astro-icon/components";
 
 export interface Props {
   posts: CollectionEntry<"post">[];
@@ -11,15 +13,24 @@ const posts = Astro.props.posts.sort(
 );
 ---
 
-<ol>
-  {
-    posts.map((post) => (
-      <li>
-        <PostPreview post={post} />
-      </li>
-    ))
-  }
-</ol>
+<nav>
+  <ol>
+    {
+      posts.map((post) => (
+        <li>
+          <PostPreview post={post} />
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="readmore">
+    <Anchor href="/post/page/1">
+      <Icon name="iconoir:arrow-right-circle" class="readmore-icon" />
+      記事をもっと読む
+    </Anchor>
+  </div>
+</nav>
 
 <style>
   @layer component {
@@ -27,6 +38,29 @@ const posts = Astro.props.posts.sort(
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      list-style-type: none;
+      margin: 0;
+    }
+
+    ol li {
+      padding: 0;
+    }
+
+    .readmore {
+      margin-block-start: 0.5rem;
+    }
+
+    .readmore-icon {
+      margin-inline-end: 0.5rem;
+      display: inline-block;
+    }
+
+    .readmore .readmore-icon {
+      transition: transform 0.2s;
+    }
+
+    .readmore:hover .readmore-icon {
+      transform: scale(1.1);
     }
   }
 </style>

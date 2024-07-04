@@ -9,6 +9,7 @@ import { unified } from "unified";
 import retextEnglish from "retext-english";
 import retextStringify from "retext-stringify";
 import retextEquality from "retext-equality";
+import Tags from "~/components/composite/tags.astro";
 
 export interface Props {
   post: CollectionEntry<"post">;
@@ -30,11 +31,7 @@ const text = vfile.toString();
     <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
   </h3>
   <nav class="tags">
-    {
-      post.data.tags.map((tag) => (
-        <Anchor href={`/post/tag/${tag}`}>#{tag}</Anchor>
-      ))
-    }
+    <Tags tags={post.data.tags} />
   </nav>
   <div class="preview">
     <Typography>

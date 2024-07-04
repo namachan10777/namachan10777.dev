@@ -171,11 +171,12 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
           padding-inline: 1.5rem;
           font-family: var(--font-sans-serif);
           position: relative;
+          line-height: 1.75;
         }
 
         @media screen and (width >= 640px) {
           .body-inner {
-            width: 60%;
+            width: calc(min(60%, 48rem));
             max-width: 60%;
           }
         }

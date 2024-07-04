@@ -1,4 +1,4 @@
-@layer reset, component, patch;
+@layer reset, markdown, component, patch;
 
 @layer reset {
   /***

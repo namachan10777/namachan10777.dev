@@ -1,0 +1,15 @@
+---
+import Base from "@layouts/Base.astro";
+import MdArticle from "@components/composite/MdArticle.astro";
+---
+
+<Base
+  title="namachan10777"
+  description="namachan10777's profile and posts"
+  imagePath="index.webp"
+  og={{ type: "website" }}
+>
+  <MdArticle>
+    <slot />
+  </MdArticle>
+</Base>
