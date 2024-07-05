@@ -1,0 +1,111 @@
+figure[data-rehype-pretty-code-figure] pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 0.5rem;
+  border-radius: 0.2rem;
+  scrollbar-color: var(--fg-thumb) var(--fg-track);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  position: relative;
+}
+
+figure[data-rehype-pretty-code-figure] {
+  position: relative;
+}
+
+figure[data-rehype-pretty-code-figure] button.shiki-copy-button {
+  position: absolute;
+  right: 0.3rem;
+  top: 0.3rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+figure[data-rehype-pretty-code-figure] .shiki-copy-button-icon {
+  padding: 0.1rem;
+}
+
+figure[data-rehype-pretty-code-figure] .shiki-copy-button-check {
+  color: var(--fg-link);
+}
+
+figure[data-rehype-pretty-code-figure] .shiki-copy-button-copy :hover {
+  background-color: var(--bg-code);
+  transition: background-color 0.2s;
+  border-radius: 0.2rem;
+}
+
+figure[data-rehype-pretty-code-figure]
+  button[data-copied="true"]
+  .shiki-copy-button-copy {
+  display: none;
+}
+
+figure[data-rehype-pretty-code-figure]
+  button:not([data-copied="true"])
+  .shiki-copy-button-check {
+  display: none;
+}
+
+figure[data-rehype-pretty-code-figure] pre code {
+  background-color: unset;
+}
+
+[data-theme="dark"] figure[data-rehype-pretty-code-figure] pre {
+  background-color: var(--shiki-dark-bg);
+  color: var(--shiki-dark);
+}
+
+[data-theme="light"] figure[data-rehype-pretty-code-figure] pre {
+  background-color: var(--shiki-light-bg);
+  color: var(--shiki-light);
+}
+
+figure[data-rehype-pretty-code-figure] code[data-line-numbers] {
+  counter-reset: line;
+}
+
+[data-theme="dark"]
+  figure[data-rehype-pretty-code-figure]
+  pre
+  > code
+  span[style] {
+  color: var(--shiki-dark);
+}
+
+[data-theme="light"]
+  figure[data-rehype-pretty-code-figure]
+  pre
+  > code
+  span[style] {
+  color: var(--shiki-light);
+}
+
+figure[data-rehype-pretty-code-figure]
+  code[data-line-numbers]
+  > span[data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  margin-inline-end: 0.5rem;
+  color: var(--fg-linenum);
+  display: inline-flex;
+  font-family: var(--font-mono);
+}
+
+figure[data-rehype-pretty-code-figure]
+  code[data-line-numbers-max-digits="1"]
+  > span[data-line]::before {
+  width: 1rem;
+}
+
+figure[data-rehype-pretty-code-figure]
+  code[data-line-numbers-max-digits="2"]
+  > span[data-line]::before {
+  width: 2rem;
+}
+
+figure[data-rehype-pretty-code-figure]
+  code[data-line-numbers-max-digits="3"]
+  > span[data-line]::before {
+  width: 3rem;
+}
