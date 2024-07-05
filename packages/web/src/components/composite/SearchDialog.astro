@@ -127,7 +127,7 @@ import { Icon } from "astro-icon/components";
 
 <script>
   import type { SearchDialog } from "~/lib/search-dialog";
-  import type { Pagefind } from "~/lib/pagefind";
+  import { loadPagefind, type Pagefind } from "pagefind-api";
 
   class SearchDialogElement extends HTMLElement implements SearchDialog {
     readonly #dialog: HTMLDialogElement;
@@ -146,12 +146,7 @@ import { Icon } from "astro-icon/components";
       this.#setupDialogCloseHandler();
       this.#setupInputHandler();
       (async () => {
-        const pagefind = (await import(
-          /* @vite-ignore */
-          `${"/pagefind/pagefind.js?url"}`
-        )) as unknown as Pagefind;
-        await pagefind.init();
-        this.#pagefind = pagefind;
+        this.#pagefind = await loadPagefind("/pagefind/pagefind.js");
       })();
     }
 

@@ -61,7 +61,8 @@
     "svg-parser": "^2.0.4",
     "typescript": "^5.5.3",
     "unified": "^11.0.5",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "pagefind-api": "workspace:*"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
