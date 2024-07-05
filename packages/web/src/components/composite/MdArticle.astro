@@ -30,9 +30,10 @@ import "./rehype-pretty-code.css";
       gap: 1rem;
     }
 
-    article :global(a) {
+    article :global(a:not(code)) {
       color: var(--fg-link);
       text-decoration: underline;
+      padding-inline: 0.2rem;
     }
 
     article :global(code) {
@@ -96,6 +97,11 @@ import "./rehype-pretty-code.css";
 
     article :global(ul > li)::marker {
       color: var(--fg-weak);
+    }
+
+    article :global(img) {
+      width: 100%;
+      height: auto;
     }
   }
 </style>
