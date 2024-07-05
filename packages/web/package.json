@@ -57,7 +57,7 @@
     "retext-stringify": "^4.0.0",
     "sharp": "^0.33.4",
     "shiki": "^1.10.1",
-    "shiki-copy-button": "workspace:*",
+    "rehype-pretty-code-copy-button": "workspace:*",
     "svg-parser": "^2.0.4",
     "typescript": "^5.5.3",
     "unified": "^11.0.5",

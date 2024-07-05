@@ -1,5 +1,5 @@
 {
-  "name": "shiki-copy-button",
+  "name": "rehype-pretty-code-copy-button",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {

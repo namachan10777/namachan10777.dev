@@ -44,7 +44,7 @@ function isRehypePrettyCodeFigure(
   );
 }
 
-export function shikiCopyButton(): (root: Root) => void {
+export function rehypePrettyCodeCopyButton(): (root: Root) => void {
   return function (hast: Root) {
     visit(hast, isRehypePrettyCodeFigure, (figure, index, parent) => {
       const copy = iconSvgHast(icons, "copy");
