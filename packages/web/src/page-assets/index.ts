@@ -3,9 +3,11 @@ import { getCollection } from "astro:content";
 export const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
+
 export const posts = (
   await getCollection("post", (post) => post.data.publish)
 ).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
 export const pubs = (await getCollection("pub")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );

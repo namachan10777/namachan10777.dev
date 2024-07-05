@@ -50,16 +50,12 @@
       font-family: var(--font-mono);
     }
 
-    article :global(pre > code) {
-      margin: 0;
-      padding: 0;
-    }
-
     article :global(figure[data-rehype-pretty-code-figure]) {
       position: relative;
     }
 
-    article :global(button.shiki-copy-button) {
+    article
+      :global(figure[data-rehype-pretty-code-figure] button.shiki-copy-button) {
       position: absolute;
       right: 0.3rem;
       top: 0.3rem;
@@ -67,55 +63,89 @@
       z-index: 10;
     }
 
-    article :global(.shiki-copy-button-icon) {
+    article
+      :global(figure[data-rehype-pretty-code-figure] .shiki-copy-button-icon) {
       padding: 0.1rem;
     }
 
-    article :global(.shiki-copy-button-check) {
+    article
+      :global(figure[data-rehype-pretty-code-figure] .shiki-copy-button-check) {
       color: var(--fg-link);
     }
 
-    article :global(.shiki-copy-button-copy):hover {
+    article
+      :global(
+        figure[data-rehype-pretty-code-figure] .shiki-copy-button-copy
+      ):hover {
       background-color: var(--bg-code);
       transition: background-color 0.2s;
       border-radius: 0.2rem;
     }
 
-    article :global(button[data-copied="true"] .shiki-copy-button-copy) {
+    article :global(figure[data-rehype-pretty-code-figure] pre) {
+      margin: 0;
+      padding-inline: 0.5rem;
+    }
+
+    article
+      :global(
+        figure[data-rehype-pretty-code-figure]
+          button[data-copied="true"]
+          .shiki-copy-button-copy
+      ) {
       display: none;
     }
 
-    article :global(button:not([data-copied="true"]) .shiki-copy-button-check) {
+    article
+      :global(
+        figure[data-rehype-pretty-code-figure]
+          button:not([data-copied="true"])
+          .shiki-copy-button-check
+      ) {
       display: none;
     }
 
-    article :global(pre code) {
+    article :global(figure[data-rehype-pretty-code-figure] pre code) {
       background-color: unset;
     }
 
-    :global([data-theme="dark"]) article :global(pre) {
+    :global([data-theme="dark"])
+      article
+      :global(figure[data-rehype-pretty-code-figure] pre) {
       background-color: var(--shiki-dark-bg);
       color: var(--shiki-dark);
     }
 
-    :global([data-theme="light"]) article :global(pre) {
+    :global([data-theme="light"])
+      article
+      :global(figure[data-rehype-pretty-code-figure] pre) {
       background-color: var(--shiki-light-bg);
       color: var(--shiki-light);
     }
 
-    article :global(code[data-line-numbers]) {
+    article
+      :global(figure[data-rehype-pretty-code-figure] code[data-line-numbers]) {
       counter-reset: line;
     }
 
-    :global(body[data-theme="dark"]) article :global(pre > code span[style]) {
+    :global(body[data-theme="dark"])
+      article
+      :global(figure[data-rehype-pretty-code-figure] pre > code span[style]) {
       color: var(--shiki-dark);
     }
 
-    :global(body[data-theme="light"]) article :global(pre > code span[style]) {
+    :global(body[data-theme="light"])
+      article
+      :global(figure[data-rehype-pretty-code-figure] pre > code span[style]) {
       color: var(--shiki-light);
     }
 
-    article :global(code[data-line-numbers] > span[data-line]::before) {
+    article
+      :global(
+        figure[data-rehype-pretty-code-figure]
+          code[data-line-numbers]
+          > span[data-line]::before
+      ) {
       counter-increment: line;
       content: counter(line);
       margin-inline-end: 0.5rem;
@@ -126,21 +156,27 @@
 
     article
       :global(
-        code[data-line-numbers-max-digits="1"] > span[data-line]::before
+        figure[data-rehype-pretty-code-figure]
+          code[data-line-numbers-max-digits="1"]
+          > span[data-line]::before
       ) {
       width: 1rem;
     }
 
     article
       :global(
-        code[data-line-numbers-max-digits="2"] > span[data-line]::before
+        figure[data-rehype-pretty-code-figure]
+          code[data-line-numbers-max-digits="2"]
+          > span[data-line]::before
       ) {
       width: 2rem;
     }
 
     article
       :global(
-        code[data-line-numbers-max-digits="3"] > span[data-line]::before
+        figure[data-rehype-pretty-code-figure]
+          code[data-line-numbers-max-digits="3"]
+          > span[data-line]::before
       ) {
       width: 3rem;
     }
