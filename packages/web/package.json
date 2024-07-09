@@ -69,7 +69,7 @@
     "@typescript-eslint/parser": "^7.16.0",
     "astro-eslint-parser": "^1.0.2",
     "eslint": "^9.6.0",
-    "eslint-plugin-astro": "^1.2.2",
+    "eslint-plugin-astro": "^1.2.3",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "node-html-parser": "^6.1.13",
     "npm-run-all2": "^6.2.2",
