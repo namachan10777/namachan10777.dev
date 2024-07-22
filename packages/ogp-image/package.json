@@ -6,7 +6,7 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@vercel/og": "^0.6.2",
