@@ -37,7 +37,7 @@
     "hast-util-to-html": "^9.0.1",
     "license-checker": "^25.0.1",
     "license-checker-rseidelsohn": "^4.3.0",
-    "lightningcss": "^1.25.1",
+    "lightningcss": "^1.26.0",
     "ogp-image": "workspace:*",
     "pagefind": "^1.1.0",
     "rehype-autolink-headings": "^7.1.0",
