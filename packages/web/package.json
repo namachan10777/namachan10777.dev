@@ -68,7 +68,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@typescript-eslint/parser": "^7.18.0",
     "astro-eslint-parser": "^1.0.2",
-    "eslint": "^9.8.0",
+    "eslint": "^9.9.0",
     "eslint-plugin-astro": "^1.2.3",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "node-html-parser": "^6.1.13",
