@@ -31,7 +31,7 @@
     "@types/license-checker": "^25.0.6",
     "@types/remark-heading-id": "^1.0.0",
     "@types/svg-parser": "^2.0.6",
-    "astro": "^4.13.4",
+    "astro": "^4.14.2",
     "astro-icon": "^1.1.0",
     "astro-seo": "^0.8.4",
     "hast-util-to-html": "^9.0.1",
