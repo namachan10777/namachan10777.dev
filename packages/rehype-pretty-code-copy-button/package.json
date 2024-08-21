@@ -4,7 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@iconify/types": "^2.0.0",
-    "@iconify/utils": "^2.1.30",
+    "@iconify/utils": "^2.1.31",
     "@types/bun": "latest"
   },
   "peerDependencies": {
