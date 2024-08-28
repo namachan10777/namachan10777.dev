@@ -22,7 +22,7 @@
     "fix": "run-s fix.*"
   },
   "dependencies": {
-    "@astrojs/check": "^0.8.1",
+    "@astrojs/check": "^0.9.3",
     "@astrojs/mdx": "^3.1.5",
     "@astrojs/rss": "^4.0.7",
     "@astrojs/sitemap": "^3.1.6",
