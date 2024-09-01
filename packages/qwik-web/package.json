@@ -30,7 +30,7 @@
     "@builder.io/qwik": "^1.8.0",
     "@builder.io/qwik-city": "^1.8.0",
     "@types/eslint": "^9.6.1",
-    "@types/node": "^20.16.2",
+    "@types/node": "^20.16.3",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
     "eslint": "^9.9.1",
