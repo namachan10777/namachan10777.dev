@@ -3,10 +3,10 @@ import Base from "~/layouts/Base.astro";
 import Anchor from "~/components/Anchor.astro";
 import Heading1 from "~/components/Heading1.astro";
 import Heading2 from "~/components/Heading2.astro";
-import licenseChecker, { type ModuleInfos } from "license-checker-rseidelsohn";
+import * as licenseChecker from "license-checker-rseidelsohn";
 import { getCollection } from "astro:content";
 
-async function checkLicense(): Promise<ModuleInfos> {
+async function checkLicense(): Promise<licenseChecker.ModuleInfos> {
   return new Promise((resolve, reject) => {
     licenseChecker.init(
       {
