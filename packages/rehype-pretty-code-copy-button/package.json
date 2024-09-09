@@ -11,7 +11,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@iconify-json/iconoir": "^1.2.0",
+    "@iconify-json/iconoir": "^1.2.1",
     "@types/hast": "^3.0.4",
     "iconify": "^1.4.0",
     "shiki": "^1.16.2",
