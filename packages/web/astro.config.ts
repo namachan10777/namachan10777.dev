@@ -42,9 +42,7 @@ export default defineConfig({
     smartypants: true,
   },
   vite: {
-    css: {
-      transformer: "lightningcss",
-    },
+    css: {},
     build: {
       cssMinify: true,
     },
