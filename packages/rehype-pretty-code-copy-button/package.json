@@ -14,7 +14,7 @@
     "@iconify-json/iconoir": "^1.2.1",
     "@types/hast": "^3.0.4",
     "iconify": "^1.4.0",
-    "shiki": "^1.19.0",
+    "shiki": "^1.20.0",
     "unist-util-visit": "^5.0.0"
   }
 }
