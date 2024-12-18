@@ -34,7 +34,7 @@
     "astro": "^4.16.18",
     "astro-icon": "^1.1.4",
     "astro-seo": "^0.8.4",
-    "hast-util-to-html": "^9.0.3",
+    "hast-util-to-html": "^9.0.4",
     "license-checker": "^25.0.1",
     "license-checker-rseidelsohn": "^4.4.2",
     "lightningcss": "^1.28.2",
