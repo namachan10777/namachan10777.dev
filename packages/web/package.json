@@ -50,7 +50,7 @@
     "remark-heading-id": "^1.0.1",
     "remark-math": "^6.0.0",
     "remark-retext": "^6.0.0",
-    "remark-sectionize": "^2.0.0",
+    "remark-sectionize": "^2.1.0",
     "remark-stringify": "^11.0.0",
     "retext-english": "^5.0.0",
     "retext-equality": "^7.1.0",
