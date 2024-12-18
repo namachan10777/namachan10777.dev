@@ -73,7 +73,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "node-html-parser": "^6.1.13",
     "npm-run-all2": "^7.0.2",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "stylelint": "^16.12.0",
     "stylelint-config-html": "^1.1.0",
