@@ -24,6 +24,9 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const entry = await getEntry("post", Astro.params.slug);
+if (!entry) {
+  return { status: 404 };
+}
 const { Content } = await entry.render();
 const pageIndex =
   Math.floor(

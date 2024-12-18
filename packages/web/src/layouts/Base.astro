@@ -3,7 +3,6 @@ import "./reset.css";
 import "./global.css";
 import "./katex.css";
 import { SEO } from "astro-seo";
-import { ViewTransitions } from "astro:transitions";
 import Breadcrumbs from "~/components/composite/BreadCrumbs.astro";
 import ThemeSwitcher from "~/components/composite/ThemeSwitcher.astro";
 import SearchOn from "~/components/composite/SearchOn.astro";
@@ -133,7 +132,6 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
         />
       )
     }
-    <ViewTransitions />
   </head>
   <body data-pagefind-ignore={Astro.props.ignorePagefind ? "" : null}>
     <div class="body-inner">
