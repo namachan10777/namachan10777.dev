@@ -2,7 +2,7 @@ import { GiscusAdapter } from "./giscus";
 
 export type Theme = "light" | "dark";
 
-export const ariaLabel: { [key in Theme]: string } = {
+export const ariaLabel: Record<Theme, string> = {
   dark: "ライトモードにする",
   light: "ダークモードにする",
 };

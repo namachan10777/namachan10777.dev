@@ -1,6 +1,6 @@
 import type { Theme, ThemeAdapter } from "./index";
 
-const giscusTheme: { [key in Theme]: string } = {
+const giscusTheme: Record<Theme, string> = {
   light: "light",
   dark: "dark",
 };
