@@ -39,7 +39,7 @@
     "license-checker-rseidelsohn": "^4.4.2",
     "lightningcss": "^1.28.2",
     "ogp-image": "workspace:*",
-    "pagefind": "^1.1.1",
+    "pagefind": "^1.3.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-katex": "^7.0.1",
     "rehype-pretty-code": "^0.14.0",
