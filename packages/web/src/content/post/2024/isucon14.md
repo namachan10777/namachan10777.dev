@@ -4,7 +4,9 @@ date: 2024-12-19
 description: インターン先のArkEdge Spaceの社員と一緒にISUCON14に参加してきた
 title: ISUCIN14出てきました
 publish: true
-------
+---
+
+---
 
 [sksat](https://github.com/sksat)、[sankichi92](https://github.com/sankichi92)と一緒にISUCON14に出た。
 去年は再起動試験で失格になったが、今年は100位に付けられた。来年は30位に入りたいですね。
