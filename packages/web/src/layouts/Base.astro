@@ -7,6 +7,7 @@ import Breadcrumbs from "~/components/composite/BreadCrumbs.astro";
 import ThemeSwitcher from "~/components/composite/ThemeSwitcher.astro";
 import SearchOn from "~/components/composite/SearchOn.astro";
 import SearchDialog from "~/components/composite/SearchDialog.astro";
+import { ClientRouter } from "astro:transitions";
 import { Icon } from "astro-icon/components";
 
 interface OgArticle {
@@ -85,6 +86,7 @@ function breadcrumbsJsonLD(path: PathFragment[]): string {
     <link rel="stylesheet" href="/layers.css" />
     <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
     <slot name="head" />
+    <ClientRouter />
     <SEO
       title={Astro.props.title}
       description={Astro.props.description}
