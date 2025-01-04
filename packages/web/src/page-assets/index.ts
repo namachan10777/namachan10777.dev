@@ -4,13 +4,28 @@ export const events = (await getCollection("event")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
+interface WithDateEntry {
+  data: {
+    date: Date;
+  };
+}
+
+function sortByDate<A extends WithDateEntry, B extends WithDateEntry>(
+  a: A | undefined,
+  b: B | undefined,
+) {
+  if (a && b) {
+    return b.data.date.getTime() - a.data.date.getTime();
+  } else {
+    return 0;
+  }
+}
+
 export const posts = (
   await getCollection("post", (post) => post.data.publish)
-).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+).sort(sortByDate);
 
-export const pubs = (await getCollection("pub")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+export const pubs = (await getCollection("pub")).sort(sortByDate);
 
 export const links = [
   {

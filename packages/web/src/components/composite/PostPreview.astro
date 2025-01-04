@@ -28,14 +28,14 @@ const text = vfile.toString();
 <article>
   <span class="date">{post.data.date.toISOString().slice(0, 10)}</span>
   <h3 class="heading">
-    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
+    <Anchor href={`/post/${post.id}`}>{post.data.title}</Anchor>
   </h3>
   <nav class="tags">
     <Tags tags={post.data.tags} />
   </nav>
   <div class="preview">
     <Typography>
-      {text.slice(0, Math.min(120, post.body.length))}...
+      {text.slice(0, Math.min(120, post.body?.length || 120))}...
     </Typography>
   </div>
 </article>

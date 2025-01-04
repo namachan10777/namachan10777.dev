@@ -1,8 +1,12 @@
+import { glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
 import { dateDetailLevelValidator } from "~/lib/util";
 
 const post = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "**/[^_]*.{md,mdx}",
+    base: "content/post",
+  }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -16,7 +20,10 @@ const post = defineCollection({
 });
 
 const pub = defineCollection({
-  type: "data",
+  loader: glob({
+    pattern: "**/[^_]*.{yml,yaml}",
+    base: "content/pub",
+  }),
   schema: z.object({
     title: z.string(),
     booktitle: z.string(),
@@ -26,7 +33,10 @@ const pub = defineCollection({
 });
 
 const event = defineCollection({
-  type: "data",
+  loader: glob({
+    pattern: "**/[^_]*.{yml,yaml}",
+    base: "content/event",
+  }),
   schema: z.object({
     date: z.date(),
     title: z.string(),
@@ -35,7 +45,10 @@ const event = defineCollection({
 });
 
 const thirdparty = defineCollection({
-  type: "data",
+  loader: glob({
+    pattern: "**/[^_]*.{yml,yaml}",
+    base: "content/thirdparty",
+  }),
   schema: z.object({
     src: z.string(),
     from: z.array(

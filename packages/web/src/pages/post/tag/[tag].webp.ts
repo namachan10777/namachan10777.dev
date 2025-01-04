@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ params, site }) => {
       .slice(0, Math.min(posts.length, 8)),
     date: posts
       .map((post) => post.data.date)
-      .reduce((a, b) => (a.getTime() > b.getTime() ? a : b)),
+      .reduce((a, b) => (a && b && a.getTime() > b.getTime() ? a : b)),
     url: `${site}/post/tag/${params.tag!}`,
   });
 };
