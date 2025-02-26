@@ -27,7 +27,7 @@
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
     "@iconify-json/iconoir": "^1.2.7",
-    "@types/bun": "^1.1.14",
+    "@types/bun": "^1.2.4",
     "@types/license-checker": "^25.0.6",
     "@types/remark-heading-id": "^1.0.0",
     "@types/svg-parser": "^2.0.6",
