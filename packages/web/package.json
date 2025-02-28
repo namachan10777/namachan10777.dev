@@ -59,7 +59,7 @@
     "shiki": "^1.26.1",
     "rehype-pretty-code-copy-button": "workspace:*",
     "svg-parser": "^2.0.4",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "unified": "^11.0.5",
     "vite-tsconfig-paths": "^5.1.4",
     "pagefind-api": "workspace:*"
