@@ -16,6 +16,15 @@
 		0 16px 32px rgba(var(--gray), 20%);
 	--code-bg: 245, 245, 245;
 	--code-fg: 36, 41, 46;
+	--codeblock-bg: 242, 244, 247;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--code-bg: 40, 44, 52;
+		--code-fg: 220, 220, 220;
+		--codeblock-bg: 30, 32, 35;
+	}
 }
 @font-face {
 	font-family: 'Atkinson';
@@ -138,8 +147,9 @@ code {
 pre {
 	padding: 1em;
 	border-radius: 6px;
-	background-color: rgba(var(--code-bg), 1);
+	background-color: rgba(var(--codeblock-bg), 1);
 	overflow: auto;
+	color: rgb(var(--code-fg)); /* Ensure pre has the same text color as code */
 }
 pre > code {
 	background-color: transparent;
@@ -147,6 +157,10 @@ pre > code {
 	font-size: 0.9em;
 	line-height: 1.5;
 	white-space: pre;
+	color: rgb(var(--code-fg)); /* Explicitly set code color inside pre */
+}
+pre > code > span {
+	color: rgb(var(--code-fg)); /* Ensure spans inside code blocks have proper color */
 }
 blockquote {
 	border-left: 4px solid rgba(var(--gray-light), 1);
