@@ -1,17 +1,21 @@
 ---
+import ContentPlacement from "./ContentPlacement.astro";
+
 const currentYear = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="container">
-    <div class="copyright">
-      &copy; {currentYear} namachan10777
+  <ContentPlacement>
+    <div class="container">
+      <div class="copyright">
+        &copy; {currentYear} namachan10777
+      </div>
+      <div class="links">
+        <a href="https://github.com/namachan10777" target="_blank">GitHub</a>
+        <a href="https://twitter.com/namachan10777" target="_blank">Twitter</a>
+      </div>
     </div>
-    <div class="links">
-      <a href="https://github.com/namachan10777" target="_blank">GitHub</a>
-      <a href="https://twitter.com/namachan10777" target="_blank">Twitter</a>
-    </div>
-  </div>
+  </ContentPlacement>
 </footer>
 
 <style>
@@ -24,9 +28,7 @@ const currentYear = new Date().getFullYear();
   }
 
   .container {
-    width: 800px;
-    max-width: calc(100% - 2em);
-    margin: 0 auto;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;

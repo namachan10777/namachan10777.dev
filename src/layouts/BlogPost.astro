@@ -3,6 +3,7 @@ import '../styles/reset.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ContentPlacement from '../components/ContentPlacement.astro';
 
 interface Props {
   title: string;
@@ -29,33 +30,35 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
   </head>
   <body>
     <Header />
-    <main>
-      <article>
-        <header>
-          <h1>{title}</h1>
-          <div class="metadata">
-            <time datetime={date.toISOString()}>{formattedDate}</time>
-            {tags.length > 0 && (
-              <div class="tags">
-                {tags.map((tag) => (
-                  <span class="tag">{tag}</span>
-                ))}
-              </div>
-            )}
+    <ContentPlacement>
+      <main>
+        <article>
+          <header>
+            <h1>{title}</h1>
+            <div class="metadata">
+              <time datetime={date.toISOString()}>{formattedDate}</time>
+              {tags.length > 0 && (
+                <div class="tags">
+                  {tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </header>
+          <div class="content">
+            <slot />
           </div>
-        </header>
-        <div class="content">
-          <slot />
-        </div>
-      </article>
-    </main>
+        </article>
+      </main>
+    </ContentPlacement>
     <Footer />
   </body>
 </html>
 
 <style>
   article {
-    margin-bottom: 2rem;
+    margin-block: 2rem;
   }
   
   header {
