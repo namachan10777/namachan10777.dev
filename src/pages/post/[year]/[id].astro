@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BlogPost from '../../../layouts/BlogPost.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('post');
+  
+  return posts.map(post => {
+    // Extract year and id from the file path
+    // The file path format is: src/content/post/YYYY/id.md
+    const pathParts = post.id.split('/');
+    const year = pathParts[0]; // The year folder
+    const id = pathParts[1].replace(/\.md$/, ''); // The filename without extension
+    
+    return {
+      params: { year, id },
+      props: { post }
+    };
+  });
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<BlogPost
+  title={post.data.title}
+  description={post.data.description}
+  date={post.data.date}
+  tags={post.data.tags}
+>
+  <Content />
+</BlogPost>

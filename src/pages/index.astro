@@ -1,0 +1,115 @@
+---
+import { getCollection } from 'astro:content';
+import '../styles/reset.css';
+import '../styles/global.css';
+
+// Get all blog posts
+const posts = await getCollection('post');
+
+// Sort posts by date (newest first)
+const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>namachan10777.dev</title>
+		<meta name="description" content="namachan10777's personal website" />
+	</head>
+	<body>
+		<main>
+			<h1>namachan10777.dev</h1>
+			
+			<section class="blog-posts">
+				<h2>Blog Posts</h2>
+				<ul>
+					{sortedPosts.map(post => {
+						// Extract year and id from the file path
+						const pathParts = post.id.split('/');
+						const year = pathParts[0]; // The year folder
+						const id = pathParts[1].replace(/\.md$/, ''); // The filename without extension
+						
+						return (
+							<li>
+								<article class="post-preview">
+									<h3>
+										<a href={`/post/${year}/${id}`}>{post.data.title}</a>
+									</h3>
+									<div class="post-meta">
+										<time datetime={post.data.date.toISOString()}>
+											{new Intl.DateTimeFormat('ja-JP', {
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+											}).format(post.data.date)}
+										</time>
+										{post.data.tags && post.data.tags.length > 0 && (
+											<div class="tags">
+												{post.data.tags.map(tag => (
+													<span class="tag">{tag}</span>
+												))}
+											</div>
+										)}
+									</div>
+									<p class="description">{post.data.description}</p>
+								</article>
+							</li>
+						);
+					})}
+				</ul>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	h1 {
+		margin-bottom: 2rem;
+	}
+	
+	.blog-posts {
+		margin-top: 2rem;
+	}
+	
+	ul {
+		list-style-type: none;
+		padding: 0;
+	}
+	
+	li {
+		margin-bottom: 2rem;
+	}
+	
+	.post-preview h3 {
+		margin-bottom: 0.5rem;
+	}
+	
+	.post-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 0.5rem;
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+	}
+	
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	
+	.tag {
+		background-color: rgba(var(--gray-light), 0.7);
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.8rem;
+	}
+	
+	.description {
+		margin-top: 0.5rem;
+		color: rgb(var(--gray-dark));
+	}
+</style>

@@ -1,0 +1,90 @@
+---
+import '../styles/reset.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  tags?: string[];
+}
+
+const { title, description, date, tags = [] } = Astro.props;
+const formattedDate = new Intl.DateTimeFormat('ja-JP', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(date);
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | namachan10777.dev</title>
+    <meta name="description" content={description} />
+  </head>
+  <body>
+    <main>
+      <article>
+        <header>
+          <h1>{title}</h1>
+          <div class="metadata">
+            <time datetime={date.toISOString()}>{formattedDate}</time>
+            {tags.length > 0 && (
+              <div class="tags">
+                {tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+        <div class="content">
+          <slot />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>
+
+<style>
+  article {
+    margin-bottom: 2rem;
+  }
+  
+  header {
+    margin-bottom: 2rem;
+  }
+  
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .metadata {
+    color: rgb(var(--gray));
+    font-size: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .tag {
+    background-color: rgba(var(--gray-light), 0.7);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  
+  .content {
+    margin-top: 2rem;
+  }
+</style>
