@@ -32,6 +32,15 @@ export default defineConfig({
 					if (node.properties.style && typeof node.properties.style === 'string') {
 						node.properties.style = node.properties.style.replace(/background-color:[^;]+;/, '');
 					}
+					
+					// Add shiki class to code element
+					const classes = node.properties.class || '';
+					if (typeof classes === 'string' && !classes.includes('shiki')) {
+						node.properties.class = `${classes} shiki`.trim();
+					} else {
+						node.properties.class = 'shiki';
+					}
+					
 					return node;
 				}
 			}]
