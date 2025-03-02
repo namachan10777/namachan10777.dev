@@ -1,0 +1,70 @@
+---
+---
+
+<header class="site-header">
+  <div class="container">
+    <div class="logo">
+      <a href="/">namachan10777.dev</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="https://github.com/namachan10777" target="_blank">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(var(--gray-light), 0.5);
+    margin-bottom: 2rem;
+  }
+
+  .container {
+    width: 800px;
+    max-width: calc(100% - 2em);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo a {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgb(var(--heading-color));
+    text-decoration: none;
+  }
+
+  nav ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  nav a {
+    color: var(--link-color);
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 720px) {
+    .container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    nav ul {
+      gap: 1rem;
+    }
+  }
+</style>

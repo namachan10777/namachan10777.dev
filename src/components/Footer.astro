@@ -1,0 +1,62 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="copyright">
+      &copy; {currentYear} namachan10777
+    </div>
+    <div class="links">
+      <a href="https://github.com/namachan10777" target="_blank">GitHub</a>
+      <a href="https://twitter.com/namachan10777" target="_blank">Twitter</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(var(--gray-light), 0.5);
+    color: rgb(var(--gray));
+    font-size: 0.9rem;
+  }
+
+  .container {
+    width: 800px;
+    max-width: calc(100% - 2em);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .links a {
+    color: var(--link-color);
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 720px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .links {
+      gap: 1rem;
+    }
+  }
+</style>
