@@ -114,7 +114,8 @@
     }
 
     /* コード */
-    .markdown-content :global(code) {
+    /* インラインコード用 - pre内にないcodeタグ */
+    .markdown-content :global(:not(pre) > code) {
       padding-block: 0.2em;
       padding-inline: 0.4em;
       background-color: rgba(var(--code-bg), 1);
@@ -124,25 +125,21 @@
       font-size: 0.85em;
     }
     
+    /* コードブロック用 - preタグのスタイリング */
     .markdown-content :global(pre) {
       padding: 1em;
       border-radius: var(--border-radius-lg);
-      background-color: rgba(var(--codeblock-bg), 1);
       overflow: auto;
-      color: rgb(var(--code-fg));
+      background-color: rgba(var(--codeblock-bg), 1);
     }
     
+    /* コードブロック内のコードタグはShikiによるスタイリングを優先 */
     .markdown-content :global(pre > code) {
-      background-color: transparent;
       padding: 0;
       font-size: 0.9em;
       line-height: var(--line-height-normal);
       white-space: pre;
-      color: rgb(var(--code-fg));
-    }
-    
-    .markdown-content :global(pre > code > span) {
-      color: rgb(var(--code-fg));
+      /* 背景色と文字色はShikiによって設定されるため削除 */
     }
 
     /* 引用 */
