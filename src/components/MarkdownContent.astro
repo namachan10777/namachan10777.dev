@@ -1,0 +1,149 @@
+---
+// src/components/MarkdownContent.astro
+---
+
+<div class="markdown-content">
+  <slot />
+</div>
+
+<style>
+  /* Markdownコンテンツのコンテナスタイル */
+  .markdown-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.6;
+  }
+
+  /* 見出し - Markdown専用のスタイル */
+  .markdown-content :global(h1),
+  .markdown-content :global(h2),
+  .markdown-content :global(h3),
+  .markdown-content :global(h4),
+  .markdown-content :global(h5),
+  .markdown-content :global(h6) {
+    margin: 1.5em 0 0.5em 0;
+  }
+  
+  .markdown-content :global(h1) {
+    margin-top: 0;
+  }
+  
+  .markdown-content :global(h2) {
+    border-bottom: 1px solid rgba(var(--gray-light), 1);
+    padding-bottom: 0.3em;
+  }
+
+  /* テキスト要素 */
+  .markdown-content :global(p) {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+  }
+  
+  .markdown-content :global(strong),
+  .markdown-content :global(b) {
+    font-weight: 700;
+  }
+  
+  .markdown-content :global(a) {
+    color: var(--link-color);
+  }
+  
+  .markdown-content :global(a:hover) {
+    color: var(--link-hover-color);
+  }
+
+  /* リスト */
+  .markdown-content :global(ul),
+  .markdown-content :global(ol) {
+    margin: 0 0 16px 0;
+    padding-left: 2em;
+  }
+  
+  .markdown-content :global(ul) {
+    list-style: disc;
+  }
+  
+  .markdown-content :global(ol) {
+    list-style: decimal;
+  }
+  
+  .markdown-content :global(li) {
+    margin-bottom: 0.5em;
+  }
+
+  /* テーブル */
+  .markdown-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 16px 0;
+  }
+  
+  .markdown-content :global(table th) {
+    font-weight: 600;
+    background-color: rgba(var(--gray-light), 0.5);
+  }
+  
+  .markdown-content :global(table th),
+  .markdown-content :global(table td) {
+    border: 1px solid rgba(var(--gray-light), 1);
+    padding: 6px 13px;
+  }
+  
+  .markdown-content :global(table tr:nth-child(2n)) {
+    background-color: rgba(var(--gray-light), 0.3);
+  }
+
+  /* 画像 */
+  .markdown-content :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: 0 0 16px 0;
+  }
+
+  /* コード */
+  .markdown-content :global(code) {
+    padding: 0.2em 0.4em;
+    background-color: rgba(var(--code-bg), 1);
+    color: rgb(var(--code-fg));
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85em;
+  }
+  
+  .markdown-content :global(pre) {
+    padding: 1em;
+    border-radius: 6px;
+    background-color: rgba(var(--codeblock-bg), 1);
+    overflow: auto;
+    color: rgb(var(--code-fg));
+  }
+  
+  .markdown-content :global(pre > code) {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.9em;
+    line-height: 1.5;
+    white-space: pre;
+    color: rgb(var(--code-fg));
+  }
+  
+  .markdown-content :global(pre > code > span) {
+    color: rgb(var(--code-fg));
+  }
+
+  /* 引用 */
+  .markdown-content :global(blockquote) {
+    border-left: 4px solid rgba(var(--gray-light), 1);
+    padding: 0 0 0 16px;
+    margin: 0 0 16px 0;
+    color: rgb(var(--gray));
+    font-size: 1em;
+  }
+
+  /* 水平線 */
+  .markdown-content :global(hr) {
+    border: none;
+    border-top: 1px solid rgb(var(--gray-light));
+    margin: 16px 0;
+  }
+</style>

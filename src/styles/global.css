@@ -59,120 +59,61 @@ body {
 	font-size: 16px;
 	line-height: 1.6;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	margin: 1.5em 0 0.5em 0;
+
+/* 基本的なタイポグラフィ（最小限） */
+h1, h2, h3, h4, h5, h6 {
 	color: rgb(var(--heading-color));
 	line-height: 1.3;
 	font-weight: 600;
 }
+
+/* 見出しのフォントサイズ */
 h1 {
 	font-size: 2em;
-	margin-top: 0;
 }
+
 h2 {
 	font-size: 1.5em;
-	border-bottom: 1px solid rgba(var(--gray-light), 1);
-	padding-bottom: 0.3em;
 }
+
 h3 {
 	font-size: 1.25em;
 }
+
 h4 {
 	font-size: 1.1em;
 }
+
 h5 {
 	font-size: 1em;
 }
+
 h6 {
 	font-size: 0.9em;
 	color: rgb(var(--gray));
 }
-strong,
-b {
-	font-weight: 700;
-}
+
 a {
 	color: var(--link-color);
 }
+
 a:hover {
 	color: var(--link-hover-color);
 }
-p {
-	margin: 0 0 16px 0;
-	line-height: 1.6;
-}
-.prose p {
-	margin-bottom: 1.5em;
-}
+
+/* フォームコントロール */
 textarea {
 	width: 100%;
 	font-size: 16px;
 }
+
 input {
 	font-size: 16px;
 }
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin: 0 0 16px 0;
-}
-table th {
-	font-weight: 600;
-	background-color: rgba(var(--gray-light), 0.5);
-}
-table th, table td {
-	border: 1px solid rgba(var(--gray-light), 1);
-	padding: 6px 13px;
-}
-table tr:nth-child(2n) {
-	background-color: rgba(var(--gray-light), 0.3);
-}
-img {
-	max-width: 100%;
-	height: auto;
-	margin: 0 0 16px 0;
-}
-code {
-	padding: 0.2em 0.4em;
-	background-color: rgba(var(--code-bg), 1);
-	color: rgb(var(--code-fg));
-	border-radius: 3px;
-	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-	font-size: 0.85em;
-}
-pre {
-	padding: 1em;
-	border-radius: 6px;
-	background-color: rgba(var(--codeblock-bg), 1);
-	overflow: auto;
-	color: rgb(var(--code-fg)); /* Ensure pre has the same text color as code */
-}
-pre > code {
-	background-color: transparent;
-	padding: 0;
-	font-size: 0.9em;
-	line-height: 1.5;
-	white-space: pre;
-	color: rgb(var(--code-fg)); /* Explicitly set code color inside pre */
-}
-pre > code > span {
-	color: rgb(var(--code-fg)); /* Ensure spans inside code blocks have proper color */
-}
-blockquote {
-	border-left: 4px solid rgba(var(--gray-light), 1);
-	padding: 0 0 0 16px;
-	margin: 0 0 16px 0;
-	color: rgb(var(--gray));
-	font-size: 1em;
-}
-hr {
-	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
+
+/* ユーティリティクラス */
+.prose p {
+	margin-bottom: 1.5em;
 }
 @media (max-width: 720px) {
 	body {
