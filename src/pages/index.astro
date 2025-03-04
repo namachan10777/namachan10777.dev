@@ -26,7 +26,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 		<ContentPlacement>
 			<main>
 				<section class="blog-posts">
-					<h2>Blog Posts</h2>
+					<h2 class="blog-posts-heading">Blog Posts</h2>
 					<ul>
 						{sortedPosts.map(post => {
 							// Extract year and id from the file path
@@ -116,5 +116,9 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 	.description {
 		margin-top: 0.5rem;
 		color: rgb(var(--gray-dark));
+	}
+
+	.blog-posts-heading {
+		padding-block-end: 1rem;
 	}
 </style>
