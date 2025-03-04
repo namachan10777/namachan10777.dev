@@ -70,7 +70,7 @@ Astroはhtml以外の静的ファイルもGETエンドポイントの形で記�
 `ogImage`は`satori`を使ってOG画像を生成する関数だ。
 `satori`にReactのJSXとフォントデータを与えればSVGが文字列として出てくるので`sharp(Buffer.from(svg)).webp().toBuffer()`とするだけ。
 
-```typescript
+```typescript showLineNumbers
 export const GET: APIRoute = async ({ params }) => {
   const article = await getEntryBySlug("blog", params.slug as any);
 
@@ -94,7 +94,7 @@ export const GET: APIRoute = async ({ params }) => {
 `astro:content`のAPIでfrontmatterを取ってきてGETエンドポイントの形で書くだけ。
 特に凝ったことはしていない。
 
-```typescript
+```typescript showLineNumbers=true
 import rss from "@astrojs/rss";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
