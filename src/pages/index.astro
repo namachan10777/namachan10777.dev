@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro';
 import ContentPlacement from '../components/ContentPlacement.astro';
 
 // Get all blog posts
-const posts = await getCollection('post');
+const posts = await getCollection('post', (post) => post.data.publish);
 
 // Sort posts by date (newest first)
 const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());

@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BlogPost from '../../../layouts/BlogPost.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('post');
+  const posts = await getCollection('post', (post) => post.data.publish);
   
   return posts.map(post => {
     // Extract year and id from the file path
