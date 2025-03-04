@@ -13,7 +13,7 @@
     .markdown-content {
       word-wrap: break-word;
       overflow-wrap: break-word;
-      line-height: 1.6;
+      line-height: var(--line-height-relaxed);
     }
 
     /* 見出し - Markdown専用のスタイル */
@@ -23,29 +23,32 @@
     .markdown-content :global(h4),
     .markdown-content :global(h5),
     .markdown-content :global(h6) {
-      margin: 1.5em 0 0.5em 0;
+      margin-block: var(--space-lg) var(--space-xs);
+      margin-inline: 0;
     }
     
     .markdown-content :global(h1) {
-      margin-top: 0;
+      margin-block-start: 0;
     }
     
     .markdown-content :global(h2) {
-      border-bottom: 1px solid rgba(var(--gray-light), 1);
-      padding-bottom: 0.3em;
+      border-block-end: var(--border-width-thin) solid rgba(var(--gray-light), 1);
+      padding-block-end: 0.3em;
     }
   }
 
   /* テキスト要素 */
   @layer components {
     .markdown-content :global(p) {
-      margin: 0 0 16px 0;
-      line-height: 1.6;
+      margin-block-start: 0;
+      margin-block-end: var(--space-md);
+      margin-inline: 0;
+      line-height: var(--line-height-relaxed);
     }
     
     .markdown-content :global(strong),
     .markdown-content :global(b) {
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
     }
     
     .markdown-content :global(a) {
@@ -59,8 +62,10 @@
     /* リスト */
     .markdown-content :global(ul),
     .markdown-content :global(ol) {
-      margin: 0 0 16px 0;
-      padding-left: 2em;
+      margin-block-start: 0;
+      margin-block-end: var(--space-md);
+      margin-inline: 0;
+      padding-inline-start: 2em;
     }
     
     .markdown-content :global(ul) {
@@ -72,51 +77,56 @@
     }
     
     .markdown-content :global(li) {
-      margin-bottom: 0.5em;
+      margin-block-end: var(--space-xs);
     }
 
     /* テーブル */
     .markdown-content :global(table) {
       width: 100%;
       border-collapse: collapse;
-      margin: 0 0 16px 0;
+      margin-block-start: 0;
+      margin-block-end: var(--space-md);
+      margin-inline: 0;
     }
     
     .markdown-content :global(table th) {
-      font-weight: 600;
-      background-color: rgba(var(--gray-light), 0.5);
+      font-weight: var(--font-weight-semibold);
+      background-color: rgba(var(--gray-light), var(--opacity-medium));
     }
     
     .markdown-content :global(table th),
     .markdown-content :global(table td) {
-      border: 1px solid rgba(var(--gray-light), 1);
-      padding: 6px 13px;
+      border: var(--border-width-thin) solid rgba(var(--gray-light), 1);
+      padding: var(--space-xs) var(--space-sm);
     }
     
     .markdown-content :global(table tr:nth-child(2n)) {
-      background-color: rgba(var(--gray-light), 0.3);
+      background-color: rgba(var(--gray-light), var(--opacity-low));
     }
 
     /* 画像 */
     .markdown-content :global(img) {
       max-width: 100%;
       height: auto;
-      margin: 0 0 16px 0;
+      margin-block-start: 0;
+      margin-block-end: var(--space-md);
+      margin-inline: 0;
     }
 
     /* コード */
     .markdown-content :global(code) {
-      padding: 0.2em 0.4em;
+      padding-block: 0.2em;
+      padding-inline: 0.4em;
       background-color: rgba(var(--code-bg), 1);
       color: rgb(var(--code-fg));
-      border-radius: 3px;
+      border-radius: var(--border-radius-sm);
       font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
       font-size: 0.85em;
     }
     
     .markdown-content :global(pre) {
       padding: 1em;
-      border-radius: 6px;
+      border-radius: var(--border-radius-lg);
       background-color: rgba(var(--codeblock-bg), 1);
       overflow: auto;
       color: rgb(var(--code-fg));
@@ -126,7 +136,7 @@
       background-color: transparent;
       padding: 0;
       font-size: 0.9em;
-      line-height: 1.5;
+      line-height: var(--line-height-normal);
       white-space: pre;
       color: rgb(var(--code-fg));
     }
@@ -137,9 +147,13 @@
 
     /* 引用 */
     .markdown-content :global(blockquote) {
-      border-left: 4px solid rgba(var(--gray-light), 1);
-      padding: 0 0 0 16px;
-      margin: 0 0 16px 0;
+      border-inline-start: var(--space-2xs) solid rgba(var(--gray-light), 1);
+      padding-inline-start: var(--space-md);
+      padding-block: 0;
+      padding-inline-end: 0;
+      margin-block-start: 0;
+      margin-block-end: var(--space-md);
+      margin-inline: 0;
       color: rgb(var(--gray));
       font-size: 1em;
     }
@@ -147,8 +161,9 @@
     /* 水平線 */
     .markdown-content :global(hr) {
       border: none;
-      border-top: 1px solid rgb(var(--gray-light));
-      margin: 16px 0;
+      border-block-start: var(--border-width-thin) solid rgb(var(--gray-light));
+      margin-block: var(--space-md);
+      margin-inline: 0;
     }
   }
 </style>

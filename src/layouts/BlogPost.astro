@@ -59,36 +59,37 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
 
 <style>
   article {
-    margin-block: 2rem;
+    margin-block: var(--space-xl);
   }
   
   header {
-    margin-bottom: 2rem;
+    margin-block-end: var(--space-xl);
   }
   
   h1 {
-    margin-bottom: 0.5rem;
+    margin-block-end: var(--space-xs);
   }
   
   .metadata {
     color: rgb(var(--gray));
-    font-size: 0.9rem;
+    font-size: var(--font-size-xs);
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--space-md);
+    margin-block-end: var(--space-md);
   }
   
   .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-xs);
   }
   
   .tag {
-    background-color: rgba(var(--gray-light), 0.7);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    background-color: rgba(var(--gray-light), var(--opacity-high));
+    padding-block: var(--space-2xs);
+    padding-inline: var(--space-xs);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-xs);
   }
 </style>
