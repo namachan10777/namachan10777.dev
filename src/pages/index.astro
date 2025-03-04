@@ -41,7 +41,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 											<a href={`/post/${year}/${id}`}>{post.data.title}</a>
 										</h3>
 										<div class="post-meta">
-											<time datetime={post.data.date.toISOString()}>
+											<time class="post-date" datetime={post.data.date.toISOString()}>
 												{new Intl.DateTimeFormat('ja-JP', {
 													year: 'numeric',
 													month: 'long',
@@ -93,11 +93,16 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 	
 	.post-meta {
 		display: flex;
+		align-items: center;
 		flex-wrap: wrap;
 		gap: var(--space-md);
 		margin-block-end: var(--space-xs);
 		color: rgb(var(--gray));
 		font-size: var(--font-size-xs);
+	}
+
+	.post-date {
+		font-size: var(--font-size-sm);
 	}
 	
 	.tags {
