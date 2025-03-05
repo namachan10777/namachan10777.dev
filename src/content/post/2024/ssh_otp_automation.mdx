@@ -36,7 +36,7 @@ ssh-with-otp "$(op read "op://Personal/supacon/otp?attribute=otp")" ssh user@sup
 
 でもexpectによる自動化ではvscodeのremote sshはどうにもならず困っていたところ、Slackで指導教員から`ControlMaster`を教えてもらった。
 
-```plaintext
+```text
 Host supacon.sugoi.ac.jp
     User user
     ControlMaster auto

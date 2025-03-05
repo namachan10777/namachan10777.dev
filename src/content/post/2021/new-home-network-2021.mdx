@@ -49,7 +49,7 @@ IX2215は中古で購入した場合ファームウェアが古いのでNECか�
 以下が`/etc/dnsmasq.conf`。
 TFTPのセキュアモードは使用しないので`secure-tftp`は入れなかった。
 
-```plaintext
+```text
 enable-tftp
 tftp-root=/srv/tftp
 ```
@@ -68,7 +68,7 @@ systemctl start dnsmasq.service
 
 後はIX2215側での作業。
 
-```plaintext
+```text
 interface GigaEthernet1.0
   ip address 192.168.1.1/24
   no shutdown
@@ -82,7 +82,7 @@ reload
 
 投入した設定は以下。[NECの設定ガイド](https://jpn.nec.com/univerge/ix/Support/ipv6/v6plus-mape/index.html)からの引用
 
-```plaintext
+```text
 ip ufs-cache max-entries 20000
 ip ufs-cache enable
 ip route default Tunnel0.0
