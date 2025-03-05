@@ -7,11 +7,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "bun run lint:eslint && bun run lint:prettier",
+    "lint": "bun run lint:eslint && bun run lint:prettier && bun run lint:style",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier --check .",
-    "lint:fix": "bun run lint:eslint:fix && bun run format",
+    "lint:prettier:fix": "prettier -w .",
+    "lint:style": "stylelint \"**/*.{css,astro}\"",
+    "lint:fix": "bun run lint:eslint:fix && bun run format && bun run lint:style:fix && bun run lint:prettier:fix",
     "lint:eslint:fix": "eslint . --fix",
+    "lint:style:fix": "stylelint \"**/*.{css,astro}\" --fix",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -35,7 +38,11 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.2.3",
     "jiti": "^2.4.2",
+    "postcss": "^8.5.3",
+    "postcss-html": "^1.8.0",
     "prettier": "^3.5.3",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "stylelint": "^16.15.0",
+    "stylelint-config-standard": "^37.0.0"
   }
 }

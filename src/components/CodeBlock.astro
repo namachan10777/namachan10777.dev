@@ -43,6 +43,7 @@ interface Props {}
   code-block {
     position: relative;
     display: block;
+
     --copy-icon-size: 1.2rem;
   }
 
@@ -68,7 +69,6 @@ interface Props {}
     position: absolute;
     top: 0;
     right: 0;
-    background-color: rgba(var(--code-bg), 1);
     color: rgb(var(--code-fg));
     border-radius: var(--border-radius-sm);
     cursor: pointer;
@@ -79,6 +79,7 @@ interface Props {}
   }
 
   /* コード */
+
   /* インラインコード用 - pre内にないcodeタグ */
   :not(pre) > :global(code) {
     padding-block: 0.2em;
@@ -86,7 +87,7 @@ interface Props {}
     background-color: rgba(var(--code-bg), 1);
     color: rgb(var(--code-fg));
     border-radius: var(--border-radius-sm);
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 0.85em;
   }
 
@@ -104,12 +105,13 @@ interface Props {}
     font-size: 0.9em;
     line-height: var(--line-height-normal);
     white-space: pre;
-    /* 背景色と文字色はShikiによって設定されるため削除 */
   }
 
   /* 行番号付きコードブロックのスタイル */
   pre[data-line-numbers='true'],
   pre[data-line-numbers='1'] {
+    /* 行番号付きコードブロックのスタイルを追加 */
+    position: relative;
   }
 
   /* 行番号のカウンターをリセット */
@@ -149,10 +151,6 @@ interface Props {}
 
   /* レスポンシブ対応 */
   @media (max-width: var(--breakpoint-mobile)) {
-    pre[data-line-numbers='true'],
-    pre[data-line-numbers='1'] {
-    }
-
     pre[data-line-numbers='true'] :global(.line::before),
     pre[data-line-numbers='1'] :global(.line::before) {
       left: -2.2em;
