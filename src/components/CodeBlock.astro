@@ -1,6 +1,84 @@
-<pre><slot /></pre>
+---
+import {Icon} from "astro-icon/components";
+interface Props {
+
+}
+---
+
+<code-block>
+  <button data-copy-done="false">
+    <Icon class="icon do-copy" name="iconoir:copy" />
+    <Icon class="icon done-copy" name="iconoir:check" />
+  </button>
+  <pre {...Astro.props}><slot /></pre>
+</code-block>
+
+<script>
+  class CodeBlock extends HTMLElement {
+    text: string;
+    clearDoneStatusHandler: NodeJS.Timeout | null = null;
+
+    constructor() {
+      super();
+      const button = this.querySelector('button')
+      this.text = this.querySelector('pre')?.textContent || "";
+      if (button) {
+        button.addEventListener('click', () => {
+          navigator.clipboard.writeText(this.text);
+          button.dataset.copyDone = "true";
+          console.log("done");
+          if (this.clearDoneStatusHandler) {
+            clearTimeout(this.clearDoneStatusHandler);
+          }
+          this.clearDoneStatusHandler = setTimeout(() => {
+            button.dataset.copyDone = "false";
+          }, 700);
+        })
+      }
+    }
+  }
+
+  customElements.define('code-block', CodeBlock);
+</script>
 
 <style>
+  code-block {
+    position: relative;
+    display: block;
+    --copy-icon-size: 1.2rem;
+  }
+
+  .icon {
+    width: var(--copy-icon-size);
+    height: var(--copy-icon-size);
+  }
+
+  .done-copy, .do-copy {
+    display: none;
+  }
+
+  button[data-copy-done="true"] .done-copy {
+    display: unset;
+  }
+
+  button[data-copy-done="false"] .do-copy {
+    display: unset;
+  }
+
+  code-block button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(var(--code-bg), 1);
+    color: rgb(var(--code-fg));
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    background-color: transparent;
+    z-index: 10;
+    border: none;
+    padding: var(--space-2xs);
+  }
+
   /* コード */
   /* インラインコード用 - pre内にないcodeタグ */
   :not(pre) > :global(code) {

@@ -12,6 +12,8 @@
     "@astrojs/mdx": "^4.1.0",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
-    "astro": "^5.4.1"
+    "@iconify-json/iconoir": "^1.2.7",
+    "astro": "^5.4.1",
+    "astro-icon": "^1.1.5"
   }
 }
