@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ContentPlacement from '../components/ContentPlacement.astro';
 import Heading1 from '../components/heading/Heading1.astro';
+import Base from "./Base.astro";
 
 interface Props {
   title: string;
@@ -21,49 +22,35 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
 }).format(date);
 ---
 
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | namachan10777.dev</title>
-    <meta name="description" content={description} />
-  </head>
-  <body>
-    <Header />
-    <ContentPlacement>
-      <main>
-        <article>
-          <header>
-            <Heading1>{title}</Heading1>
-            <div class="metadata">
-              <time datetime={date.toISOString()}>{formattedDate}</time>
-              {tags.length > 0 && (
-                <div class="tags">
-                  {tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </header>
-          <slot />
-        </article>
-      </main>
-    </ContentPlacement>
-    <Footer />
-  </body>
-</html>
+<Base title={title} description={description}>
+  <article>
+    <header>
+      <Heading1>{title}</Heading1>
+      <div class="metadata">
+        <time datetime={date.toISOString()}>{formattedDate}</time>
+        {tags.length > 0 && (
+          <div class="tags">
+            {tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+    <slot />
+  </article>
+</main>
+</Base>
 
 <style>
   article {
     margin-block: var(--space-xl);
   }
-  
+
   header {
     margin-block-end: var(--space-xl);
   }
-  
+
   h1 {
     margin-block-end: var(--space-xs);
   }
