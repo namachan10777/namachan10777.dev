@@ -1,6 +1,22 @@
 ---
 import { getCollection } from 'astro:content';
 import BlogPost from '../../../layouts/BlogPost.astro';
+import Anchor from '../../../components/Anchor.astro';
+import Heading1 from '../../../components/heading/Heading1.astro';
+import Heading5 from '../../../components/heading/Heading5.astro';
+import Heading6 from '../../../components/heading/Heading6.astro';
+import Heading4 from '../../../components/heading/Heading4.astro';
+import Heading3 from '../../../components/heading/Heading3.astro';
+import Heading2 from '../../../components/heading/Heading2.astro';
+import Paragraph from '../../../components/Paragraph.astro';
+import Strong from '../../../components/Strong.astro';
+import Bold from '../../../components/Bold.astro';
+import UnorderedList from '../../../components/list/UnorderedList.astro';
+import OrderedList from '../../../components/list/OrderedList.astro';
+import Table from '../../../components/Table.astro';
+import Img from '../../../components/Img.astro';
+import Code from '../../../components/Code.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('post', (post) => post.data.publish);
@@ -21,6 +37,24 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+const components = {
+  a: Anchor,
+  h1: Heading1,
+  h2: Heading2,
+  h3: Heading3,
+  h4: Heading4,
+  h5: Heading5,
+  h6: Heading6,
+  p: Paragraph,
+  strong: Strong,
+  b: Bold,
+  ul: UnorderedList,
+  ol: OrderedList,
+  table: Table,
+  img: Img,
+  code: Code,
+  pre: CodeBlock,
+};
 ---
 
 <BlogPost
@@ -29,5 +63,5 @@ const { Content } = await post.render();
   date={post.data.date}
   tags={post.data.tags}
 >
-  <Content />
+  <Content components={components}/>
 </BlogPost>

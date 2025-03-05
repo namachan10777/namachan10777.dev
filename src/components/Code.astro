@@ -1,0 +1,17 @@
+<code><slot /></code>
+
+<style>
+  code {
+    font-family: Courier, monospace;
+  }
+
+  :global(:not(pre) > code) {
+    padding-block: 0.2em;
+    padding-inline: 0.4em;
+    background-color: rgba(var(--code-bg), 1);
+    color: rgb(var(--code-fg));
+    border-radius: var(--border-radius-sm);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85em;
+  }
+</style>

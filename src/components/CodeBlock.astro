@@ -1,0 +1,86 @@
+<pre><slot /></pre>
+
+<style>
+  /* コード */
+  /* インラインコード用 - pre内にないcodeタグ */
+  :not(pre) > :global(code) {
+    padding-block: 0.2em;
+    padding-inline: 0.4em;
+    background-color: rgba(var(--code-bg), 1);
+    color: rgb(var(--code-fg));
+    border-radius: var(--border-radius-sm);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.85em;
+  }
+
+  /* コードブロック用 - preタグのスタイリング */
+  pre {
+    padding: 1em;
+    border-radius: var(--border-radius-lg);
+    overflow-x: scroll;
+    background-color: rgba(var(--codeblock-bg), 1);
+  }
+
+  /* コードブロック内のコードタグはShikiによるスタイリングを優先 */
+  pre > :global(code) {
+    padding: 0;
+    font-size: 0.9em;
+    line-height: var(--line-height-normal);
+    white-space: pre;
+    /* 背景色と文字色はShikiによって設定されるため削除 */
+  }
+
+  /* 行番号付きコードブロックのスタイル */
+  pre[data-line-numbers="true"],
+  pre[data-line-numbers="1"] {
+  }
+
+  /* 行番号のカウンターをリセット */
+  pre[data-line-numbers="true"] :global(code),
+  pre[data-line-numbers="1"] :global(code) {
+    counter-reset: line;
+  }
+
+  /* 各行に行番号を追加 */
+  pre[data-line-numbers="true"] :global(.line),
+  pre[data-line-numbers="1"] :global(.line) {
+    display: inline-block;
+    width: 100%;
+    height: 1rem;
+    counter-increment: line;
+  }
+
+  pre[data-line-numbers="true"] :global(.line > span) {
+    height: 100%;
+  }
+
+  /* 行番号の表示 */
+  pre[data-line-numbers="true"] :global(.line::before),
+  pre[data-line-numbers="1"] :global(.line::before) {
+    display: inline-block;
+    margin-right: 0.5rem;
+    content: counter(line);
+    height: 100%;
+    width: 2.5em;
+    text-align: right;
+    color: rgba(var(--gray), var(--opacity-medium));
+    font-size: 0.8em;
+    padding-right: 0.5em;
+    border-right: var(--border-width-thin) solid
+      rgba(var(--gray-light), var(--opacity-low));
+    user-select: none; /* 行番号を選択できないようにする */
+  }
+
+  /* レスポンシブ対応 */
+  @media (max-width: var(--breakpoint-mobile)) {
+    pre[data-line-numbers="true"],
+    pre[data-line-numbers="1"] {
+    }
+
+    pre[data-line-numbers="true"] :global(.line::before),
+    pre[data-line-numbers="1"] :global(.line::before) {
+      left: -2.2em;
+      width: 1.8em;
+    }
+  }
+</style>

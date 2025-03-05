@@ -1,0 +1,28 @@
+<table>
+  <slot />
+</table>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block-start: 0;
+    margin-block-end: var(--space-md);
+    margin-inline: 0;
+  }
+
+  table > :global(tr) > :global(th) {
+    font-weight: var(--font-weight-semibold);
+    background-color: rgba(var(--gray-light), var(--opacity-medium));
+  }
+
+  table > :global(tr) > :global(th),
+  table > :global(tr) > :global(td) {
+    border: var(--border-width-thin) solid rgba(var(--gray-light), 1);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  table > :global(tr:nth-child(3n)) {
+    background-color: rgba(var(--gray-light), var(--opacity-low));
+  }
+</style>

@@ -5,6 +5,10 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ContentPlacement from '../components/ContentPlacement.astro';
+import Paragraph from '../components/Paragraph.astro';
+import Heading3 from '../components/heading/Heading3.astro';
+import Heading2 from '../components/heading/Heading2.astro';
+import Anchor from '../components/Anchor.astro';
 
 // Get all blog posts
 const posts = await getCollection('post', (post) => post.data.publish);
@@ -26,7 +30,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 		<ContentPlacement>
 			<main>
 				<section class="blog-posts">
-					<h2 class="blog-posts-heading">Blog Posts</h2>
+					<Heading2 class="blog-posts-heading">Blog Posts</Heading2>
 					<ul>
 						{sortedPosts.map(post => {
 							// Extract year and id from the file path
@@ -37,9 +41,9 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 							return (
 								<li>
 									<article class="post-preview">
-										<h3>
-											<a href={`/post/${year}/${id}`}>{post.data.title}</a>
-										</h3>
+										<Heading3>
+											<Anchor href={`/post/${year}/${id}`}>{post.data.title}</Anchor>
+										</Heading3>
 										<div class="post-meta">
 											<time class="post-date" datetime={post.data.date.toISOString()}>
 												{new Intl.DateTimeFormat('ja-JP', {
@@ -56,7 +60,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 												</div>
 											)}
 										</div>
-										<p class="description">{post.data.description}</p>
+										<Paragraph class="description">{post.data.description}</Paragraph>
 									</article>
 								</li>
 							);
@@ -70,10 +74,6 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 </html>
 
 <style>
-	h1 {
-		margin-block-end: var(--space-xl);
-	}
-	
 	.blog-posts {
 		margin-block-start: var(--space-xl);
 	}
@@ -85,10 +85,6 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 	
 	li {
 		margin-block-end: var(--space-xl);
-	}
-	
-	.post-preview h3 {
-		margin-block-end: var(--space-xs);
 	}
 	
 	.post-meta {
