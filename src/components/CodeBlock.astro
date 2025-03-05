@@ -1,8 +1,6 @@
 ---
-import {Icon} from "astro-icon/components";
-interface Props {
-
-}
+import { Icon } from 'astro-icon/components';
+interface Props {}
 ---
 
 <code-block>
@@ -13,27 +11,27 @@ interface Props {
   <pre {...Astro.props}><slot /></pre>
 </code-block>
 
-<script>
+<script lang="ts">
   class CodeBlock extends HTMLElement {
     text: string;
     clearDoneStatusHandler: NodeJS.Timeout | null = null;
 
     constructor() {
       super();
-      const button = this.querySelector('button')
-      this.text = this.querySelector('pre')?.textContent || "";
+      const button = this.querySelector('button');
+      this.text = this.querySelector('pre')?.textContent || '';
       if (button) {
         button.addEventListener('click', () => {
           navigator.clipboard.writeText(this.text);
-          button.dataset.copyDone = "true";
-          console.log("done");
+          button.dataset.copyDone = 'true';
+          console.log('done');
           if (this.clearDoneStatusHandler) {
             clearTimeout(this.clearDoneStatusHandler);
           }
           this.clearDoneStatusHandler = setTimeout(() => {
-            button.dataset.copyDone = "false";
+            button.dataset.copyDone = 'false';
           }, 700);
-        })
+        });
       }
     }
   }
@@ -53,15 +51,16 @@ interface Props {
     height: var(--copy-icon-size);
   }
 
-  .done-copy, .do-copy {
+  .done-copy,
+  .do-copy {
     display: none;
   }
 
-  button[data-copy-done="true"] .done-copy {
+  button[data-copy-done='true'] .done-copy {
     display: unset;
   }
 
-  button[data-copy-done="false"] .do-copy {
+  button[data-copy-done='false'] .do-copy {
     display: unset;
   }
 
@@ -87,7 +86,7 @@ interface Props {
     background-color: rgba(var(--code-bg), 1);
     color: rgb(var(--code-fg));
     border-radius: var(--border-radius-sm);
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 0.85em;
   }
 
@@ -109,32 +108,32 @@ interface Props {
   }
 
   /* 行番号付きコードブロックのスタイル */
-  pre[data-line-numbers="true"],
-  pre[data-line-numbers="1"] {
+  pre[data-line-numbers='true'],
+  pre[data-line-numbers='1'] {
   }
 
   /* 行番号のカウンターをリセット */
-  pre[data-line-numbers="true"] :global(code),
-  pre[data-line-numbers="1"] :global(code) {
+  pre[data-line-numbers='true'] :global(code),
+  pre[data-line-numbers='1'] :global(code) {
     counter-reset: line;
   }
 
   /* 各行に行番号を追加 */
-  pre[data-line-numbers="true"] :global(.line),
-  pre[data-line-numbers="1"] :global(.line) {
+  pre[data-line-numbers='true'] :global(.line),
+  pre[data-line-numbers='1'] :global(.line) {
     display: inline-block;
     width: 100%;
     height: 1rem;
     counter-increment: line;
   }
 
-  pre[data-line-numbers="true"] :global(.line > span) {
+  pre[data-line-numbers='true'] :global(.line > span) {
     height: 100%;
   }
 
   /* 行番号の表示 */
-  pre[data-line-numbers="true"] :global(.line::before),
-  pre[data-line-numbers="1"] :global(.line::before) {
+  pre[data-line-numbers='true'] :global(.line::before),
+  pre[data-line-numbers='1'] :global(.line::before) {
     display: inline-block;
     margin-right: 0.5rem;
     content: counter(line);
@@ -144,19 +143,18 @@ interface Props {
     color: rgba(var(--gray), var(--opacity-medium));
     font-size: 0.8em;
     padding-right: 0.5em;
-    border-right: var(--border-width-thin) solid
-      rgba(var(--gray-light), var(--opacity-low));
+    border-right: var(--border-width-thin) solid rgba(var(--gray-light), var(--opacity-low));
     user-select: none; /* 行番号を選択できないようにする */
   }
 
   /* レスポンシブ対応 */
   @media (max-width: var(--breakpoint-mobile)) {
-    pre[data-line-numbers="true"],
-    pre[data-line-numbers="1"] {
+    pre[data-line-numbers='true'],
+    pre[data-line-numbers='1'] {
     }
 
-    pre[data-line-numbers="true"] :global(.line::before),
-    pre[data-line-numbers="1"] :global(.line::before) {
+    pre[data-line-numbers='true'] :global(.line::before),
+    pre[data-line-numbers='1'] :global(.line::before) {
       left: -2.2em;
       width: 1.8em;
     }

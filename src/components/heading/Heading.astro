@@ -9,40 +9,45 @@ const Tag = `h${Astro.props.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 <Tag><slot /></Tag>
 
 <style>
-	/* 基本的なタイポグラフィ */
-	h1, h2, h3, h4, h5, h6 {
-		color: rgb(var(--heading-color));
-		line-height: var(--line-height-tight);
-		font-weight: var(--font-weight-semibold);
-		margin-block: var(--space-lg) var(--space-xs);
-		margin-inline: 0;
-	}
+  /* 基本的なタイポグラフィ */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: rgb(var(--heading-color));
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-semibold);
+    margin-block: var(--space-lg) var(--space-xs);
+    margin-inline: 0;
+  }
 
-	/* 見出しのフォントサイズ */
-	h1 {
-		font-size: var(--font-size-3xl);
-	}
+  /* 見出しのフォントサイズ */
+  h1 {
+    font-size: var(--font-size-3xl);
+  }
 
-	h2 {
-		font-size: var(--font-size-2xl);
-		border-block-end: var(--border-width-thin) solid rgba(var(--gray-light), 1);
-		padding-block-end: 0.3em;
-	}
+  h2 {
+    font-size: var(--font-size-2xl);
+    border-block-end: var(--border-width-thin) solid rgba(var(--gray-light), 1);
+    padding-block-end: 0.3em;
+  }
 
-	h3 {
-		font-size: var(--font-size-xl);
-	}
+  h3 {
+    font-size: var(--font-size-xl);
+  }
 
-	h4 {
-		font-size: 1.1em; /* 特殊なサイズなので残す */
-	}
+  h4 {
+    font-size: 1.1em; /* 特殊なサイズなので残す */
+  }
 
-	h5 {
-		font-size: var(--font-size-md);
-	}
+  h5 {
+    font-size: var(--font-size-md);
+  }
 
-	h6 {
-		font-size: 0.9em; /* 特殊なサイズなので残す */
-		color: rgb(var(--gray));
-	}
+  h6 {
+    font-size: 0.9em; /* 特殊なサイズなので残す */
+    color: rgb(var(--gray));
+  }
 </style>

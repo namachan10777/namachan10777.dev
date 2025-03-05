@@ -1,11 +1,8 @@
 ---
 import '../styles/reset.css';
 import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import ContentPlacement from '../components/ContentPlacement.astro';
 import Heading1 from '../components/heading/Heading1.astro';
-import Base from "./Base.astro";
+import Base from './Base.astro';
 
 interface Props {
   title: string;
@@ -28,18 +25,19 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
       <Heading1>{title}</Heading1>
       <div class="metadata">
         <time datetime={date.toISOString()}>{formattedDate}</time>
-        {tags.length > 0 && (
-          <div class="tags">
-            {tags.map((tag) => (
-              <span class="tag">{tag}</span>
-            ))}
-          </div>
-        )}
+        {
+          tags.length > 0 && (
+            <div class="tags">
+              {tags.map(tag => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )
+        }
       </div>
     </header>
     <slot />
   </article>
-</main>
 </Base>
 
 <style>
@@ -54,7 +52,7 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
   h1 {
     margin-block-end: var(--space-xs);
   }
-  
+
   .metadata {
     color: rgb(var(--gray));
     font-size: var(--font-size-xs);
@@ -63,13 +61,13 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
     gap: var(--space-md);
     margin-block-end: var(--space-md);
   }
-  
+
   .tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-xs);
   }
-  
+
   .tag {
     background-color: rgba(var(--gray-light), var(--opacity-high));
     padding-block: var(--space-2xs);

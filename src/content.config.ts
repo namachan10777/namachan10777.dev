@@ -1,4 +1,3 @@
-import { glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
 // Define the schema for the post collection
@@ -15,5 +14,5 @@ const postCollection = defineCollection({
 
 // Export the collections
 export const collections = {
-  'post': postCollection,
+  post: postCollection,
 };
