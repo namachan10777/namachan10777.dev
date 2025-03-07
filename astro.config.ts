@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 
 import icon from 'astro-icon';
+import remarkGemoji from 'remark-gemoji';
 
 function parseMetaAttributes(meta: string | undefined): Record<string, string | boolean> {
   if (!meta) return {};
@@ -26,7 +27,8 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), icon()],
   markdown: {
     remarkPlugins: [
-      remarkMath
+      remarkMath,
+      remarkGemoji,
     ],
     rehypePlugins: [
       rehypeKatex,

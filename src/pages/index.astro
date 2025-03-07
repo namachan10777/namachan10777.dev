@@ -2,11 +2,9 @@
 import { getCollection } from 'astro:content';
 import '../styles/reset.css';
 import '../styles/global.css';
-import Paragraph from '../components/Paragraph.astro';
-import Heading3 from '../components/heading/Heading3.astro';
 import Heading2 from '../components/heading/Heading2.astro';
-import Anchor from '../components/Anchor.astro';
 import Base from '../layouts/Base.astro';
+import PostPreview from '../components/post-preview.astro';
 
 // Get all blog posts
 const posts = await getCollection('post', post => post.data.publish);
@@ -21,34 +19,11 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
       <Heading2 class="blog-posts-heading">Blog Posts</Heading2>
       <ul>
         {
-          sortedPosts.map(post => {
-            return (
-              <li>
-                <article class="post-preview">
-                  <Heading3>
-                    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
-                  </Heading3>
-                  <div class="post-meta">
-                    <time class="post-date" datetime={post.data.date.toISOString()}>
-                      {new Intl.DateTimeFormat('ja-JP', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }).format(post.data.date)}
-                    </time>
-                    {post.data.tags && post.data.tags.length > 0 && (
-                      <div class="tags">
-                        {post.data.tags.map(tag => (
-                          <span class="tag">{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <Paragraph class="description">{post.data.description}</Paragraph>
-                </article>
-              </li>
-            );
-          })
+          sortedPosts.map(post => (
+            <li>
+              <PostPreview post={post} />
+            </li>
+          ))
         }
       </ul>
     </section>
@@ -69,38 +44,6 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
     margin-block-end: var(--space-xl);
   }
 
-  .post-meta {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    margin-block-end: var(--space-xs);
-    color: rgb(var(--gray));
-    font-size: var(--font-size-xs);
-  }
-
-  .post-date {
-    font-size: var(--font-size-sm);
-  }
-
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-  }
-
-  .tag {
-    background-color: rgba(var(--gray-light), var(--opacity-high));
-    padding-block: var(--space-2xs);
-    padding-inline: var(--space-xs);
-    border-radius: var(--border-radius-md);
-    font-size: var(--font-size-xs);
-  }
-
-  .description {
-    margin-block-start: var(--space-xs);
-    color: rgb(var(--gray-dark));
-  }
 
   .blog-posts-heading {
     padding-block-end: var(--space-md);

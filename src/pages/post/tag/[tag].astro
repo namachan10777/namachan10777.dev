@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+
+import Heading2 from '../../../components/heading/Heading2.astro';
+import Base from '../../../layouts/Base.astro';
+import PostPreview from '../../../components/post-preview.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('post', post => post.data.publish);
+  const tags = Array.from(new Set(posts.flatMap(post => post.data.tags)));
+
+  return tags.map(tag => {
+    return {
+      params: { tag },
+      props: { tag },
+    };
+  });
+}
+
+const { tag } = Astro.props;
+
+const posts = await getCollection(
+  'post',
+  post => tag && post.data.tags?.includes(tag) && post.data.publish
+);
+
+const sortedPosts = posts.sort((a, b) => {
+  return b.data.date.getDate() - a.data.date.getDate();
+});
+---
+
+<Base title={`tag: ${tag}`} description={`posts with tag: ${tag}`} >
+  <main>
+    <section class="blog-posts">
+      <Heading2 class="blog-posts-heading"># {tag}</Heading2>
+      <ul>
+        {
+          sortedPosts.map(post => (
+            <li>
+              <PostPreview post={post} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .blog-posts {
+    margin-block-start: var(--space-xl);
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  li {
+    margin-block-end: var(--space-xl);
+  }
+
+
+  .blog-posts-heading {
+    padding-block-end: var(--space-md);
+  }
+</style>

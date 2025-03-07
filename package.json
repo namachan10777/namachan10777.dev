@@ -25,6 +25,7 @@
     "astro": "^5.4.1",
     "astro-icon": "^1.1.5",
     "rehype-katex": "^7.0.1",
+    "remark-gemoji": "^8.0.0",
     "remark-math": "^6.0.0"
   },
   "devDependencies": {

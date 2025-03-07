@@ -1,0 +1,67 @@
+---
+import Heading3 from "./heading/Heading3.astro";
+import Anchor from "./Anchor.astro";
+import Paragraph from "./Paragraph.astro";
+import Tag from "./Tag.astro";
+interface Props {
+  post: {
+    slug: string;
+    data: {
+      title: string,
+      date: Date,
+      description: string,
+      tags?: string[],
+    }
+  }
+}
+
+const { post } = Astro.props;
+---
+
+<article class="post-preview">
+  <Heading3>
+    <Anchor href={`/post/${post.slug}`}>{post.data.title}</Anchor>
+  </Heading3>
+  <div class="post-meta">
+    <div class="tags">
+      {post.data.tags?.map(tag => (
+        <Tag tag={tag} />
+      ))}
+    </div>
+    <time class="post-date" datetime={post.data.date.toISOString()}>
+      {new Intl.DateTimeFormat('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).format(post.data.date)}
+    </time>
+  </div>
+  <Paragraph class="description">{post.data.description}</Paragraph>
+</article>
+
+<style>
+  .post-meta {
+    gap: var(--space-md);
+    margin-block-end: var(--space-xs);
+    color: rgb(var(--gray));
+    font-size: var(--font-size-xs);
+  }
+
+  .post-date {
+    font-size: var(--font-size-sm);
+  }
+
+  .tags {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+
+  .description {
+    margin-block-start: var(--space-xs);
+    color: rgb(var(--gray-dark));
+  }
+</style>
