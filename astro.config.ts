@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 import icon from 'astro-icon';
 
@@ -23,6 +25,12 @@ export default defineConfig({
   site: 'https://www.namachan10777.dev',
   integrations: [mdx(), sitemap(), icon()],
   markdown: {
+    remarkPlugins: [
+      remarkMath
+    ],
+    rehypePlugins: [
+      rehypeKatex,
+    ],
     shikiConfig: {
       // Choose a light theme as default
       theme: 'github-light',
