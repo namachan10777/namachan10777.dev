@@ -1,5 +1,6 @@
 ---
 import ContentPlacement from './ContentPlacement.astro';
+import { Icon } from "astro-icon/components";
 ---
 
 <header class="site-header">
@@ -10,8 +11,8 @@ import ContentPlacement from './ContentPlacement.astro';
       </div>
       <nav>
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="https://github.com/namachan10777" target="_blank">GitHub</a></li>
+          <li><a aria-label="link to home" href="/"><Icon class="link-icon" name="iconoir:home" /></a></li>
+          <li><a aria-label="link to github" href="https://github.com/namachan10777"><Icon class="link-icon" name="iconoir:github" /></a></li>
         </ul>
       </nav>
     </div>
@@ -38,6 +39,11 @@ import ContentPlacement from './ContentPlacement.astro';
     list-style: none;
     padding: 0;
     margin: 0;
+  }
+
+  .link-icon {
+    width: var(--font-size-xl);
+    height: var(--font-size-xl);
   }
 
   nav a {
