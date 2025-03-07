@@ -1,8 +1,8 @@
 ---
 interface Props {
-  tag: string
+  tag: string;
 }
-const { tag } = Astro.props
+const { tag } = Astro.props;
 ---
 
 <a class="tag" href={`/post/tag/${tag}`}>{tag}</a>
@@ -14,7 +14,7 @@ const { tag } = Astro.props
     font-size: var(--font-size-sm);
     color: var(--link-color);
   }
-  
+
   .tag::before {
     content: '#';
     margin-inline-end: var(--space-3xs);

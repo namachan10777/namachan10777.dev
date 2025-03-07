@@ -26,13 +26,8 @@ export default defineConfig({
   site: 'https://www.namachan10777.dev',
   integrations: [mdx(), sitemap(), icon()],
   markdown: {
-    remarkPlugins: [
-      remarkMath,
-      remarkGemoji,
-    ],
-    rehypePlugins: [
-      rehypeKatex,
-    ],
+    remarkPlugins: [remarkMath, remarkGemoji],
+    rehypePlugins: [rehypeKatex],
     shikiConfig: {
       // Choose a light theme as default
       theme: 'github-light',

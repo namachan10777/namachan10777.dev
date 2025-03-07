@@ -29,7 +29,7 @@ const sortedPosts = posts.sort((a, b) => {
 });
 ---
 
-<Base title={`tag: ${tag}`} description={`posts with tag: ${tag}`} >
+<Base title={`tag: ${tag}`} description={`posts with tag: ${tag}`}>
   <main>
     <section class="blog-posts">
       <Heading2 class="blog-posts-heading"># {tag}</Heading2>
@@ -59,7 +59,6 @@ const sortedPosts = posts.sort((a, b) => {
   li {
     margin-block-end: var(--space-xl);
   }
-
 
   .blog-posts-heading {
     padding-block-end: var(--space-md);
