@@ -5,6 +5,9 @@ import '../styles/global.css';
 import Heading2 from '../components/heading/Heading2.astro';
 import Base from '../layouts/Base.astro';
 import PostPreview from '../components/post-preview.astro';
+import icon from '../assets/icon.webp';
+import { Image } from 'astro:assets';
+import Paragraph from '../components/Paragraph.astro';
 
 // Get all blog posts
 const posts = await getCollection('post', post => post.data.publish);
@@ -15,6 +18,17 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 
 <Base title="namachan10777.dev" description="namachan10777's personal website">
   <main>
+    <section class="biography">
+      <div class="icon-container">
+        <Image src={icon} alt="namachan10777" width="200" height="200" />
+      </div>
+      <div class="biography-content">
+        <span class="name">Masaki Nakano</span>
+        <Paragraph>
+          A student at University of Tsukuba. Studying in distributed storage system in HPC.
+        </Paragraph>
+      </div>
+    </section>
     <section class="blog-posts">
       <Heading2 class="blog-posts-heading">Blog Posts</Heading2>
       <ul>
@@ -31,6 +45,38 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 </Base>
 
 <style>
+  .biography {
+    margin-block-start: var(--space-md);
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-md);
+  }
+
+  .name {
+    font-size: var(--font-size-lg);
+    font-weight: bold;
+  }
+
+  .biography-content {
+    margin-inline-start: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .icon-container > img {
+    max-height: 100%;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  .icon-container {
+    width: 6rem;
+    height: 6rem;
+    min-width: 4rem;
+    min-height: 4rem;
+  }
+
   .blog-posts {
     margin-block-start: var(--space-xl);
   }
