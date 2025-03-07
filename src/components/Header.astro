@@ -1,6 +1,6 @@
 ---
 import ContentPlacement from './ContentPlacement.astro';
-import { Icon } from "astro-icon/components";
+import { Icon } from 'astro-icon/components';
 ---
 
 <header class="site-header">
@@ -11,8 +11,14 @@ import { Icon } from "astro-icon/components";
       </div>
       <nav>
         <ul>
-          <li><a aria-label="link to home" href="/"><Icon class="link-icon" name="iconoir:home" /></a></li>
-          <li><a aria-label="link to github" href="https://github.com/namachan10777"><Icon class="link-icon" name="iconoir:github" /></a></li>
+          <li>
+            <a aria-label="link to home" href="/"><Icon class="link-icon" name="iconoir:home" /></a>
+          </li>
+          <li>
+            <a aria-label="link to github" href="https://github.com/namachan10777"
+              ><Icon class="link-icon" name="iconoir:github" /></a
+            >
+          </li>
         </ul>
       </nav>
     </div>

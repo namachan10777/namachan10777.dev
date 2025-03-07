@@ -63,7 +63,7 @@
 
   /* レイアウト */
   --content-width: 50rem;
-  --content-padding: 2rem;
+  --content-padding: 1rem;
   --breakpoint-mobile: 45rem;
 
   /* 不透明度 */
