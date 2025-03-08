@@ -20,6 +20,7 @@ const config = [
       '**/*.json',
       '.github/**',
       '.vscode/**',
+      'renovate.json5',
     ],
   },
 
