@@ -16,6 +16,7 @@ export function OgImage({
   const bgStyle = bg_image
     ? {
         backgroundImage: `url(${bg_image})`,
+        backgroundSize: '100% 100%',
       }
     : {};
   return (
@@ -27,48 +28,44 @@ export function OgImage({
         justifyContent: 'flex-end',
         width: '100%',
         height: '100%',
-        padding: '40px',
         backgroundColor: '#1a1a1a',
         position: 'relative',
         ...bgStyle,
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 60,
-            fontWeight: 'bold',
-            color: 'white',
-            marginBottom: 16,
-            lineHeight: 1.2,
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: 30,
-            color: 'rgba(255, 255, 255, 0.8)',
-            lineHeight: 1.4,
-          }}
-        >
-          {description}
-        </div>
-        <div
-          style={{
-            fontSize: 24,
-            color: 'rgba(255, 255, 255, 0.6)',
-            marginTop: 24,
-          }}
-        >
-          {siteName}
-        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(20, 20, 20, 0.6)', padding: '40px',}}>
+          <div
+            style={{
+              fontSize: 60,
+              fontWeight: 'bold',
+              color: 'white',
+              marginBottom: 16,
+              lineHeight: 1.2,
+              opacity: 1,
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              fontSize: 30,
+              color: 'rgba(255, 255, 255, 0.8)',
+              lineHeight: 1.4,
+              opacity: 1,
+            }}
+          >
+            {description}
+          </div>
+          <div
+            style={{
+              fontSize: 24,
+              color: 'rgba(255, 255, 255, 0.6)',
+              marginTop: 24,
+              opacity: 1,
+            }}
+          >
+            {siteName}
+          </div>
       </div>
     </div>
   );

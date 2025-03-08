@@ -2,13 +2,11 @@ import type { APIRoute } from 'astro';
 import { getCollection, getEntry } from 'astro:content';
 import { ImageResponse } from '@vercel/og';
 import { OgImage } from '../../components/OgImage';
-import imageType from 'image-type';
 import type { ImageMetadata } from 'astro';
+import sharp from 'sharp';
 
-function uint8ArrayToDataUrl(uint8Array: Uint8Array, mimeType = 'image/png') {
+function uint8ArrayToDataUrl(buffer: Buffer, mimeType = 'image/png') {
   // Uint8Array を Buffer に変換
-  const buffer = Buffer.from(uint8Array);
-
   // Base64 エンコード
   const base64String = buffer.toString('base64');
 
@@ -21,9 +19,10 @@ async function toDataUrl(image: ImageMetadata): Promise<string | undefined> {
     image.src.startsWith('/@fs/') ? image.src.slice(4) : `dist${image.src}`
   )?.[1];
   if (path) {
-    const file = await Bun.file(path).bytes();
-    const type = await imageType(file);
-    return uint8ArrayToDataUrl(file, type?.mime || 'image/png');
+    const image = sharp(path);
+
+    const buffer = await image.resize({ width: 1200, height: 630, fit: 'cover' }).png().toBuffer();
+    return uint8ArrayToDataUrl(buffer, 'image/png');
   }
 }
 
