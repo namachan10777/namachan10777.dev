@@ -4,9 +4,20 @@ interface OgImageProps {
   title: string;
   description: string;
   siteName?: string;
+  bg_image?: string;
 }
 
-export function OgImage({ title, description, siteName = 'namachan10777.dev' }: OgImageProps) {
+export function OgImage({
+  title,
+  description,
+  siteName = 'namachan10777.dev',
+  bg_image,
+}: OgImageProps) {
+  const bgStyle = bg_image
+    ? {
+        backgroundImage: `url(${bg_image})`,
+      }
+    : {};
   return (
     <div
       style={{
@@ -19,6 +30,7 @@ export function OgImage({ title, description, siteName = 'namachan10777.dev' }: 
         padding: '40px',
         backgroundColor: '#1a1a1a',
         position: 'relative',
+        ...bgStyle,
       }}
     >
       <div
@@ -26,7 +38,6 @@ export function OgImage({ title, description, siteName = 'namachan10777.dev' }: 
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-          zIndex: 10,
         }}
       >
         <div

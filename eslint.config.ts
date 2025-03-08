@@ -30,6 +30,10 @@ const config = [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+      globals: {
+        Bun: true,
+        Buffer: true,
+      },
     },
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
@@ -46,6 +50,10 @@ const config = [
       parser: tsParser,
       parserOptions: {
         project: './tsconfig.json',
+      },
+      globals: {
+        Bun: true,
+        Buffer: true,
       },
     },
     rules: {
