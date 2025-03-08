@@ -1,12 +1,15 @@
 ---
+import { Image } from 'astro:assets';
+import { type ImageMetadata } from 'astro';
+
 interface Props {
   alt?: string;
-  src: string;
+  src: ImageMetadata;
   width?: number | string;
 }
 ---
 
-<img alt={Astro.props.alt} src={Astro.props.src} width={Astro.props.width} />
+<Image src={Astro.props.src} alt={Astro.props.alt || null} />
 
 <style>
   img {
