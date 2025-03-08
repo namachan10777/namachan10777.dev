@@ -5,24 +5,13 @@ import { OgImage } from '../../components/OgImage';
 import type { ImageMetadata } from 'astro';
 import sharp from 'sharp';
 
-function uint8ArrayToDataUrl(buffer: Buffer, mimeType = 'image/png') {
-  // Uint8Array を Buffer に変換
-  // Base64 エンコード
-  const base64String = buffer.toString('base64');
-
-  // Data URL 形式に変換
-  return `data:${mimeType};base64,${base64String}`;
-}
-
-async function toDataUrl(image: ImageMetadata): Promise<string | undefined> {
+async function loadOgpImage(image: ImageMetadata): Promise<Buffer | undefined> {
   const path = /([^?]+)(\?.+)?$/.exec(
     image.src.startsWith('/@fs/') ? image.src.slice(4) : `dist${image.src}`
   )?.[1];
   if (path) {
     const image = sharp(path);
-
-    const buffer = await image.resize({ width: 1200, height: 630, fit: 'cover' }).png().toBuffer();
-    return uint8ArrayToDataUrl(buffer, 'image/png');
+    return await image.resize({ width: 1200, height: 630, fit: 'cover' }).png().toBuffer();
   }
 }
 
@@ -40,20 +29,26 @@ export const GET: APIRoute = async ({ params }) => {
       return new Response('Post not found', { status: 404 });
     }
 
-    const bg_image = entry.data.og_image && (await toDataUrl(entry.data.og_image));
-
-    // OGP画像を生成
-    return new ImageResponse(
-      OgImage({
-        title: entry.data.title,
-        description: entry.data.description,
-        bg_image,
-      }),
-      {
-        width: 1200,
-        height: 630,
-      }
-    );
+    if (entry.data.og_image) {
+      const image = await loadOgpImage(entry.data.og_image);
+      return new Response(image, {
+        headers: {
+          'Content-Type': 'image/png',
+        },
+      });
+    } else {
+      // OGP画像を生成
+      return new ImageResponse(
+        OgImage({
+          title: entry.data.title,
+          description: entry.data.description,
+        }),
+        {
+          width: 1200,
+          height: 630,
+        }
+      );
+    }
   } catch (error) {
     return new Response(`Error generating OG image: ${error}`, { status: 500 });
   }
