@@ -1,20 +1,18 @@
 {
-  "extends": [
-    "config:base"
-  ],
-  "packageRules": [
+  extends: ["config:recommended"],
+  packageRules: [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      matchUpdateTypes: ["minor", "patch", "pin", "digest"],
+      automerge: true,
     },
     {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true
-    }
+      matchDepTypes: ["devDependencies"],
+      automerge: true,
+    },
   ],
-  "platformAutomerge": true,
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
+  platformAutomerge: true,
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: true,
   },
 }
