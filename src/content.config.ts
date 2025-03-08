@@ -9,6 +9,7 @@ const postCollection = defineCollection({
     description: z.string(),
     title: z.string(),
     publish: z.boolean().default(true),
+    og_image: z.string().optional(), // OGP画像用の背景画像のパス
   }),
 });
 

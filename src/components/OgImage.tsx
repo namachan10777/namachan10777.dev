@@ -1,0 +1,64 @@
+import React from 'react';
+
+interface OgImageProps {
+  title: string;
+  description: string;
+  siteName?: string;
+}
+
+export function OgImage({ title, description, siteName = 'namachan10777.dev' }: OgImageProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-end',
+        width: '100%',
+        height: '100%',
+        padding: '40px',
+        backgroundColor: '#1a1a1a',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 60,
+            fontWeight: 'bold',
+            color: 'white',
+            marginBottom: 16,
+            lineHeight: 1.2,
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: 30,
+            color: 'rgba(255, 255, 255, 0.8)',
+            lineHeight: 1.4,
+          }}
+        >
+          {description}
+        </div>
+        <div
+          style={{
+            fontSize: 24,
+            color: 'rgba(255, 255, 255, 0.6)',
+            marginTop: 24,
+          }}
+        >
+          {siteName}
+        </div>
+      </div>
+    </div>
+  );
+}
