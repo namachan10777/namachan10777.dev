@@ -1,5 +1,6 @@
 ---
 import Heading1 from '../components/heading/Heading1.astro';
+import Tag from '../components/Tag.astro';
 import Base from './Base.astro';
 
 interface Props {
@@ -30,14 +31,16 @@ const ogImageURL = new URL(`/post/${Astro.params.slug}.png`, Astro.site).toStrin
           tags.length > 0 && (
             <div class="tags">
               {tags.map(tag => (
-                <span class="tag">{tag}</span>
+                <Tag tag={tag} />
               ))}
             </div>
           )
         }
       </div>
     </header>
-    <slot />
+    <div class="content-body">
+      <slot />
+    </div>
   </article>
 </Base>
 
@@ -46,8 +49,16 @@ const ogImageURL = new URL(`/post/${Astro.params.slug}.png`, Astro.site).toStrin
     margin-block: var(--space-xl);
   }
 
-  header {
-    margin-block-end: var(--space-xl);
+  .content-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  time {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   h1 {
@@ -56,7 +67,6 @@ const ogImageURL = new URL(`/post/${Astro.params.slug}.png`, Astro.site).toStrin
 
   .metadata {
     color: rgb(var(--gray));
-    font-size: var(--font-size-xs);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-md);

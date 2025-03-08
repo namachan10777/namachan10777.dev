@@ -49,6 +49,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
     margin-block-start: var(--space-md);
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: var(--space-md);
   }
 
@@ -72,9 +73,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 
   .icon-container {
     width: 6rem;
-    height: 6rem;
     min-width: 4rem;
-    min-height: 4rem;
   }
 
   .blog-posts {

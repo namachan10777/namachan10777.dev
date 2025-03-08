@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import rehypeKatex from 'rehype-katex';
+import rehypeSectionize from '@hbsnow/rehype-sectionize';
 import remarkMath from 'remark-math';
 
 import icon from 'astro-icon';
@@ -28,7 +29,7 @@ export default defineConfig({
   prefetch: true,
   markdown: {
     remarkPlugins: [remarkMath, remarkGemoji],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [rehypeKatex, rehypeSectionize],
     shikiConfig: {
       // Choose a light theme as default
       theme: 'github-light',
