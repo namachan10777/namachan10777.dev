@@ -25,6 +25,7 @@ function parseMetaAttributes(meta: string | undefined): Record<string, string | 
 export default defineConfig({
   site: 'https://www.namachan10777.dev',
   integrations: [mdx(), sitemap(), icon()],
+  prefetch: true,
   markdown: {
     remarkPlugins: [remarkMath, remarkGemoji],
     rehypePlugins: [rehypeKatex],
