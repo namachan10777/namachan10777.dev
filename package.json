@@ -25,6 +25,7 @@
     "@types/web": "^0.0.208",
     "astro": "^5.4.1",
     "astro-icon": "^1.1.5",
+    "astro-seo": "^0.8.4",
     "bun-types": "^1.2.4",
     "image-type": "^5.2.0",
     "rehype-katex": "^7.0.1",

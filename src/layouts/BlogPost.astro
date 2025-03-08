@@ -15,9 +15,12 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
   month: 'long',
   day: 'numeric',
 }).format(date);
+
+// OGP画像のURLを生成
+const ogImageURL = new URL(`/post/${Astro.params.slug}.png`, Astro.site).toString();
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} image={ogImageURL} article={true}>
   <article>
     <header>
       <Heading1>{title}</Heading1>
