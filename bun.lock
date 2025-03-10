@@ -9,7 +9,7 @@
         "@astrojs/sitemap": "^3.2.1",
         "@hbsnow/rehype-sectionize": "^1.0.7",
         "@iconify-json/iconoir": "^1.2.7",
-        "@types/web": "^0.0.208",
+        "@types/web": "^0.0.209",
         "@vercel/og": "^0.6.5",
         "astro": "^5.4.1",
         "astro-icon": "^1.1.5",
@@ -352,7 +352,7 @@
 
     "@types/unist": ["@types/unist@3.0.3", "", {}, "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="],
 
-    "@types/web": ["@types/web@0.0.208", "", {}, "sha512-YG5w2+B3w+s2cQwTVC7LErJun7p3lrO66bzfoH1hXN/8WtTHaXSLx7QKxDLTw0QqlJYdeUR+zSlwCZQccb+Gxg=="],
+    "@types/web": ["@types/web@0.0.209", "", {}, "sha512-aodbPJvmgmX7MieAMvkHMMjrc7rMH2dqS3eQhyqTNBYp/ojjNT7XzbygLZ3WSdpH4sg2GAgf1ZnBD9160K6BYw=="],
 
     "@types/ws": ["@types/ws@8.5.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw=="],
 
