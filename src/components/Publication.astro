@@ -1,0 +1,55 @@
+---
+import Anchor from './Anchor.astro';
+import Heading3 from './heading/Heading3.astro';
+
+interface Props {
+  title: string;
+  booktitle: string;
+  date: Date;
+  url?: string;
+}
+
+const { title, booktitle, date, url } = Astro.props;
+---
+
+<section class="root">
+  <div class="heading">
+    <Heading3>
+      {url ? <Anchor href={url}>{title}</Anchor> : title}
+    </Heading3>
+  </div>
+  <div class="meta">
+    <time datetime={date.toISOString()} class="date">
+      {
+        new Intl.DateTimeFormat('ja-JP', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }).format(date)
+      }
+    </time>
+    <span>{booktitle}</span>
+  </div>
+</section>
+
+<style>
+  .root {
+    display: contents;
+  }
+
+  .heading {
+    display: flex;
+    grid-column: 1 / span 2;
+  }
+
+  .meta {
+    display: contents;
+    flex-direction: row;
+    gap: var(--space-sm);
+  }
+
+  .date {
+    grid-column-start: 1;
+    color: var(--gray);
+  }
+</style>

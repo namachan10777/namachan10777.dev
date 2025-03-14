@@ -8,9 +8,11 @@ import PostPreview from '../components/post-preview.astro';
 import icon from '../assets/icon.webp';
 import { Image } from 'astro:assets';
 import Paragraph from '../components/Paragraph.astro';
+import Publication from '../components/Publication.astro';
 
 // Get all blog posts
 const posts = await getCollection('post', post => post.data.publish);
+const pubs = await getCollection('pub');
 
 // Sort posts by date (newest first)
 const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -28,6 +30,23 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
           A student at University of Tsukuba. Studying in distributed storage system in HPC.
         </Paragraph>
       </div>
+    </section>
+    <section class="publications">
+      <Heading2 class="publications-heading">Publications</Heading2>
+      <ul class="pub-list">
+        {
+          pubs.map(pub => (
+            <li class="pub-item">
+              <Publication
+                title={pub.data.title}
+                booktitle={pub.data.booktitle}
+                date={pub.data.date}
+                url={pub.data.href}
+              />
+            </li>
+          ))
+        }
+      </ul>
     </section>
     <section class="blog-posts">
       <Heading2 class="blog-posts-heading">Blog Posts</Heading2>
@@ -91,5 +110,15 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
 
   .blog-posts-heading {
     padding-block-end: var(--space-md);
+  }
+
+  .pub-list {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    align-items: center;
+  }
+
+  .pub-item {
+    display: contents;
   }
 </style>
