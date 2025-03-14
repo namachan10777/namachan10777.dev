@@ -1,6 +1,5 @@
 ---
 import Anchor from './Anchor.astro';
-import Heading3 from './heading/Heading3.astro';
 
 interface Props {
   title: string;
@@ -13,11 +12,9 @@ const { title, booktitle, date, url } = Astro.props;
 ---
 
 <section class="root">
-  <div class="heading">
-    <Heading3>
-      {url ? <Anchor href={url}>{title}</Anchor> : title}
-    </Heading3>
-  </div>
+  <h3>
+    {url ? <Anchor href={url}>{title}</Anchor> : title}
+  </h3>
   <div class="meta">
     <time datetime={date.toISOString()} class="date">
       {
@@ -34,18 +31,23 @@ const { title, booktitle, date, url } = Astro.props;
 
 <style>
   .root {
-    display: contents;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / span 2;
+    row-gap: var(--space-2xs);
+    column-gap: var(--space-sm);
   }
 
-  .heading {
+  h3 {
+    font-size: var(--font-size-lg);
     display: flex;
     grid-column: 1 / span 2;
+    font-weight: bolder;
   }
 
   .meta {
     display: contents;
     flex-direction: row;
-    gap: var(--space-sm);
   }
 
   .date {

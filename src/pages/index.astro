@@ -53,7 +53,7 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
       <ul>
         {
           sortedPosts.map(post => (
-            <li>
+            <li class="post-preview-item">
               <PostPreview post={post} />
             </li>
           ))
@@ -115,10 +115,14 @@ const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.get
   .pub-list {
     display: grid;
     grid-template-columns: 8rem 1fr;
-    align-items: center;
+    row-gap: var(--space-sm);
   }
 
-  .pub-item {
+  .pub-list li {
     display: contents;
+  }
+
+  ul .post-preview-item:nth-child(n + 2) {
+    border-top: 1px solid rgb(var(--gray-light));
   }
 </style>
