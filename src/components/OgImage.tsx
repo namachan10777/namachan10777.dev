@@ -42,7 +42,7 @@ export function OgImage({ title, description, siteName = 'namachan10777.dev' }: 
         <div
           style={{
             fontSize: 30,
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: 'rgb(255, 255, 255, 0.8)',
             lineHeight: 1.4,
             opacity: 1,
           }}
@@ -52,7 +52,7 @@ export function OgImage({ title, description, siteName = 'namachan10777.dev' }: 
         <div
           style={{
             fontSize: 24,
-            color: 'rgba(255, 255, 255, 0.6)',
+            color: 'rgb(255, 255, 255, 0.6)',
             marginTop: 24,
             opacity: 1,
           }}

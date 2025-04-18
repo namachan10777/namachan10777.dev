@@ -84,7 +84,7 @@ interface Props {}
   :not(pre) > :global(code) {
     padding-block: 0.2em;
     padding-inline: 0.4em;
-    background-color: rgba(var(--code-bg), 1);
+    background-color: rgb(var(--code-bg));
     color: rgb(var(--code-fg));
     border-radius: var(--border-radius-sm);
     font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
@@ -96,7 +96,7 @@ interface Props {}
     padding: 1em;
     border-radius: var(--border-radius-lg);
     overflow-x: scroll;
-    background-color: rgba(var(--codeblock-bg), 1);
+    background-color: rgb(var(--codeblock-bg));
   }
 
   /* コードブロック内のコードタグはShikiによるスタイリングを優先 */
@@ -142,10 +142,10 @@ interface Props {}
     height: 100%;
     width: 2.5em;
     text-align: right;
-    color: rgba(var(--gray), var(--opacity-medium));
+    color: rgb(var(--gray), var(--opacity-medium));
     font-size: 0.8em;
     padding-right: 0.5em;
-    border-right: var(--border-width-thin) solid rgba(var(--gray-light), var(--opacity-low));
+    border-right: var(--border-width-thin) solid rgb(var(--gray-light), var(--opacity-low));
     user-select: none; /* 行番号を選択できないようにする */
   }
 
