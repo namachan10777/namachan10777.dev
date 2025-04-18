@@ -34,7 +34,7 @@
     "rehype-katex": "^7.0.1",
     "remark-gemoji": "^8.0.0",
     "remark-math": "^6.0.0",
-    "sharp": "^0.33.5"
+    "sharp": "^0.34.0"
   },
   "devDependencies": {
     "@types/bun": "^1.2.4",
