@@ -16,7 +16,7 @@
   --gray: 117, 117, 117;
   --gray-light: 240, 240, 240;
   --gray-dark: 66, 66, 66;
-  --gray-gradient: rgba(var(--gray-light), 50%), #fff;
+  --gray-gradient: rgb(var(--gray-light), 50%), #fff;
   --code-bg: 245, 245, 245;
   --code-fg: 36, 41, 46;
   --codeblock-bg: 242, 244, 247;
@@ -73,9 +73,9 @@
 
   /* その他 */
   --box-shadow:
-    0 var(--space-3xs) var(--space-xs) rgba(var(--gray), 15%),
-    0 var(--space-xs) var(--space-lg) rgba(var(--gray), 20%),
-    0 var(--space-md) var(--space-xl) rgba(var(--gray), 20%);
+    0 var(--space-3xs) var(--space-xs) rgb(var(--gray), 15%),
+    0 var(--space-xs) var(--space-lg) rgb(var(--gray), 20%),
+    0 var(--space-md) var(--space-xl) rgb(var(--gray), 20%);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -34,8 +34,7 @@ const { title, booktitle, date, url } = Astro.props;
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / span 2;
-    row-gap: var(--space-2xs);
-    column-gap: var(--space-sm);
+    gap: var(--space-2xs) var(--space-sm);
   }
 
   h3 {
