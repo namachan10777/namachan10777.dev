@@ -67,6 +67,17 @@ eduroamと大学内WiFiはなぜか繋がらない。研究室と同じEAP-PEAP 
 DNSも`systemd-resolved`。設定が少し分かりづらいが、per-link DNSが本当に便利なので使っている。
 複数のネットワークにつながっている場合でもinternalなドメインはinternalなDNSを使用して解決するように出来て便利。
 
+## パスワード試行回数
+
+べらぼうに長いパスワードを使っているので頻繁に間違えて10分待てと言われるので少し緩める。
+Arch Linuxの場合は`/etc/security/faillock.conf`で設定する。
+```
+deny = 5
+unlock_time = 300
+```
+
+下のパスワード自体相当長いので多分大丈夫。
+
 ## GUI
 
 swayをずっと使っている。`swaylock`の代わりに`swaylock-effects`を使っているが、
