@@ -23,7 +23,7 @@
     "@astrojs/sitemap": "^3.3.1",
     "@hbsnow/rehype-sectionize": "^1.0.7",
     "@iconify-json/iconoir": "^1.2.7",
-    "@types/web": "^0.0.229",
+    "@types/web": "^0.0.233",
     "@vercel/og": "^0.6.8",
     "astro": "^5.7.12",
     "astro-icon": "^1.1.5",
