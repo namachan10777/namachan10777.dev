@@ -29,7 +29,7 @@
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
     "bun-types": "^1.2.12",
-    "image-type": "^5.2.0",
+    "image-type": "^6.0.0",
     "react": "^19.1.0",
     "rehype-katex": "^7.0.1",
     "remark-gemoji": "^8.0.0",
