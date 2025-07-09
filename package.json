@@ -24,7 +24,7 @@
     "@hbsnow/rehype-sectionize": "^1.0.7",
     "@iconify-json/iconoir": "^1.2.7",
     "@types/web": "^0.0.246",
-    "@vercel/og": "^0.6.8",
+    "@vercel/og": "^0.7.0",
     "astro": "5.11.0",
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
