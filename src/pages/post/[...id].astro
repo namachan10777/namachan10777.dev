@@ -1,25 +1,25 @@
 ---
-import type { GetStaticPaths } from "astro";
-import { getEntry, getCollection, render } from "astro:content";
-import Base from "../../layouts/base.astro";
+import type { GetStaticPaths } from 'astro';
+import { getEntry, getCollection, render } from 'astro:content';
+import Base from '../../layouts/base.astro';
 
 export const getStaticPaths = (async () => {
-    const posts = await getCollection("post", (post) => post.data.publish);
-    return posts.map((post) => {
-        return {
-            params: { id: post.id },
-        };
-    });
+  const posts = await getCollection('post', post => post.data.publish);
+  return posts.map(post => {
+    return {
+      params: { id: post.id },
+    };
+  });
 }) satisfies GetStaticPaths;
 
-const post = await getEntry("post", Astro.params.id);
+const post = await getEntry('post', Astro.params.id);
 
 if (post === undefined) {
-    return Astro.redirect("/404");
+  return Astro.redirect('/404');
 }
 const { Content } = await render(post);
 ---
 
 <Base>
-    <Content />
+  <Content />
 </Base>
