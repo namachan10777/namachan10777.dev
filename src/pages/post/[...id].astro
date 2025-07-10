@@ -128,5 +128,11 @@ const { Content } = await render(post);
 
   article :global(pre) {
     border: 1px solid var(--uchu-yin-9);
+    font-family: IBM Plex Mono;
+    white-space: pre;
+  }
+
+  article :global(pre *) {
+    font-family: var(--font-mono);
   }
 </style>
