@@ -1,0 +1,20 @@
+---
+import Authors from './Authors.astro';
+import type { Author } from './Authors.astro';
+
+export interface Props {
+  authors: Author[];
+  title: string;
+  workshop: string;
+  year: number;
+}
+
+const props = Astro.props;
+---
+
+<li>
+  <Authors authors={props.authors} />
+  <span>"{props.title},"</span>
+  <span>{props.workshop},</span>
+  <time datetime={props.year.toString()}>{props.year}</time>
+</li>

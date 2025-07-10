@@ -1,0 +1,44 @@
+---
+export interface Props {
+  company: {
+    name: string;
+    href: string;
+  };
+  start: Date;
+  retire?: Date;
+  position: string;
+  topic: string;
+}
+
+const props = Astro.props;
+---
+
+<li>
+  <div class="container">
+    <span>
+      <strong>{props.position}</strong>,
+      <a href={props.company.href}>
+        <strong>{props.company.name}</strong>
+      </a>
+      <date dateTime={props.start.toISOString()}
+        >{props.start.getUTCFullYear()}/{props.start.getUTCMonth() + 1}</date
+      > - {
+        props.retire ? (
+          <date dateTime={props.retire.toISOString()}>
+            {props.retire.getUTCFullYear()}/{props.retire.getUTCMonth() + 1}
+          </date>
+        ) : (
+          <em>present</em>
+        )
+      }
+    </span>
+    <span>{props.topic}</span>
+  </div>
+</li>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

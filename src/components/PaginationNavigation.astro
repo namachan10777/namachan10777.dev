@@ -1,0 +1,46 @@
+---
+export interface Props {
+  prev?: string;
+  next?: string;
+}
+
+const props = Astro.props;
+---
+
+<nav class="page-nav">
+  {
+    props.prev ? (
+      <a class:list={['page-nav-link', 'page-nav-prev']} href={props.prev}>
+        Prev
+      </a>
+    ) : null
+  }
+  {
+    props.next ? (
+      <a class:list={['page-nav-link', 'page-nav-next']} href={props.next}>
+        Next
+      </a>
+    ) : null
+  }
+</nav>
+
+<style>
+  .page-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .page-nav-prev {
+    display: flex;
+    grid-column: 1;
+    flex-direction: row;
+    justify-content: start;
+  }
+
+  .page-nav-next {
+    display: flex;
+    grid-column: 2;
+    flex-direction: row;
+    justify-content: end;
+  }
+</style>

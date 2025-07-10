@@ -1,0 +1,29 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/base.astro';
+import PaginationNavigation from '../../../components/PaginationNavigation.astro';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCollection('post');
+  posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return paginate(posts, { pageSize: 16 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+const start = page.total - page.start;
+---
+
+<Base>
+  <h1>Post {page.currentPage}</h1>
+  <ol reversed start={start}>
+    {
+      page.data.map(post => (
+        <li>
+          <a href={`/post/${post.id}`}>{post.data.title}</a>
+        </li>
+      ))
+    }
+  </ol>
+  <PaginationNavigation prev={page.url.prev} next={page.url.next} />
+</Base>

@@ -1,0 +1,41 @@
+---
+export type Author = string | { me: string };
+export interface Props {
+  authors: Author[];
+}
+const props = Astro.props;
+---
+
+<ol>
+  {
+    props.authors.map(a =>
+      typeof a === 'string' ? (
+        <li>{a}</li>
+      ) : (
+        <li>
+          <strong>{a.me}</strong>
+        </li>
+      )
+    )
+  }
+</ol>
+
+<style>
+  ol {
+    display: inline;
+    padding: 0;
+  }
+
+  li {
+    display: inline-flex;
+  }
+
+  li::after {
+    content: ',';
+    margin-inline-end: 0.25rem;
+  }
+
+  strong {
+    display: inline;
+  }
+</style>
