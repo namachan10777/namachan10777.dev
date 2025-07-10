@@ -107,4 +107,15 @@ const { Content } = await render(post);
     stroke: var(--uchu-blue-6);
     display: inline-flex;
   }
+
+  article :global(figure) {
+    margin-inline: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  article :global(figcaption) {
+    margin-block-start: 0.5rem;
+  }
 </style>

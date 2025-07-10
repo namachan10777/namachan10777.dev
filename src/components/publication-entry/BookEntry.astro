@@ -1,6 +1,6 @@
 ---
 import Authors from './Authors.astro';
-import type {Author} from "./Authors.astro";
+import type { Author } from './Authors.astro';
 
 export interface Props {
   authors: Author[];
@@ -15,15 +15,20 @@ const props = Astro.props;
 ---
 
 <li>
+  {props.comment ? <strong>({props.comment})</strong> : null}
   {
-  props.comment ? <strong>({props.comment})</strong> : null
-  }
-  {
-    props.translators ?
-      <span>Author: <Authors authors={props.authors} /></span>
-      <span>Translator: <Authors authors={props.translators} /></span>
-    :
+    props.translators ? (
+      <>
+        <span>
+          Author: <Authors authors={props.authors} />
+        </span>
+        <span>
+          Translator: <Authors authors={props.translators} />
+        </span>
+      </>
+    ) : (
       <Authors authors={props.authors} />
+    )
   }
   <span>"{props.title},"</span>
   <span>{props.publisher},</span>
@@ -33,7 +38,7 @@ const props = Astro.props;
 <style>
   @layer components {
     li::marker {
-      content: "- ";
+      content: '- ';
       margin-inline-end: 0.5rem;
     }
   }
