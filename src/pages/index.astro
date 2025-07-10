@@ -35,9 +35,11 @@ const dkitamura = {
 };
 ---
 
-<Base>
-  <section>
-    <Image alt="Icon of namachan10777. A green cube with face" src={Icon} />
+<Base title="namachan10777.dev">
+  <section class="top">
+    <div class="icon-wrapper">
+      <Image alt="Icon of namachan10777. A green cube with face" src={Icon} />
+    </div>
     <h1>Masaki Nakano</h1>
     <p>
       I am a master's student in Computer Science. I beglong to <a
@@ -143,7 +145,7 @@ const dkitamura = {
       </ol>
     </section>
     <section>
-      <h3>書籍</h3>
+      <h3>Book</h3>
       <ol>
         <BookEntry
           authors={['Maxwell Flitton', 'Caroline Morton']}
@@ -157,3 +159,25 @@ const dkitamura = {
     </section>
   </section>
 </Base>
+
+<style>
+  @layer components {
+    .icon-wrapper {
+      max-width: 12rem;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-block-start: 0.5rem;
+    }
+
+    .icon-wrapper img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+</style>

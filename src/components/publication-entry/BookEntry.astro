@@ -29,3 +29,12 @@ const props = Astro.props;
   <span>{props.publisher},</span>
   <time datetime={props.year.toString()}>{props.year}</time>
 </li>
+
+<style>
+  @layer components {
+    li::marker {
+      content: "- ";
+      margin-inline-end: 0.5rem;
+    }
+  }
+</style>

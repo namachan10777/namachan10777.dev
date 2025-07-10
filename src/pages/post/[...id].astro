@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from 'astro';
 import { getEntry, getCollection, render } from 'astro:content';
 import Base from '../../layouts/base.astro';
+import Tags from '../../components/Tags.astro';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('post', post => post.data.publish);
@@ -20,6 +21,90 @@ if (post === undefined) {
 const { Content } = await render(post);
 ---
 
-<Base>
-  <Content />
+<Base title={post.data.title}>
+  <header>
+    <h1>{post.data.title}</h1>
+    <p>{post.data.description}</p>
+    <Tags tags={post.data.tags} />
+  </header>
+  <article>
+    <Content />
+  </article>
 </Base>
+
+<style>
+  header {
+    display: grid;
+    justify-items: center;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  article :global(table) {
+    width: 100%;
+    column-gap: 0;
+    border-spacing: 0;
+  }
+
+  article :global(tr) {
+    column-gap: 0;
+  }
+
+  article :global(thead tr th) {
+    border-bottom: 1px var(--uchu-yin-9) solid;
+  }
+
+  article :global(td:not(:last-child), th:not(:last-child)) {
+    border-inline-end: 1px var(--uchu-yin-9) solid;
+  }
+
+  article :global(td, th) {
+    padding-inline: 0.2rem;
+  }
+
+  article :global(:not(pre) > code) {
+    background-color: var(--uchu-gray-2);
+    font-family: var(--font-mono);
+    padding-inline: 0.1rem;
+  }
+
+  article :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  article :global(hr) {
+    border: none;
+    border-top: var(--uchu-yin-9) solid 0.5px;
+  }
+
+  article :global(.heading-container) {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    margin-block-start: 1.5rem;
+    gap: 0.5rem;
+  }
+
+  article :global(.heading-container h2, h3, h4, h5, h6) {
+    margin: 0;
+  }
+
+  article :global(.heading-container:hover .heading-anchor) {
+    opacity: 1;
+  }
+
+  article :global(.heading-anchor) {
+    opacity: 0;
+    color: var(--uchu-blue-6);
+    display: inline-flex;
+    transition: opacity 0.1s ease;
+  }
+
+  article :global(.heading-anchor svg *) {
+    stroke: var(--uchu-blue-6);
+    display: inline-flex;
+  }
+</style>

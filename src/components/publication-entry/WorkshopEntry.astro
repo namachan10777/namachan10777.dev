@@ -18,3 +18,11 @@ const props = Astro.props;
   <span>{props.workshop},</span>
   <time datetime={props.year.toString()}>{props.year}</time>
 </li>
+<style>
+  @layer components {
+    li::marker {
+      content: '- ';
+      padding-inline-end: 0.5rem;
+    }
+  }
+</style>

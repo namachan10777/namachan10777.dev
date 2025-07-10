@@ -1,16 +1,110 @@
 ---
+import './uchu.css';
+import './global.css';
 
+export interface Props {
+  title: string;
+}
+
+const props = Astro.props;
+
+import { Icon } from 'astro-icon/components';
 ---
 
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
+    <style is:inline>
+      @layer reset, components;
+    </style>
     <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet" />
+    <title>{props.title}</title>
   </head>
   <body>
-    <slot />
+    <header>
+      <a href="/" class="back-to-top">namachan10777.dev</a>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <span>@namachan10777</span>
+      <span class="icons">
+        <a href="https://github.com/namachan10777"
+          ><Icon class="nav-icon-link" name="iconoir:github" /></a
+        >
+        <a href="https://x.com/namachan10777"><Icon class="nav-icon-link" name="iconoir:x" /></a>
+        <a href="https://www.linkedin.com/in/masaki-nakano-667493163/"
+          ><Icon class="nav-icon-link" name="iconoir:linkedin" /></a
+        >
+      </span>
+    </footer>
   </body>
 </html>
+
+<style>
+  :root {
+    --font-mono: 'IBM Plex Mono', 'IBM Plex Sans JP';
+    --font-normal: 'IBM Plex Sans JP';
+  }
+
+  @layer components {
+    body {
+      background-color: var(--uchu-gray-1);
+      color: var(--uchu-yin-9);
+      margin-inline: auto;
+      max-width: 48rem;
+      font-family: 'IBM Plex Sans JP';
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .back-to-top {
+      font-family: var(--font-mono);
+    }
+
+    code {
+      font-family: 'IBM Plex Mono', 'IBM Plex Sans JP';
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      border-bottom: var(--uchu-yin-9) 1px solid;
+      padding-block: 0.3rem;
+    }
+
+    .icons {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+
+    .nav-icon-link {
+      font-size: x-large;
+    }
+
+    :global(a) {
+      color: var(--uchu-blue-6);
+    }
+
+    footer {
+      border-top: var(--uchu-yin-9) 1px solid;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding-block-start: 0.5rem;
+      margin-block-start: 0.5rem;
+    }
+  }
+</style>

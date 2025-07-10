@@ -41,4 +41,10 @@ const props = Astro.props;
     display: flex;
     flex-direction: column;
   }
+  @layer components {
+    li::marker {
+      content: '- ';
+      margin-inline-end: 0.5rem;
+    }
+  }
 </style>
