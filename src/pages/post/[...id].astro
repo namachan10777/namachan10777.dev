@@ -42,6 +42,13 @@ const { Content } = await render(post);
     text-align: center;
   }
 
+  article {
+    --astro-code-token-keyword: var(--uchu-red-7);
+    --astro-code-token-string-expression: var(--uchu-orange-7);
+    --astro-code-token-comment: var(--uchu-gray-7);
+    --astro-code-token-function: var(--uchu-purple-7);
+  }
+
   article :global(table) {
     width: 100%;
     column-gap: 0;
@@ -117,5 +124,9 @@ const { Content } = await render(post);
 
   article :global(figcaption) {
     margin-block-start: 0.5rem;
+  }
+
+  article :global(pre) {
+    border: 1px solid var(--uchu-yin-9);
   }
 </style>
