@@ -12,7 +12,6 @@ export const getStaticPaths = (async ({ paginate }) => {
 }) satisfies GetStaticPaths;
 
 const { page } = Astro.props;
-const start = page.total - page.start;
 ---
 
 <Base title={`Post (${page.currentPage})`}>

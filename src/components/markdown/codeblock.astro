@@ -5,7 +5,6 @@ export interface Props {
   'data-language': string;
   'data-line-count': string;
 }
-console.log(Astro.props);
 const lineCount = parseInt(Astro.props['data-line-count'], 10);
 
 const title = Astro.props['data-language'] || 'Unknown';
