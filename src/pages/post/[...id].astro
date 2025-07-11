@@ -4,6 +4,13 @@ import { getEntry, getCollection, render } from 'astro:content';
 import Base from '../../layouts/base.astro';
 import Tags from '../../components/Tags.astro';
 
+import H1 from '../../components/markdown/h1.astro';
+import H2 from '../../components/markdown/h2.astro';
+import H3 from '../../components/markdown/h3.astro';
+import H4 from '../../components/markdown/h4.astro';
+import H5 from '../../components/markdown/h5.astro';
+import H6 from '../../components/markdown/h6.astro';
+
 export const getStaticPaths = (async () => {
   const posts = await getCollection('post', post => post.data.publish);
   return posts.map(post => {
@@ -28,7 +35,16 @@ const { Content } = await render(post);
     <Tags tags={post.data.tags} />
   </header>
   <article>
-    <Content />
+    <Content
+      components={{
+        h1: H1,
+        h2: H2,
+        h3: H3,
+        h4: H4,
+        h5: H5,
+        h6: H6,
+      }}
+    />
   </article>
 </Base>
 
@@ -126,13 +142,36 @@ const { Content } = await render(post);
     margin-block-start: 0.5rem;
   }
 
+  article :global(pre *) {
+    font-family: var(--font-mono);
+  }
+
   article :global(pre) {
     border: 1px solid var(--uchu-yin-9);
     font-family: IBM Plex Mono;
     white-space: pre;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    max-width: 48rem;
   }
 
-  article :global(pre *) {
-    font-family: var(--font-mono);
+  article :global(pre > code) {
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow-x: scroll;
+    margin-inline-start: 0.5rem;
+  }
+
+  article :global(.line-number) {
+    grid-column: 1;
+    text-align: right;
+    padding-inline: 0.3rem;
+    user-select: none;
+  }
+
+  article :global(pre > div.line-numbers) {
+    display: grid;
+    grid-template-columns: auto;
+    border-right: 1px solid var(--uchu-yin-9);
   }
 </style>
