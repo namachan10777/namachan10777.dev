@@ -68,6 +68,7 @@ function rehypeShikiDecorate() {
 // https://astro.build/config
 export default defineConfig({
   integrations: [mdx(), icon()],
+  site: 'https://www.namachan10777.dev',
   markdown: {
     remarkPlugins: [remarkMath, remarkGemoji, remarkDendenRuby],
     rehypePlugins: [rehypeKatex, rehypeSlug, rehypeSectionize, rehypeFigure, rehypeShikiDecorate],
