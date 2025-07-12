@@ -1,0 +1,44 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<search-button>
+  <button><Icon name="iconoir:search" /></button>
+</search-button>
+
+<script>
+  class SearchButton extends HTMLElement {
+    constructor() {
+      super();
+      const button = this.querySelector('button');
+      if (button) {
+        button.addEventListener('click', () => {
+          const dialog = document.getElementById('search-dialog') as HTMLDialogElement;
+          if (dialog) {
+            dialog.showModal();
+          }
+        });
+        button.addEventListener('touchend', () => {
+          const dialog = document.getElementById('search-dialog') as HTMLDialogElement;
+          if (dialog) {
+            dialog.showModal();
+          }
+        });
+      }
+    }
+  }
+
+  customElements.define('search-button', SearchButton);
+</script>
+
+<style>
+  button {
+    border: none;
+    background-color: var(--uchu-gray-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: large;
+    height: 100%;
+  }
+</style>

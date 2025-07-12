@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
+    "dev:pagefind": "pagefind --site dist --output-path public/pagefind",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint && prettier --check ."
@@ -15,8 +16,10 @@
     "@hbsnow/rehype-sectionize": "^1.0.7",
     "@iconify-json/iconoir": "^1.2.7",
     "@types/hast": "^3.0.4",
+    "@types/web": "^0.0.246",
     "astro": "5.11.0",
     "astro-icon": "^1.1.5",
+    "globals": "^16.3.0",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
     "rehype-autolink-headings": "^7.1.0",

@@ -9,6 +9,8 @@ export interface Props {
 const props = Astro.props;
 
 import { Icon } from 'astro-icon/components';
+import SearchButton from '../components/SearchButton.astro';
+import SearchDialog from '../components/SearchDialog.astro';
 ---
 
 <html lang="ja">
@@ -26,22 +28,30 @@ import { Icon } from 'astro-icon/components';
   </head>
   <body>
     <header>
-      <a href="/" class="back-to-top">namachan10777.dev</a>
+      <div class="adjust-width header-inner">
+        <span>
+          <a href="/" class="back-to-top">namachan10777.dev</a>
+        </span>
+        <SearchButton />
+        <SearchDialog />
+      </div>
     </header>
-    <main>
+    <main class="adjust-width">
       <slot />
     </main>
     <footer>
-      <span>@namachan10777</span>
-      <span class="icons">
-        <a href="https://github.com/namachan10777"
-          ><Icon class="nav-icon-link" name="iconoir:github" /></a
-        >
-        <a href="https://x.com/namachan10777"><Icon class="nav-icon-link" name="iconoir:x" /></a>
-        <a href="https://www.linkedin.com/in/masaki-nakano-667493163/"
-          ><Icon class="nav-icon-link" name="iconoir:linkedin" /></a
-        >
-      </span>
+      <div class="adjust-width footer-inner">
+        <span>@namachan10777</span>
+        <span class="icons">
+          <a href="https://github.com/namachan10777"
+            ><Icon class="nav-icon-link" name="iconoir:github" /></a
+          >
+          <a href="https://x.com/namachan10777"><Icon class="nav-icon-link" name="iconoir:x" /></a>
+          <a href="https://www.linkedin.com/in/masaki-nakano-667493163/"
+            ><Icon class="nav-icon-link" name="iconoir:linkedin" /></a
+          >
+        </span>
+      </div>
     </footer>
   </body>
 </html>
@@ -57,13 +67,18 @@ import { Icon } from 'astro-icon/components';
     body {
       background-color: var(--uchu-gray-1);
       color: var(--uchu-yin-9);
-      margin-inline: auto;
-      max-width: 52rem;
-      padding-inline: 2rem;
       font-family: var(--font-normal);
       min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
+      margin: 0;
+    }
+
+    .adjust-width {
+      width: 100%;
+      max-width: 52rem;
+      padding-inline: 2rem;
+      margin-inline: auto;
     }
 
     .back-to-top {
@@ -75,9 +90,12 @@ import { Icon } from 'astro-icon/components';
     }
 
     header {
+      border-bottom: var(--uchu-yin-9) 1px solid;
+    }
+
+    .header-inner {
       display: grid;
       grid-template-columns: 1fr auto;
-      border-bottom: var(--uchu-yin-9) 1px solid;
       padding-block: 0.3rem;
     }
 
@@ -95,12 +113,16 @@ import { Icon } from 'astro-icon/components';
       color: var(--uchu-blue-6);
     }
 
-    footer {
-      border-top: var(--uchu-yin-9) 1px solid;
+    .footer-inner {
       display: grid;
       grid-template-columns: 1fr auto;
       padding-block-start: 0.5rem;
       margin-block-start: 0.5rem;
+    }
+
+    footer {
+      border-top: var(--uchu-yin-9) 1px solid;
+      padding-block-end: 3rem;
     }
   }
 </style>

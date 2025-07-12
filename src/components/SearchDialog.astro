@@ -1,0 +1,76 @@
+---
+
+---
+
+<dialog id="search-dialog">
+  <div class="container">
+    <input class="search-input" autofocus />
+    <label></label>
+    <ul class="search-results"></ul>
+  </div>
+</dialog>
+
+<style>
+  #search-dialog {
+    padding: 0;
+    border: solid 1px var(--uchu-yin-9);
+    background-color: var(--uchu-gray-1);
+  }
+
+  #search-dialog::backdrop {
+    backdrop-filter: blur(4px);
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .search-input {
+    border: solid 1px var(--uchu-yin-9);
+    padding: 0.5rem;
+    width: 100%;
+    outline: none;
+  }
+</style>
+
+<script>
+  import type { Pagefind } from '../client/pagefind';
+  import { h } from '../client/dom';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dialog = document.getElementById('search-dialog') as HTMLDialogElement;
+    const searchInput = dialog.querySelector('.search-input') as HTMLInputElement;
+    if (dialog) {
+      dialog.addEventListener('pointerdown', e => {
+        console.log(e);
+        if (e.target === dialog) {
+          dialog.close('backdrop');
+        }
+      });
+      dialog.addEventListener('close', () => {
+        if (searchInput) {
+          searchInput.value = '';
+        }
+      });
+    }
+    const searchResultsSlot = dialog.querySelector('.search-results') as HTMLUListElement;
+    import(/* @vite-ignore */ `${window.origin}/pagefind/pagefind.js`).then(raw => {
+      const api = raw as unknown as Pagefind;
+      if (searchInput && searchResultsSlot) {
+        searchInput.addEventListener('input', async e => {
+          const result = await api.debouncedSearch(searchInput.value, {}, 100);
+          if (result) {
+            const data = await Promise.all(result.results.map(result => result.data()));
+            const children = data.map(item =>
+              h('li', {}, [
+                h('h3', {}, item.meta.title),
+                h('p', {}, { dangerouslyHtml: item.excerpt }),
+              ])
+            );
+            searchResultsSlot.replaceChildren(...children);
+          }
+        });
+      }
+    });
+  });
+</script>
