@@ -17,7 +17,8 @@
     "outDir": "tmp",
     "noEmit": true,
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "eslint-plugin-qwik": ["./src/types/eslint-plugin-qwik.d.ts"]
     }
   },
   "include": ["src", "./*.d.ts", "./*.config.ts", "vite.config.ts"]

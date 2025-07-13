@@ -10,7 +10,7 @@ import pkg from "./package.json";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeSectionize from "@hbsnow/rehype-sectionize";
-import remarkQwikImage from "./src/remark/rehypeQwikImage";
+import remarkQwikImage from "./src/remark/remark-qwik-image";
 
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
@@ -23,7 +23,7 @@ errorOnDuplicatesPkgDeps(devDependencies, dependencies);
 /**
  * Note that Vite normally starts from `index.html` but the qwikCity plugin makes start at `src/entry.ssr.tsx` instead.
  */
-export default defineConfig(({ command, mode }): UserConfig => {
+export default defineConfig((): UserConfig => {
   return {
     plugins: [qwikCity({
       mdxPlugins: {
