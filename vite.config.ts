@@ -10,6 +10,7 @@ import pkg from "./package.json";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeSectionize from "@hbsnow/rehype-sectionize";
+import remarkQwikImage from "./src/remark/rehypeQwikImage";
 
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
@@ -31,7 +32,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
         rehypeSyntaxHighlight: true,
       },
       mdx: {
-        remarkPlugins: [remarkMath],
+        remarkPlugins: [remarkMath, remarkQwikImage],
         rehypePlugins: [rehypeKatex, rehypeSectionize],
       }
     }), qwikVite(), tsconfigPaths()],
