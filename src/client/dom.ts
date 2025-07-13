@@ -1,6 +1,6 @@
 export function h(
   tag: string,
-  props: {},
+  props: Record<string, string>,
   children: HTMLElement[] | string | { dangerouslyHtml: string }
 ): HTMLElement {
   const element = document.createElement(tag);
@@ -10,6 +10,9 @@ export function h(
     element.innerHTML = children.dangerouslyHtml;
   } else {
     element.append(...children);
+  }
+  for (const [key, value] of Object.entries(props)) {
+    element.setAttribute(key, value);
   }
   return element;
 }

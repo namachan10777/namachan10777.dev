@@ -6,7 +6,9 @@
   <div class="container">
     <input class="search-input" autofocus />
     <label></label>
-    <ul class="search-results"></ul>
+    <nav class="search-results-container">
+      <ul class="search-results"></ul>
+    </nav>
   </div>
 </dialog>
 
@@ -30,6 +32,24 @@
     padding: 0.5rem;
     width: 100%;
     outline: none;
+  }
+
+  .search-results-container {
+    max-width: 48rem;
+  }
+
+  .search-results {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .search-results :global(mark) {
+    background-color: var(--uchu-yellow-1);
+    color: var(--uchu-yin-9);
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    font-weight: bolder;
   }
 </style>
 
@@ -63,7 +83,7 @@
             const data = await Promise.all(result.results.map(result => result.data()));
             const children = data.map(item =>
               h('li', {}, [
-                h('h3', {}, item.meta.title),
+                h('h3', {}, [h('a', { href: item.url }, item.meta.title)]),
                 h('p', {}, { dangerouslyHtml: item.excerpt }),
               ])
             );
