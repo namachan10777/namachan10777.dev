@@ -1,4 +1,4 @@
-import { JSXOutput } from '@builder.io/qwik';
+import { Component, JSXOutput } from '@builder.io/qwik';
 import { z } from 'zod';
 
 const frontmatterValidator = z.object({
@@ -45,8 +45,16 @@ const validator = z.object({
   default: z.unknown(),
 });
 
+export interface MdxComponents {
+  pre?: Component<unknown>;
+}
+
+export interface MdxProps {
+  components?: MdxComponents;
+}
+
 export const pages = Object.fromEntries(Object.entries(import.meta.glob("./post/**/*.mdx", { eager: true })).map(([key, content]) => {
   const validated = validator.parse(content);
   const id = /(\d{4}\/.+)\.mdx$/.exec(key)![1];
-  return [id, { ...validated, default: validated.default as () => JSXOutput}]
+  return [id, { ...validated, default: validated.default as (props: MdxProps) => JSXOutput}]
 }));

@@ -5,6 +5,7 @@ import {
   type DocumentHead,
 } from "@builder.io/qwik-city";
 import { pages } from "~/lib/contents";
+import { CodeBlock } from "~/components/code-block";
 
 export default component$(() => {
   const page = pages[useLocation().params.id];
@@ -12,7 +13,7 @@ export default component$(() => {
   return (
     <>
       <h1>Hi 👋</h1>
-      <Page />
+      <Page components={{ pre: CodeBlock }} />
     </>
   );
 });
