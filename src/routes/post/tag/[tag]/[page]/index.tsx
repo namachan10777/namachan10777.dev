@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { frontmatters, paginate } from "~/lib/contents";
 
 export const usePostsPages = routeLoader$(({ params }) => {
@@ -14,6 +14,21 @@ export const usePostsPages = routeLoader$(({ params }) => {
   const page = pages[index - 1];
   return page;
 });
+
+export const onStaticGenerate: StaticGenerateHandler = () => {
+  const tags = new Set(frontmatters.flatMap((post) => post.frontmatter.tags));
+  const params = [...tags.values()].flatMap((tag) => {
+    const pages = paginate(
+      frontmatters.filter((post) => post.frontmatter.tags.includes(tag)),
+      16,
+    );
+    return pages.map((page) => ({
+      tag,
+      page: page.current.toString(),
+    }));
+  });
+  return { params };
+};
 
 export default component$(() => {
   const page = usePostsPages();
