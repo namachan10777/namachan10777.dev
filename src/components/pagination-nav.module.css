@@ -1,0 +1,23 @@
+.nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.nav a > * {
+  display: block;
+}
+
+.prev {
+  grid-column: 1;
+}
+
+.next {
+  grid-column: 3;
+}

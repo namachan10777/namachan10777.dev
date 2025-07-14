@@ -64,7 +64,7 @@ export default component$(() => {
       </section>
       <section>
         <h2>
-          <a href="/post">Posts (ja)</a>
+          <a href="/post/page/1">Posts (ja)</a>
         </h2>
       </section>
       <section>

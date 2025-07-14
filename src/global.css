@@ -214,4 +214,5 @@ body {
   padding: 0;
   margin: 0;
   background-color: var(--color-bg);
+  line-height: 1.5;
 }

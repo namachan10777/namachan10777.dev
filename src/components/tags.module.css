@@ -1,0 +1,16 @@
+.tags {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0;
+}
+
+.tags li {
+  display: inline-flex;
+  font-family: var(--font-mono);
+}
+
+.tags li::before {
+  content: "#";
+  color: var(--uchu-blue-6);
+}

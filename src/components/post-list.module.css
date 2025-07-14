@@ -1,0 +1,24 @@
+.list {
+  display: grid;
+  padding-inline-start: 0;
+}
+
+.list > li {
+  display: grid;
+  border-top: var(--uchu-yin-7) 1px dashed;
+  padding-block: 0.5rem;
+}
+
+.list time {
+  font-size: smaller;
+  color: var(--uchu-yin-7);
+}
+
+.list h3 {
+  margin-block: 0.5rem;
+}
+
+.list p {
+  margin-block-start: 0.5rem;
+  margin-block: 0rem;
+}
