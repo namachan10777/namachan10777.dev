@@ -1,0 +1,19 @@
+.iconWrapper {
+  max-width: 12rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid var(--uchu-yin-9);
+}
+
+.iconWrapper > img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-block: 1rem;
+}

@@ -1,0 +1,4 @@
+.entry {
+  display: grid;
+  flex-direction: column;
+}

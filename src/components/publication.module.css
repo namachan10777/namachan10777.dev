@@ -1,0 +1,17 @@
+.authors {
+  display: inline;
+  padding: 0;
+}
+
+.authors li {
+  display: inline-flex;
+}
+
+.authors li::after {
+  content: ",";
+  margin-inline-end: 0.25rem;
+}
+
+.authors strong {
+  display: inline;
+}

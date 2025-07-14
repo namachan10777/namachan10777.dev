@@ -12,8 +12,9 @@ export default component$(() => {
   const Page = page.default;
   return (
     <>
-      <h1>Hi 👋</h1>
-      <Page components={{ pre: CodeBlock }} />
+      <article>
+        <Page components={{ pre: CodeBlock }} />
+      </article>
     </>
   );
 });

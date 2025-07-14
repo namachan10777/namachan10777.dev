@@ -19,7 +19,8 @@
     "paths": {
       "~/*": ["./src/*"],
       "eslint-plugin-qwik": ["./src/types/eslint-plugin-qwik.d.ts"]
-    }
+    },
+    "types": ["unplugin-icons/types/qwik"]
   },
   "include": ["src", "./*.d.ts", "./*.config.ts", "vite.config.ts"]
 }

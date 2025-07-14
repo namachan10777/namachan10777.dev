@@ -58,3 +58,37 @@ export const pages = Object.fromEntries(Object.entries(import.meta.glob("./post/
   const id = /(\d{4}\/.+)\.mdx$/.exec(key)![1];
   return [id, { ...validated, default: validated.default as (props: MdxProps) => JSXOutput}]
 }));
+
+export const frontmatters = Object.entries(pages)
+  .map(([id, content]) => ({
+    id,
+    frontmatter: content.frontmatter,
+  }))
+  .filter((post) => post.frontmatter.publish);
+frontmatters.sort(
+  (a, b) =>
+    new Date(b.frontmatter.date).getTime() -
+    new Date(a.frontmatter.date).getTime(),
+);
+
+export interface Page<T> {
+  contents: T[];
+  current: number;
+  prev?: number;
+  next?: number;
+}
+
+export function paginate<T>(pages: T[], pageSize: number): Page<T>[] {
+  const totalPages = Math.ceil(pages.length / pageSize);
+  const result = Array.from({ length: totalPages }, (_, index) => {
+    const start = index * pageSize;
+    const end = start + pageSize;
+    return pages.slice(start, end);
+  });
+  return result.map((contents, index) => ({
+    contents,
+    current: index + 1,
+    prev: index > 0 ? index : undefined,
+    next: index < totalPages - 1 ? index + 2 : undefined,
+  }));
+}

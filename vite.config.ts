@@ -11,7 +11,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeSectionize from "@hbsnow/rehype-sectionize";
 import remarkQwikImage from "./src/remark/remark-qwik-image";
-
+import Icons from "unplugin-icons/vite";
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: PkgDep;
@@ -19,30 +19,35 @@ const { dependencies = {}, devDependencies = {} } = pkg as any as {
   [key: string]: unknown;
 };
 errorOnDuplicatesPkgDeps(devDependencies, dependencies);
-
 /**
  * Note that Vite normally starts from `index.html` but the qwikCity plugin makes start at `src/entry.ssr.tsx` instead.
  */
+
 export default defineConfig((): UserConfig => {
   return {
-    plugins: [qwikCity({
-      mdxPlugins: {
-        remarkGfm: true,
-        rehypeAutolinkHeadings: true,
-        rehypeSyntaxHighlight: true,
-      },
-      mdx: {
-        remarkPlugins: [remarkMath, remarkQwikImage],
-        rehypePlugins: [rehypeKatex, rehypeSectionize],
-      }
-    }), qwikVite(), tsconfigPaths()],
+    plugins: [
+      qwikCity({
+        mdxPlugins: {
+          remarkGfm: true,
+          rehypeAutolinkHeadings: true,
+          rehypeSyntaxHighlight: true,
+        },
+        mdx: {
+          remarkPlugins: [remarkMath, remarkQwikImage],
+          rehypePlugins: [rehypeKatex, rehypeSectionize],
+        },
+      }),
+      qwikVite(),
+      Icons({ compiler: "qwik" }),
+      tsconfigPaths(),
+    ],
     // This tells Vite which dependencies to pre-build in dev mode.
     optimizeDeps: {
       // Put problematic deps that break bundling here, mostly those with binaries.
       // For example ['better-sqlite3'] if you use that in server functions.
-      exclude: [],
+      exclude: [
+      ],
     },
-
     /**
      * This is an advanced setting. It improves the bundling of your server code. To use it, make sure you understand when your consumed packages are dependencies or dev dependencies. (otherwise things will break in production)
      */
@@ -59,7 +64,6 @@ export default defineConfig((): UserConfig => {
     //         external: Object.keys(dependencies),
     //       }
     //     : undefined,
-
     server: {
       headers: {
         // Don't cache the server response in dev mode
@@ -74,9 +78,7 @@ export default defineConfig((): UserConfig => {
     },
   };
 });
-
 // *** utils ***
-
 /**
  * Function to identify duplicate dependencies and throw an error
  * @param {Object} devDependencies - List of development dependencies
@@ -92,27 +94,22 @@ function errorOnDuplicatesPkgDeps(
   const duplicateDeps = Object.keys(devDependencies).filter(
     (dep) => dependencies[dep],
   );
-
   // include any known qwik packages
   const qwikPkg = Object.keys(dependencies).filter((value) =>
     /qwik/i.test(value),
   );
-
   // any errors for missing "qwik-city-plan"
   // [PLUGIN_ERROR]: Invalid module "@qwik-city-plan" is not a valid package
   msg = `Move qwik packages ${qwikPkg.join(", ")} to devDependencies`;
-
   if (qwikPkg.length > 0) {
     throw new Error(msg);
   }
-
   // Format the error message with the duplicates list.
   // The `join` function is used to represent the elements of the 'duplicateDeps' array as a comma-separated string.
   msg = `
     Warning: The dependency "${duplicateDeps.join(", ")}" is listed in both "devDependencies" and "dependencies".
     Please move the duplicated dependencies to "devDependencies" only and remove it from "dependencies"
   `;
-
   // Throw an error with the constructed message.
   if (duplicateDeps.length > 0) {
     throw new Error(msg);
