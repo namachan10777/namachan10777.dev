@@ -52,9 +52,10 @@
     "vite": "5.3.5",
     "vite-tsconfig-paths": "^4.3.2",
     "wrangler": "^4.24.3",
-    "zod": "^4.0.5"
+    "zod": "^4.0.5",
+    "bun-types": "^1.2.18",
+    "rss": "^1.2.2",
+    "@types/rss": "^0.0.32"
   },
-  "dependencies": {
-    "bun-types": "^1.2.18"
-  }
+  "dependencies": {}
 }
