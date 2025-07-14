@@ -1,18 +1,30 @@
 import { component$ } from "@builder.io/qwik";
 import {
   StaticGenerateHandler,
-  useLocation,
+  routeLoader$,
   type DocumentHead,
 } from "@builder.io/qwik-city";
 import { pages } from "~/lib/contents";
 import { CodeBlock } from "~/components/code-block";
+import styles from "./markdown.module.css";
+import { Tags } from "~/components/tags";
+
+export const usePageId = routeLoader$((req) => {
+  return req.params.id;
+});
 
 export default component$(() => {
-  const page = pages[useLocation().params.id];
+  const page = pages[usePageId().value];
   const Page = page.default;
+  const tags = page.frontmatter.tags;
   return (
     <>
-      <article>
+      <header class={styles.header}>
+        <h1>{page.frontmatter.title}</h1>
+        <p>{page.frontmatter.description}</p>
+        <Tags tags={tags} />
+      </header>
+      <article class={styles.article}>
         <Page components={{ pre: CodeBlock }} />
       </article>
     </>
@@ -27,12 +39,15 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
   };
 };
 
-export const head: DocumentHead = {
-  title: "Welcome to Qwik",
-  meta: [
-    {
-      name: "description",
-      content: "Qwik site description",
-    },
-  ],
+export const head: DocumentHead = ({ params }) => {
+  const page = pages[params.id];
+  return {
+    title: page.frontmatter.title,
+    meta: [
+      {
+        name: "description",
+        content: page.frontmatter.description,
+      },
+    ],
+  };
 };

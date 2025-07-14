@@ -1,0 +1,68 @@
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--uchu-yin-9);
+}
+
+.article th {
+  border-bottom: 1px solid var(--uchu-yin-9);
+  margin: 0;
+}
+
+.article th:nth-child(1),
+td:nth-child(1) {
+  border-right: 1px solid var(--uchu-yin-9);
+}
+
+.article th,
+td {
+  padding-inline: 0.5em;
+  padding-block: 0.2em;
+}
+
+.article :not(pre) > code {
+  background-color: var(--uchu-yin-2);
+  color: var(--uchu-yin-9);
+  padding-inline: 0.2em;
+  margin-inline: 0.1em;
+  padding-block: 0.1em;
+}
+
+.article hr {
+  border-bottom: none;
+}
+
+.article img {
+  max-width: 100%;
+  height: auto;
+}
+
+.article figure img {
+  margin: 0.5rem;
+  width: calc(100% - 1rem);
+}
+
+.article figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.5em;
+  border: 1px solid var(--uchu-yin-9);
+  margin-inline: 0;
+}
+
+.article figcaption {
+  border-top: 1px dashed var(--uchu-yin-9);
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding-block-start: 0.5em;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

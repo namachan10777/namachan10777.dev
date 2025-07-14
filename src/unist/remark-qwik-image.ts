@@ -32,11 +32,22 @@ export default function remarkQwikImage() {
         },
       };
       imports.push(importStatement);
-      const slot = node as unknown as mdxMdast.MdxJsxFlowElement;
+      const slot = node as unknown as mdxMdast.MdxJsxFlowElement & {
+        data: { type: string };
+      };
       slot.type = "mdxJsxFlowElement";
       slot.name = componentName;
-      slot.attributes = [];
+      slot.attributes = [
+        {
+          type: "mdxJsxAttribute",
+          name: "alt",
+          value: node.alt,
+        },
+      ];
       slot.children = [];
+      slot.data = {
+        type: "inserted-image",
+      };
     });
     root.children = [...imports, ...root.children];
   };

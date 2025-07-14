@@ -10,8 +10,13 @@ import pkg from "./package.json";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeSectionize from "@hbsnow/rehype-sectionize";
-import remarkQwikImage from "./src/remark/remark-qwik-image";
+import remarkQwikImage from "./src/unist/remark-qwik-image";
+import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
+import rehypeAddCaptions from "./src/unist/rehype-add-caption";
 import Icons from "unplugin-icons/vite";
+import { createCssVariablesTheme,  createHighlighterCore} from "shiki/bundle/web";
+import { createOnigurumaEngine } from "shiki";
+import rehypeCodeAttrs from "./src/unist/rehype-code-attrs";
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: PkgDep;
@@ -23,6 +28,21 @@ errorOnDuplicatesPkgDeps(devDependencies, dependencies);
  * Note that Vite normally starts from `index.html` but the qwikCity plugin makes start at `src/entry.ssr.tsx` instead.
  */
 
+const cssVarsHighligher = await createHighlighterCore({
+  themes: [createCssVariablesTheme({
+    name: "css-vars",
+    variablePrefix: "--shiki-",
+    fontStyle: true,
+  })],
+  langs: [
+    import('@shikijs/langs/rust'),
+    import('@shikijs/langs/javascript'),
+    import('@shikijs/langs/typescript'),
+    import('@shikijs/langs/bash'),
+  ],
+  engine: createOnigurumaEngine(() => import('shiki/wasm'))
+});
+
 export default defineConfig((): UserConfig => {
   return {
     plugins: [
@@ -30,11 +50,14 @@ export default defineConfig((): UserConfig => {
         mdxPlugins: {
           remarkGfm: true,
           rehypeAutolinkHeadings: true,
-          rehypeSyntaxHighlight: true,
+          rehypeSyntaxHighlight: false,
         },
         mdx: {
           remarkPlugins: [remarkMath, remarkQwikImage],
-          rehypePlugins: [rehypeKatex, rehypeSectionize],
+          rehypePlugins: [rehypeKatex, rehypeSectionize,
+            [rehypeShikiFromHighlighter, cssVarsHighligher, {
+            theme: 'css-vars',
+          }], rehypeCodeAttrs, rehypeAddCaptions],
         },
       }),
       qwikVite(),

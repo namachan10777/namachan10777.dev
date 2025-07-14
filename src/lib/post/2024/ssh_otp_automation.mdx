@@ -13,7 +13,7 @@ publish: true
 OTPは1passwordで管理しているのでotp自体は1password cli経由で取れる。面倒なのはsshコネクションでの自動化だが、これは`expect(1)`で自動化できる。
 スクリプトはこんな感じ
 
-```expect title:ssh-with-otp
+```bash title=ssh-with-otp
 #!/usr/bin/expect
 
 set timeout 5

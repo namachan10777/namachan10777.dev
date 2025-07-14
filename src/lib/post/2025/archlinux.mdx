@@ -18,6 +18,7 @@ publish: true
 | `/boot` | 1 GiB   |
 | `swap`  | 32 GiB  |
 | `/`     | 443 GiB |
+Table: Partition and Filesystem
 
 昔は`/`と`/home`を分けていたが、自分は大体データはクラウドに同期させているので`/home`を消してもあまり痛くないことに気がついてからは分けてない。むしろディスク容量の配分が面倒なので統合。`/var`はsmall fileが多いのでraiserfsが有利という話もあったが、dockerのイメージは`/var`なのにRustの`/target`は大体`/home`にある。そもそものsmall fileの優位性以前に、`/var`と`/`であまり特性が変わるとも思えないので統合。
 
@@ -367,7 +368,7 @@ include /etc/sway/config.d/*
 fcitx5などのIMEの起動はswayの設定内で`exec`を使うのが一般的だが、なんとなくデーモンは全てsystemdに集約したい（再起動とか楽）ので、
 `~/.config/systemd/user/fcitx5.service`を作りsystemd userで起動する。
 
-```
+```systemd title=fcitx5.service
 [Unit]
 Description=Fcitx5 input method
 After=graphical.target

@@ -1,7 +1,12 @@
 import { component$ } from "@builder.io/qwik";
-import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
+import {
+  StaticGenerateHandler,
+  routeLoader$,
+  useLocation,
+} from "@builder.io/qwik-city";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import { frontmatters, paginate } from "~/lib/contents";
+import styles from "./index.module.css";
 
 export const usePostsPages = routeLoader$(({ params }) => {
   const pages = paginate(
@@ -33,6 +38,7 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
 
 export default component$(() => {
   const page = usePostsPages();
+  const location = useLocation();
   return (
     <PaginatedPostList
       contents={page.value.contents.map((post) => ({
@@ -45,7 +51,10 @@ export default component$(() => {
       prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
       next={page.value.next ? `/post/page/${page.value.next}` : undefined}
     >
-      <h1>Post ({page.value.current})</h1>
+      <h1>
+        Post <span class={styles.tagInHeading}>#{location.params.tag}</span> (
+        {page.value.current})
+      </h1>
     </PaginatedPostList>
   );
 });
