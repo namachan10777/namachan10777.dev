@@ -21,6 +21,5 @@ export const onGet: RequestHandler = async ({ request, send }) => {
       categories: post.frontmatter.tags || [],
     });
   });
-  rss.xml();
   send(200, rss.xml());
 };

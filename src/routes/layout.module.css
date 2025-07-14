@@ -12,8 +12,9 @@
 }
 
 .adjustWidth {
-  max-width: 48rem;
-  width: 100%;
+  max-width: 52rem;
+  margin-inline: 2rem;
+  width: calc(100% - 4rem);
   height: 100%;
 }
 
