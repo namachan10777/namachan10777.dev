@@ -23,5 +23,11 @@
     },
     "types": ["unplugin-icons/types/qwik"]
   },
-  "include": ["src", "./*.d.ts", "./*.config.ts", "vite.config.ts"]
+  "include": [
+    "src",
+    "./*.d.ts",
+    "./*.config.ts",
+    "vite.config.ts",
+    "assetsignore.ts"
+  ]
 }
