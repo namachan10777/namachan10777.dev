@@ -64,6 +64,10 @@ td {
   padding-block-start: 0.5em;
 }
 
+.markdown p a {
+  margin-inline: 0.2em;
+}
+
 .header {
   width: 100%;
   display: flex;

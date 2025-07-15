@@ -1,5 +1,4 @@
 import type * as hast from "hast";
-import { MdxJsxFlowElement } from "mdast-util-mdx";
 import { MdxJsxFlowElementHast } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
 
