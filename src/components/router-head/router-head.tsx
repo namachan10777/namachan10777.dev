@@ -15,7 +15,7 @@ export const RouterHead = component$(() => {
       <link rel="canonical" href={loc.url.href} />
       <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, interactive‑widget=resizes-content"
+        content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual"
       />
       <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
       <link
