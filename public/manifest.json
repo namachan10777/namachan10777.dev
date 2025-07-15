@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "name": "qwik-project-name",
-  "short_name": "Welcome to Qwik",
+  "name": "namachan10777-dev",
+  "short_name": "namachan10777.dev",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#fff",
-  "description": "A Qwik project app."
+  "background_color": "#f2eff0",
+  "description": "Personal website of namachan10777 (Masaki Nakano)"
 }
