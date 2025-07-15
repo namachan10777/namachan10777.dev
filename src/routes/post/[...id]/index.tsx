@@ -61,15 +61,54 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
   };
 };
 
-export const head: DocumentHead = ({ params }) => {
+export const head: DocumentHead = ({ params, url }) => {
   const page = pages[params.id];
-  return {
-    title: page ? page.frontmatter.title : "Not found",
-    meta: [
-      {
-        name: "description",
-        content: page ? page.frontmatter.description : "Not found",
-      },
-    ],
-  };
+  const meta = [
+    {
+      name: "description",
+      content: page.frontmatter.description,
+    },
+    {
+      property: "og:title",
+      content: page.frontmatter.title,
+    },
+    {
+      property: "og:type",
+      content: "article",
+    },
+    {
+      property: "og:url",
+      content: `${url.origin}/post/${params.id}`,
+    },
+    {
+      property: "og:description",
+      content: page.frontmatter.description,
+    },
+    {
+      property: "og:locale",
+      content: "ja_JP",
+    },
+  ];
+  if (page.frontmatter.og_image) {
+    meta.push({
+      property: "og:image",
+      content: `${url.origin}/${page.frontmatter.og_image}`,
+    });
+  }
+  if (page) {
+    return {
+      title: page.frontmatter.title,
+      meta,
+    };
+  } else {
+    return {
+      title: "Not found",
+      meta: [
+        {
+          name: "description",
+          content: "Not found",
+        },
+      ],
+    };
+  }
 };

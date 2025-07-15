@@ -7,6 +7,7 @@ const frontmatterValidator = z.object({
   description: z.string(),
   title: z.string(),
   publish: z.boolean(),
+  og_image: z.string().nullish(),
 });
 
 const headValidator = z.object({
