@@ -27,6 +27,7 @@
     "src",
     "./*.d.ts",
     "./*.config.ts",
+    "adapters",
     "vite.config.ts",
     "assetsignore.ts"
   ]

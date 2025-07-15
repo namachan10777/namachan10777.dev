@@ -1,5 +1,5 @@
 ---
-tags: ['tech']
+tags: ["tech"]
 date: 2025-05-01
 description: Arch Linux installation memo
 title: Arch Linuxをインストールでセットアップしたのでメモ
@@ -18,6 +18,7 @@ publish: true
 | `/boot` | 1 GiB   |
 | `swap`  | 32 GiB  |
 | `/`     | 443 GiB |
+
 Table: Partition and Filesystem
 
 昔は`/`と`/home`を分けていたが、自分は大体データはクラウドに同期させているので`/home`を消してもあまり痛くないことに気がついてからは分けてない。むしろディスク容量の配分が面倒なので統合。`/var`はsmall fileが多いのでraiserfsが有利という話もあったが、dockerのイメージは`/var`なのにRustの`/target`は大体`/home`にある。そもそものsmall fileの優位性以前に、`/var`と`/`であまり特性が変わるとも思えないので統合。

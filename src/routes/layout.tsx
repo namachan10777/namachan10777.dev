@@ -3,6 +3,7 @@ import IconGitHub from "~icons/iconoir/github";
 import IconX from "~icons/iconoir/x";
 import IconLinkedIn from "~icons/iconoir/linkedin";
 import styles from "./layout.module.css";
+import { SearchDialog } from "~/components/search-dialog";
 
 const Header = component$(() => {
   return (
@@ -11,6 +12,7 @@ const Header = component$(() => {
         <a class={styles.headerLink} href="/">
           namachan10777.dev
         </a>
+        <SearchDialog />
       </div>
     </header>
   );

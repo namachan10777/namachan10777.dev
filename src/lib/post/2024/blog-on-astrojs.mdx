@@ -1,5 +1,5 @@
 ---
-tags: ['tech', 'web']
+tags: ["tech", "web"]
 date: 2024-02-22
 description: 個人サイトをAstroJSで作り直した
 title: 個人サイトをAstroJSで書き直した
@@ -41,15 +41,15 @@ Web標準に`<section />`タグがあるので対応した。
 Astroはmarkdown処理にremarkプラグインを簡単に入れられるので`astro.config.js`を弄るだけで済む。
 
 ```typescript showLineNumbers
-import react from '@astrojs/react';
-import sitemap from '@astrojs/sitemap';
-import icon from 'astro-icon';
-import { defineConfig } from 'astro/config';
-import remarkSectionize from 'remark-sectionize';
+import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
+import icon from "astro-icon";
+import { defineConfig } from "astro/config";
+import remarkSectionize from "remark-sectionize";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://www.namachan10777.dev',
+  site: "https://www.namachan10777.dev",
   integrations: [icon(), react(), sitemap()],
   markdown: {
     remarkPlugins: [remarkSectionize],
@@ -72,12 +72,12 @@ Astroはhtml以外の静的ファイルもGETエンドポイントの形で記�
 
 ```typescript showLineNumbers
 export const GET: APIRoute = async ({ params }) => {
-  const article = await getEntryBySlug('blog', params.slug as any);
+  const article = await getEntryBySlug("blog", params.slug as any);
 
   const title = article?.data.title;
   const description = article?.data.description;
   const body = await ogImage({
-    title: title || 'No title',
+    title: title || "No title",
     titleFontSize: 4,
     description,
     url: `https://namachan10777.dev/blog/${params.slug}`,
@@ -95,20 +95,20 @@ export const GET: APIRoute = async ({ params }) => {
 特に凝ったことはしていない。
 
 ```typescript showLineNumbers=true
-import rss from '@astrojs/rss';
-import type { APIRoute } from 'astro';
-import { getCollection } from 'astro:content';
+import rss from "@astrojs/rss";
+import type { APIRoute } from "astro";
+import { getCollection } from "astro:content";
 
-const blog = await getCollection('blog');
+const blog = await getCollection("blog");
 
-export const GET: APIRoute = async ctx => {
+export const GET: APIRoute = async (ctx) => {
   return rss({
-    title: 'namachan10777 Blog',
-    description: '分散システム、ストレージ、Web、あとそのほか',
-    site: ctx.site || 'https://www.namachan10777.dev',
+    title: "namachan10777 Blog",
+    description: "分散システム、ストレージ、Web、あとそのほか",
+    site: ctx.site || "https://www.namachan10777.dev",
     items: blog
       .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
-      .map(blog => ({
+      .map((blog) => ({
         title: blog.data.title,
         pubDate: blog.data.date,
         description: blog.data.description,
