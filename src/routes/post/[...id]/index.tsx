@@ -11,11 +11,14 @@ import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 
 export const usePageId = routeLoader$(async ({ params, status }) => {
-  if (!(params.id in pages) || !pages[params.id].frontmatter.publish) {
+  if (!(params.id in pages)) {
     status(404);
     return undefined;
-  } else {
+  } else if (pages[params.id].frontmatter.publish) {
     return params.id;
+  } else {
+    status(404);
+    return undefined;
   }
 });
 
@@ -50,9 +53,11 @@ export default component$(() => {
 
 export const onStaticGenerate: StaticGenerateHandler = () => {
   return {
-    params: Object.keys(pages).map((id) => {
-      return { id };
-    }),
+    params: Object.entries(pages)
+      .filter((entry) => entry[1].frontmatter.publish)
+      .map((entry) => {
+        return { id: entry[0] };
+      }),
   };
 };
 
