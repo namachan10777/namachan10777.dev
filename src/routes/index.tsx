@@ -38,7 +38,7 @@ export default component$(() => {
     <>
       <section class={styles.top}>
         <div class={styles.iconWrapper}>
-          <IconImage />
+          <IconImage alt="namachan10777のアイコン画像。目のついた緑の箱がデフォルメされている。" />
         </div>
         <h1>Masaki Nakano</h1>
         <p>

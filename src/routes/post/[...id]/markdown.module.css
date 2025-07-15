@@ -66,3 +66,7 @@ td {
   flex-direction: column;
   align-items: center;
 }
+
+.article h1 {
+  font-size: x-large;
+}
