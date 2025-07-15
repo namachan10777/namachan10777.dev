@@ -128,6 +128,8 @@
 
 .article {
   margin-block: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .article h2 {
