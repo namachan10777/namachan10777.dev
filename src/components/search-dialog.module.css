@@ -49,7 +49,7 @@
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto 1fr;
   height: 100%;
-  max-height: calc(100vh - 6rem);
+  max-height: calc(100dvh - 6rem);
 }
 
 .dialog h2 {
