@@ -31,7 +31,7 @@
     "@builder.io/qwik-city": "^1.14.1",
     "@eslint/js": "latest",
     "@hbsnow/rehype-sectionize": "^1.0.7",
-    "@iconify/json": "^2.2.358",
+    "@iconify/json": "^2.2.359",
     "@shikijs/rehype": "^3.8.0",
     "@types/node": "24.0.13",
     "eslint": "9.25.1",

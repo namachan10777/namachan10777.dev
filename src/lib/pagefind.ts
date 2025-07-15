@@ -314,8 +314,8 @@ export type Pagefind = {
 async function loadPagefind(): Promise<Pagefind> {
   const path = "/pagefind/pagefind.js";
   const module = import.meta.env.DEV
-    ? await import("/pagefind/pagefind.js?url")
-    : await import(path);
+    ? await import(/* @vite-ignore */ "/pagefind/pagefind.js?url")
+    : await import(/* @vite-ignore */ path);
   return module as unknown as Pagefind;
 }
 

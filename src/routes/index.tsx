@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import IconImage from "~/assets/icon.webp?jsx";
 import styles from "./index.module.css";
 import { Education } from "~/components/education";
@@ -64,7 +64,7 @@ export default component$(() => {
       </section>
       <section>
         <h2>
-          <a href="/post/page/1">Posts (ja)</a>
+          <Link href="/post/page/1">Posts (ja)</Link>
         </h2>
       </section>
       <section>

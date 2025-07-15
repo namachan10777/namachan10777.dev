@@ -3,15 +3,13 @@
   "workspaces": {
     "": {
       "name": "my-qwik-empty-starter",
-      "dependencies": {
-        "@qwik-ui/headless": "^0.6.8",
-      },
       "devDependencies": {
         "@builder.io/qwik": "^1.14.1",
         "@builder.io/qwik-city": "^1.14.1",
         "@eslint/js": "latest",
         "@hbsnow/rehype-sectionize": "^1.0.7",
-        "@iconify/json": "^2.2.358",
+        "@iconify/json": "^2.2.359",
+        "@qwik-ui/headless": "^0.6.8",
         "@shikijs/rehype": "^3.8.0",
         "@types/node": "24.0.13",
         "bun-types": "^1.2.18",
@@ -153,7 +151,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@iconify/json": ["@iconify/json@2.2.358", "", { "dependencies": { "@iconify/types": "*", "pathe": "^1.1.2" } }, "sha512-01NTf7QOYG+gCb8iSWNwkuy/oPFQTgWQzrRYErw1R2IepyvbBkUTaMlLZr8OgAteBxUjNxAWSae2eGk3v9WPCw=="],
+    "@iconify/json": ["@iconify/json@2.2.359", "", { "dependencies": { "@iconify/types": "*", "pathe": "^1.1.2" } }, "sha512-nOIaROD3xeLiFGvJu0YIgeu4Hqbmz6T71b0lsFv1TY6Uu6Lk/5Z8GhDByIE2/zfgxvxfv3f+5A/DkLHmMXYu8Q=="],
 
     "@iconify/types": ["@iconify/types@2.0.0", "", {}, "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="],
 

@@ -29,6 +29,13 @@
   padding-block: 0.5rem;
 }
 
+.headerContent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .headerLink {
   font-family: var(--font-mono);
 }

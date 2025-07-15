@@ -28,11 +28,15 @@ export default component$(() => {
     return (
       <>
         <header class={styles.header}>
-          <h1>{page.frontmatter.title}</h1>
+          <h1 data-pagefind-meta={`date:${page.frontmatter.date}`}>
+            {page.frontmatter.title}
+          </h1>
           <p>{page.frontmatter.description}</p>
-          <Tags tags={tags} />
+          <div data-pagefind-meta={`tags:${tags.join(",")}`}>
+            <Tags tags={tags} />
+          </div>
         </header>
-        <article class={styles.article}>
+        <article class={styles.article} data-pagefind-body>
           <Page components={{ pre: CodeBlock }} />
         </article>
       </>
