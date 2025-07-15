@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { Tags } from "./tags";
 import styles from "./post-list.module.css";
+import { Link } from "@builder.io/qwik-city";
 
 export interface PostSumaryProps {
   title: string;
@@ -21,7 +22,7 @@ export const PostList = component$((props: { posts: PostSumaryProps[] }) => {
             )}
           </time>
           <h3>
-            <a href={`/post/${post.id}`}>{post.title}</a>
+            <Link href={`/post/${post.id}`}>{post.title}</Link>
           </h3>
           <p>{post.description}</p>
           <Tags tags={post.tags} />
