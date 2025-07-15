@@ -49,7 +49,6 @@
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto 1fr;
   height: 100%;
-  max-height: calc(100dvh - 6rem);
 }
 
 .dialog h2 {
@@ -106,6 +105,7 @@
   padding-inline: 0;
   max-height: 100%;
   height: 100%;
+  max-height: calc(100dvh - 12rem);
   overflow-y: scroll;
 }
 
