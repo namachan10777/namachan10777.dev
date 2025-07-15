@@ -11,7 +11,7 @@ import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 
 export const usePageId = routeLoader$(async ({ params, status }) => {
-  if (!(params.id in pages)) {
+  if (!(params.id in pages) || !pages[params.id].frontmatter.publish) {
     status(404);
     return undefined;
   } else {
