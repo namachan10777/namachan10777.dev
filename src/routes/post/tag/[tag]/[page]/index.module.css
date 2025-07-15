@@ -2,3 +2,10 @@
   font-family: var(--font-mono);
   color: var(--uchu-blue-7);
 }
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}

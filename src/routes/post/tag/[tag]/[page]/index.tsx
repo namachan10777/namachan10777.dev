@@ -1,14 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import {
-  StaticGenerateHandler,
-  routeLoader$,
-  useLocation,
-} from "@builder.io/qwik-city";
+import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import { frontmatters, paginate } from "~/lib/contents";
 import styles from "./index.module.css";
+import { NotFound } from "~/components/not-found";
 
-export const usePostsPages = routeLoader$(({ params }) => {
+export const usePostsPages = routeLoader$(({ params, status }) => {
   const pages = paginate(
     frontmatters.filter(
       (post) =>
@@ -17,8 +14,13 @@ export const usePostsPages = routeLoader$(({ params }) => {
     16,
   );
   const index = parseInt(params.page, 10);
-  const page = pages[index - 1];
-  return page;
+  if (index < 1 || index > pages.length) {
+    status(404);
+    return undefined;
+  } else {
+    const page = pages[index - 1];
+    return { page, tag: params.tag };
+  }
 });
 
 export const onStaticGenerate: StaticGenerateHandler = () => {
@@ -38,22 +40,28 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
 
 export default component$(() => {
   const page = usePostsPages();
-  const location = useLocation();
+  if (!page.value) {
+    return <NotFound />;
+  }
   return (
     <PaginatedPostList
-      contents={page.value.contents.map((post) => ({
+      contents={page.value.page.contents.map((post) => ({
         id: post.id,
         title: post.frontmatter.title,
         description: post.frontmatter.description,
         published: new Date(post.frontmatter.date),
         tags: post.frontmatter.tags,
       }))}
-      prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
-      next={page.value.next ? `/post/page/${page.value.next}` : undefined}
+      prev={
+        page.value.page.prev ? `/post/page/${page.value.page.prev}` : undefined
+      }
+      next={
+        page.value.page.next ? `/post/page/${page.value.page.next}` : undefined
+      }
     >
       <h1>
-        Post <span class={styles.tagInHeading}>#{location.params.tag}</span> (
-        {page.value.current})
+        Post <span class={styles.tagInHeading}>#{page.value.tag}</span> (
+        {page.value.page.current})
       </h1>
     </PaginatedPostList>
   );

@@ -1,14 +1,20 @@
 import { component$ } from "@builder.io/qwik";
 import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
+import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import { frontmatters, paginate } from "~/lib/contents";
 
 const pages = paginate(frontmatters, 16);
 
-export const usePostsPages = routeLoader$(({ params }) => {
+export const usePostsPages = routeLoader$(({ params, status }) => {
   const index = parseInt(params.page, 10);
-  const page = pages[index - 1];
-  return page;
+  if (index < 1 || index > pages.length) {
+    status(404);
+    return undefined;
+  } else {
+    const page = pages[index - 1];
+    return page;
+  }
 });
 
 export const onStaticGenerate: StaticGenerateHandler = () => {
@@ -21,6 +27,9 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
 
 export default component$(() => {
   const page = usePostsPages();
+  if (!page.value) {
+    return <NotFound />;
+  }
   return (
     <PaginatedPostList
       contents={page.value.contents.map((post) => ({

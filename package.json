@@ -54,8 +54,7 @@
     "wrangler": "^4.24.3",
     "zod": "^4.0.5",
     "bun-types": "^1.2.18",
-    "rss": "^1.2.2",
-    "@types/rss": "^0.0.32"
+    "fast-xml-parser": "^5.2.5"
   },
   "dependencies": {}
 }
