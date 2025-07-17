@@ -1,47 +1,87 @@
-use std::collections::{HashMap, hash_map};
+use std::{collections::HashMap, fmt::Write};
 
-use axohtml::{elements::head, types::Wrap};
 use maplit::hashmap;
-use pulldown_cmark::{
-    CodeBlockKind, CowStr, Event, HeadingLevel, InlineStr, LinkType, Options, Parser, Tag, TagEnd,
-};
+use pulldown_cmark::{CowStr, Event, HeadingLevel, InlineStr, Options, Parser, Tag, TagEnd};
+use serde::Serialize;
 use tracing::warn;
 
-pub enum PartialFoldedHtml {
-    Folded {
-        tag: String,
-        attrs: HashMap<String, String>,
-        inner: String,
+fn serialize_cow_str<S>(value: &CowStr, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match value {
+        CowStr::Inlined(s) => serializer.serialize_str(s),
+        CowStr::Boxed(s) => serializer.serialize_str(s),
+        CowStr::Borrowed(s) => serializer.serialize_str(s),
+    }
+}
+
+fn serialize_inline_str<S>(value: &InlineStr, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_str(value)
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Children<'a> {
+    None,
+    Html {
+        #[serde(serialize_with = "serialize_cow_str")]
+        inner: CowStr<'a>,
+    },
+    Partial {
+        inner: Vec<PartialTree<'a>>,
+    },
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Node {
+    Codeblock { line: usize },
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum PartialTree<'a> {
+    Html {
+        tag: &'static str,
+        attrs: HashMap<&'static str, AttrValue<'a>>,
+        inner: Children<'a>,
     },
     Node {
-        tag: String,
-        attrs: HashMap<String, String>,
-        children: Vec<PartialFoldedHtml>,
+        node: Node,
+        inner: Children<'a>,
     },
 }
 
-struct Folded {
-    tag: String,
-    attrs: HashMap<String, String>,
-    inner: String,
-}
-
-impl From<Folded> for PartialFoldedHtml {
-    fn from(folded: Folded) -> Self {
-        PartialFoldedHtml::Folded {
-            tag: folded.tag,
-            attrs: folded.attrs,
-            inner: folded.inner,
+impl<'a> PartialTree<'a> {
+    fn is_partial(&self) -> bool {
+        match self {
+            PartialTree::Html {
+                inner: Children::Html { .. },
+                ..
+            } => false,
+            PartialTree::Html {
+                inner: Children::None,
+                ..
+            } => false,
+            PartialTree::Node { .. } => true,
+            PartialTree::Html {
+                inner: Children::Partial { .. },
+                ..
+            } => true,
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum AttrValue<'a> {
     Boxed(Box<str>),
     Static(&'static str),
     Borrowed(&'a str),
-    Inlined(InlineStr),
+    Inlined(#[serde(serialize_with = "serialize_inline_str")] InlineStr),
     True,
 }
 
@@ -134,7 +174,10 @@ impl<'a> WrappedParser<'a> {
     }
 }
 
-fn fold_section<'a>(start_level: HeadingLevel, parser: &mut WrappedParser<'a>) -> Vec<Tree<'a>> {
+fn fold_section<'a>(
+    start_level: HeadingLevel,
+    parser: &mut WrappedParser<'a>,
+) -> Vec<PartialTree<'a>> {
     let mut children = Vec::new();
     loop {
         let Some(next) = parser.next() else {
@@ -154,7 +197,56 @@ fn fold_section<'a>(start_level: HeadingLevel, parser: &mut WrappedParser<'a>) -
     children
 }
 
-fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> {
+fn write_attrs(s: &mut String, attrs: &HashMap<&'static str, AttrValue<'_>>) {
+    for (key, value) in attrs {
+        match value {
+            AttrValue::Boxed(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
+            AttrValue::Static(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
+            AttrValue::Borrowed(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
+            AttrValue::Inlined(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
+            AttrValue::True => s.write_str(*key).unwrap(),
+        }
+    }
+}
+
+fn partial_children<'a>(children: Vec<PartialTree<'a>>) -> Children<'a> {
+    if children.is_empty() {
+        Children::None
+    } else if children.iter().all(|child| !child.is_partial()) {
+        let mut html = String::new();
+        for child in children {
+            let PartialTree::Html { tag, attrs, inner } = child else {
+                unreachable!();
+            };
+            html.write_fmt(format_args!("<{tag} ")).unwrap();
+            write_attrs(&mut html, &attrs);
+            match inner {
+                Children::Html { inner } => {
+                    html.write_fmt(format_args!(">{inner}</{tag}>")).unwrap()
+                }
+                Children::None => html.write_str("/>").unwrap(),
+                _ => unreachable!(),
+            }
+        }
+        Children::Html { inner: html.into() }
+    } else {
+        Children::Partial { inner: children }
+    }
+}
+
+fn partial_eval<'a>(
+    tag: &'static str,
+    attrs: HashMap<&'static str, AttrValue<'a>>,
+    children: Vec<PartialTree<'a>>,
+) -> PartialTree<'a> {
+    PartialTree::Html {
+        tag,
+        attrs,
+        inner: partial_children(children),
+    }
+}
+
+fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> PartialTree<'a> {
     let mut children = Vec::new();
     loop {
         let next = parser.next().unwrap();
@@ -165,11 +257,7 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> 
             }
         } else {
             break match start {
-                Tag::Paragraph => Tree::Element {
-                    tag: "p",
-                    children,
-                    attrs: hashmap! {},
-                },
+                Tag::Paragraph => partial_eval("p", hashmap! {}, children),
                 Tag::Heading { level, id, .. } => {
                     let tag_name = match level {
                         pulldown_cmark::HeadingLevel::H1 => "h1",
@@ -179,49 +267,20 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> 
                         pulldown_cmark::HeadingLevel::H5 => "h5",
                         pulldown_cmark::HeadingLevel::H6 => "h6",
                     };
-                    let mut element_attrs = HashMap::default();
+                    let mut attrs = HashMap::default();
                     if let Some(id) = id {
-                        element_attrs.insert("id", id.into());
+                        attrs.insert("id", id.into());
                     }
-                    let mut children = vec![Tree::Element {
-                        tag: tag_name,
-                        children,
-                        attrs: element_attrs,
-                    }];
+                    let mut children = vec![partial_eval(tag_name, attrs, children)];
                     children.append(&mut fold_section(level, parser));
-                    Tree::Element {
-                        tag: "section",
-                        children,
-                        attrs: Default::default(),
-                    }
+                    partial_eval("section", hashmap! {}, children)
                 }
-                Tag::BlockQuote(_) => Tree::Element {
-                    tag: "blockquote",
-                    children,
-                    attrs: hashmap! {},
+                Tag::BlockQuote(_) => partial_eval("blockquote", hashmap! {}, children),
+                Tag::CodeBlock(_) => PartialTree::Node {
+                    node: Node::Codeblock { line: 0 },
+                    inner: partial_children(children),
                 },
-                Tag::CodeBlock(kind) => {
-                    let mut code_attrs = hashmap! {};
-                    if let pulldown_cmark::CodeBlockKind::Fenced(lang) = kind {
-                        if !lang.is_empty() {
-                            code_attrs.insert("class", format!("language-{}", lang).into());
-                        }
-                    }
-                    Tree::Element {
-                        tag: "pre",
-                        children: vec![Tree::Element {
-                            tag: "code",
-                            children,
-                            attrs: code_attrs,
-                        }],
-                        attrs: hashmap! {},
-                    }
-                }
-                Tag::HtmlBlock => Tree::Element {
-                    tag: "div",
-                    children,
-                    attrs: hashmap! {},
-                },
+                Tag::HtmlBlock => partial_eval("div", hashmap! {}, children),
                 Tag::List(start) => {
                     let (tag_name, attrs) = if let Some(start_num) = start {
                         let mut attrs = hashmap! {};
@@ -232,85 +291,29 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> 
                     } else {
                         ("ul", hashmap! {})
                     };
-                    Tree::Element {
-                        tag: tag_name,
-                        children,
-                        attrs,
-                    }
+                    partial_eval(tag_name, attrs, children)
                 }
-                Tag::Item => Tree::Element {
-                    tag: "li",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::FootnoteDefinition(label) => Tree::Element {
-                    tag: "div",
-                    children,
-                    attrs: hashmap! {
+                Tag::Item => partial_eval("li", hashmap! {}, children),
+                Tag::FootnoteDefinition(label) => partial_eval(
+                    "div",
+                    hashmap! {
                         "class" => "footnote-definition".into(),
                         "id" => format!("footnote-{}", label).into(),
                     },
-                },
-                Tag::DefinitionList => Tree::Element {
-                    tag: "dl",
                     children,
-                    attrs: hashmap! {},
-                },
-                Tag::DefinitionListTitle => Tree::Element {
-                    tag: "dt",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::DefinitionListDefinition => Tree::Element {
-                    tag: "dd",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Table(_) => Tree::Element {
-                    tag: "table",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::TableHead => Tree::Element {
-                    tag: "thead",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::TableRow => Tree::Element {
-                    tag: "tr",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::TableCell => Tree::Element {
-                    tag: "td",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Emphasis => Tree::Element {
-                    tag: "em",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Strong => Tree::Element {
-                    tag: "strong",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Strikethrough => Tree::Element {
-                    tag: "del",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Superscript => Tree::Element {
-                    tag: "sup",
-                    children,
-                    attrs: hashmap! {},
-                },
-                Tag::Subscript => Tree::Element {
-                    tag: "sub",
-                    children,
-                    attrs: hashmap! {},
-                },
+                ),
+                Tag::DefinitionList => partial_eval("dl", hashmap! {}, children),
+                Tag::DefinitionListTitle => partial_eval("dt", hashmap! {}, children),
+                Tag::DefinitionListDefinition => partial_eval("dd", hashmap! {}, children),
+                Tag::Table(_) => partial_eval("table", hashmap! {}, children),
+                Tag::TableHead => partial_eval("thead", hashmap! {}, children),
+                Tag::TableRow => partial_eval("tr", hashmap! {}, children),
+                Tag::TableCell => partial_eval("td", hashmap! {}, children),
+                Tag::Emphasis => partial_eval("em", hashmap! {}, children),
+                Tag::Strong => partial_eval("strong", hashmap! {}, children),
+                Tag::Strikethrough => partial_eval("del", hashmap! {}, children),
+                Tag::Superscript => partial_eval("sup", hashmap! {}, children),
+                Tag::Subscript => partial_eval("sub", hashmap! {}, children),
                 Tag::Link {
                     dest_url, title, ..
                 } => {
@@ -320,11 +323,7 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> 
                     if !title.is_empty() {
                         attrs.insert("title", title.clone().into());
                     }
-                    Tree::Element {
-                        tag: "a",
-                        children,
-                        attrs,
-                    }
+                    partial_eval("a", attrs, children)
                 }
                 Tag::Image {
                     dest_url, title, ..
@@ -336,48 +335,47 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> Tree<'a> 
                         attrs.insert("title", title.clone().into());
                         attrs.insert("alt", title.into());
                     }
-                    Tree::Element {
-                        tag: "img",
-                        children,
-                        attrs,
-                    }
+                    partial_eval(
+                        "figure",
+                        hashmap! {},
+                        vec![
+                            partial_eval("img", attrs, vec![]),
+                            partial_eval("figcaption", hashmap! {}, children),
+                        ],
+                    )
                 }
-                Tag::MetadataBlock(_) => Tree::Element {
-                    tag: "div",
-                    children,
-                    attrs: hashmap! {
+                Tag::MetadataBlock(_) => partial_eval(
+                    "div",
+                    hashmap! {
                         "class" => "metadata".into(),
                     },
-                },
+                    children,
+                ),
             };
         }
     }
 }
 
-fn fold<'a>(parser: &mut WrappedParser<'a>) -> Option<Tree<'a>> {
+fn fold<'a>(parser: &mut WrappedParser<'a>) -> Option<PartialTree<'a>> {
     let head = parser.next()?;
     Some(match head {
-        Event::Code(code) => Tree::Element {
-            tag: "code",
-            attrs: Default::default(),
-            children: vec![Tree::Text(code)],
+        Event::Code(code) => partial_eval(
+            "code",
+            hashmap! {},
+            vec![PartialTree::Html {
+                tag: "span",
+                attrs: hashmap! {},
+                inner: Children::Html { inner: code },
+            }],
+        ),
+        Event::Html(html) => PartialTree::Html {
+            tag: "span",
+            attrs: hashmap! {},
+            inner: Children::Html { inner: html },
         },
-        Event::Html(html) => Tree::Raw(html),
-        Event::HardBreak => Tree::Element {
-            tag: "br",
-            attrs: Default::default(),
-            children: vec![],
-        },
-        Event::SoftBreak => Tree::Element {
-            tag: "br",
-            attrs: Default::default(),
-            children: vec![],
-        },
-        Event::Rule => Tree::Element {
-            tag: "hr",
-            attrs: Default::default(),
-            children: vec![],
-        },
+        Event::HardBreak => partial_eval("br", hashmap! {}, vec![]),
+        Event::SoftBreak => partial_eval("br", hashmap! {}, vec![]),
+        Event::Rule => partial_eval("hr", hashmap! {}, vec![]),
         Event::TaskListMarker(mark) => {
             let mut attrs = hashmap! {
                 "type" => "checkbox".into(),
@@ -386,69 +384,156 @@ fn fold<'a>(parser: &mut WrappedParser<'a>) -> Option<Tree<'a>> {
             if mark {
                 attrs.insert("checked", AttrValue::True);
             }
-            Tree::Element {
-                tag: "input",
-                attrs,
-                children: vec![],
-            }
+            partial_eval("input", attrs, vec![])
         }
-        Event::Text(cow_str) => Tree::Text(cow_str),
-        Event::InlineMath(cow_str) => {
+        Event::Text(text) => PartialTree::Html {
+            tag: "span",
+            attrs: hashmap! {},
+            inner: Children::Html { inner: text },
+        },
+        Event::InlineMath(src) => {
             let opts = katex::Opts::builder().display_mode(false).build().unwrap();
-            match katex::render_with_opts(&cow_str, &opts) {
-                Ok(math) => Tree::Raw(CowStr::Boxed(math.into_boxed_str())),
+            match katex::render_with_opts(&src, &opts) {
+                Ok(math) => PartialTree::Html {
+                    tag: "span",
+                    attrs: hashmap! {},
+                    inner: Children::Html { inner: math.into() },
+                },
                 Err(e) => {
                     warn!(
                         e = e.to_string(),
-                        src = cow_str.as_ref(),
+                        src = src.as_ref(),
                         "failed to process math"
                     );
-                    Tree::Element {
-                        tag: "span",
-                        children: vec![Tree::Text(cow_str)],
-                        attrs: hashmap! { "class" => "math-error".into() },
-                    }
+                    partial_eval(
+                        "span",
+                        hashmap! { "class" => "math-error".into() },
+                        vec![PartialTree::Html {
+                            tag: "span",
+                            attrs: hashmap! {},
+                            inner: Children::Html { inner: src },
+                        }],
+                    )
                 }
             }
         }
-        Event::DisplayMath(cow_str) => {
+        Event::DisplayMath(src) => {
             let opts = katex::Opts::builder().display_mode(true).build().unwrap();
-            match katex::render_with_opts(&cow_str, &opts) {
-                Ok(math) => Tree::Raw(CowStr::Boxed(math.into_boxed_str())),
+            match katex::render_with_opts(&src, &opts) {
+                Ok(math) => PartialTree::Html {
+                    tag: "div",
+                    attrs: hashmap! {},
+                    inner: Children::Html { inner: math.into() },
+                },
                 Err(e) => {
                     warn!(
                         e = e.to_string(),
-                        src = cow_str.as_ref(),
+                        src = src.as_ref(),
                         "failed to process math"
                     );
-                    Tree::Element {
-                        tag: "span",
-                        children: vec![Tree::Text(cow_str)],
-                        attrs: hashmap! { "class" => "math-error".into() },
-                    }
+                    partial_eval(
+                        "div",
+                        hashmap! { "class" => "math-error".into() },
+                        vec![PartialTree::Html {
+                            tag: "span",
+                            attrs: hashmap! {},
+                            inner: Children::Html { inner: src },
+                        }],
+                    )
                 }
             }
         }
-        Event::InlineHtml(cow_str) => Tree::Raw(cow_str),
-        Event::FootnoteReference(cow_str) => Tree::Element {
-            tag: "sup",
-            children: vec![Tree::Element {
-                tag: "a",
-                attrs: hashmap! {
-                    "href" => format!("#footnode-{cow_str}").into(),
-                    "id" => format!("#footnode-ref-{cow_str}").into(),
+        Event::InlineHtml(cow_str) => PartialTree::Html {
+            tag: "span",
+            attrs: hashmap! {},
+            inner: Children::Html { inner: cow_str },
+        },
+        Event::FootnoteReference(reference) => partial_eval(
+            "sup",
+            hashmap! {"class" => "footnote-ref".into()},
+            vec![partial_eval(
+                "a",
+                hashmap! {
+                    "href" => format!("#footnode-{reference}").into(),
+                    "id" => format!("#footnode-ref-{reference}").into(),
                     "aria-labelledby" => "footnote-label".into(),
                 },
-                children: vec![Tree::Text(cow_str)],
-            }],
-            attrs: hashmap! {"class" => "footnote-ref".into() },
-        },
-        Event::End(_) => return None,
+                vec![PartialTree::Html {
+                    tag: "span",
+                    attrs: hashmap! {},
+                    inner: Children::Html { inner: reference },
+                }],
+            )],
+        ),
         Event::Start(tag) => fold_spanned(tag, parser),
+        Event::End(_) => unreachable!(),
     })
 }
 
-pub fn compile<'a>(src: &'a str) -> Result<PartialFoldedHtml, Error> {
+fn minify_tree<'a>(tree: PartialTree<'a>) -> PartialTree<'a> {
+    match tree {
+        PartialTree::Html {
+            inner: Children::None,
+            ..
+        }
+        | PartialTree::Node {
+            inner: Children::None,
+            ..
+        } => tree,
+        PartialTree::Html {
+            tag,
+            attrs,
+            inner: Children::Html { inner: html },
+        } => PartialTree::Html {
+            tag,
+            attrs,
+            inner: Children::Html {
+                inner: String::from_utf8(minify_html::minify(
+                    html.as_bytes(),
+                    &minify_html::Cfg::new(),
+                ))
+                .unwrap()
+                .into(),
+            },
+        },
+        PartialTree::Node {
+            node,
+            inner: Children::Html { inner: html },
+        } => PartialTree::Node {
+            node,
+            inner: Children::Html {
+                inner: String::from_utf8(minify_html::minify(
+                    html.as_bytes(),
+                    &minify_html::Cfg::new(),
+                ))
+                .unwrap()
+                .into(),
+            },
+        },
+        PartialTree::Html {
+            tag,
+            attrs,
+            inner: Children::Partial { inner: children },
+        } => PartialTree::Html {
+            tag,
+            attrs,
+            inner: Children::Partial {
+                inner: children.into_iter().map(minify_tree).collect(),
+            },
+        },
+        PartialTree::Node {
+            node,
+            inner: Children::Partial { inner: children },
+        } => PartialTree::Node {
+            node,
+            inner: Children::Partial {
+                inner: children.into_iter().map(minify_tree).collect(),
+            },
+        },
+    }
+}
+
+pub fn compile<'a>(src: &'a str) -> Result<PartialTree<'a>, Error> {
     let options = Options::all();
     let mut parser = WrappedParser::new(Parser::new_ext(src, options));
     let mut toplevels = Vec::new();
@@ -458,6 +543,6 @@ pub fn compile<'a>(src: &'a str) -> Result<PartialFoldedHtml, Error> {
         };
         toplevels.push(tree);
     }
-    dbg!(toplevels);
-    unimplemented!()
+    let tree = partial_eval("root", hashmap! {}, toplevels);
+    Ok(minify_tree(tree))
 }

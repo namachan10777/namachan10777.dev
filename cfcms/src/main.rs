@@ -1,7 +1,6 @@
 use std::path::Path;
 
 use clap::Parser;
-use pulldown_cmark::{Event, Tag};
 use tracing::error;
 
 #[derive(Parser)]
@@ -18,8 +17,8 @@ fn compile<P: AsRef<Path>>(path: P) -> anyhow::Result<String> {
     let text = std::fs::read_to_string(path.as_ref())
         .inspect_err(|e| error!(path=?path.as_ref(), e=e.to_string(), "failed to read src"))?;
 
-    cfcms::compile(&text)?;
-    Ok(Default::default())
+    let s = cfcms::compile(&text)?;
+    Ok(serde_json::to_string_pretty(&s).unwrap())
 }
 
 fn main() -> anyhow::Result<()> {
