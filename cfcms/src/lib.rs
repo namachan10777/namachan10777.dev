@@ -135,27 +135,30 @@ pub enum Tree<'a> {
 }
 
 fn is_end(start: &Tag<'_>, end: &Event<'_>) -> bool {
-    match (start, end) {
-        (Tag::Paragraph, Event::End(TagEnd::Paragraph)) => true,
-        (Tag::Heading { .. }, Event::End(TagEnd::Heading { .. })) => true,
-        (Tag::BlockQuote(_), Event::End(TagEnd::BlockQuote(_))) => true,
-        (Tag::CodeBlock(_), Event::End(TagEnd::CodeBlock)) => true,
-        (Tag::HtmlBlock, Event::End(TagEnd::HtmlBlock)) => true,
-        (Tag::List(_), Event::End(TagEnd::List(_))) => true,
-        (Tag::Item, Event::End(TagEnd::Item)) => true,
-        (Tag::FootnoteDefinition(_), Event::End(TagEnd::FootnoteDefinition)) => true,
-        (Tag::Table(_), Event::End(TagEnd::Table)) => true,
-        (Tag::TableHead, Event::End(TagEnd::TableHead)) => true,
-        (Tag::TableRow, Event::End(TagEnd::TableRow)) => true,
-        (Tag::TableCell, Event::End(TagEnd::TableCell)) => true,
-        (Tag::Emphasis, Event::End(TagEnd::Emphasis)) => true,
-        (Tag::Strong, Event::End(TagEnd::Strong)) => true,
-        (Tag::Strikethrough, Event::End(TagEnd::Strikethrough)) => true,
-        (Tag::Link { .. }, Event::End(TagEnd::Link { .. })) => true,
-        (Tag::Image { .. }, Event::End(TagEnd::Image { .. })) => true,
-        (Tag::MetadataBlock(_), Event::End(TagEnd::MetadataBlock(_))) => true,
-        _ => false,
-    }
+    matches!(
+        (start, end),
+        (Tag::Paragraph, Event::End(TagEnd::Paragraph))
+            | (Tag::Heading { .. }, Event::End(TagEnd::Heading { .. }))
+            | (Tag::BlockQuote(_), Event::End(TagEnd::BlockQuote(_)))
+            | (Tag::CodeBlock(_), Event::End(TagEnd::CodeBlock))
+            | (Tag::HtmlBlock, Event::End(TagEnd::HtmlBlock))
+            | (Tag::List(_), Event::End(TagEnd::List(_)))
+            | (Tag::Item, Event::End(TagEnd::Item))
+            | (
+                Tag::FootnoteDefinition(_),
+                Event::End(TagEnd::FootnoteDefinition)
+            )
+            | (Tag::Table(_), Event::End(TagEnd::Table))
+            | (Tag::TableHead, Event::End(TagEnd::TableHead))
+            | (Tag::TableRow, Event::End(TagEnd::TableRow))
+            | (Tag::TableCell, Event::End(TagEnd::TableCell))
+            | (Tag::Emphasis, Event::End(TagEnd::Emphasis))
+            | (Tag::Strong, Event::End(TagEnd::Strong))
+            | (Tag::Strikethrough, Event::End(TagEnd::Strikethrough))
+            | (Tag::Link { .. }, Event::End(TagEnd::Link))
+            | (Tag::Image { .. }, Event::End(TagEnd::Image))
+            | (Tag::MetadataBlock(_), Event::End(TagEnd::MetadataBlock(_)))
+    )
 }
 
 struct WrappedParser<'a> {
@@ -215,7 +218,7 @@ fn write_attrs(s: &mut String, attrs: &HashMap<&'static str, AttrValue<'_>>) {
             AttrValue::Static(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
             AttrValue::Borrowed(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
             AttrValue::Inlined(v) => s.write_fmt(format_args!(r#"{key}="{v}""#)).unwrap(),
-            AttrValue::True => s.write_str(*key).unwrap(),
+            AttrValue::True => s.write_str(key).unwrap(),
         }
     }
 }
@@ -370,7 +373,7 @@ fn fold_spanned<'c, 'a>(
                     "div",
                     hashmap! {
                         "class" => "footnote-definition".into(),
-                        "id" => format!("footnote-{}", label).into(),
+                        "id" => format!("footnote-{label}").into(),
                     },
                     children,
                 ),
@@ -641,15 +644,15 @@ fn compile<'c, 'a>(ctx: &mut Context<'c>, src: &'a str) -> Result<PartialTree<'a
     Ok(minify_tree(tree))
 }
 
-pub async fn process<'c, 'a>(
-    config: &'c Config,
+pub async fn process<'a>(
+    config: &Config,
     src_path: PathBuf,
     basedir: PathBuf,
     s3: &aws_sdk_s3::Client,
     src: &'a str,
 ) -> Result<PartialTree<'a>, Error> {
     let mut ctx = Context {
-        config: &config,
+        config,
         src_path,
         basedir,
         upload_set: HashMap::new(),
