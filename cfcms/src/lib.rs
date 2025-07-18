@@ -1,8 +1,12 @@
-use std::{collections::HashMap, fmt::Write};
+use std::{
+    collections::HashMap,
+    fmt::Write,
+    path::{Path, PathBuf},
+};
 
 use maplit::hashmap;
 use pulldown_cmark::{CowStr, Event, HeadingLevel, InlineStr, Options, Parser, Tag, TagEnd};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tracing::warn;
 
 fn serialize_cow_str<S>(value: &CowStr, serializer: S) -> Result<S::Ok, S::Error>
@@ -109,8 +113,14 @@ impl<'a> From<&'static str> for AttrValue<'a> {
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Placeholder error")]
-    Placeholder,
+    #[error("Invalid image path: {0}")]
+    InvalidImagePath(PathBuf),
+    #[error("Invalid markdown source path: {0}")]
+    InvalidMarkdownSrcPath(PathBuf),
+    #[error("Failed to read image: {0}")]
+    ReadImage(std::io::Error),
+    #[error("Failed to upload image")]
+    UploadImage,
 }
 
 #[derive(Debug)]
@@ -174,10 +184,11 @@ impl<'a> WrappedParser<'a> {
     }
 }
 
-fn fold_section<'a>(
+fn fold_section<'c, 'a>(
+    ctx: &mut Context<'c>,
     start_level: HeadingLevel,
     parser: &mut WrappedParser<'a>,
-) -> Vec<PartialTree<'a>> {
+) -> Result<Vec<PartialTree<'a>>, Error> {
     let mut children = Vec::new();
     loop {
         let Some(next) = parser.next() else {
@@ -188,13 +199,13 @@ fn fold_section<'a>(
             break;
         } else {
             parser.ret(next);
-            let Some(folded) = fold(parser) else {
+            let Some(folded) = fold(ctx, parser)? else {
                 break;
             };
             children.push(folded);
         }
     }
-    children
+    Ok(children)
 }
 
 fn write_attrs(s: &mut String, attrs: &HashMap<&'static str, AttrValue<'_>>) {
@@ -246,17 +257,78 @@ fn partial_eval<'a>(
     }
 }
 
-fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> PartialTree<'a> {
+fn image_attrs<'a, 'c>(
+    ctx: &mut Context<'c>,
+    url: CowStr<'a>,
+) -> Result<HashMap<&'static str, AttrValue<'a>>, Error> {
+    if url.starts_with("https://") || url.starts_with("http://") || url.starts_with("data:") {
+        return Ok(hashmap! {"src" => url.into()});
+    }
+
+    let img_path = Path::new(url.as_ref());
+    let src_path = ctx
+        .src_path
+        .canonicalize()
+        .map_err(|_| Error::InvalidMarkdownSrcPath(ctx.src_path.clone()))?;
+    let src_parent_path = src_path
+        .parent()
+        .ok_or_else(|| Error::InvalidMarkdownSrcPath(ctx.src_path.clone()))?;
+    let img_path = if img_path.is_absolute() {
+        img_path.to_owned()
+    } else {
+        src_parent_path
+            .join(img_path)
+            .canonicalize()
+            .map_err(|_| Error::InvalidImagePath(img_path.to_owned()))?
+    };
+
+    let rel_path = pathdiff::diff_paths(&img_path, &ctx.basedir)
+        .ok_or_else(|| Error::InvalidImagePath(img_path.to_owned()))?
+        .to_str()
+        .ok_or_else(|| Error::InvalidImagePath(img_path.to_owned()))?
+        .to_string();
+
+    #[cfg(target_os = "windows")]
+    let rel_path = rel_path.replace("\\", "/");
+
+    let srcset = [600, 1200, 1800, 2400]
+        .into_iter()
+        .map(|width| {
+            format!(
+                "https://{}/cdn-cgi/image/fit=scale-down,width={width}/{}/{rel_path} {width}w",
+                ctx.config.image.zone, ctx.config.image.prefix
+            )
+        })
+        .collect::<Vec<_>>();
+    let srcset = srcset.join(",");
+    let src = format!(
+        "https://{}/{}/{rel_path}",
+        ctx.config.image.zone, ctx.config.image.prefix
+    );
+
+    ctx.upload_set.insert(img_path, rel_path);
+
+    Ok(hashmap! {
+        "srcset" => srcset.into(),
+        "src" => src.into()
+    })
+}
+
+fn fold_spanned<'c, 'a>(
+    ctx: &mut Context<'c>,
+    start: Tag<'a>,
+    parser: &mut WrappedParser<'a>,
+) -> Result<PartialTree<'a>, Error> {
     let mut children = Vec::new();
     loop {
         let next = parser.next().unwrap();
         if !is_end(&start, &next) {
             parser.ret(next);
-            if let Some(child) = fold(parser) {
+            if let Some(child) = fold(ctx, parser)? {
                 children.push(child);
             }
         } else {
-            break match start {
+            break Ok(match start {
                 Tag::Paragraph => partial_eval("p", hashmap! {}, children),
                 Tag::Heading { level, id, .. } => {
                     let tag_name = match level {
@@ -272,7 +344,7 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> PartialTr
                         attrs.insert("id", id.into());
                     }
                     let mut children = vec![partial_eval(tag_name, attrs, children)];
-                    children.append(&mut fold_section(level, parser));
+                    children.append(&mut fold_section(ctx, level, parser)?);
                     partial_eval("section", hashmap! {}, children)
                 }
                 Tag::BlockQuote(_) => partial_eval("blockquote", hashmap! {}, children),
@@ -328,13 +400,11 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> PartialTr
                 Tag::Image {
                     dest_url, title, ..
                 } => {
-                    let mut attrs = hashmap! {
-                        "src" => dest_url.into(),
-                    };
+                    let mut attrs = image_attrs(ctx, dest_url)?;
                     if !title.is_empty() {
-                        attrs.insert("title", title.clone().into());
                         attrs.insert("alt", title.into());
                     }
+
                     partial_eval(
                         "figure",
                         hashmap! {},
@@ -351,14 +421,19 @@ fn fold_spanned<'a>(start: Tag<'a>, parser: &mut WrappedParser<'a>) -> PartialTr
                     },
                     children,
                 ),
-            };
+            });
         }
     }
 }
 
-fn fold<'a>(parser: &mut WrappedParser<'a>) -> Option<PartialTree<'a>> {
-    let head = parser.next()?;
-    Some(match head {
+fn fold<'c, 'a>(
+    ctx: &mut Context<'c>,
+    parser: &mut WrappedParser<'a>,
+) -> Result<Option<PartialTree<'a>>, Error> {
+    let Some(head) = parser.next() else {
+        return Ok(None);
+    };
+    Ok(Some(match head {
         Event::Code(code) => partial_eval(
             "code",
             hashmap! {},
@@ -465,9 +540,9 @@ fn fold<'a>(parser: &mut WrappedParser<'a>) -> Option<PartialTree<'a>> {
                 }],
             )],
         ),
-        Event::Start(tag) => fold_spanned(tag, parser),
+        Event::Start(tag) => fold_spanned(ctx, tag, parser)?,
         Event::End(_) => unreachable!(),
-    })
+    }))
 }
 
 fn minify_tree<'a>(tree: PartialTree<'a>) -> PartialTree<'a> {
@@ -533,16 +608,66 @@ fn minify_tree<'a>(tree: PartialTree<'a>) -> PartialTree<'a> {
     }
 }
 
-pub fn compile<'a>(src: &'a str) -> Result<PartialTree<'a>, Error> {
+#[derive(Serialize, Deserialize)]
+pub struct ImageConfig {
+    pub zone: String,
+    pub prefix: String,
+    pub bucket: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Config {
+    pub image: ImageConfig,
+}
+
+pub struct Context<'c> {
+    pub config: &'c Config,
+    pub src_path: PathBuf,
+    pub basedir: PathBuf,
+    upload_set: HashMap<PathBuf, String>,
+}
+
+fn compile<'c, 'a>(ctx: &mut Context<'c>, src: &'a str) -> Result<PartialTree<'a>, Error> {
     let options = Options::all();
     let mut parser = WrappedParser::new(Parser::new_ext(src, options));
     let mut toplevels = Vec::new();
     loop {
-        let Some(tree) = fold(&mut parser) else {
+        let Some(tree) = fold(ctx, &mut parser)? else {
             break;
         };
         toplevels.push(tree);
     }
     let tree = partial_eval("root", hashmap! {}, toplevels);
     Ok(minify_tree(tree))
+}
+
+pub async fn process<'c, 'a>(
+    config: &'c Config,
+    src_path: PathBuf,
+    basedir: PathBuf,
+    s3: &aws_sdk_s3::Client,
+    src: &'a str,
+) -> Result<PartialTree<'a>, Error> {
+    let mut ctx = Context {
+        config: &config,
+        src_path,
+        basedir,
+        upload_set: HashMap::new(),
+    };
+    let compiled = compile(&mut ctx, src)?;
+
+    dbg!(&ctx.upload_set);
+
+    for (path, key) in ctx.upload_set {
+        let file = tokio::fs::read(&path).await.map_err(Error::ReadImage)?;
+        s3.put_object()
+            .bucket(&config.image.bucket)
+            .key(key)
+            .body(file.into())
+            .send()
+            .await
+            .map_err(|_| Error::UploadImage)?;
+    }
+
+    Ok(compiled)
 }
