@@ -1,0 +1,16 @@
+name = "namachan10777-dev"
+main = "./dist/_worker.js"
+compatibility_date = "2025-07-12"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+binding = "ASSET"
+directory = "./dist"
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
+database_name = "namachan10777-dev"

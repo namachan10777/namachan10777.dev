@@ -46,3 +46,5 @@ functions/**/*.js
 
 
 /public/pagefind
+
+/.wrangler
