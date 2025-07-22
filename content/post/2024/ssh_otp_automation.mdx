@@ -1,0 +1,65 @@
+---
+id: 2024/ssh_otp_automation
+tags: ["tech"]
+date: 2024-09-07
+description: 大学のスパコンのSSHで毎回OTP要求されるのが大変だったので認証を自動化した
+title: SSHのOTP認証を自動突破する
+publish: true
+---
+
+筑波大学のスーパーコンピューターのSSHは公開鍵認証に加え、OTPによる認証があるが毎回パスワード入力するのが本当に面倒。
+
+## 認証自動化
+
+OTPは1passwordで管理しているのでotp自体は1password cli経由で取れる。面倒なのはsshコネクションでの自動化だが、これは`expect(1)`で自動化できる。
+スクリプトはこんな感じ
+
+```bash title=ssh-with-otp
+#!/usr/bin/expect
+
+set timeout 5
+
+set cmd [lrange $argv 1 end]
+set password [lindex $argv 0]
+eval spawn $cmd
+expect "Verification code:"
+send "$password\r";
+interact
+```
+
+使い方はこう。これを適当なシェルスクリプトにしておくとコマンド一発で入れて便利。
+
+```bash
+ssh-with-otp "$(op read "op://Personal/supacon/otp?attribute=otp")" ssh user@supacon.sugoi.ac.jp
+```
+
+## ControlMaster
+
+でもexpectによる自動化ではvscodeのremote sshはどうにもならず困っていたところ、Slackで指導教員から`ControlMaster`を教えてもらった。
+
+```text
+Host supacon.sugoi.ac.jp
+    User user
+    ControlMaster auto
+    ControlPath ~/.ssh/mux-%r@%h:%p.sshsock
+    ControlPersist 3h
+```
+
+これControlMasterがあれば最初の一回だけOTP入れればいいから自動化とか要らないんじゃないかという気もするが、
+最初の一回だけでも既に面倒なので一応意味はありそう。
+スクリプトを下記のように書き換えればControlMasterのソケットがない時だけOTPを使ってログインするように出来る。
+
+```bash
+#!/bin/sh
+
+user=user
+host=supacon.sugoi.ac.jp
+port=22
+
+if [ ! -e "$HOME/.ssh/mux-$user@$host:$port.sshsock" ]; then
+  OTP="$(op read "op://Personal/supacon/otp?attribute=otp")"
+  ssh-with-otp "$OTP" ssh "$user@$host" -p "$port"
+else
+  ssh "$user@$host" -p "$port"
+fi
+```

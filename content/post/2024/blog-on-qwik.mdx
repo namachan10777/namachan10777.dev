@@ -1,0 +1,421 @@
+---
+id: 2024/blog-on-qwik
+title: QwikCityでブログを作り直した
+tags:
+  - "tech"
+description: QwikCityによるJamStack構成のブログの構築
+date: 2024-04-06
+publish: true
+---
+
+ブログの書き直し自体がもはや一つの独立した趣味となりつつある。
+今までの軌跡は以下。
+
+1. https://www.namachan10777.dev/blog/blog-on-nextjs
+2. https://www.namachan10777.dev/blog/blog-on-rust
+3. https://www.namachan10777.dev/blog/blog-on-astrojs
+
+Astroは十分に快適だった。
+最初から静的ビルドを前提にしているのでJSのオブジェクトを自由自在に取り回せる。
+ブラウザ環境とNodeJS環境のAPIの差異を気にする必要はない。
+コンポーネントのライフサイクルも存在しない。
+`key=`も要らない。
+そもそもAstroはUIフレームワークではなく静的サイトジェネレータだからだ。
+フロントエンドで動くJSは`<script>`タグで書けば良い。
+確実にWebブラウザ内でしか動かないから実装も簡単だ。
+大半の個人のWebサイトはほとんど静的に構築可能だ。
+アメリカ人も近所のスーパーに行くだけなら日本車を使う。
+
+問題があるとすれば、現代の多くのWebページは静的なものであっても
+Vanillaで構築するには厄介なUIを抱えがちなことだ。
+例えば[Pagefind](https://pagefind.app)を使った検索UI。
+まぁこれだけならAstroの上で[SolidJS](https://www.solidjs.com)なり[Svelte](https://svelte.dev)を`client:load`すれば済む。
+本質的に面倒なのはコンポーネント間のイベントのつなぎ込みにある。
+ReactのPropsバケツリレーなんて可愛いもので、
+Astroの場合親コンポーネントがAstroだった場合はそもそもバケツリレーが出来ない。
+結果、`document.getElementById`でイベントを相互に送信し合う迷路のような依存関係が生まれるか、
+グローバルなイベントバスというあからさまにスケール困難かつエッジケースの罠が多そうなシステムの再発明になる。
+
+そもそもとして一つでも別のUIフレームワークを用いた時点でバンドルツリーにはそれのランタイムが紛れ込む。
+であれば最初から全部単一のUIフレームワークを用い静的にビルドすれば良いのでは？
+NextやSvelteであればそれでもHydration処理のコストがかかるが、
+[QwikCity](https://qwik.dev/docs/qwikcity)ならHydrationコストの増加を招かずに
+私達の大好きなPropsバケツリレーでイベントをつなぎ込める。最高！
+
+## Markdownの扱いと画像最適化
+
+QwikはイマドキのWebフレームワークとしてSSG機能を備えるし、
+もちろんブログだって作れる。
+ただしAstroはサーバサイドでの実行を主眼に置く「静的サイトジェネレータ」であるのに対して、
+QwikはブラウザとDockerコンテナの両方でJSONに色を付けることを主眼においた「Webアプリケーションフレームワーク」である。
+そのためAstroにあったMarkdownをいい感じにパースしてその上でコンポーネントを自作のもので置き換えられるような機能はない。
+viteで動いているので`import.meta.glob`は使えるが、これだけでは少し不便だ。
+
+[content-collections](https://github.com/sdorra/content-collections)を使えばコンテンツ管理の問題は一部解決する。
+これはAstroのContents Collectionの機能を外部で実現するもので、
+UIフレームワークと密結合しないためにMarkdownのレンダリング周りは弱いがfrontmatterに対するvalidationを書いて型を付ける基本的な機能はある。
+今はまだ機能が少し足りないが、まだ始まったばかりなので今後の改善に期待できるし現状でもある程度使える。
+
+ただ、`content-collections`はAstroの同名の機能ほどにはViteと連携して動かないので
+記事のコンパイルに時間がかかりだす（これはfilesystemへのwrite含め）と、
+write途中でJSONを読んでパースに失敗するとか、
+静的ビルドの開始が記事のコンパイルに先行してビルドに失敗するだとかの問題が発生する。
+正直困るが、多分自分でViteと連携した新しい何かを作るしかなさそうだ。
+
+MarkdownのパースをUIフレームワーク（というよりVite）と連携できないことの問題が最もよく現れるのは
+画像最適化だ。
+単純に`unified`のエコシステムでMarkdownをhtmlに変換するだけでは
+現代の画像表示のベストプラクティス ―― `<img>`に`width`と`height`を付与し、`loading="lazy"`を指定して最適な幅の画像を自動で読み込ませる ――は実現できない。
+なので`contents-collection`のコンテンツをビルド時に変換する機能を使い、`remark`でMarkdownをパースして画像をビルド時に最適化してしまい、
+DOM構築用の情報を`mdast`に埋め込む。
+数式やシンタックスハイライトはまだ作っていないがこれと同じ手法でどうにでもなる。
+コンポーネントへの変換までやってしまうとQwikでの読み込みが出来なくなるので
+ASTをそのまま返して描画は完全にQwikで行う。
+
+無理やり`as unknown as T`を使って誤魔化しているが、
+これは専用の画像表示コンポーネントとこのスクリプトに閉じるのでまぁ許容範囲だと思う。
+より良い手法はまだ思いついていない。`mdast`を定義し直すのはかなり面倒くさい。
+
+```typescript
+import { defineConfig, defineCollection } from "@content-collections/core";
+import crypto from "crypto";
+import * as fs from "fs/promises";
+import { Image, Root, RootContent } from "mdast";
+import * as path from "path";
+import remarkGfm from "remark-gfm";
+import remarkMdx from "remark-mdx";
+import remarkParse from "remark-parse";
+import sharp from "sharp";
+import { unified } from "unified";
+
+export type TransformedImage = {
+  path: string;
+  dim: {
+    w: number;
+    h: number;
+  };
+};
+
+export type WithTransformedImage = {
+  transformed?: TransformedImage[];
+};
+
+export type ImageTransformationConfig = {
+  readonly outputRoot: string;
+  readonly outputSubDir: string;
+  readonly sourceBaseDir: string;
+  readonly scaling: number;
+};
+
+type TransformContext = {
+  readonly filePath: string;
+};
+
+function isAbslutePath(imgUrl: string): boolean {
+  return /^https?:\/\//.test(imgUrl) || imgUrl.startsWith("/");
+}
+
+function srcImgPath(
+  config: ImageTransformationConfig,
+  ctx: TransformContext,
+  imgUrl: string,
+): string {
+  if (isAbslutePath(imgUrl)) {
+    return imgUrl;
+  }
+  const contentDir = /^(.+)\/?$/.exec(config.sourceBaseDir)?.[0];
+  if (contentDir == undefined) {
+    return imgUrl;
+  }
+
+  const srcPath = path.parse(ctx.filePath);
+
+  if (srcPath.dir === "") {
+    return `${contentDir}/${imgUrl}`;
+  } else {
+    return `${contentDir}/${srcPath.dir}/${imgUrl}`;
+  }
+}
+
+// Assume the output format is WebP
+function generateImgDistFileName(
+  config: ImageTransformationConfig,
+  imgUrl: string,
+  width: number,
+  height: number,
+) {
+  if (isAbslutePath(imgUrl)) {
+    return imgUrl;
+  }
+  const baseNameHash = crypto
+    .createHash("sha256")
+    .update(imgUrl)
+    .digest("base64")
+    .slice(0, 8);
+  const baseName = path.parse(imgUrl).base;
+  return `${baseName}-${baseNameHash}-${Math.round(width)}x${Math.round(height)}.webp`;
+}
+
+async function traverseMdAst<T extends RootContent>(
+  config: ImageTransformationConfig,
+  ctx: TransformContext,
+  ast: T,
+) {
+  switch (ast.type) {
+    case "break":
+    case "code":
+    case "definition":
+    case "html":
+    case "footnoteReference":
+    case "imageReference":
+    case "inlineCode":
+    case "text":
+    case "thematicBreak":
+    case "yaml":
+    case "mdxTextExpression":
+    case "mdxFlowExpression":
+    case "mdxjsEsm":
+      return;
+    case "image":
+      if (
+        ast.url.startsWith("https://") ||
+        ast.url.startsWith("http://") ||
+        ast.url.startsWith("/")
+      ) {
+        return;
+      }
+
+      const buffer = await fs.readFile(srcImgPath(config, ctx, ast.url));
+      const image = sharp(buffer);
+      let { width, height } = await image.metadata();
+      if (!(width && height)) return;
+
+      const images: TransformedImage[] = [];
+
+      while (width > 300) {
+        const resized = await image
+          .resize(Math.round(width), Math.round(height))
+          .toBuffer();
+        const fileName = generateImgDistFileName(
+          config,
+          ast.url,
+          width,
+          height,
+        );
+        console.log(`INFO: transformed markdown image: ${fileName}`);
+        const distPath = `${config.outputSubDir}/${fileName}`;
+        await fs.writeFile(`${config.outputRoot}/${distPath}`, resized);
+        images.push({
+          path: distPath,
+          dim: {
+            w: width,
+            h: height,
+          },
+        });
+        width *= config.scaling;
+        height *= config.scaling;
+      }
+      if (ast.data) {
+        (ast.data as unknown as WithTransformedImage).transformed = images;
+      } else {
+        (ast as unknown as { data: WithTransformedImage }).data = {
+          transformed: images,
+        };
+      }
+      return;
+    default:
+      await Promise.all(
+        ast.children.map((child) => traverseMdAst(config, ctx, child)),
+      );
+  }
+}
+
+async function generateImages(
+  config: ImageTransformationConfig,
+  ctx: TransformContext,
+  ast: Root,
+) {
+  await fs.mkdir(`${config.outputRoot}/${config.outputSubDir}`, {
+    recursive: true,
+  });
+  await Promise.all(
+    ast.children.map((child) => traverseMdAst(config, ctx, child)),
+  );
+}
+
+const blog = defineCollection({
+  name: "blog",
+  directory: "src/content/blog",
+  include: "**/*.mdx",
+  schema: (z) => ({
+    title: z.string(),
+    date: z.string(),
+    tags: z.array(z.string()),
+    publish: z.boolean(),
+    description: z.string(),
+  }),
+  transform: async (document) => {
+    const mdast = unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkMdx)
+      .parse(document.content);
+    const config = {
+      outputRoot: "public",
+      outputSubDir: "img",
+      scaling: 0.7,
+      sourceBaseDir: "src/content/blog",
+    };
+    const ctx = {
+      filePath: document._meta.filePath,
+    };
+    await generateImages(config, ctx, mdast);
+    return {
+      ...document,
+      mdast: mdast as any,
+    };
+  },
+});
+
+export default defineConfig({
+  collections: [blog],
+});
+```
+
+## OGP
+
+[satori](https://github.com/vercel/satori)で生成したSVGを[sharp](https://sharp.pixelplumbing.com/)でWebPに変換して配信する。
+QwikCityは`onStaticGenerate`関数を書けばGETエンドポイントも静的にビルドされるので便利だ。
+注意として、QwiK(City?)は`dependencies`に書かれたqwikコンポーネントは静的ビルドされたHTMLに含まれない（これは仕様のようだ）。
+なのでQwikの外部ライブラリは`devDependencies`に書いて静的にビルドさせる必要がある。
+一方でSharpは(pnpm固有の問題かもしれないが)`devDependencies`だと解決に失敗する。
+なので`dependencies`に書く。
+
+一見すると直感的には逆なように感じるが、QwikCityでのビルドは**Webサーバー**のビルドだと考えると
+むしろ正しい。
+
+## Pagefind
+
+まずViteは動的インポートでも素直にECMAScriptの仕様通りの動きはさせない。
+これの解決策は少し複雑だ。`import('/pagefind/pagefind.js?url')`のように`?url`を付けるだけでバンドルを防止出来る。
+が、このURLを静的ビルドでも使うと`?url`というクエリパラメータ込みでリクエストをしてしまう。
+大抵の場合は問題なく動作するので放置でも良いのだが、ちょっと気持ち悪い。
+
+QwikCityは静的ビルド時は`?url`を無視してチャンク分割を試みるので
+途中に変数を噛ませることでバンドラを騙す必要がある。
+一方でviteでHMRしている際は静的解析ではなく実際に渡ってきたパスで解決するので`?url`が必要なくなったりはしない。
+このワークアラウンドをラップしたのが以下の関数だ。
+
+```typescript
+export async function loadPagefind(): Promise<PagefindApi> {
+  const path = "/pagefind/pagefind.js";
+  const module = import.meta.env.DEV
+    ? await import("/pagefind/pagefind.js?url")
+    : await import(path);
+  return module as unknown as PagefindApi;
+}
+```
+
+NextやAstroならこれで解決だが、QwikはクライアントサイドのJSを細切れに分割しJSONシリアライズして通信する仕様上、
+JSのモジュールはチャンク分割境界を跨げない。
+また、`pagefind.js`はSSRには関与せずクライアントだけでimportするので`useVisibleTask$`を使いたい。
+ただ素直にやろうとするとJSONシリアライズ可能という制約に引っかかる。
+そこで`useStore`で作ったデータ置き場に`noSerialize`でモジュールを配置する。
+
+Qwikのコードはあまり読めていないので`noSerialize`でどうしてうまく動くのかはあまり分からない。
+適当なグローバルオブジェクトにでも保存しているのかもしれない。
+かなり緊急脱出ハッチ的だが、
+少なくとも`useVisibleTask$`で取ってきたモジュールを保存しておく、
+という目的には十分使える。
+
+```typescript
+import type { NoSerialize, QRL, TaskFn } from "@builder.io/qwik";
+import {
+  noSerialize,
+  useStore,
+  useVisibleTask$,
+  implicit$FirstArg,
+} from "@builder.io/qwik";
+import { type Options, type PagefindApi, loadPagefind } from "~/lib/pagefind";
+
+export function usePagefind(options?: Options): {
+  api: NoSerialize<PagefindApi> | null;
+} {
+  const store = useStore<{ api: NoSerialize<PagefindApi> | null }>({
+    api: null,
+  });
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(async () => {
+    const api = await loadPagefind();
+    if (options) {
+      await api.options(options);
+    }
+    await api.init();
+    store.api = noSerialize(api);
+  });
+  return store;
+}
+
+export function useDebounceQrl(qrl: QRL<TaskFn>, debounce: number) {
+  const state = useStore<{
+    timeoutHandler: null | number;
+    lastExecuted: number;
+  }>({
+    timeoutHandler: null,
+    lastExecuted: 0,
+  });
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$((ctx) => {
+    if (state.timeoutHandler) {
+      clearTimeout(state.timeoutHandler);
+      state.timeoutHandler = null;
+    }
+    if (Date.now() > state.lastExecuted + debounce) {
+      state.lastExecuted = Date.now();
+      qrl(ctx);
+    } else {
+      state.timeoutHandler = setTimeout(() => {
+        state.lastExecuted = Date.now();
+        qrl(ctx);
+      }, debounce) as unknown as number;
+    }
+  });
+}
+
+export const useDebounce$ = /*#__PURE__*/ implicit$FirstArg(useDebounceQrl);
+```
+
+## QwikCity雑感
+
+### Pros
+
+確かにパフォーマンスの良さは感じる。大抵のことは実現できるように作られているし、
+静的ビルドもNextに比べしっかりと視野に入っている印象はある。
+
+仮想DOMとローダーの綺麗な世界だけではうまく実現できないようなこと
+への対処作が一応あるのも好印象だ（これは他のフレームワークにもだいたいあるが）
+
+Astroは良かったが、致命的に動的なイベントハンドリングが弱い、というか無い。
+ここのislandで独立した動的なコンポーネントは確かによく動くものの、
+island間の通信が発生すると`document.getElementById`を書くことになり
+人類が作ってきたSSRというソリューションの偉大さを感じられることになる。
+
+あとSFCはコンポーネント分割の体験があまり良くない。
+あるコンポーネント`<A />`のサブコンポーネントとしてしか存在しない`<Aa />`を
+書きたい時も必ずファイルを分割するしか選択肢がない。結果、大量のファイルをひたすらディレクトリで整理するか、
+DOM構造の変化でdiffを破壊するかの二択を迫られる。
+JSXはコンポーネント分割には非常に便利だ。
+
+### Cons
+
+hooksを一から書くのがかなりキツい。`useSignal`などのコードをちらっと見たが、Qwik内部のシステムと強固に繋がっている。
+あと多分仮想DOMが若干バグってる。`<Link />`を使ったらかなり面倒そうなエラーが発生した。
+
+### 総評
+
+実務で使うには流石に怖い。
+コンセプトが、というよりはバグが取り切れていないような雰囲気がある。
+巨大で複雑なフロントエンドを高速に配信するためのコンセプトとしては優れているように思う。
+ただQwikはあくまでSSG出来るWebアプリケーションフレームワークであって、
+静的サイトジェレータではない。多分Astroには戻さないが、
+ブログみたいな用途ならAstro使うほうが無難だと思います。

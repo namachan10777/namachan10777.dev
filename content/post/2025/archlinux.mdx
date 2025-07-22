@@ -1,0 +1,393 @@
+---
+id: 2025/archlinux
+tags: ["tech"]
+date: 2025-05-01
+description: Arch Linux installation memo
+title: Arch Linuxをインストールでセットアップしたのでメモ
+publish: true
+---
+
+最近はずっとMacbookを使っていたが、久しぶりにArch Linuxを再設定したのでメモ。
+まだ途中でやるべきことは色々残っている。
+
+## パーティションとファイルシステム
+
+以下の三種類のみ。
+
+| path    | size    |
+| ------- | ------- |
+| `/boot` | 1 GiB   |
+| `swap`  | 32 GiB  |
+| `/`     | 443 GiB |
+
+Table: Partition and Filesystem
+
+昔は`/`と`/home`を分けていたが、自分は大体データはクラウドに同期させているので`/home`を消してもあまり痛くないことに気がついてからは分けてない。むしろディスク容量の配分が面倒なので統合。`/var`はsmall fileが多いのでraiserfsが有利という話もあったが、dockerのイメージは`/var`なのにRustの`/target`は大体`/home`にある。そもそものsmall fileの優位性以前に、`/var`と`/`であまり特性が変わるとも思えないので統合。
+
+swapに関しては現代のハードウェアでは仮想メモリでメモリ拡張する必要はあまり無い（積極的にOOM Killしたりもする）が、swapの用途はそれだけではないので一応置いてある。このマシンは16 GiBメモリなので32 GiBの容量を確保。
+
+EFIに1 GiBも割く必要はないのだが、容量が圧迫されるのはなんとなく不安なので1 GiBにした。512 MiBとかでも割と余裕はある。
+
+ファイルシステムは今回は少し冒険してbcachefsにしてみた。機能的にはbtrfsとそこまで差はないはず。速度に関してもbtrfsよりは良いようだ。XFSには普通に負けてるらしい（XFSより速いファイルシステムはあまりない）。今回のマシンはディスク容量がやや不安なのでマウントオプションに`compression=zstd:2`を付けておく。大体snappy相当なのでパフォーマンス的にはあまり問題ないはず。
+
+```fstab
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+# /dev/nvme0n1p3 LABEL=ROOT
+LABEL=ROOT         	/		bcachefs  	rw,relatime,compression=zstd:2,noshard_inode_numbers	0 0
+
+# /dev/nvme0n1p1 LABEL=BOOT
+LABEL=BOOT      	/boot     	vfat      	rw,relatime,fmask=0137,dmask=0027,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro	0 2
+
+# /dev/nvme0n1p2 LABEL=SWAP
+LABEL=SWAP      	swap      	defaults  	0 0
+```
+
+`fstab`はこう。ファイルシステムを作成するときにパーティションラベルを付けておくと`LABEL=<LABEL>`の形で指定出来る。便利なのでオススメです。
+
+## ブートマネージャ
+
+`systemd-boot`を使った。単純だし最初からArchに入っているので楽。
+
+```conf
+title           Arch Linux
+linux           /vmlinuz-linux
+initrd          /intel-ucode.img
+initrd          /initramfs-linux.img
+options         root=LABEL=ROOT rootflags=compression=zstd:2
+```
+
+ルートファイルシステムで圧縮を有効化しているのでカーネルオプションで`rootflags=compression=zstd:2`を付けておく。
+パーティション選択はファイルシステム作成時にラベルを付けておいたので楽に書ける。
+
+## ネットワーク設定まわり
+
+DHCP Clientは`systemd-networkd`を使用。接続自体は`iwd`で8021xの設定ファイルを書いて研究室のWiFiにつなぐ。
+eduroamと大学内WiFiはなぜか繋がらない。研究室と同じEAP-PEAP MSCHAPV2でつながるはずだがよく分からない。後でやる。
+
+DNSも`systemd-resolved`。設定が少し分かりづらいが、per-link DNSが本当に便利なので使っている。
+複数のネットワークにつながっている場合でもinternalなドメインはinternalなDNSを使用して解決するように出来て便利。
+
+## パスワード試行回数
+
+べらぼうに長いパスワードを使っているので頻繁に間違えて10分待てと言われるので少し緩める。
+Arch Linuxの場合は`/etc/security/faillock.conf`で設定する。
+
+```
+deny = 5
+unlock_time = 300
+```
+
+下のパスワード自体相当長いので多分大丈夫。
+
+## GUI
+
+swayをずっと使っている。`swaylock`の代わりに`swaylock-effects`を使っているが、
+[PAM認証に失敗した場合にred screenになる問題](https://github.com/swaywm/sway/issues/7046)があるので
+`swaylock-effects-git`を使う必要がある。多分`1.8`系になれば解決するはず。
+
+```
+# Default config for sway
+#
+# Copy this to ~/.config/sway/config and edit it to your liking.
+#
+# Read `man 5 sway` for a complete reference.
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod4
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+# Your preferred terminal emulator
+set $term alacritty
+# Your preferred application launcher
+# Note: pass the final command to swaymsg so that the resulting window can be opened
+# on the original workspace that the command was run on.
+set $menu wofi --show drun
+
+### Output configuration
+#
+# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+#
+# Example configuration:
+#
+#   output HDMI-A-1 resolution 1920x1080 position 1920,0
+#
+# You can get the names of your outputs by running: swaymsg -t get_outputs
+
+output "eDP-1" scale 1.3
+
+### Idle configuration
+#
+# Example configuration:
+#
+
+set $lock swaylock \
+  --screenshots \
+  --clock \
+	--indicator \
+	--indicator-radius 100 \
+	--indicator-thickness 7 \
+	--effect-blur 10x7 \
+	--effect-vignette 0.5:0.5 \
+	--ring-color bb00cc \
+	--key-hl-color 880033 \
+	--line-color 00000000 \
+	--inside-color 00000088 \
+	--separator-color 00000000 \
+	--grace 2 \
+	--fade-in 0.2
+
+set $laptop eDP-1
+bindswitch --reload --locked lid:on output $laptop disable
+bindswitch --reload --locked lid:off output $laptop enable
+
+exec swayidle -w \
+  timeout 300 '$lock -f -c 000000' \
+  timeout 600 'systemctl suspend; swaymsg "output * dpms off"' \
+  resume 'swaymsg "output * dpms on"'  \
+  before-sleep '$lock -f -c 000000'
+
+#
+# This will lock your screen after 300 seconds of inactivity, then turn off
+# your displays after another 300 seconds, and turn your screens back on when
+# resumed. It will also lock your screen before your computer goes to sleep.
+
+gaps inner 2
+exec dex -a
+
+### Input configuration
+#
+# Example configuration:
+#
+#   input "2:14:SynPS/2_Synaptics_TouchPad" {
+#       dwt enabled
+#       tap enabled
+#       natural_scroll enabled
+#       middle_emulation enabled
+#   }
+#
+# You can get the names of your inputs by running: swaymsg -t get_inputs
+# Read `man 5 sway-input` for more information about this section.
+
+input "1386:18753:Wacom_HID_4941_Finger" {
+  events disabled
+}
+
+input "type:touchpad" {
+    tap enabled
+    dwt enabled
+    natural_scroll disabled
+    middle_emulation enabled
+}
+
+set $display-builtin "eDP-1"
+set $display-external "DP-1"
+
+workspace 1 output $display-external $display-builtin
+workspace 2 output $display-external $display-builtin
+workspace 3 output $display-external $display-builtin
+workspace 4 output $display-external $display-builtin
+
+### Key bindings
+#
+# Basics:
+#C
+
+    bindsym $mod+Home exec bash -c "env | sort > $HOME/sway_env"
+
+    # Start a terminal
+    bindsym $mod+Return exec $term
+
+    # Kill focused window
+    bindsym $mod+Shift+q kill
+
+    # Start your launcher
+    bindsym $mod+d exec $menu
+
+    # Lock screen
+    bindsym $mod+ctrl+l exec $lock
+
+    # Drag floating windows by holding down $mod and left mouse button.
+    # Resize them with right mouse button + $mod.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    floating_modifier $mod normal
+
+    # Reload the configuration file
+    bindsym $mod+Shift+c reload
+
+    # Exit sway (logs you out of your Wayland session)
+    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+#
+# Moving around:
+#
+    # Move your focus around
+    bindsym $mod+$left focus left
+    bindsym $mod+$down focus down
+    bindsym $mod+$up focus up
+    bindsym $mod+$right focus right
+    # Or use $mod+[up|down|left|right]
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+
+    # Move the focused window with the same, but add Shift
+    bindsym $mod+Shift+$left move left
+    bindsym $mod+Shift+$down move down
+    bindsym $mod+Shift+$up move up
+    bindsym $mod+Shift+$right move right
+    # Ditto, with arrow keys
+    bindsym $mod+Shift+Left move left
+    bindsym $mod+Shift+Down move down
+    bindsym $mod+Shift+Up move up
+    bindsym $mod+Shift+Right move right
+#
+# Workspaces:
+#
+    # Switch to workspace
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    bindsym $mod+5 workspace number 5
+    bindsym $mod+6 workspace number 6
+    bindsym $mod+7 workspace number 7
+    bindsym $mod+8 workspace number 8
+    bindsym $mod+9 workspace number 9
+    bindsym $mod+0 workspace number 10
+    # Move focused container to workspace
+    bindsym $mod+Shift+1 move container to workspace number 1
+    bindsym $mod+Shift+2 move container to workspace number 2
+    bindsym $mod+Shift+3 move container to workspace number 3
+    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+Shift+5 move container to workspace number 5
+    bindsym $mod+Shift+6 move container to workspace number 6
+    bindsym $mod+Shift+7 move container to workspace number 7
+    bindsym $mod+Shift+8 move container to workspace number 8
+    bindsym $mod+Shift+9 move container to workspace number 9
+    bindsym $mod+Shift+0 move container to workspace number 10
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+#
+# Layout stuff:
+#
+    # You can "split" the current object of your focus with
+    # $mod+b or $mod+v, for horizontal and vertical splits
+    # respectively.
+    bindsym $mod+b splith
+    bindsym $mod+v splitv
+
+    # Switch the current container between different layout styles
+    bindsym $mod+s layout stacking
+    bindsym $mod+w layout tabbed
+    bindsym $mod+e layout toggle split
+
+    # Make the current focus fullscreen
+    bindsym $mod+f fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+Shift+space floating toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $mod+space focus mode_toggle
+
+    # Move focus to the parent container
+    bindsym $mod+a focus parent
+#
+# Scratchpad:
+#
+    # Sway has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+    bindsym $mod+Shift+minus move scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    bindsym $mod+minus scratchpad show
+#
+# Resizing containers:
+#
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    # Ditto, with arrow keys
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+gaps inner 10
+
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+
+bar {
+    swaybar_command waybar
+    position top
+
+    # When the status_command prints a new line to stdout, swaybar updates.
+    # The default just shows the current date and time.
+    status_command while date +'%Y-%m-%d %l:%M:%S %p'; do sleep 1; done
+
+    colors {
+        statusline #ffffff
+        background #323232
+        inactive_workspace #32323200 #32323200 #5c5c5c
+    }
+}
+
+xwayland enable
+exec systemctl --user start sway.target
+
+include /etc/sway/config.d/*
+```
+
+fcitx5などのIMEの起動はswayの設定内で`exec`を使うのが一般的だが、なんとなくデーモンは全てsystemdに集約したい（再起動とか楽）ので、
+`~/.config/systemd/user/fcitx5.service`を作りsystemd userで起動する。
+
+```systemd title=fcitx5.service
+[Unit]
+Description=Fcitx5 input method
+After=graphical.target
+
+[Service]
+Type=simple
+StandardError=journal
+ExecStart=/usr/lib/fcitx5-wayland-launcher
+Restart=on-failure
+Environment=GTK_IM_MODULE=fcitx
+Environment=QT_IM_MODULE=fcitx
+Environment=XMODIFIERS=@im=fcitx
+
+[Install]
+WantedBy=sway.target
+```
+
+`WantedBy`の部分を普通に`default.target`にするとswayが起動する前にfcitxが起動し、Waylandに接続出来ず死ぬのでユーザレベル独自ターゲットを設定しておく。
+このターゲットをswayの設定内で`systemde start --user swya.target`としてやると正しく起動する。
+が、fcitx5が何故か頻繁に死ぬ。もう少しトラブルシュートしたほうが良さそう。
