@@ -1,7 +1,0 @@
-glob = "**/*.mdx"
-
-[image]
-endpoint = "https://cdea12d2a84a2f55c517fc013d1073d2.r2.cloudflarestorage.com"
-zone = "assets.namachan10777.dev"
-prefix = "post"
-bucket = "namachan10777dev"
