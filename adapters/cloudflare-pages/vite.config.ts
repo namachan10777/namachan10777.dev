@@ -11,10 +11,6 @@ export default extendConfig(baseConfig, () => {
       },
     },
     plugins: [cloudflarePagesAdapter({
-      ssg: {
-        include: ["/*"],
-        origin: "https://www.namachan10777.dev",
-      }
     })],
   };
 });

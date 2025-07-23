@@ -21,7 +21,7 @@
       "eslint-plugin-qwik": ["./src/types/eslint-plugin-qwik.d.ts"],
       "remark-attr": ["./src/types/remark-attr.d.ts"]
     },
-    "types": ["unplugin-icons/types/qwik", "bun-types"]
+    "types": ["unplugin-icons/types/qwik", "bun-types", "./qwik.env.d.ts"]
   },
   "include": [
     "src",

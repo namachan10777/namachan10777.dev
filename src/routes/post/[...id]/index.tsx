@@ -1,48 +1,186 @@
-import { component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import {
   StaticGenerateHandler,
   routeLoader$,
   type DocumentHead,
 } from "@builder.io/qwik-city";
-import { pages } from "~/lib/contents";
-import { CodeBlock } from "~/components/code-block";
 import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
+import {
+  FoldedContent,
+  FoldedHtml,
+  FoldedKeep,
+  FoldedTree,
+  HeadingTag,
+  foldedRootSchema,
+} from "~/lib/schema";
+import z from "zod";
 
-export const usePageId = routeLoader$(async ({ params, status }) => {
-  if (!(params.id in pages)) {
-    status(404);
-    return undefined;
-  } else if (pages[params.id].frontmatter.publish) {
-    return params.id;
+export const usePost = routeLoader$(async ({ params, status, env }) => {
+  const kv = env.get("KV");
+  const post = kv && (await kv.get(params.id));
+  if (post) {
+    return foldedRootSchema.parse(JSON.parse(post));
   } else {
     status(404);
-    return undefined;
+    return null;
+  }
+});
+
+const MdHtml = ({ html }: { html: FoldedHtml }) => {
+  const Tag = html.tag as "div";
+  if (html.inner.type === "html") {
+    return <Tag dangerouslySetInnerHTML={html.inner.inner} {...html.attrs} />;
+  } else {
+    return (
+      <Tag key={html.id} {...html.attrs}>
+        <MdChildrem inner={html.inner.inner} />
+      </Tag>
+    );
+  }
+};
+
+const Codeblock = component$(
+  ({
+    lines,
+    title,
+    content,
+  }: {
+    lines: number;
+    title: string | undefined | null;
+    content: string;
+  }) => {
+    return (
+      <div>
+        <span>
+          {Array.from({ length: lines }, (_, i) => (
+            <span key={i}>{i}</span>
+          ))}
+        </span>
+        {title && <span>{title}</span>}
+        <pre>
+          <code dangerouslySetInnerHTML={content} />
+        </pre>
+      </div>
+    );
+  },
+);
+
+const Heading = component$(
+  ({ tag, slug }: { tag: HeadingTag; slug: string }) => {
+    const Tag = tag;
+    return (
+      <Tag id={slug}>
+        <Slot />
+      </Tag>
+    );
+  },
+);
+
+const IsolatedLink = component$(
+  ({
+    href,
+    title,
+    description,
+    image_url,
+  }: {
+    href: string;
+    title: string;
+    description: string;
+    image_url?: string;
+  }) => {
+    return (
+      <a href={href}>
+        {image_url && <img src={image_url} alt={title} />}
+        <div>
+          <span>{title}</span>
+          <span>{description}</span>
+        </div>
+      </a>
+    );
+  },
+);
+
+const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
+  if (keep.custom.type === "codeblock") {
+    return (
+      <Codeblock
+        lines={keep.custom.lines}
+        title={keep.custom.title}
+        content={keep.custom.inner}
+      />
+    );
+  } else if (keep.custom.type === "heading") {
+    if (keep.inner.type === "html") {
+      return (
+        <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
+          <span dangerouslySetInnerHTML={keep.inner.inner} />
+        </Heading>
+      );
+    } else {
+      return (
+        <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
+          <MdChildrem inner={keep.inner.inner} />
+        </Heading>
+      );
+    }
+  } else if (keep.custom.type === "isolated_link") {
+    return (
+      <IsolatedLink
+        href={keep.custom.url}
+        title={keep.custom.title}
+        description={keep.custom.description}
+        image_url={keep.custom.image_url}
+      />
+    );
+  }
+};
+
+const MdChildrem = ({ inner }: { inner: FoldedTree[] }) => {
+  return (
+    <>
+      {inner.map((child) => {
+        if (child.type === "html") {
+          return <MdHtml key={child.id} html={child} />;
+        } else if (child.type === "keep") {
+          return <MdKeep key={child.id} keep={child} />;
+        } else if (child.type === "text") {
+          return child.text;
+        }
+      })}
+    </>
+  );
+};
+
+const Markdown = component$(({ folded }: { folded: FoldedContent }) => {
+  if (folded.type === "html") {
+    return <article dangerouslySetInnerHTML={folded.inner} />;
+  } else {
+    return (
+      <article>
+        <MdChildrem inner={folded.inner} />
+      </article>
+    );
   }
 });
 
 export default component$(() => {
-  const pageId = usePageId();
-  if (pageId.value) {
-    const page = pages[pageId.value];
-    const Page = page.default;
-    const tags = page.frontmatter.tags;
+  const page = usePost();
+  if (page.value) {
     return (
       <>
         <article data-pagefind-body>
           <header class={styles.header}>
-            <h1 data-pagefind-meta={`date:${page.frontmatter.date}`}>
-              {page.frontmatter.title}
+            <h1 data-pagefind-meta={`date:${page.value.meta.date}`}>
+              {page.value.meta.title}
             </h1>
-            <p>{page.frontmatter.description}</p>
-            <div data-pagefind-meta={`tags:${tags.join(",")}`}>
-              <Tags tags={tags} />
+            <p>{page.value.meta.description}</p>
+            <div data-pagefind-meta={`tags:${page.value.meta.tags.join(",")}`}>
+              <Tags tags={page.value.meta.tags} />
             </div>
           </header>
-          <div class={styles.markdown}>
-            <Page components={{ pre: CodeBlock }} />
-          </div>
+          <Markdown folded={page.value.folded} />
         </article>
       </>
     );
@@ -51,26 +189,39 @@ export default component$(() => {
   }
 });
 
-export const onStaticGenerate: StaticGenerateHandler = () => {
+export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
+  const d1 = env.get("DB");
+  const ids = z
+    .object({ id: z.string() })
+    .array()
+    .nullish()
+    .parse(d1 && (await d1.prepare("SELECT id FROM posts;").run()));
   return {
-    params: Object.entries(pages)
-      .filter((entry) => entry[1].frontmatter.publish)
-      .map((entry) => {
-        return { id: entry[0] };
-      }),
+    params: ids || [],
   };
 };
 
-export const head: DocumentHead = ({ params, url }) => {
-  const page = pages[params.id];
+export const head: DocumentHead = ({ params, url, resolveValue }) => {
+  const post = resolveValue(usePost);
+  if (post === null) {
+    return {
+      title: "Not found",
+      meta: [
+        {
+          name: "description",
+          content: "Not found",
+        },
+      ],
+    };
+  }
   const meta = [
     {
       name: "description",
-      content: page.frontmatter.description,
+      content: post.meta.description,
     },
     {
       property: "og:title",
-      content: page.frontmatter.title,
+      content: post.meta.title,
     },
     {
       property: "og:type",
@@ -82,33 +233,21 @@ export const head: DocumentHead = ({ params, url }) => {
     },
     {
       property: "og:description",
-      content: page.frontmatter.description,
+      content: post.meta.description,
     },
     {
       property: "og:locale",
       content: "ja_JP",
     },
   ];
-  if (page.frontmatter.og_image) {
+  if (post.meta.og_image) {
     meta.push({
       property: "og:image",
-      content: `${url.origin}/${page.frontmatter.og_image}`,
+      content: `${url.origin}/${post.meta.og_image}`,
     });
   }
-  if (page) {
-    return {
-      title: page.frontmatter.title,
-      meta,
-    };
-  } else {
-    return {
-      title: "Not found",
-      meta: [
-        {
-          name: "description",
-          content: "Not found",
-        },
-      ],
-    };
-  }
+  return {
+    title: post.meta.title,
+    meta,
+  };
 };
