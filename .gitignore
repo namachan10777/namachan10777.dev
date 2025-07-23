@@ -50,3 +50,4 @@ functions/**/*.js
 /.wrangler
 
 .blindcms
+worker-configuration.d.ts

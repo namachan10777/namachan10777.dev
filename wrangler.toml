@@ -14,7 +14,9 @@ enabled = true
 binding = "DB"
 database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
 database_name = "namachan10777-dev"
+experimental_remote = true
 
 [[kv_namespaces]]
 binding = "KV"
 id = "1e98314a6c53407485074a65924c9f0a"
+experimental_remote = true
