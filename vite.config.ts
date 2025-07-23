@@ -63,6 +63,12 @@ export default defineConfig(({ command }): UserConfig => {
         },
       }),
       qwikVite(),
+      ...(command !== "build" ? [cloudflare({
+                    configPath: "./wrangler.toml",
+                    experimental: {
+                        remoteBindings: true
+                    }
+                })] : []),
       Icons({ compiler: "qwik" }),
       tsconfigPaths(),
     ],
