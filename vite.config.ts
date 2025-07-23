@@ -17,6 +17,7 @@ import Icons from "unplugin-icons/vite";
 import { createCssVariablesTheme,  createHighlighterCore} from "shiki/bundle/web";
 import { createOnigurumaEngine } from "shiki";
 import rehypeCodeAttrs from "./src/unist/rehype-code-attrs";
+import { cloudflare } from "@cloudflare/vite-plugin";
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: PkgDep;
@@ -43,7 +44,8 @@ const cssVarsHighligher = await createHighlighterCore({
   engine: createOnigurumaEngine(() => import('shiki/wasm'))
 });
 
-export default defineConfig((): UserConfig => {
+
+export default defineConfig(({ command }): UserConfig => {
   return {
     plugins: [
       qwikCity({

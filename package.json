@@ -27,15 +27,15 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.14.1",
-    "@builder.io/qwik-city": "^1.14.1",
+    "@builder.io/qwik": "^1.15.0",
+    "@builder.io/qwik-city": "^1.15.0",
     "@eslint/js": "latest",
     "@hbsnow/rehype-sectionize": "^1.0.7",
-    "@iconify/json": "^2.2.359",
-    "@shikijs/rehype": "^3.8.0",
+    "@iconify/json": "^2.2.360",
+    "@shikijs/rehype": "^3.8.1",
     "@types/node": "24.0.13",
     "eslint": "9.25.1",
-    "eslint-plugin-qwik": "^1.14.1",
+    "eslint-plugin-qwik": "^1.15.0",
     "globals": "16.0.0",
     "hast": "^1.0.0",
     "jiti": "^2.4.2",
@@ -44,20 +44,22 @@
     "prettier": "3.3.3",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "shiki": "^3.8.0",
+    "shiki": "^3.8.1",
     "typescript": "5.4.5",
     "typescript-eslint": "8.26.1",
-    "undici": "^7.11.0",
+    "undici": "^7.12.0",
     "unist-util-visit": "^5.0.0",
     "unplugin-icons": "^22.1.0",
-    "vite": "5.3.5",
+    "vite": "^7.0.5",
     "vite-tsconfig-paths": "^4.3.2",
-    "wrangler": "^4.24.3",
+    "wrangler": "^4.25.1",
     "zod": "^4.0.5",
-    "bun-types": "^1.2.18",
+    "bun-types": "^1.2.19",
     "fast-xml-parser": "^5.2.5",
     "@qwik-ui/headless": "^0.6.8",
     "pagefind": "^1.3.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@cloudflare/vite-plugin": "^1.10.0"
+  }
 }

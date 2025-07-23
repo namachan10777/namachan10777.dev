@@ -6,8 +6,9 @@ import { frontmatters, paginate } from "~/lib/contents";
 
 const pages = paginate(frontmatters, 16);
 
-export const usePostsPages = routeLoader$(({ params, status }) => {
+export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   const index = parseInt(params.page, 10);
+  console.log(env.get("DB"));
   if (index < 1 || index > pages.length) {
     status(404);
     return undefined;
