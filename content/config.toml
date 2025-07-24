@@ -1,12 +1,9 @@
 glob = "post/**/*.mdx"
 
-[image_r2]
+kv_namespace_id = "1e98314a6c53407485074a65924c9f0a"
+d1_database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
+
+[r2_config]
 zone = "assets.namachan10777.dev"
 bucket = "namachan10777dev"
 prefix = "images"
-
-[post_kv]
-namespace_id = "1e98314a6c53407485074a65924c9f0a"
-
-[metadata_d1]
-database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
