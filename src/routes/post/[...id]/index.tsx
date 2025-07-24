@@ -20,6 +20,7 @@ import z from "zod";
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
   const post = kv && (await kv.get(params.id));
+  console.log(post);
   if (post) {
     return foldedRootSchema.parse(JSON.parse(post));
   } else {
@@ -30,12 +31,14 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
 
 const MdHtml = ({ html }: { html: FoldedHtml }) => {
   const Tag = html.tag as "div";
-  if (html.inner.type === "html") {
-    return <Tag dangerouslySetInnerHTML={html.inner.inner} {...html.attrs} />;
+  if (html.content.type === "html") {
+    return (
+      <Tag dangerouslySetInnerHTML={html.content.content} {...html.attrs} />
+    );
   } else {
     return (
       <Tag key={html.id} {...html.attrs}>
-        <MdChildrem inner={html.inner.inner} />
+        <MdChildrem inner={html.content.children} />
       </Tag>
     );
   }
@@ -108,20 +111,20 @@ const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
       <Codeblock
         lines={keep.custom.lines}
         title={keep.custom.title}
-        content={keep.custom.inner}
+        content={keep.custom.content}
       />
     );
   } else if (keep.custom.type === "heading") {
-    if (keep.inner.type === "html") {
+    if (keep.content.type === "html") {
       return (
         <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
-          <span dangerouslySetInnerHTML={keep.inner.inner} />
+          <span dangerouslySetInnerHTML={keep.content.content} />
         </Heading>
       );
     } else {
       return (
         <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
-          <MdChildrem inner={keep.inner.inner} />
+          <MdChildrem inner={keep.content.children} />
         </Heading>
       );
     }
@@ -155,11 +158,16 @@ const MdChildrem = ({ inner }: { inner: FoldedTree[] }) => {
 
 const Markdown = component$(({ folded }: { folded: FoldedContent }) => {
   if (folded.type === "html") {
-    return <article dangerouslySetInnerHTML={folded.inner} />;
+    return (
+      <article
+        dangerouslySetInnerHTML={folded.content}
+        class={styles.markdonw}
+      />
+    );
   } else {
     return (
-      <article>
-        <MdChildrem inner={folded.inner} />
+      <article class={styles.markdonw}>
+        <MdChildrem inner={folded.children} />
       </article>
     );
   }

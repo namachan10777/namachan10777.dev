@@ -15,7 +15,7 @@ const custom = z.union([
   z.object({
     type: z.literal("codeblock"),
     title: z.string().nullish(),
-    inner: z.string(),
+    content: z.string(),
     lines: z.number().int().min(0),
   }),
   z.object({
@@ -34,11 +34,11 @@ const custom = z.union([
 
 export type HtmlContent = {
   type: "html";
-  inner: string;
+  content: string;
 };
 export type PartialContent = {
   type: "partial";
-  inner: FoldedTree[];
+  children: FoldedTree[];
 };
 
 export type FoldedContent = HtmlContent | PartialContent;
@@ -53,7 +53,7 @@ export type FoldedHtml = {
   tag: string;
   attrs: Record<string, string | boolean>;
   id: string;
-  inner: FoldedContent;
+  content: FoldedContent;
 };
 
 export type Custom = z.infer<typeof custom>;
@@ -62,7 +62,7 @@ export type FoldedKeep = {
   type: "keep";
   custom: Custom;
   id: string;
-  inner: FoldedContent;
+  content: FoldedContent;
 };
 
 export type FoldedTree = FoldedText | FoldedHtml | FoldedKeep;
@@ -77,21 +77,21 @@ export const foldedInnerSchema: z.Schema<FoldedContent> = z.lazy(() => {
     tag: z.string(),
     attrs: z.record(z.string(), z.union([z.string(), z.boolean()])),
     id: z.string(),
-    inner: foldedInnerSchema,
+    content: foldedInnerSchema,
   });
   const keep: z.Schema<FoldedKeep> = z.object({
     type: z.literal("keep"),
     custom,
     id: z.string(),
-    inner: foldedInnerSchema,
+    content: foldedInnerSchema,
   });
   const innerHtml: z.Schema<HtmlContent> = z.object({
     type: z.literal("html"),
-    inner: z.string(),
+    content: z.string(),
   });
   const innerPartial: z.Schema<PartialContent> = z.object({
     type: z.literal("partial"),
-    inner: z.union([text, html, keep]).array(),
+    children: z.union([text, html, keep]).array(),
   });
 
   return z.union([innerHtml, innerPartial]);
