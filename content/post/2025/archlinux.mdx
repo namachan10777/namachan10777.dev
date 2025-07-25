@@ -30,7 +30,7 @@ EFIに1 GiBも割く必要はないのだが、容量が圧迫されるのはな
 
 ファイルシステムは今回は少し冒険してbcachefsにしてみた。機能的にはbtrfsとそこまで差はないはず。速度に関してもbtrfsよりは良いようだ。XFSには普通に負けてるらしい（XFSより速いファイルシステムはあまりない）。今回のマシンはディスク容量がやや不安なのでマウントオプションに`compression=zstd:2`を付けておく。大体snappy相当なのでパフォーマンス的にはあまり問題ないはず。
 
-```fstab
+```fstab {title=fstab}
 # Static information about the filesystems.
 # See fstab(5) for details.
 
@@ -51,7 +51,7 @@ LABEL=SWAP      	swap      	defaults  	0 0
 
 `systemd-boot`を使った。単純だし最初からArchに入っているので楽。
 
-```conf
+```conf {title=arch.conf}
 title           Arch Linux
 linux           /vmlinuz-linux
 initrd          /intel-ucode.img
@@ -75,7 +75,7 @@ DNSも`systemd-resolved`。設定が少し分かりづらいが、per-link DNS�
 べらぼうに長いパスワードを使っているので頻繁に間違えて10分待てと言われるので少し緩める。
 Arch Linuxの場合は`/etc/security/faillock.conf`で設定する。
 
-```
+```{title="/etc/security/faillock.conf"}
 deny = 5
 unlock_time = 300
 ```
@@ -88,7 +88,7 @@ swayをずっと使っている。`swaylock`の代わりに`swaylock-effects`を
 [PAM認証に失敗した場合にred screenになる問題](https://github.com/swaywm/sway/issues/7046)があるので
 `swaylock-effects-git`を使う必要がある。多分`1.8`系になれば解決するはず。
 
-```
+```{title="~/.config/sway/config"}
 # Default config for sway
 #
 # Copy this to ~/.config/sway/config and edit it to your liking.
@@ -370,7 +370,7 @@ include /etc/sway/config.d/*
 fcitx5などのIMEの起動はswayの設定内で`exec`を使うのが一般的だが、なんとなくデーモンは全てsystemdに集約したい（再起動とか楽）ので、
 `~/.config/systemd/user/fcitx5.service`を作りsystemd userで起動する。
 
-```systemd title=fcitx5.service
+```systemd {title=fcitx5.service}
 [Unit]
 Description=Fcitx5 input method
 After=graphical.target

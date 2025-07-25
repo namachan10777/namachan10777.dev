@@ -41,7 +41,7 @@ Markdownは意味論上見出しタグも本文もフラットにレンダリン
 Web標準に`<section />`タグがあるので対応した。
 Astroはmarkdown処理にremarkプラグインを簡単に入れられるので`astro.config.js`を弄るだけで済む。
 
-```typescript showLineNumbers
+```ts
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
@@ -71,7 +71,7 @@ Astroはhtml以外の静的ファイルもGETエンドポイントの形で記�
 `ogImage`は`satori`を使ってOG画像を生成する関数だ。
 `satori`にReactのJSXとフォントデータを与えればSVGが文字列として出てくるので`sharp(Buffer.from(svg)).webp().toBuffer()`とするだけ。
 
-```typescript showLineNumbers
+```ts
 export const GET: APIRoute = async ({ params }) => {
   const article = await getEntryBySlug("blog", params.slug as any);
 
@@ -95,7 +95,7 @@ export const GET: APIRoute = async ({ params }) => {
 `astro:content`のAPIでfrontmatterを取ってきてGETエンドポイントの形で書くだけ。
 特に凝ったことはしていない。
 
-```typescript showLineNumbers=true
+```ts
 import rss from "@astrojs/rss";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";

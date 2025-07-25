@@ -76,7 +76,7 @@ ASTをそのまま返して描画は完全にQwikで行う。
 これは専用の画像表示コンポーネントとこのスクリプトに閉じるのでまぁ許容範囲だと思う。
 より良い手法はまだ思いついていない。`mdast`を定義し直すのはかなり面倒くさい。
 
-```typescript
+```ts
 import { defineConfig, defineCollection } from "@content-collections/core";
 import crypto from "crypto";
 import * as fs from "fs/promises";
@@ -306,7 +306,7 @@ QwikCityは静的ビルド時は`?url`を無視してチャンク分割を試み
 一方でviteでHMRしている際は静的解析ではなく実際に渡ってきたパスで解決するので`?url`が必要なくなったりはしない。
 このワークアラウンドをラップしたのが以下の関数だ。
 
-```typescript
+```ts
 export async function loadPagefind(): Promise<PagefindApi> {
   const path = "/pagefind/pagefind.js";
   const module = import.meta.env.DEV
@@ -328,7 +328,7 @@ Qwikのコードはあまり読めていないので`noSerialize`でどうして
 少なくとも`useVisibleTask$`で取ってきたモジュールを保存しておく、
 という目的には十分使える。
 
-```typescript
+```ts
 import type { NoSerialize, QRL, TaskFn } from "@builder.io/qwik";
 import {
   noSerialize,

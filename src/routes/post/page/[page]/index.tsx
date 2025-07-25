@@ -2,65 +2,62 @@ import { component$ } from "@builder.io/qwik";
 import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
-import { paginate } from "~/lib/contents";
-import { z } from "zod";
+import { countSchema, parsePageNumber, postsSchema } from "~/lib/schema";
 
-const postSchema = z
-  .object({
-    id: z.string(),
-    title: z.string(),
-    description: z.string(),
-    created_at: z.iso.date(),
-    og_image: z.string().nullable(),
-    og_type: z.string().nullable(),
-    tags: z
-      .string()
-      .transform((tags) => z.string().array().parse(JSON.parse(tags))),
-  })
-  .array();
-
-async function fetchAllPosts(
-  db: D1Database | undefined,
-): Promise<z.infer<typeof postSchema>> {
-  if (db) {
-    const raw = await db
-      .prepare(
-        `
-          SELECT posts.*, json_group_array(tags.tag) AS tags
-          FROM posts
-          LEFT JOIN tags ON posts.id = tags.post_id
-          GROUP BY posts.id
-        `,
-      )
-      .run();
-    return postSchema.parse(raw.results);
-  } else {
-    return [];
-  }
-}
+const pageSize = 16;
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
-  const index = parseInt(params.page, 10);
-  const posts = await fetchAllPosts(env.get("DB"));
-  const pages = paginate(posts, 16);
-
-  if (index < 1 || index > pages.length) {
+  const index = parsePageNumber(params.page);
+  if (index === null) {
     status(404);
     return undefined;
+  }
+  const d1 = env.get("DB");
+  const q1 = `
+    SELECT posts.*, json_group_array(tags.tag) AS tags
+    FROM posts LEFT JOIN tags ON posts.id = tags.post_id
+    WHERE posts.publish
+    GROUP BY posts.id
+    ORDER BY posts.created_at DESC
+    LIMIT ?
+    OFFSET ?
+  `;
+
+  const results =
+    d1 &&
+    (await d1.batch([
+      d1.prepare(q1).bind(pageSize, pageSize * (index - 1)),
+      d1.prepare("SELECT COUNT(*) FROM posts WHERE posts.publish;"),
+    ]));
+
+  if (results && results[0].results.length > 0) {
+    const count = countSchema.parse(results[1].results[0]);
+    return {
+      contents: postsSchema.parse(results[0].results),
+      current: index,
+      next: count["COUNT(*)"] > pageSize * index ? index + 1 : undefined,
+      prev: index > 1 ? index - 1 : undefined,
+    };
   } else {
-    const page = pages[index - 1];
-    return page;
+    status(404);
+    return undefined;
   }
 });
 
 export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
-  const posts = await fetchAllPosts(env.get("DB"));
-  const pages = paginate(posts, 16);
-  return {
-    params: pages.map((page) => {
-      return { page: page.current.toString() };
-    }),
-  };
+  const d1 = env.get("DB");
+  if (d1) {
+    const count = countSchema.parse(
+      await d1.prepare("SELECT COUNT(*) FROM posts WHERE posts.publish;").run(),
+    );
+    return {
+      params: Array.from({ length: count["COUNT(*)"] }).map((_, index) => {
+        return { page: `${index + 1}` };
+      }),
+    };
+  } else {
+    return { params: [] };
+  }
 };
 
 export default component$(() => {

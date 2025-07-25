@@ -1,19 +1,11 @@
-import { Slot, component$, $, useSignal } from "@builder.io/qwik";
+import { Slot, component$, $, useSignal, Signal } from "@builder.io/qwik";
 import styles from "./code-block.module.css";
-import CopyIcon from "~icons/iconoir/copy";
-import CheckIcon from "~icons/iconoir/check";
 import { useDebouncer$ } from "~/lib/qwik";
 
 interface Props {
-  data: string;
-}
-
-type Meta = {
   lines: number;
-  attrs: {
-    title?: string;
-  };
-};
+  title: string;
+}
 
 const Lines = component$((props: { lines: number }) => {
   return (
@@ -25,50 +17,45 @@ const Lines = component$((props: { lines: number }) => {
   );
 });
 
-const CopyButton = component$(() => {
-  const btnRef = useSignal<Element>();
-  const showCopyIcon = useSignal(true);
-  const setDoneIcon = useDebouncer$(() => {
-    showCopyIcon.value = true;
-  }, 1000);
-  const clickHandler = $(() => {
-    if (btnRef.value) {
-      const text =
-        btnRef.value.parentElement?.querySelector("pre")?.textContent;
-      if (text) {
-        navigator.clipboard.writeText(text);
-        showCopyIcon.value = false;
-        setDoneIcon();
+const CopyButton = component$(
+  (props: { preRef: Signal<Element | undefined> }) => {
+    const showCopiedMessage = useSignal(false);
+    const setDoneIcon = useDebouncer$(() => {
+      showCopiedMessage.value = false;
+    }, 1000);
+    const clickHandler = $(() => {
+      if (props.preRef.value) {
+        const text = props.preRef.value.textContent;
+        if (text) {
+          navigator.clipboard.writeText(text);
+          showCopiedMessage.value = true;
+          setDoneIcon();
+        }
       }
-    }
-  });
-  return (
-    <button
-      ref={btnRef}
-      style={{ display: showCopyIcon.value ? undefined : "flex" }}
-      class={styles.copyButton}
-      onClick$={clickHandler}
-    >
-      {showCopyIcon.value ? <CopyIcon /> : <CheckIcon />}
-    </button>
-  );
-});
+    });
+    return (
+      <button class={styles.copyButton} onClick$={clickHandler}>
+        {showCopiedMessage.value ? <span>Copied</span> : <span>Copy</span>}
+      </button>
+    );
+  },
+);
 
 export const CodeBlock = component$((props: Props) => {
-  const meta: Meta = JSON.parse(props.data);
+  const preRef = useSignal<Element>();
   return (
     <>
       <div class={styles.root}>
-        {meta.attrs.title && (
+        {props.title && (
           <header class={styles.header}>
-            <span class={styles.headerTitle}>{meta.attrs.title}</span>
+            <span class={styles.headerTitle}>{props.title}</span>
+            <CopyButton preRef={preRef} />
           </header>
         )}
-        <Lines lines={meta.lines} />
+        <Lines lines={props.lines} />
         <div class={styles.codeBody}>
-          <CopyButton />
           <div class={styles.scrollBox}>
-            <pre class={styles.root}>
+            <pre ref={preRef} class={styles.root}>
               <Slot />
             </pre>
           </div>

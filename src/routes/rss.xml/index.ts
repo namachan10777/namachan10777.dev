@@ -1,6 +1,6 @@
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { XMLBuilder } from "fast-xml-parser";
-import { frontmatters } from "~/lib/contents";
+import { postsSchema } from "~/lib/schema";
 
 interface RssItem {
   title: string;
@@ -48,19 +48,47 @@ function genRss(rss: RssProps): string {
   return builder.build(obj);
 }
 
-export const onGet: RequestHandler = async ({ request, send }) => {
+export const onGet: RequestHandler = async ({ request, send, env }) => {
+  const d1 = env.get("DB");
   const url = new URL(request.url);
-  const xml = genRss({
+  const base = {
     title: "namachan10777.dev",
     description: "namachan10777's personal website and blog",
     link: url.origin,
     language: "ja",
-    items: frontmatters.map((post) => ({
-      title: post.frontmatter.title,
-      description: post.frontmatter.description,
-      date: new Date(post.frontmatter.date),
+    items: [],
+  };
+  if (d1 === undefined) {
+    genRss(base);
+    return;
+  }
+
+  console.log(
+    await d1
+      .prepare(
+        "SELECT posts.*, json_group_array(tags.tag) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.post_id WHERE posts.publish GROUP BY posts.id;",
+      )
+      .run(),
+  );
+
+  const posts = postsSchema.parse(
+    (
+      await d1
+        .prepare(
+          "SELECT posts.*, json_group_array(tags.tag) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.post_id WHERE posts.publish GROUP BY posts.id;",
+        )
+        .run()
+    ).results,
+  );
+
+  const xml = genRss({
+    ...base,
+    items: posts.map((post) => ({
+      title: post.title,
+      description: post.description,
+      date: new Date(post.created_at),
       link: `${url.origin}/post/${post.id}/`,
-      categories: post.frontmatter.tags,
+      categories: post.tags,
     })),
   });
   send(200, xml);

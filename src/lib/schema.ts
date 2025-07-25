@@ -28,7 +28,7 @@ const custom = z.union([
     title: z.string(),
     description: z.string(),
     url: z.string(),
-    image_url: z.string(),
+    image_url: z.string().nullable(),
   }),
 ]);
 
@@ -97,15 +97,52 @@ export const foldedInnerSchema: z.Schema<FoldedContent> = z.lazy(() => {
   return z.union([innerHtml, innerPartial]);
 });
 
+export const postRecordSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  created_at: z.iso.date(),
+  og_image: z.string().nullable(),
+  og_type: z.string().nullable(),
+  publish: z
+    .union([z.literal(0), z.literal(1)])
+    .transform((flag) => (flag === 1 ? true : false)),
+  tags: z
+    .string()
+    .transform((tags) => z.string().array().parse(JSON.parse(tags))),
+});
+
+export const postEmbededMetaSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  date: z.iso.date(),
+  og_image: z.string().nullish(),
+  og_type: z.string().nullish(),
+  publish: z.boolean(),
+  tags: z.string().array(),
+});
+
 export const foldedRootSchema = z.object({
   folded: foldedInnerSchema,
-  meta: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.iso.date(),
-    tags: z.string().array(),
-    og_image: z.string().nullish(),
-  }),
+  meta: postEmbededMetaSchema,
 });
 
 export type FoldedRoot = z.infer<typeof foldedRootSchema>;
+
+export const postsSchema = postRecordSchema.array();
+
+export const countSchema = z.object({ "COUNT(*)": z.number() });
+
+export function parsePageNumber(page: string): number | null {
+  try {
+    const parsed = parseInt(page);
+    if (parsed < 0) {
+      return null;
+    } else {
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+}

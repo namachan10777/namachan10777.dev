@@ -37,53 +37,21 @@
 .header {
   border-bottom: 1px solid var(--uchu-yin-9);
   display: grid;
-  grid-template-columns: subgrid;
-  grid-column: span 2;
+  grid-template-columns: 1fr auto;
+  grid-column: 2;
 }
 
 .headerTitle {
-  grid-column: 2;
+  grid-column: 1;
   padding-inline: 0.5rem;
 }
 
 .copyButton {
-  z-index: 10;
-  position: absolute;
-  border: solid 1px transparent;
-  top: 0.3rem;
-  right: 0.3rem;
-  display: none;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  font-size: large;
-  background-color: var(--uchu-yin-9);
-  color: var(--uchu-gray-1);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 9999px;
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    border 0.2s ease;
-}
-
-.root:hover .copyButton {
-  display: flex;
-}
-
-.root:focus .copyButton {
-  display: flex;
-}
-
-.copyButton:hover {
-  background-color: var(--uchu-gray-1);
-  color: var(--uchu-yin-9);
-  border: solid 1px var(--uchu-gray-9);
+  border: none;
+  background-color: transparent;
 }
 
 .codeBody {
-  position: relative;
   display: grid;
   grid-template-columns: subgrid;
   border-left: 1px solid var(--uchu-yin-9);
@@ -94,4 +62,20 @@
 .scrollBox {
   overflow-x: scroll;
   max-width: 100%;
+}
+
+.root pre > code :global .function {
+  color: var(--uchu-blue-7);
+}
+
+.root pre > code :global .keyword {
+  color: var(--uchu-red-7);
+}
+
+.root pre > code :global .storage {
+  color: var(--uchu-purple-7);
+}
+
+.root pre > code :global .string {
+  color: var(--uchu-orange-7);
 }

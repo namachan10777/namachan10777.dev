@@ -1,41 +1,89 @@
 import { component$ } from "@builder.io/qwik";
 import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { PaginatedPostList } from "~/components/paginated-post-list";
-import { frontmatters, paginate } from "~/lib/contents";
 import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
+import { countSchema, parsePageNumber, postsSchema } from "~/lib/schema";
+import z from "zod";
 
-export const usePostsPages = routeLoader$(({ params, status }) => {
-  const pages = paginate(
-    frontmatters.filter(
-      (post) =>
-        post.frontmatter.tags.includes(params.tag) && post.frontmatter.publish,
-    ),
-    16,
-  );
-  const index = parseInt(params.page, 10);
-  if (index < 1 || index > pages.length) {
+const pageSize = 16;
+
+export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
+  const index = parsePageNumber(params.page);
+  if (index === null) {
     status(404);
     return undefined;
+  }
+  const d1 = env.get("DB");
+  const meta_q = `
+    SELECT posts.*, json_group_array(tags.tag) AS tags
+    FROM tags AS tag_filter
+    JOIN posts ON posts.id = tag_filter.post_id
+    LEFT JOIN tags ON posts.id = tags.post_id
+    WHERE tag_filter.tag = ? AND posts.publish
+    GROUP BY posts.id
+    ORDER BY posts.created_at DESC
+    LIMIT ?
+    OFFSET ?
+  `;
+
+  const count_q = `
+    SELECT COUNT(*)
+    FROM tags
+    JOIN posts ON posts.id = tags.post_id
+    WHERE tags.tag = ? AND posts.publish;
+  `;
+
+  const results =
+    d1 &&
+    (await d1.batch([
+      d1.prepare(meta_q).bind(params.tag, pageSize, pageSize * (index - 1)),
+      d1.prepare(count_q).bind(params.tag),
+    ]));
+
+  if (results && results[0].results.length > 0) {
+    const count = countSchema.parse(results[1].results[0]);
+    return {
+      contents: postsSchema.parse(results[0].results),
+      current: index,
+      next: count["COUNT(*)"] > pageSize * index ? index + 1 : undefined,
+      prev: index > 1 ? index - 1 : undefined,
+      tag: params.tag,
+    };
   } else {
-    const page = pages[index - 1];
-    return { page, tag: params.tag };
+    status(404);
+    return undefined;
   }
 });
 
-export const onStaticGenerate: StaticGenerateHandler = () => {
-  const tags = new Set(frontmatters.flatMap((post) => post.frontmatter.tags));
-  const params = [...tags.values()].flatMap((tag) => {
-    const pages = paginate(
-      frontmatters.filter((post) => post.frontmatter.tags.includes(tag)),
-      16,
-    );
-    return pages.map((page) => ({
-      tag,
-      page: page.current.toString(),
-    }));
-  });
-  return { params };
+export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
+  const q = `
+    SELECT COUNT(posts) AS count, tag
+    FROM tags
+    JOIN posts ON posts.id = tags.post_id
+    WHERE tags.tag = ? AND posts.publish
+    GROUP BY posts.id;
+  `;
+  const d1 = env.get("DB");
+  if (d1 === undefined) {
+    return { params: [] };
+  }
+
+  const counts = z
+    .object({ tag: z.string(), count: z.number().int().min(0) })
+    .array()
+    .parse((await d1.prepare(q).run()).results);
+
+  return {
+    params: counts.flatMap((count) => {
+      return Array.from({ length: Math.ceil(count.count / pageSize) }).map(
+        (_, index) => ({
+          tag: count.tag,
+          page: `${index + 1}`,
+        }),
+      );
+    }),
+  };
 };
 
 export default component$(() => {
@@ -45,23 +93,27 @@ export default component$(() => {
   }
   return (
     <PaginatedPostList
-      contents={page.value.page.contents.map((post) => ({
+      contents={page.value.contents.map((post) => ({
         id: post.id,
-        title: post.frontmatter.title,
-        description: post.frontmatter.description,
-        published: new Date(post.frontmatter.date),
-        tags: post.frontmatter.tags,
+        title: post.title,
+        description: post.description,
+        published: new Date(post.created_at),
+        tags: post.tags,
       }))}
       prev={
-        page.value.page.prev ? `/post/page/${page.value.page.prev}` : undefined
+        page.value.prev
+          ? `/post/tag/${page.value.tag}/page/${page.value.prev}`
+          : undefined
       }
       next={
-        page.value.page.next ? `/post/page/${page.value.page.next}` : undefined
+        page.value.next
+          ? `/post/tag/${page.value.tag}/page/${page.value.next}`
+          : undefined
       }
     >
       <h1>
         Post <span class={styles.tagInHeading}>#{page.value.tag}</span> (
-        {page.value.page.current})
+        {page.value.current})
       </h1>
     </PaginatedPostList>
   );

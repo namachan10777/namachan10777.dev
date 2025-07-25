@@ -7,6 +7,7 @@ import {
 import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
+import { CodeBlock } from "~/components/code-block";
 import {
   FoldedContent,
   FoldedHtml,
@@ -19,10 +20,19 @@ import z from "zod";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
-  const post = kv && (await kv.get(params.id));
-  console.log(post);
+  const post = kv && (await kv.get(params.id, { type: "json" }));
   if (post) {
-    return foldedRootSchema.parse(JSON.parse(post));
+    try {
+      const parsed = foldedRootSchema.parse(post);
+      if (parsed.meta.publish) {
+        return parsed;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   } else {
     status(404);
     return null;
@@ -43,32 +53,6 @@ const MdHtml = ({ html }: { html: FoldedHtml }) => {
     );
   }
 };
-
-const Codeblock = component$(
-  ({
-    lines,
-    title,
-    content,
-  }: {
-    lines: number;
-    title: string | undefined | null;
-    content: string;
-  }) => {
-    return (
-      <div>
-        <span>
-          {Array.from({ length: lines }, (_, i) => (
-            <span key={i}>{i}</span>
-          ))}
-        </span>
-        {title && <span>{title}</span>}
-        <pre>
-          <code dangerouslySetInnerHTML={content} />
-        </pre>
-      </div>
-    );
-  },
-);
 
 const Heading = component$(
   ({ tag, slug }: { tag: HeadingTag; slug: string }) => {
@@ -91,11 +75,13 @@ const IsolatedLink = component$(
     href: string;
     title: string;
     description: string;
-    image_url?: string;
+    image_url: string | null;
   }) => {
     return (
       <a href={href}>
-        {image_url && <img src={image_url} alt={title} />}
+        {image_url && (
+          <img src={image_url} alt={title} width={32} height={32} />
+        )}
         <div>
           <span>{title}</span>
           <span>{description}</span>
@@ -108,11 +94,12 @@ const IsolatedLink = component$(
 const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
   if (keep.custom.type === "codeblock") {
     return (
-      <Codeblock
+      <CodeBlock
         lines={keep.custom.lines}
-        title={keep.custom.title}
-        content={keep.custom.content}
-      />
+        title={keep.custom.title || "notitle"}
+      >
+        <code dangerouslySetInnerHTML={keep.custom.content} />
+      </CodeBlock>
     );
   } else if (keep.custom.type === "heading") {
     if (keep.content.type === "html") {
@@ -161,12 +148,12 @@ const Markdown = component$(({ folded }: { folded: FoldedContent }) => {
     return (
       <article
         dangerouslySetInnerHTML={folded.content}
-        class={styles.markdonw}
+        class={styles.markdown}
       />
     );
   } else {
     return (
-      <article class={styles.markdonw}>
+      <article class={styles.markdown}>
         <MdChildrem inner={folded.children} />
       </article>
     );
@@ -203,7 +190,10 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
     .object({ id: z.string() })
     .array()
     .nullish()
-    .parse(d1 && (await d1.prepare("SELECT id FROM posts;").run()));
+    .parse(
+      d1 &&
+        (await d1.prepare("SELECT id FROM posts WHERE posts.publish;").run()),
+    );
   return {
     params: ids || [],
   };
