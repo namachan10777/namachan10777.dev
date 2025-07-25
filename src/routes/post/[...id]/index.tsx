@@ -8,6 +8,7 @@ import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import { CodeBlock } from "~/components/code-block";
+import Link from "~icons/iconoir/link";
 import {
   FoldedContent,
   FoldedHtml,
@@ -58,8 +59,11 @@ const Heading = component$(
   ({ tag, slug }: { tag: HeadingTag; slug: string }) => {
     const Tag = tag;
     return (
-      <Tag id={slug}>
+      <Tag id={slug} class={styles.heading}>
         <Slot />
+        <a href={`#${slug}`} class={styles.headingAnchor}>
+          <Link />
+        </a>
       </Tag>
     );
   },
