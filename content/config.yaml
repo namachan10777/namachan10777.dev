@@ -1,0 +1,31 @@
+posts:
+  glob: "post/**/*.mdx"
+  r2_bucket: namachan10777dev
+  r2_zone: assets.namachan10777.dev
+  d1_database_id: e389f5c1-1db8-4e0c-858d-b51e13ec7000
+  document:
+    kv_namespace_id: 1e98314a6c53407485074a65924c9f0a
+    r2_image_prefix: posts
+    d1_table_name: posts
+    d1_image_table_name: images
+    d1_hash_table_name: hash
+  schema:
+    id:
+      type: id
+    tags:
+      type: array
+      item: string
+      required: true
+      table: tags
+    date:
+      type: string
+      required: true
+    description:
+      type: string
+      required: true
+    title:
+      type: string
+      required: true
+    publish:
+      type: boolean
+      required: true
