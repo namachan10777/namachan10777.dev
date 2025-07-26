@@ -14,14 +14,21 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   }
   const d1 = env.get("DB");
   const q1 = `
-    SELECT posts.*, json_group_array(tags.tag) AS tags
-    FROM posts LEFT JOIN tags ON posts.id = tags.post_id
+    SELECT posts.*, json_group_array(tags.value) AS tags
+    FROM posts LEFT JOIN tags ON posts.id = tags.id
     WHERE posts.publish
     GROUP BY posts.id
-    ORDER BY posts.created_at DESC
+    ORDER BY posts.date DESC
     LIMIT ?
     OFFSET ?
   `;
+  console.log(
+    d1 &&
+      (await d1
+        .prepare(q1)
+        .bind(pageSize, pageSize * (index - 1))
+        .run()),
+  );
 
   const results =
     d1 &&
@@ -71,7 +78,7 @@ export default component$(() => {
         id: post.id,
         title: post.title,
         description: post.description,
-        published: new Date(post.created_at),
+        published: new Date(post.date),
         tags: post.tags,
       }))}
       prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}

@@ -66,7 +66,7 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
   console.log(
     await d1
       .prepare(
-        "SELECT posts.*, json_group_array(tags.tag) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.post_id WHERE posts.publish GROUP BY posts.id;",
+        "SELECT posts.*, json_group_array(tags.value) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.id WHERE posts.publish GROUP BY posts.id;",
       )
       .run(),
   );
@@ -75,7 +75,7 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
     (
       await d1
         .prepare(
-          "SELECT posts.*, json_group_array(tags.tag) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.post_id WHERE posts.publish GROUP BY posts.id;",
+          "SELECT posts.*, json_group_array(tags.value) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.id WHERE posts.publish GROUP BY posts.id;",
         )
         .run()
     ).results,
@@ -86,7 +86,7 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
     items: posts.map((post) => ({
       title: post.title,
       description: post.description,
-      date: new Date(post.created_at),
+      date: new Date(post.date),
       link: `${url.origin}/post/${post.id}/`,
       categories: post.tags,
     })),

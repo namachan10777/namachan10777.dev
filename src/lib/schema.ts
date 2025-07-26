@@ -101,7 +101,7 @@ export const postRecordSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  created_at: z.iso.date(),
+  date: z.iso.date(),
   og_image: z.string().nullable(),
   og_type: z.string().nullable(),
   publish: z

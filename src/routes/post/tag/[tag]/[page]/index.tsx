@@ -16,13 +16,13 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   }
   const d1 = env.get("DB");
   const meta_q = `
-    SELECT posts.*, json_group_array(tags.tag) AS tags
+    SELECT posts.*, json_group_array(tags.value) AS tags
     FROM tags AS tag_filter
-    JOIN posts ON posts.id = tag_filter.post_id
-    LEFT JOIN tags ON posts.id = tags.post_id
-    WHERE tag_filter.tag = ? AND posts.publish
+    JOIN posts ON posts.id = tag_filter.id
+    LEFT JOIN tags ON posts.id = tags.id
+    WHERE tag_filter.value = ? AND posts.publish
     GROUP BY posts.id
-    ORDER BY posts.created_at DESC
+    ORDER BY posts.date DESC
     LIMIT ?
     OFFSET ?
   `;
@@ -30,8 +30,8 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   const count_q = `
     SELECT COUNT(*)
     FROM tags
-    JOIN posts ON posts.id = tags.post_id
-    WHERE tags.tag = ? AND posts.publish;
+    JOIN posts ON posts.id = tags.id
+    WHERE tags.value = ? AND posts.publish;
   `;
 
   const results =
@@ -60,8 +60,8 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
   const q = `
     SELECT COUNT(posts) AS count, tag
     FROM tags
-    JOIN posts ON posts.id = tags.post_id
-    WHERE tags.tag = ? AND posts.publish
+    JOIN posts ON posts.id = tags.id
+    WHERE tags.value = ? AND posts.publish
     GROUP BY posts.id;
   `;
   const d1 = env.get("DB");
@@ -97,7 +97,7 @@ export default component$(() => {
         id: post.id,
         title: post.title,
         description: post.description,
-        published: new Date(post.created_at),
+        published: new Date(post.date),
         tags: post.tags,
       }))}
       prev={
