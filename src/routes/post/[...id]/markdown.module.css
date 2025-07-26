@@ -44,6 +44,12 @@ td {
 .markdown figure img {
   margin: 0.5rem;
   width: calc(100% - 1rem);
+  height: auto;
+}
+
+.markdown figure picture {
+  width: calc(100% - 1rem);
+  height: auto;
 }
 
 .markdown figure {
