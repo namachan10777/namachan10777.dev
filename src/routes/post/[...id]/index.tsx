@@ -18,6 +18,7 @@ import {
   foldedRootSchema,
 } from "~/lib/schema";
 import z from "zod";
+import { IsolatedLink } from "~/components/link-card";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
@@ -73,32 +74,6 @@ const Heading = component$(
   },
 );
 
-const IsolatedLink = component$(
-  ({
-    href,
-    title,
-    description,
-    image_url,
-  }: {
-    href: string;
-    title: string;
-    description: string;
-    image_url: string | null;
-  }) => {
-    return (
-      <a href={href}>
-        {image_url && (
-          <img src={image_url} alt={title} width={32} height={32} />
-        )}
-        <div>
-          <span>{title}</span>
-          <span>{description}</span>
-        </div>
-      </a>
-    );
-  },
-);
-
 const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
   if (keep.custom.type === "codeblock") {
     return (
@@ -129,7 +104,8 @@ const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
         href={keep.custom.url}
         title={keep.custom.title}
         description={keep.custom.description}
-        image_url={keep.custom.image_url}
+        favicon={keep.custom.favicon ? keep.custom.favicon : null}
+        image={keep.custom.image ? keep.custom.image : null}
       />
     );
   }

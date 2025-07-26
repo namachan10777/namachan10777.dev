@@ -1,0 +1,46 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid var(--uchu-yin-9);
+  margin-block: 0.5rem;
+  text-decoration: none;
+  transition: 0.1s background-color ease;
+}
+
+.root:hover {
+  background-color: var(--uchu-gray-3);
+}
+
+.imageWrapper > img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.imageWrapper {
+  width: 3rem;
+  height: 3rem;
+  overflow: hidden;
+}
+
+.textWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-left: 0.3rem;
+  margin-left: 0.3rem;
+}
+
+.title {
+  font-size: large;
+  font-weight: bold;
+  width: 100%;
+  margin: 0;
+}
+
+.description {
+  color: var(--uchu-yin-7);
+}

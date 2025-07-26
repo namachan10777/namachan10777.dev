@@ -28,7 +28,14 @@ const custom = z.union([
     title: z.string(),
     description: z.string(),
     url: z.string(),
-    image_url: z.string().nullable(),
+    image: z
+      .object({
+        url: z.string(),
+        width: z.number().int(),
+        height: z.number().int(),
+      })
+      .nullish(),
+    favicon: z.string().nullish(),
   }),
 ]);
 
