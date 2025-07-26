@@ -31,7 +31,7 @@ export const IsolatedLink = component$(
           <LinkIcon />
         )}
         <div class={styles.textWrapper}>
-          <h6 class={styles.title}>{title}</h6>
+          <strong class={styles.title}>{title}</strong>
           <small class={styles.description}>{description}</small>
         </div>
       </a>

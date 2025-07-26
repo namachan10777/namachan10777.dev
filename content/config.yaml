@@ -13,7 +13,7 @@ posts:
     id:
       type: id
     tags:
-      type: array
+      type: set
       item: string
       required: true
       table: tags
