@@ -61,7 +61,11 @@ const Heading = component$(
     return (
       <Tag id={slug} class={styles.heading}>
         <Slot />
-        <a href={`#${slug}`} class={styles.headingAnchor}>
+        <a
+          href={`#${slug}`}
+          class={styles.headingAnchor}
+          aria-label={`このセクション(${slug})へのリンク`}
+        >
           <Link />
         </a>
       </Tag>
