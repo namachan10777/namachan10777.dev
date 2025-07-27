@@ -28,6 +28,7 @@
   padding-block: var(--code-body-spacing);
   font-size: smaller;
   color: var(--uchu-gray-9);
+  border-top: 1px solid var(--uchu-yin-9);
 }
 
 .lines li {
@@ -35,7 +36,7 @@
 }
 
 .header {
-  border-bottom: 1px solid var(--uchu-yin-9);
+  border-left: 1px solid var(--uchu-yin-9);
   display: grid;
   grid-template-columns: 1fr auto;
   grid-column: 2;
@@ -44,28 +45,41 @@
 .headerTitle {
   grid-column: 1;
   padding-inline: 0.5rem;
+  font-size: smaller;
 }
 
 .copyButton {
   border: none;
   background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .codeBody {
   display: grid;
   grid-template-columns: subgrid;
   border-left: 1px solid var(--uchu-yin-9);
-  padding-block: var(--code-body-spacing);
   font-size: smaller;
+  border-top: 1px solid var(--uchu-yin-9);
 }
 
 .scrollBox {
+  padding-block: var(--code-body-spacing);
   overflow-x: scroll;
   max-width: 100%;
 }
 
+.root pre > code {
+  color: unset;
+}
+
 .root pre > code :global .function {
   color: var(--uchu-blue-7);
+}
+
+.root pre > code :global .function > span:not(.function) {
+  color: var(--uchu-yin-9);
 }
 
 .root pre > code :global .keyword {

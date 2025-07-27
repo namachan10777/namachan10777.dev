@@ -1,7 +1,8 @@
 import { Slot, component$, $, useSignal, Signal } from "@builder.io/qwik";
 import styles from "./code-block.module.css";
 import { useDebouncer$ } from "~/lib/qwik";
-
+import Copy from "~icons/iconoir/copy";
+import Check from "~icons/iconoir/check";
 interface Props {
   lines: number;
   title: string;
@@ -35,7 +36,17 @@ const CopyButton = component$(
     });
     return (
       <button class={styles.copyButton} onClick$={clickHandler}>
-        {showCopiedMessage.value ? <span>Copied</span> : <span>Copy</span>}
+        {showCopiedMessage.value ? (
+          <>
+            <span>Copied</span>
+            <Check />
+          </>
+        ) : (
+          <>
+            <span>Copy</span>
+            <Copy />
+          </>
+        )}
       </button>
     );
   },
