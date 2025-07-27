@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import styles from "./link-card.module.css";
 import LinkIcon from "~icons/iconoir/www";
+import Internet from "~icons/iconoir/internet";
 
 interface Image {
   url: string;
@@ -21,6 +22,7 @@ export const IsolatedLink = component$(
     favicon: string | null;
     image: Image | null;
   }) => {
+    const url = new URL(href);
     return (
       <a href={href} class={styles.root}>
         {favicon ? (
@@ -33,6 +35,10 @@ export const IsolatedLink = component$(
         <div class={styles.textWrapper}>
           <strong class={styles.title}>{title}</strong>
           <small class={styles.description}>{description}</small>
+          <small class={styles.domain}>
+            <Internet />
+            {url.hostname}
+          </small>
         </div>
       </a>
     );

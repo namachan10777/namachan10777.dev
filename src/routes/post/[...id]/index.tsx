@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import {
   StaticGenerateHandler,
   routeLoader$,
@@ -8,7 +8,6 @@ import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import { CodeBlock } from "~/components/code-block";
-import Link from "~icons/iconoir/link";
 import z from "zod";
 import { IsolatedLink } from "~/components/link-card";
 import {
@@ -18,6 +17,7 @@ import {
   FoldedKeep,
   FoldedTree,
 } from "~/generated";
+import { Heading } from "~/components/heading";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
@@ -53,30 +53,6 @@ const MdHtml = ({ html }: { html: FoldedHtml }) => {
     );
   }
 };
-
-const Heading = component$(
-  ({
-    tag,
-    slug,
-  }: {
-    tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-    slug: string;
-  }) => {
-    const Tag = tag;
-    return (
-      <Tag id={slug} class={styles.heading}>
-        <Slot />
-        <a
-          href={`#${slug}`}
-          class={styles.headingAnchor}
-          aria-label={`このセクション(${slug})へのリンク`}
-        >
-          <Link />
-        </a>
-      </Tag>
-    );
-  },
-);
 
 const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
   if (keep.custom.type === "codeblock") {
