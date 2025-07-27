@@ -3,10 +3,10 @@
 :root {
   --color-bg: oklch(95.57% 0.003 286.35);
   --color-text: oklch(14.38% 0.007 256.88);
-  --font-mono: IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, Consolas,
-    "Roboto Mono", monospace;
-  --font-normal: IBM Plex Sans JP, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Roboto Mono",
+    monospace;
+  --font-normal: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
 
   /*** gray ***/
   --uchu-gray-1-raw: 95.57% 0.003 286.35;
