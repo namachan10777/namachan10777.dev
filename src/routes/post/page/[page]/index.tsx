@@ -2,7 +2,12 @@ import { component$ } from "@builder.io/qwik";
 import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
-import { countSchema, parsePageNumber, postsSchema } from "~/lib/schema";
+import {
+  isCountRecord,
+  parsePageNumber,
+  isPostRecords,
+  isTags,
+} from "~/generated";
 
 const pageSize = 16;
 
@@ -34,15 +39,19 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     d1 &&
     (await d1.batch([
       d1.prepare(q1).bind(pageSize, pageSize * (index - 1)),
-      d1.prepare("SELECT COUNT(*) FROM posts WHERE posts.publish;"),
+      d1.prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;"),
     ]));
 
   if (results && results[0].results.length > 0) {
-    const count = countSchema.parse(results[1].results[0]);
+    const count = results[1].results[0];
+    const contents = results[0].results;
     return {
-      contents: postsSchema.parse(results[0].results),
+      contents: isPostRecords(contents) ? contents : [],
       current: index,
-      next: count["COUNT(*)"] > pageSize * index ? index + 1 : undefined,
+      next:
+        isCountRecord(count) && count.count > pageSize * index
+          ? index + 1
+          : undefined,
       prev: index > 1 ? index - 1 : undefined,
     };
   } else {
@@ -54,11 +63,13 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
 export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
   const d1 = env.get("DB");
   if (d1) {
-    const count = countSchema.parse(
-      await d1.prepare("SELECT COUNT(*) FROM posts WHERE posts.publish;").run(),
-    );
+    const count = await d1
+      .prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;")
+      .run();
     return {
-      params: Array.from({ length: count["COUNT(*)"] }).map((_, index) => {
+      params: Array.from({
+        length: isCountRecord(count) ? count.count : 0,
+      }).map((_, index) => {
         return { page: `${index + 1}` };
       }),
     };
@@ -74,13 +85,16 @@ export default component$(() => {
   }
   return (
     <PaginatedPostList
-      contents={page.value.contents.map((post) => ({
-        id: post.id,
-        title: post.title,
-        description: post.description,
-        published: new Date(post.date),
-        tags: post.tags,
-      }))}
+      contents={page.value.contents.map((post) => {
+        const tags = JSON.parse(post.tags);
+        return {
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          published: new Date(post.date),
+          tags: isTags(tags) ? tags : [],
+        };
+      })}
       prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
       next={page.value.next ? `/post/page/${page.value.next}` : undefined}
     >

@@ -51,3 +51,5 @@ functions/**/*.js
 
 .blindcms
 worker-configuration.d.ts
+
+/src/generated

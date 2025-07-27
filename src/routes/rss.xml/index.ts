@@ -1,6 +1,6 @@
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { XMLBuilder } from "fast-xml-parser";
-import { postsSchema } from "~/lib/schema";
+import { isPostRecords, isTags } from "~/generated";
 
 interface RssItem {
   title: string;
@@ -63,33 +63,28 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
     return;
   }
 
-  console.log(
+  const posts = (
     await d1
       .prepare(
         "SELECT posts.*, json_group_array(tags.value) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.id WHERE posts.publish GROUP BY posts.id;",
       )
-      .run(),
-  );
-
-  const posts = postsSchema.parse(
-    (
-      await d1
-        .prepare(
-          "SELECT posts.*, json_group_array(tags.value) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.id WHERE posts.publish GROUP BY posts.id;",
-        )
-        .run()
-    ).results,
-  );
+      .run()
+  ).results;
 
   const xml = genRss({
     ...base,
-    items: posts.map((post) => ({
-      title: post.title,
-      description: post.description,
-      date: new Date(post.date),
-      link: `${url.origin}/post/${post.id}/`,
-      categories: post.tags,
-    })),
+    items: isPostRecords(posts)
+      ? posts.map((post) => {
+          const categories = JSON.parse(post.tags);
+          return {
+            title: post.title,
+            description: post.description,
+            date: new Date(post.date),
+            link: `${url.origin}/post/${post.id}/`,
+            categories: isTags(categories) ? categories : [],
+          };
+        })
+      : [],
   });
   send(200, xml);
 };

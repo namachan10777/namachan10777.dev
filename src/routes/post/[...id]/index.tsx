@@ -9,25 +9,23 @@ import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import { CodeBlock } from "~/components/code-block";
 import Link from "~icons/iconoir/link";
+import z from "zod";
+import { IsolatedLink } from "~/components/link-card";
 import {
+  isFoldedRoot,
   FoldedContent,
   FoldedHtml,
   FoldedKeep,
   FoldedTree,
-  HeadingTag,
-  foldedRootSchema,
-} from "~/lib/schema";
-import z from "zod";
-import { IsolatedLink } from "~/components/link-card";
+} from "~/generated";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
   const post = kv && (await kv.get(params.id, { type: "json" }));
-  if (post) {
+  if (isFoldedRoot(post)) {
     try {
-      const parsed = foldedRootSchema.parse(post);
-      if (parsed.meta.publish) {
-        return parsed;
+      if (post.meta.publish) {
+        return post;
       } else {
         return null;
       }
@@ -57,7 +55,13 @@ const MdHtml = ({ html }: { html: FoldedHtml }) => {
 };
 
 const Heading = component$(
-  ({ tag, slug }: { tag: HeadingTag; slug: string }) => {
+  ({
+    tag,
+    slug,
+  }: {
+    tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+    slug: string;
+  }) => {
     const Tag = tag;
     return (
       <Tag id={slug} class={styles.heading}>

@@ -3,8 +3,13 @@ import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
-import { countSchema, parsePageNumber, postsSchema } from "~/lib/schema";
 import z from "zod";
+import {
+  isCountRecord,
+  isPostRecords,
+  isTags,
+  parsePageNumber,
+} from "~/generated";
 
 const pageSize = 16;
 
@@ -42,11 +47,16 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     ]));
 
   if (results && results[0].results.length > 0) {
-    const count = countSchema.parse(results[1].results[0]);
+    const posts = results[0].results;
+    const count = results[1].results[0];
     return {
-      contents: postsSchema.parse(results[0].results),
+      contents: isPostRecords(posts) ? posts : [],
       current: index,
-      next: count["COUNT(*)"] > pageSize * index ? index + 1 : undefined,
+      next:
+        isCountRecord(results[1].results[0]) &&
+        count["COUNT(*)"] > pageSize * index
+          ? index + 1
+          : undefined,
       prev: index > 1 ? index - 1 : undefined,
       tag: params.tag,
     };
@@ -60,9 +70,9 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
   const q = `
     SELECT COUNT(posts) AS count, tag
     FROM tags
-    JOIN posts ON posts.id = tags.id
-    WHERE tags.value = ? AND posts.publish
-    GROUP BY posts.id;
+    LEFT JOIN posts ON posts.id = tags.id
+    WHERE posts.publish
+    GROUP BY tags.value;
   `;
   const d1 = env.get("DB");
   if (d1 === undefined) {
@@ -93,13 +103,16 @@ export default component$(() => {
   }
   return (
     <PaginatedPostList
-      contents={page.value.contents.map((post) => ({
-        id: post.id,
-        title: post.title,
-        description: post.description,
-        published: new Date(post.date),
-        tags: post.tags,
-      }))}
+      contents={page.value.contents.map((post) => {
+        const tags = JSON.parse(post.tags);
+        return {
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          published: new Date(post.date),
+          tags: isTags(tags) ? tags : [],
+        };
+      })}
       prev={
         page.value.prev
           ? `/post/tag/${page.value.tag}/page/${page.value.prev}`
