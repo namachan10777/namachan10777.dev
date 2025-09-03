@@ -1,4 +1,4 @@
-name = "namachan10777-dev"
+name = "namachan10777dev"
 main = "./dist/_worker.js"
 compatibility_date = "2025-07-12"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
@@ -12,12 +12,14 @@ enabled = true
 
 [[d1_databases]]
 binding = "DB"
-database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
-preview_database_id = "94e88de8-fcfa-4cc4-825d-d8c22f3e82e4"
-database_name = "namachan10777-dev"
+database_id = "c609b018-bc8e-487d-bdcd-e0d31c6bfdd8"
+database_name = "db"
 experimental_remote = true
 
 [[kv_namespaces]]
 binding = "KV"
-id = "1e98314a6c53407485074a65924c9f0a"
+id = "d2c3b9591768403db8b733704da4b3d2"
 experimental_remote = true
+
+[images]
+binding = "IMAGES"
