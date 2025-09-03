@@ -1,31 +1,45 @@
 posts:
-  glob: "post/**/*.mdx"
-  r2_bucket: namachan10777dev
-  r2_zone: assets.namachan10777.dev
-  d1_database_id: e389f5c1-1db8-4e0c-858d-b51e13ec7000
-  document:
-    kv_namespace_id: 1e98314a6c53407485074a65924c9f0a
-    r2_image_prefix: posts
-    d1_table_name: posts
-    d1_image_table_name: images
-    d1_hash_table_name: hash
+  glob: "**/*,mdx"
+  backend:
+    type: cloudflare
+    database_id: 94e88de8-fcfa-4cc4-825d-d8c22f3e82e4
+    table: "posts"
   schema:
     id:
       type: id
-    tags:
-      type: set
-      item: string
-      required: true
-      table: tags
-    date:
+    body:
+      type: markdown
+      embed_svg: true
+      document_body: true
+      config:
+        image_table: "post_images"
+    title:
       type: string
       required: true
     description:
       type: string
       required: true
-    title:
-      type: string
+    date:
+      type: date
       required: true
     publish:
       type: boolean
-      required: true
+    tags:
+      type: set
+      item: string
+      backend:
+        type: d1
+        table: post_tags
+    hash:
+      type: hash
+    og_image:
+      type: image
+      backend:
+        type: r2
+        zone: assets.namachan10777.dev
+        bucket: namachan10777dev
+        prefix: og_image
+      transform:
+        type: simple
+        width: 1200
+        format: avif

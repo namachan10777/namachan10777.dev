@@ -13,6 +13,7 @@ enabled = true
 [[d1_databases]]
 binding = "DB"
 database_id = "e389f5c1-1db8-4e0c-858d-b51e13ec7000"
+preview_database_id = "94e88de8-fcfa-4cc4-825d-d8c22f3e82e4"
 database_name = "namachan10777-dev"
 experimental_remote = true
 
