@@ -49,5 +49,7 @@
     "typia": "^9.6.0",
     "@cloudflare/vite-plugin": "^1.10.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "valibot": "^1.1.0"
+  }
 }

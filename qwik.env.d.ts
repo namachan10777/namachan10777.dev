@@ -9,5 +9,6 @@ declare module "@builder.io/qwik-city/middleware/request-handler" {
   interface EnvGetter {
     get(key: "DB"): D1Database | undefined;
     get(key: "KV"): KVNamespace | undefined;
+    get(key: "IMAGES"): ImagesBinding | undefined;
   }
 }

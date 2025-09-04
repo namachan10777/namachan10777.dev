@@ -1,6 +1,7 @@
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { XMLBuilder } from "fast-xml-parser";
-import { isPostRecords, isTags } from "~/generated";
+import * as schema from "~/schema";
+import * as v from "valibot";
 
 interface RssItem {
   title: string;
@@ -73,18 +74,15 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
 
   const xml = genRss({
     ...base,
-    items: isPostRecords(posts)
-      ? posts.map((post) => {
-          const categories = JSON.parse(post.tags);
-          return {
-            title: post.title,
-            description: post.description,
-            date: new Date(post.date),
-            link: `${url.origin}/post/${post.id}/`,
-            categories: isTags(categories) ? categories : [],
-          };
-        })
-      : [],
+    items: v.parse(v.array(schema.postRecord), posts).map((post) => {
+      return {
+        title: post.title,
+        description: post.description,
+        date: post.date,
+        link: `${url.origin}/post/${post.id}/`,
+        categories: post.tags,
+      };
+    }),
   });
   send(200, xml);
 };

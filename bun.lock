@@ -3,6 +3,9 @@
   "workspaces": {
     "": {
       "name": "my-qwik-empty-starter",
+      "dependencies": {
+        "valibot": "^1.1.0",
+      },
       "devDependencies": {
         "@builder.io/qwik": "^1.15.0",
         "@builder.io/qwik-city": "^1.15.0",

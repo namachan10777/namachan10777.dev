@@ -8,31 +8,19 @@ import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import { CodeBlock } from "~/components/code-block";
-import z from "zod";
 import { IsolatedLink } from "~/components/link-card";
-import {
-  isFoldedRoot,
-  FoldedContent,
-  FoldedHtml,
-  FoldedKeep,
-  FoldedTree,
-} from "~/generated";
 import { Heading } from "~/components/heading";
+import * as v from "valibot";
+import * as schema from "~/schema";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   const kv = env.get("KV");
-  const post = kv && (await kv.get(params.id, { type: "json" }));
-  if (isFoldedRoot(post)) {
-    try {
-      if (post.meta.publish) {
-        return post;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
+  const post = v.safeParse(
+    schema.post,
+    kv && (await kv.get(params.id, { type: "json" })),
+  );
+  if (post.success) {
+    return post.output;
   } else {
     status(404);
     return null;
@@ -107,18 +95,78 @@ const MdChildrem = ({ inner }: { inner: FoldedTree[] }) => {
   );
 };
 
-const Markdown = component$(({ folded }: { folded: FoldedContent }) => {
-  if (folded.type === "html") {
+type Children =
+  | {
+      type: "eager";
+      content: string;
+    }
+  | {
+      type: "lazy";
+      children: schema.Tree[];
+    };
+
+const Alert = ({ alert, inner }: { alert: schema.Alert; inner: Children }) => {
+  if (inner.type === "eager") {
+    return <div>{alert.kind}</div>;
+  } else if (inner.type === "lazy") {
+    return <div>{alert.kind}</div>;
+  }
+};
+
+const Keep = ({ keep, inner }: { keep: schema.Keep; inner: Children }) => {
+  switch (keep.type) {
+    case "alert":
+      return <Alert alert={keep} inner={inner} />;
+  }
+  return <div></div>;
+};
+
+const MdNode = ({ node }: { node: schema.Tree }) => {
+  switch (node.type) {
+    case "text":
+      return node.text;
+    case "eager": {
+      const Tag = node.tag as "div";
+      return <Tag {...node.attrs} dangerouslySetInnerHTML={node.content} />;
+    }
+    case "lazy": {
+      const Tag = node.tag as "div";
+      return (
+        <Tag {...node.attrs}>
+          {node.children.map((child) => (
+            <MdNode key={child.hash} node={child} />
+          ))}
+        </Tag>
+      );
+    }
+    case "keep_eager":
+      return (
+        <Keep
+          keep={node.keep}
+          inner={{ type: "eager", content: node.content }}
+        />
+      );
+    case "keep_lazy":
+      return (
+        <Keep
+          keep={node.keep}
+          inner={{ type: "lazy", children: node.children }}
+        />
+      );
+  }
+};
+
+const Markdown = component$(({ root }: { root: schema.Root }) => {
+  if (root.type === "html") {
     return (
-      <article
-        dangerouslySetInnerHTML={folded.content}
-        class={styles.markdown}
-      />
+      <article dangerouslySetInnerHTML={root.content} class={styles.markdown} />
     );
   } else {
     return (
       <article class={styles.markdown}>
-        <MdChildrem inner={folded.children} />
+        {root.children.map((node) => (
+          <MdNode key={node.hash} />
+        ))}
       </article>
     );
   }
@@ -131,15 +179,23 @@ export default component$(() => {
       <>
         <article data-pagefind-body>
           <header class={styles.header}>
-            <h1 data-pagefind-meta={`date:${page.value.meta.date}`}>
-              {page.value.meta.title}
+            <h1 data-pagefind-meta={`date:${page.value.frontmatter.date}`}>
+              {page.value.frontmatter.title}
             </h1>
-            <p>{page.value.meta.description}</p>
-            <div data-pagefind-meta={`tags:${page.value.meta.tags.join(",")}`}>
-              <Tags tags={page.value.meta.tags} />
+            <p>{page.value.frontmatter.description}</p>
+            <div
+              data-pagefind-meta={`tags:${page.value.frontmatter.tags.join(",")}`}
+            >
+              <Tags
+                tags={page.value.frontmatter.tags.map((record) => record.tag)}
+              />
             </div>
           </header>
-          <Markdown folded={page.value.folded} />
+          {page.value.root.type === "html" ? (
+            <div dangerouslySetInnerHTML={page.value.root.content} />
+          ) : (
+            <Markdown root={page.value.root} />
+          )}
         </article>
       </>
     );
@@ -179,11 +235,11 @@ export const head: DocumentHead = ({ params, url, resolveValue }) => {
   const meta = [
     {
       name: "description",
-      content: post.meta.description,
+      content: post.frontmatter.description,
     },
     {
       property: "og:title",
-      content: post.meta.title,
+      content: post.frontmatter.title,
     },
     {
       property: "og:type",
@@ -195,21 +251,22 @@ export const head: DocumentHead = ({ params, url, resolveValue }) => {
     },
     {
       property: "og:description",
-      content: post.meta.description,
+      content: post.frontmatter.description,
     },
     {
       property: "og:locale",
       content: "ja_JP",
     },
   ];
-  if (post.meta.og_image) {
+  if (post.frontmatter.og_image) {
+    const og = post.frontmatter.og_image;
     meta.push({
       property: "og:image",
-      content: `${url.origin}/${post.meta.og_image}`,
+      content: `${url.origin}/image?bucket=${og.pointer.bucket}?key=${og.pointer.key}?format=webp`,
     });
   }
   return {
-    title: post.meta.title,
+    title: post.frontmatter.title,
     meta,
   };
 };
