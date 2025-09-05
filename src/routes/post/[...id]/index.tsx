@@ -273,7 +273,9 @@ export default component$(() => {
           ) : (
             <Markdown root={page.value.root} />
           )}
-          <Footnotes footnotes={page.value.footnotes} />
+          {page.value.footnotes.length > 0 && (
+            <Footnotes footnotes={page.value.footnotes} />
+          )}
         </article>
       </>
     );
