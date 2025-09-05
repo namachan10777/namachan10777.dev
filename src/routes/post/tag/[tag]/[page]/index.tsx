@@ -16,8 +16,8 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     const meta_q = `
       SELECT posts.*, json_group_array(post_tags.tag) AS tags
       FROM post_tags AS tag_filter
-      JOIN posts ON posts.id = tag_filter.id
-      LEFT JOIN post_tags ON posts.id = post_tags.id
+      JOIN posts ON posts.id = tag_filter.post_id
+      LEFT JOIN post_tags ON posts.id = post_tags.post_id
       WHERE tag_filter.tag = ? AND posts.publish
       GROUP BY posts.id
       ORDER BY posts.date DESC
@@ -28,7 +28,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     const count_q = `
       SELECT COUNT(*) AS count
       FROM post_tags
-      JOIN posts ON posts.id = post_tags.id
+      JOIN posts ON posts.id = post_tags.post_id
       WHERE post_tags.tag = ? AND posts.publish;
     `;
 
@@ -38,16 +38,26 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
         d1.prepare(meta_q).bind(params.tag, pageSize, pageSize * (index - 1)),
         d1.prepare(count_q).bind(params.tag),
       ]));
+    console.log(results);
 
     const s = v.tuple([
-      v.array(schema.postRecord),
-      v.tuple([
-        v.object({
-          count: v.number(),
-        }),
-      ]),
+      v.object({
+        results: v.array(schema.postRecord),
+      }),
+      v.object({
+        results: v.tuple([
+          v.object({
+            count: v.number(),
+          }),
+        ]),
+      }),
     ]);
-    const [posts, [count]] = v.parse(s, results);
+    const [
+      { results: posts },
+      {
+        results: [count],
+      },
+    ] = v.parse(s, results);
 
     return {
       contents: posts,
@@ -56,7 +66,8 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       prev: index > 1 ? index - 1 : undefined,
       tag: params.tag,
     };
-  } catch {
+  } catch (error) {
+    console.log(error);
     status(404);
     return undefined;
   }
