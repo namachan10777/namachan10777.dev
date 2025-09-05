@@ -11,6 +11,7 @@
         "@builder.io/qwik-city": "^1.15.0",
         "@cloudflare/vite-plugin": "^1.10.0",
         "@eslint/js": "latest",
+        "@iconify-json/iconoir": "^1.2.9",
         "@iconify/json": "^2.2.360",
         "@qwik-ui/headless": "^0.6.8",
         "@types/node": "24.0.13",
@@ -141,6 +142,8 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@iconify-json/iconoir": ["@iconify-json/iconoir@1.2.9", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-TXcx8mnxuZ0Weq104HwXZFPI0mlJzKjoy4nE20B803+Jrt7g2u4uc2iCGyHKpdqXVws3KaMTMDmY4yExy9Z+Qw=="],
 
     "@iconify/json": ["@iconify/json@2.2.360", "", { "dependencies": { "@iconify/types": "*", "pathe": "^1.1.2" } }, "sha512-N1mmTs7dJd6Ym62fP5DxJG1ZpbXSncD32tC/RJoGGjEPNx52/HzBixEjS9hVPps8CWs2VL7uRr4UKmjiFA/n5Q=="],
 
