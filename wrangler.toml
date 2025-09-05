@@ -1,4 +1,4 @@
-name = "namachan10777dev"
+name = "namachan10777-dev"
 main = "./dist/_worker.js"
 compatibility_date = "2025-07-12"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
