@@ -17,8 +17,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
     const kv = env.get("KV");
     const value = kv && (await kv.get(params.id, { type: "json" }));
-    const post = v.parse(schema.post, value);
-    return post;
+    return value as schema.Post;
   } catch (error) {
     console.log(JSON.stringify(error, null, "  "));
     status(404);
@@ -127,14 +126,13 @@ const LinkCardKeep = ({ keep }: { keep: schema.LinkCard }) => {
 };
 
 const FootnoteKeep = ({ keep }: { keep: schema.FootnoteReference }) => {
-  //return (
-  //  <sup>
-  //    <a id={`footnote-reference-${keep.id}`} href={`#footnote-${keep.id}`}>
-  //      [{keep.reference ? keep.reference : "?"}]
-  //    </a>
-  //  </sup>
-  //);
-  return <sup>{JSON.stringify(keep)}</sup>;
+  return (
+    <sup>
+      <a id={`footnote-reference-${keep.id}`} href={`#footnote-${keep.id}`}>
+        [{keep.reference ? keep.reference : "?"}]
+      </a>
+    </sup>
+  );
 };
 
 const Keep = ({ keep, inner }: { keep: schema.Keep; inner: Children }) => {
@@ -190,6 +188,30 @@ const MdNode = ({ node }: { node: schema.Tree }) => {
   }
 };
 
+const Footnote = component$(({ footnote }: { footnote: schema.Footnote }) => {
+  return (
+    <li class={styles.footnote}>
+      <a
+        class={styles.footnoteLink}
+        id={`footnote-${footnote.id}`}
+        href={`#footnote-reference-${footnote.id}`}
+      >
+        {footnote.reference}.
+      </a>
+      {footnote.content.type === "html" ? (
+        <div
+          class={styles.footnoteBody}
+          dangerouslySetInnerHTML={footnote.content.content}
+        />
+      ) : (
+        footnote.content.children.map((child) => (
+          <MdNode node={child} key={child.hash} />
+        ))
+      )}
+    </li>
+  );
+});
+
 const Footnotes = component$(
   ({ footnotes }: { footnotes: schema.Footnote[] }) => {
     return (
@@ -197,14 +219,9 @@ const Footnotes = component$(
         <Heading slug="footnote" tag="h2">
           Footnote
         </Heading>
-        <ol>
+        <ol class={styles.footnotes}>
           {footnotes.map((footnote) => (
-            <li key={footnote.id} id={`footnote-${footnote.id}`}>
-              <Markdown root={footnote.content} />
-              {footnote.reference && (
-                <a href={`#footnote-reference-${footnote.id}`}>↩</a>
-              )}
-            </li>
+            <Footnote footnote={footnote} key={footnote.id} />
           ))}
         </ol>
       </section>

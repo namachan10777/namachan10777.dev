@@ -86,3 +86,27 @@
     font-size: xx-large;
   }
 }
+
+@layer component {
+  .footnote {
+    display: contents;
+  }
+
+  .footnote p {
+    margin-block: 0;
+  }
+
+  .footnoteBody {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .footnotes {
+    display: grid;
+    grid-gap: 1rem;
+    row-gap: 1rem;
+    padding-inline: 0;
+    grid-template-columns: auto 1fr;
+  }
+}

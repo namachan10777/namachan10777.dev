@@ -68,6 +68,9 @@ export type Alert = v.InferOutput<typeof alert>;
 
 export const footnoteReference = v.object({
   type: v.literal("footnote_reference"),
+  id: v.string(),
+  reference: v.nullable(v.number()),
+  content: v.nullable(v.string()),
 });
 
 export type FootnoteReference = v.InferOutput<typeof footnoteReference>;
@@ -172,7 +175,7 @@ export type Root = v.InferOutput<typeof root>;
 
 export const footnote = v.object({
   id: v.string(),
-  reference: v.nullable(v.union([v.string(), v.number()])),
+  reference: v.nullable(v.number()),
   content: root,
 });
 
