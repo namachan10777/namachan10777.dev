@@ -95,10 +95,10 @@ const HeadingKeep = ({
 
 const ImageKeep = ({ keep }: { keep: schema.Image }) => {
   const srcset = [
-    `/${keep.storage.key}?format=avif&width=300 400w`,
-    `/${keep.storage.key}?format=avif&width=500 600`,
-    `/${keep.storage.key}?format=avif&width=800 1200w`,
-    `/${keep.storage.key}?format=avif&width=1000 2000`,
+    `/${keep.storage.key}?format=webp&width=300 400w`,
+    `/${keep.storage.key}?format=webp&width=500 600`,
+    `/${keep.storage.key}?format=webp&width=800 1200w`,
+    `/${keep.storage.key}?format=webp&width=1000 2000`,
   ].join(",");
   return (
     <img
