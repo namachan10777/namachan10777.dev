@@ -7,10 +7,13 @@ const linkCardImage = v.object({
   content_type: v.string(),
 });
 
+export type LinkCardImage = v.InferOutput<typeof linkCardImage>;
+
 export const codeblock = v.object({
   type: v.literal("codeblock"),
   lang: v.nullable(v.string()),
   title: v.nullable(v.string()),
+  lines: v.number(),
 });
 
 export type Codeblock = v.InferOutput<typeof codeblock>;
@@ -41,6 +44,7 @@ export type Image = v.InferOutput<typeof image>;
 
 export const link_card = v.object({
   type: v.literal("link_card"),
+  href: v.string(),
   title: v.string(),
   description: v.string(),
   favicon: v.nullable(linkCardImage),
@@ -62,15 +66,20 @@ export const alert = v.object({
 
 export type Alert = v.InferOutput<typeof alert>;
 
-export const footnote = v.object({
-  type: v.literal("footnote"),
-  id: v.string(),
-  content: v.string(),
+export const footnoteReference = v.object({
+  type: v.literal("footnote_reference"),
 });
 
-export type Footnote = v.InferOutput<typeof footnote>;
+export type FootnoteReference = v.InferOutput<typeof footnoteReference>;
 
-const keep = v.union([codeblock, heading, image, link_card, alert, footnote]);
+const keep = v.union([
+  codeblock,
+  heading,
+  image,
+  link_card,
+  alert,
+  footnoteReference,
+]);
 
 export type Keep = v.InferOutput<typeof keep>;
 
@@ -97,14 +106,12 @@ export type Tree =
   | {
       type: "keep_eager";
       keep: Keep;
-      attrs: Record<string, string | number | boolean>;
       content: string;
       hash: string;
     }
   | {
       type: "keep_lazy";
       keep: Keep;
-      attrs: Record<string, string | number | boolean>;
       children: Tree[];
       hash: string;
     };
@@ -127,23 +134,19 @@ const tree: v.GenericSchema<Tree> = v.union([
   v.object({
     type: v.literal("keep_eager"),
     keep: keep,
-    attrs: v.record(v.string(), v.union([v.string(), v.number(), v.boolean()])),
     content: v.string(),
     hash: v.string(),
   }),
   v.object({
     type: v.literal("keep_lazy"),
     keep: keep,
-    attrs: v.record(v.string(), v.union([v.string(), v.number(), v.boolean()])),
     children: v.array(v.lazy(() => tree)),
     hash: v.string(),
   }),
 ]);
 
 const imageReference = v.object({
-  type: v.literal("image"),
   blurhash: v.nullable(v.string()),
-  alt: v.string(),
   width: v.number(),
   height: v.number(),
   content_type: v.string(),
@@ -167,6 +170,14 @@ export const root = v.union([
 
 export type Root = v.InferOutput<typeof root>;
 
+export const footnote = v.object({
+  id: v.string(),
+  reference: v.nullable(v.union([v.string(), v.number()])),
+  content: root,
+});
+
+export type Footnote = v.InferOutput<typeof footnote>;
+
 export const post = v.object({
   frontmatter: v.object({
     id: v.string(),
@@ -174,22 +185,56 @@ export const post = v.object({
     description: v.string(),
     date: v.string(),
     publish: v.boolean(),
-    og_image: imageReference,
+    og_image: v.nullable(imageReference),
     tags: v.array(
       v.object({
         tag: v.string(),
       }),
     ),
   }),
+  footnotes: v.array(footnote),
+  sections: v.array(
+    v.object({
+      id: v.string(),
+      level: v.union([
+        v.literal(1),
+        v.literal(2),
+        v.literal(3),
+        v.literal(4),
+        v.literal(5),
+        v.literal(6),
+      ]),
+      title: v.string(),
+      content: v.string(),
+    }),
+  ),
   root,
 });
 export type Post = v.InferOutput<typeof post>;
 
 export const markdownReference = v.object({});
 
+export type D1Result<R> = {
+  results: R[];
+  success: true;
+};
+
+export function d1Result<T>(
+  schema: v.GenericSchema<T>,
+): v.GenericSchema<D1Result<T>> {
+  return v.object({
+    results: v.array(schema),
+    success: v.literal(true),
+  });
+}
+
 export const postRecord = v.object({
   id: v.string(),
-  body: markdownReference,
+  body: v.pipe(
+    v.string(),
+    v.transform((json) => JSON.parse(json)),
+    markdownReference,
+  ),
   title: v.string(),
   description: v.string(),
   date: v.pipe(
@@ -206,5 +251,9 @@ export const postRecord = v.object({
     v.array(v.string()),
   ),
   hash: v.string(),
-  og_image: v.nullable(imageReference),
+  og_image: v.pipe(
+    v.nullable(v.string()),
+    v.transform((json) => json && JSON.parse(json)),
+    v.nullable(imageReference),
+  ),
 });

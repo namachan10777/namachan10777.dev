@@ -9,91 +9,22 @@ import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import { CodeBlock } from "~/components/code-block";
 import { IsolatedLink } from "~/components/link-card";
-import { Heading } from "~/components/heading";
+import { Heading, HeadingTag } from "~/components/heading";
 import * as v from "valibot";
 import * as schema from "~/schema";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
-  const kv = env.get("KV");
-  const post = v.safeParse(
-    schema.post,
-    kv && (await kv.get(params.id, { type: "json" })),
-  );
-  if (post.success) {
-    return post.output;
-  } else {
+  try {
+    const kv = env.get("KV");
+    const value = kv && (await kv.get(params.id, { type: "json" }));
+    const post = v.parse(schema.post, value);
+    return post;
+  } catch (error) {
+    console.log(JSON.stringify(error, null, "  "));
     status(404);
     return null;
   }
 });
-
-const MdHtml = ({ html }: { html: FoldedHtml }) => {
-  const Tag = html.tag as "div";
-  if (html.content.type === "html") {
-    return (
-      <Tag dangerouslySetInnerHTML={html.content.content} {...html.attrs} />
-    );
-  } else {
-    return (
-      <Tag key={html.id} {...html.attrs}>
-        <MdChildrem inner={html.content.children} />
-      </Tag>
-    );
-  }
-};
-
-const MdKeep = ({ keep }: { keep: FoldedKeep }) => {
-  if (keep.custom.type === "codeblock") {
-    return (
-      <CodeBlock
-        lines={keep.custom.lines}
-        title={keep.custom.title || "notitle"}
-      >
-        <code dangerouslySetInnerHTML={keep.custom.content} />
-      </CodeBlock>
-    );
-  } else if (keep.custom.type === "heading") {
-    if (keep.content.type === "html") {
-      return (
-        <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
-          <span dangerouslySetInnerHTML={keep.content.content} />
-        </Heading>
-      );
-    } else {
-      return (
-        <Heading tag={keep.custom.tag} slug={keep.custom.slug}>
-          <MdChildrem inner={keep.content.children} />
-        </Heading>
-      );
-    }
-  } else if (keep.custom.type === "isolated_link") {
-    return (
-      <IsolatedLink
-        href={keep.custom.url}
-        title={keep.custom.title}
-        description={keep.custom.description}
-        favicon={keep.custom.favicon ? keep.custom.favicon : null}
-        image={keep.custom.image ? keep.custom.image : null}
-      />
-    );
-  }
-};
-
-const MdChildrem = ({ inner }: { inner: FoldedTree[] }) => {
-  return (
-    <>
-      {inner.map((child) => {
-        if (child.type === "html") {
-          return <MdHtml key={child.id} html={child} />;
-        } else if (child.type === "keep") {
-          return <MdKeep key={child.id} keep={child} />;
-        } else if (child.type === "text") {
-          return child.text;
-        }
-      })}
-    </>
-  );
-};
 
 type Children =
   | {
@@ -113,10 +44,113 @@ const Alert = ({ alert, inner }: { alert: schema.Alert; inner: Children }) => {
   }
 };
 
+const CodeblockKeep = ({
+  keep,
+  inner,
+}: {
+  keep: schema.Codeblock;
+  inner: Children;
+}) => {
+  if (inner.type === "eager") {
+    return (
+      <CodeBlock lines={keep.lines} title={keep.title || "notitle"}>
+        <code dangerouslySetInnerHTML={inner.content} />
+      </CodeBlock>
+    );
+  } else {
+    return (
+      <CodeBlock lines={keep.lines} title={keep.title || "notitle"}>
+        <code>
+          {inner.children.map((child) => (
+            <MdNode key={child.hash} node={child} />
+          ))}
+        </code>
+      </CodeBlock>
+    );
+  }
+};
+
+const HeadingKeep = ({
+  keep,
+  inner,
+}: {
+  keep: schema.Heading;
+  inner: Children;
+}) => {
+  if (inner.type === "eager") {
+    return (
+      <Heading tag={`h${keep.level}` as HeadingTag} slug={keep.slug}>
+        <span dangerouslySetInnerHTML={inner.content} />
+      </Heading>
+    );
+  } else {
+    return (
+      <Heading tag={`h${keep.level}` as HeadingTag} slug={keep.slug}>
+        {inner.children.map((child) => (
+          <MdNode key={child.hash} node={child} />
+        ))}
+      </Heading>
+    );
+  }
+};
+
+const ImageKeep = ({ keep }: { keep: schema.Image }) => {
+  const srcset = [
+    `/${keep.storage.key}?format=avif&width=300 400w`,
+    `/${keep.storage.key}?format=avif&width=500 600`,
+    `/${keep.storage.key}?format=avif&width=800 1200w`,
+    `/${keep.storage.key}?format=avif&width=1000 2000`,
+  ].join(",");
+  return (
+    <img
+      src={`/${keep.storage.key}width=100&format=webp`}
+      srcset={srcset}
+      alt={keep.alt}
+      width={keep.width}
+      height={keep.height}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+};
+
+const LinkCardKeep = ({ keep }: { keep: schema.LinkCard }) => {
+  return (
+    <IsolatedLink
+      href={keep.href}
+      title={keep.title}
+      description={keep.description}
+      favicon={keep.favicon ? keep.favicon : null}
+      image={keep.og_image ? keep.og_image : null}
+    />
+  );
+};
+
+const FootnoteKeep = ({ keep }: { keep: schema.FootnoteReference }) => {
+  //return (
+  //  <sup>
+  //    <a id={`footnote-reference-${keep.id}`} href={`#footnote-${keep.id}`}>
+  //      [{keep.reference ? keep.reference : "?"}]
+  //    </a>
+  //  </sup>
+  //);
+  return <sup>{JSON.stringify(keep)}</sup>;
+};
+
 const Keep = ({ keep, inner }: { keep: schema.Keep; inner: Children }) => {
   switch (keep.type) {
     case "alert":
       return <Alert alert={keep} inner={inner} />;
+    case "codeblock":
+      return <CodeblockKeep keep={keep} inner={inner} />;
+    case "heading":
+      return <HeadingKeep keep={keep} inner={inner} />;
+    case "image":
+      return <ImageKeep keep={keep} />;
+    case "link_card":
+      return <LinkCardKeep keep={keep} />;
+    case "footnote_reference":
+      return <FootnoteKeep keep={keep} />;
   }
   return <div></div>;
 };
@@ -156,18 +190,44 @@ const MdNode = ({ node }: { node: schema.Tree }) => {
   }
 };
 
+const Footnotes = component$(
+  ({ footnotes }: { footnotes: schema.Footnote[] }) => {
+    return (
+      <section>
+        <Heading slug="footnote" tag="h2">
+          Footnote
+        </Heading>
+        <ol>
+          {footnotes.map((footnote) => (
+            <li key={footnote.id} id={`footnote-${footnote.id}`}>
+              <Markdown root={footnote.content} />
+              {footnote.reference && (
+                <a href={`#footnote-reference-${footnote.id}`}>↩</a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  },
+);
+
 const Markdown = component$(({ root }: { root: schema.Root }) => {
   if (root.type === "html") {
     return (
-      <article dangerouslySetInnerHTML={root.content} class={styles.markdown} />
+      <>
+        <div dangerouslySetInnerHTML={root.content} class={styles.markdown} />
+      </>
     );
   } else {
     return (
-      <article class={styles.markdown}>
-        {root.children.map((node) => (
-          <MdNode key={node.hash} />
-        ))}
-      </article>
+      <>
+        <div class={styles.markdown}>
+          {root.children.map((node) => (
+            <MdNode node={node} key={node.hash} />
+          ))}
+        </div>
+      </>
     );
   }
 });
@@ -196,6 +256,7 @@ export default component$(() => {
           ) : (
             <Markdown root={page.value.root} />
           )}
+          <Footnotes footnotes={page.value.footnotes} />
         </article>
       </>
     );
@@ -206,14 +267,17 @@ export default component$(() => {
 
 export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
   const d1 = env.get("DB");
-  const ids = z
-    .object({ id: z.string() })
-    .array()
-    .nullish()
-    .parse(
-      d1 &&
-        (await d1.prepare("SELECT id FROM posts WHERE posts.publish;").run()),
-    );
+  const schema = v.nullish(
+    v.array(
+      v.object({
+        id: v.string(),
+      }),
+    ),
+  );
+  const ids = v.parse(
+    schema,
+    d1 && (await d1.prepare("SELECT id FROM posts WHERE posts.publish;").run()),
+  );
   return {
     params: ids || [],
   };

@@ -21,5 +21,10 @@ binding = "KV"
 id = "d2c3b9591768403db8b733704da4b3d2"
 experimental_remote = true
 
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "namachan10777dev"
+experimental_remote = true
+
 [images]
 binding = "IMAGES"

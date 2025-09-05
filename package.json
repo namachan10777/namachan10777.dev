@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "typia generate --input src/schema --output src/generated && qwik build",
+    "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
@@ -46,7 +46,6 @@
     "bun-types": "^1.2.19",
     "fast-xml-parser": "^5.2.5",
     "@qwik-ui/headless": "^0.6.8",
-    "typia": "^9.6.0",
     "@cloudflare/vite-plugin": "^1.10.0"
   },
   "dependencies": {

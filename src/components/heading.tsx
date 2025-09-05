@@ -2,6 +2,8 @@ import { Slot, component$ } from "@builder.io/qwik";
 import styles from "./heading.module.css";
 import Link from "~icons/iconoir/link";
 
+export type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
 export const Heading = component$(
   ({
     tag,

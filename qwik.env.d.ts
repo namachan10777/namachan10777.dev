@@ -10,5 +10,6 @@ declare module "@builder.io/qwik-city/middleware/request-handler" {
     get(key: "DB"): D1Database | undefined;
     get(key: "KV"): KVNamespace | undefined;
     get(key: "IMAGES"): ImagesBinding | undefined;
+    get(key: "R2"): R2Bucket | undefined;
   }
 }
