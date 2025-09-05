@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "qwik build && bun run ./assetsignore.ts",
+    "build": "bunx wrangler types && qwik build && bun run ./assetsignore.ts",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
