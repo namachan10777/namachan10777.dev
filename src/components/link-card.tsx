@@ -2,7 +2,7 @@ import { component$ } from "@builder.io/qwik";
 import styles from "./link-card.module.css";
 import LinkIcon from "~icons/iconoir/www";
 import Internet from "~icons/iconoir/internet";
-import * as schema from "~/schema";
+import * as rudis from "~/generated/rudis";
 
 export const IsolatedLink = component$(
   ({
@@ -14,8 +14,8 @@ export const IsolatedLink = component$(
     href: string;
     title: string;
     description: string;
-    favicon: schema.LinkCardImage | null;
-    image: schema.LinkCardImage | null;
+    favicon: rudis.LinkCardImage | null;
+    image: rudis.LinkCardImage | null;
   }) => {
     const url = new URL(href);
     return (

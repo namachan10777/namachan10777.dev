@@ -5,9 +5,16 @@ import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
 
 import * as v from "valibot";
-import * as schema from "~/schema";
+import * as posts from "~/generated/posts/posts";
 
 const pageSize = 16;
+
+const recordSchema = v.intersect([
+  posts.table,
+  v.object({
+    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
+  }),
+]);
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -42,7 +49,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
 
     const s = v.tuple([
       v.object({
-        results: v.array(schema.postRecord),
+        results: v.array(recordSchema),
       }),
       v.object({
         results: v.tuple([

@@ -3,7 +3,14 @@ import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import * as v from "valibot";
-import * as schema from "~/schema";
+import * as posts from "~/generated/posts/posts";
+
+const recordSchema = v.intersect([
+  posts.table,
+  v.object({
+    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
+  }),
+]);
 
 const pageSize = 16;
 
@@ -31,7 +38,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     const parser = v.tuple([
       v.object({
         success: v.literal(true),
-        results: v.array(schema.postRecord),
+        results: v.array(recordSchema),
       }),
       v.object({
         success: v.literal(true),
@@ -51,7 +58,8 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       next: count.count > pageSize * current ? current + 1 : undefined,
       prev: current > 1 ? current - 1 : undefined,
     };
-  } catch {
+  } catch (error) {
+    console.log(error);
     status(404);
     return undefined;
   }

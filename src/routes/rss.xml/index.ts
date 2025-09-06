@@ -1,7 +1,14 @@
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { XMLBuilder } from "fast-xml-parser";
-import * as schema from "~/schema";
 import * as v from "valibot";
+import * as posts from "~/generated/posts/posts";
+
+const recordSchema = v.intersect([
+  posts.table,
+  v.object({
+    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
+  }),
+]);
 
 interface RssItem {
   title: string;
@@ -67,14 +74,20 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
   const posts = (
     await d1
       .prepare(
-        "SELECT posts.*, json_group_array(tags.value) AS tags FROM posts LEFT JOIN tags ON posts.id = tags.id WHERE posts.publish GROUP BY posts.id;",
+        `
+        SELECT posts.*, json_group_array(post_tags.tag) AS tags
+        FROM posts
+        LEFT JOIN post_tags ON posts.id = post_tags.post_id
+        WHERE posts.publish
+        GROUP BY posts.id;
+      `,
       )
       .run()
   ).results;
 
   const xml = genRss({
     ...base,
-    items: v.parse(v.array(schema.postRecord), posts).map((post) => {
+    items: v.parse(v.array(recordSchema), posts).map((post) => {
       return {
         title: post.title,
         description: post.description,

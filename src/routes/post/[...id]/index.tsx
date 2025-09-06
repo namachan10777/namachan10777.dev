@@ -11,13 +11,14 @@ import { CodeBlock } from "~/components/code-block";
 import { IsolatedLink } from "~/components/link-card";
 import { Heading, HeadingTag } from "~/components/heading";
 import * as v from "valibot";
-import * as schema from "~/schema";
+import * as rudis from "~/generated/rudis";
+import * as posts from "~/generated/posts/posts";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
     const kv = env.get("KV");
     const value = kv && (await kv.get(params.id, { type: "json" }));
-    return value as schema.Post;
+    return value as posts.BodyContent;
   } catch (error) {
     console.log(JSON.stringify(error, null, "  "));
     status(404);
@@ -32,10 +33,10 @@ type Children =
     }
   | {
       type: "lazy";
-      children: schema.Tree[];
+      children: rudis.MarkdownNode<posts.BodyKeep>[];
     };
 
-const Alert = ({ alert, inner }: { alert: schema.Alert; inner: Children }) => {
+const Alert = ({ alert, inner }: { alert: rudis.Alert; inner: Children }) => {
   if (inner.type === "eager") {
     return <div>{alert.kind}</div>;
   } else if (inner.type === "lazy") {
@@ -47,7 +48,7 @@ const CodeblockKeep = ({
   keep,
   inner,
 }: {
-  keep: schema.Codeblock;
+  keep: rudis.Codeblock;
   inner: Children;
 }) => {
   if (inner.type === "eager") {
@@ -73,7 +74,7 @@ const HeadingKeep = ({
   keep,
   inner,
 }: {
-  keep: schema.Heading;
+  keep: rudis.Heading;
   inner: Children;
 }) => {
   if (inner.type === "eager") {
@@ -93,7 +94,7 @@ const HeadingKeep = ({
   }
 };
 
-const ImageKeep = ({ keep }: { keep: schema.Image }) => {
+const ImageKeep = ({ keep }: { keep: rudis.Image<rudis.R2ImageStorage> }) => {
   const srcset = [
     `/${keep.storage.key}?format=webp&width=300 400w`,
     `/${keep.storage.key}?format=webp&width=500 600`,
@@ -113,7 +114,7 @@ const ImageKeep = ({ keep }: { keep: schema.Image }) => {
   );
 };
 
-const LinkCardKeep = ({ keep }: { keep: schema.LinkCard }) => {
+const LinkCardKeep = ({ keep }: { keep: rudis.LinkCard }) => {
   return (
     <IsolatedLink
       href={keep.href}
@@ -125,7 +126,7 @@ const LinkCardKeep = ({ keep }: { keep: schema.LinkCard }) => {
   );
 };
 
-const FootnoteKeep = ({ keep }: { keep: schema.FootnoteReference }) => {
+const FootnoteKeep = ({ keep }: { keep: rudis.FootnoteReference }) => {
   return (
     <sup>
       <a id={`footnote-reference-${keep.id}`} href={`#footnote-${keep.id}`}>
@@ -135,7 +136,7 @@ const FootnoteKeep = ({ keep }: { keep: schema.FootnoteReference }) => {
   );
 };
 
-const Keep = ({ keep, inner }: { keep: schema.Keep; inner: Children }) => {
+const Keep = ({ keep, inner }: { keep: posts.BodyKeep; inner: Children }) => {
   switch (keep.type) {
     case "alert":
       return <Alert alert={keep} inner={inner} />;
@@ -153,7 +154,7 @@ const Keep = ({ keep, inner }: { keep: schema.Keep; inner: Children }) => {
   return <div></div>;
 };
 
-const MdNode = ({ node }: { node: schema.Tree }) => {
+const MdNode = ({ node }: { node: rudis.MarkdownNode<posts.BodyKeep> }) => {
   switch (node.type) {
     case "text":
       return node.text;
@@ -188,32 +189,38 @@ const MdNode = ({ node }: { node: schema.Tree }) => {
   }
 };
 
-const Footnote = component$(({ footnote }: { footnote: schema.Footnote }) => {
-  return (
-    <li class={styles.footnote}>
-      <a
-        class={styles.footnoteLink}
-        id={`footnote-${footnote.id}`}
-        href={`#footnote-reference-${footnote.id}`}
-      >
-        {footnote.reference}.
-      </a>
-      {footnote.content.type === "html" ? (
-        <div
-          class={styles.footnoteBody}
-          dangerouslySetInnerHTML={footnote.content.content}
-        />
-      ) : (
-        footnote.content.children.map((child) => (
-          <MdNode node={child} key={child.hash} />
-        ))
-      )}
-    </li>
-  );
-});
+const Footnote = component$(
+  ({ footnote }: { footnote: rudis.FootnoteDefinition<posts.BodyKeep> }) => {
+    return (
+      <li class={styles.footnote}>
+        <a
+          class={styles.footnoteLink}
+          id={`footnote-${footnote.id}`}
+          href={`#footnote-reference-${footnote.id}`}
+        >
+          {footnote.reference}.
+        </a>
+        {footnote.content.type === "html" ? (
+          <div
+            class={styles.footnoteBody}
+            dangerouslySetInnerHTML={footnote.content.content}
+          />
+        ) : (
+          footnote.content.children.map((child) => (
+            <MdNode node={child} key={child.hash} />
+          ))
+        )}
+      </li>
+    );
+  },
+);
 
 const Footnotes = component$(
-  ({ footnotes }: { footnotes: schema.Footnote[] }) => {
+  ({
+    footnotes,
+  }: {
+    footnotes: rudis.FootnoteDefinition<posts.BodyKeep>[];
+  }) => {
     return (
       <section>
         <Heading slug="footnote" tag="h2">
@@ -229,25 +236,27 @@ const Footnotes = component$(
   },
 );
 
-const Markdown = component$(({ root }: { root: schema.Root }) => {
-  if (root.type === "html") {
-    return (
-      <>
-        <div dangerouslySetInnerHTML={root.content} class={styles.markdown} />
-      </>
-    );
-  } else {
-    return (
-      <>
-        <div class={styles.markdown}>
-          {root.children.map((node) => (
-            <MdNode node={node} key={node.hash} />
-          ))}
-        </div>
-      </>
-    );
-  }
-});
+const Markdown = component$(
+  ({ root }: { root: rudis.MarkdownRoot<posts.BodyKeep> }) => {
+    if (root.type === "html") {
+      return (
+        <>
+          <div dangerouslySetInnerHTML={root.content} class={styles.markdown} />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <div class={styles.markdown}>
+            {root.children.map((node) => (
+              <MdNode node={node} key={node.hash} />
+            ))}
+          </div>
+        </>
+      );
+    }
+  },
+);
 
 export default component$(() => {
   const page = usePost();
