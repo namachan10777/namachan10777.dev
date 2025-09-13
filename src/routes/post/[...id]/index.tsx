@@ -20,7 +20,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
     const value = kv && (await kv.get(params.id, { type: "json" }));
     return value as posts.BodyContent;
   } catch (error) {
-    console.log(JSON.stringify(error, null, "  "));
+    console.warn(JSON.stringify(error, null, "  "));
     status(404);
     return null;
   }

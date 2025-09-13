@@ -59,7 +59,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       prev: current > 1 ? current - 1 : undefined,
     };
   } catch (error) {
-    console.log(error);
+    console.warn(error);
     status(404);
     return undefined;
   }

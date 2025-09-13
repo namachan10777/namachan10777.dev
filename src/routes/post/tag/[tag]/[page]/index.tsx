@@ -45,7 +45,6 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
         d1.prepare(meta_q).bind(params.tag, pageSize, pageSize * (index - 1)),
         d1.prepare(count_q).bind(params.tag),
       ]));
-    console.log(results);
 
     const s = v.tuple([
       v.object({
@@ -74,7 +73,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       tag: params.tag,
     };
   } catch (error) {
-    console.log(error);
+    console.warn(error);
     status(404);
     return undefined;
   }
