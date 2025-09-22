@@ -13,6 +13,7 @@ enabled = true
 [[d1_databases]]
 binding = "DB"
 database_id = "c609b018-bc8e-487d-bdcd-e0d31c6bfdd8"
+preview_database_id = "94e88de8-fcfa-4cc4-825d-d8c22f3e82e4"
 database_name = "db"
 experimental_remote = true
 
