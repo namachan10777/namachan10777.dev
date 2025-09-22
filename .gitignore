@@ -49,5 +49,5 @@ functions/**/*.js
 
 /.wrangler
 
-.blindcms
+content/.rudis
 worker-configuration.d.ts
