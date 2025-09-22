@@ -1,4 +1,4 @@
-import * as rudis from "../rudis-valibot"
+import * as rudis from "../rudis-valibot";
 import * as v from "valibot";
 export const frontmatter = v.object({
   tag: v.string(),

@@ -1,6 +1,6 @@
-import * as rudis from "../rudis"
-import * as post_tags from "./post_tags"
-export type BodyKeep = 
+import * as rudis from "../rudis";
+import * as post_tags from "./post_tags";
+export type BodyKeep =
   | rudis.AlertKeep
   | rudis.FootnoteReferenceKeep
   | rudis.LinkCardKeep

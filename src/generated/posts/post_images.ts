@@ -1,4 +1,4 @@
-import * as rudis from "../rudis"
+import * as rudis from "../rudis";
 export type ImageColumn = rudis.ImageReference<rudis.R2StoragePointer>;
 export interface Table {
   src_id: string;

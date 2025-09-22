@@ -1,4 +1,4 @@
-import * as rudis from "../rudis"
+import * as rudis from "../rudis";
 export interface Table {
   tag: string;
 }
