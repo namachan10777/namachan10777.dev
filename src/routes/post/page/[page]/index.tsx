@@ -3,7 +3,7 @@ import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts";
+import * as posts from "~/generated/posts/posts-valibot";
 
 const recordSchema = v.intersect([
   posts.table,

@@ -5,7 +5,7 @@ import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
 
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts";
+import * as posts from "~/generated/posts/posts-valibot";
 
 const pageSize = 16;
 

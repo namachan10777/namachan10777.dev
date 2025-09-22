@@ -18,7 +18,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
     const kv = env.get("KV");
     const value = kv && (await kv.get(params.id, { type: "json" }));
-    return value as posts.BodyContent;
+    return value as posts.BodyDocument;
   } catch (error) {
     console.warn(JSON.stringify(error, null, "  "));
     status(404);
@@ -36,7 +36,13 @@ type Children =
       children: rudis.MarkdownNode<posts.BodyKeep>[];
     };
 
-const Alert = ({ alert, inner }: { alert: rudis.Alert; inner: Children }) => {
+const Alert = ({
+  alert,
+  inner,
+}: {
+  alert: rudis.AlertKeep;
+  inner: Children;
+}) => {
   if (inner.type === "eager") {
     return <div>{alert.kind}</div>;
   } else if (inner.type === "lazy") {
@@ -48,7 +54,7 @@ const CodeblockKeep = ({
   keep,
   inner,
 }: {
-  keep: rudis.Codeblock;
+  keep: rudis.CodeblockKeep;
   inner: Children;
 }) => {
   if (inner.type === "eager") {
@@ -74,7 +80,7 @@ const HeadingKeep = ({
   keep,
   inner,
 }: {
-  keep: rudis.Heading;
+  keep: rudis.HeadingKeep;
   inner: Children;
 }) => {
   if (inner.type === "eager") {
@@ -94,7 +100,11 @@ const HeadingKeep = ({
   }
 };
 
-const ImageKeep = ({ keep }: { keep: rudis.Image<rudis.R2ImageStorage> }) => {
+const ImageKeep = ({
+  keep,
+}: {
+  keep: rudis.ImageKeep<rudis.R2StoragePointer>;
+}) => {
   const srcset = [
     `/${keep.storage.key}?format=webp&width=300 400w`,
     `/${keep.storage.key}?format=webp&width=500 600`,
@@ -114,7 +124,7 @@ const ImageKeep = ({ keep }: { keep: rudis.Image<rudis.R2ImageStorage> }) => {
   );
 };
 
-const LinkCardKeep = ({ keep }: { keep: rudis.LinkCard }) => {
+const LinkCardKeep = ({ keep }: { keep: rudis.LinkCardKeep }) => {
   return (
     <IsolatedLink
       href={keep.href}
@@ -126,7 +136,7 @@ const LinkCardKeep = ({ keep }: { keep: rudis.LinkCard }) => {
   );
 };
 
-const FootnoteKeep = ({ keep }: { keep: rudis.FootnoteReference }) => {
+const FootnoteKeep = ({ keep }: { keep: rudis.FootnoteReferenceKeep }) => {
   return (
     <sup>
       <a id={`footnote-reference-${keep.id}`} href={`#footnote-${keep.id}`}>

@@ -1,53 +1,53 @@
-posts:
-  glob: "**/*.mdx"
-  table: posts
-  database_id: c609b018-bc8e-487d-bdcd-e0d31c6bfdd8
-  syntax:
+glob: "**/*.mdx"
+name: posts
+table: posts
+database_id: c609b018-bc8e-487d-bdcd-e0d31c6bfdd8
+syntax:
+  type: markdown
+  column: body
+schema:
+  id:
+    type: id
+  body:
+    required: true
     type: markdown
-    column: body
-  schema:
-    id:
-      type: id
-    body:
-      required: true
-      type: markdown
-      image:
-        table: post_images
-        inherit_ids: [post_id]
-        embed_svg_threshold: 8192
-        storage:
-          type: r2
-          bucket: namachan10777dev
-          prefix: image/pictures
-      config: {}
-      storage:
-        type: kv
-        namespace: d2c3b9591768403db8b733704da4b3d2
-    title:
-      type: string
-      required: true
-    description:
-      type: string
-      required: true
-    date:
-      type: date
-      index: true
-      required: true
-    publish:
-      index: true
-      type: boolean
-    tags:
-      type: records
+    image:
+      table: post_images
       inherit_ids: [post_id]
-      table: post_tags
-      schema:
-        tag:
-          type: id
-    hash:
-      type: hash
-    og_image:
-      type: image
+      embed_svg_threshold: 8192
       storage:
         type: r2
         bucket: namachan10777dev
-        prefix: image/og
+        prefix: image/pictures
+    config: {}
+    storage:
+      type: kv
+      namespace: d2c3b9591768403db8b733704da4b3d2
+  title:
+    type: string
+    required: true
+  description:
+    type: string
+    required: true
+  date:
+    type: date
+    index: true
+    required: true
+  publish:
+    index: true
+    type: boolean
+  tags:
+    type: records
+    inherit_ids: [post_id]
+    table: post_tags
+    schema:
+      tag:
+        type: id
+  hash:
+    type: hash
+  og_image:
+    type: image
+    storage:
+      type: r2
+      bucket: namachan10777dev
+      prefix: image/og

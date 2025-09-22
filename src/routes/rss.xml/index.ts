@@ -1,7 +1,7 @@
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { XMLBuilder } from "fast-xml-parser";
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts";
+import * as posts from "~/generated/posts/posts-valibot";
 
 const recordSchema = v.intersect([
   posts.table,

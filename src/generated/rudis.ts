@@ -1,5 +1,3 @@
-import * as v from "valibot";
-
 export type MarkdownNode<K> =
   | {
       type: "text";
@@ -45,16 +43,16 @@ export type MarkdownRoot<K> =
 
 export type AlertKind = "caution" | "important" | "note" | "warning" | "tip";
 
-export interface Alert {
+export interface AlertKeep {
   type: "alert";
   kind: AlertKind;
 }
 
-export interface FootnoteReference {
+export interface FootnoteReferenceKeep {
   type: "footnote_reference";
   id: string;
   reference: number | null;
-  content: number | null;
+  content: string | null;
 }
 
 export interface LinkCardImage {
@@ -64,7 +62,7 @@ export interface LinkCardImage {
   content_type: string;
 }
 
-export interface LinkCard {
+export interface LinkCardKeep {
   type: "link_card";
   href: string;
   title: string;
@@ -73,7 +71,7 @@ export interface LinkCard {
   og_image: LinkCardImage | null;
 }
 
-export interface Codeblock {
+export interface CodeblockKeep {
   type: "codeblock";
   lang: string | null;
   title: string | null;
@@ -82,13 +80,13 @@ export interface Codeblock {
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
-export interface Heading {
+export interface HeadingKeep {
   type: "heading";
   level: HeadingLevel;
   slug: string;
 }
 
-export interface Image<S> {
+export interface ImageKeep<S> {
   type: "image";
   alt: string;
   blurhash: string | null;
@@ -96,81 +94,6 @@ export interface Image<S> {
   height: number;
   content_type: string;
   storage: S;
-}
-
-export interface R2ImageStorage {
-  type: "r2";
-  bucket: string;
-  key: string;
-}
-
-export type ImageStorage = R2ImageStorage;
-
-export type R2StoragePointer = {
-  type: "r2";
-  bucket: string;
-  key: string;
-};
-
-export const r2StoragePointer = v.object({
-  type: v.literal("r2"),
-  bucket: v.string(),
-  key: v.string(),
-});
-
-export type KvStoragePointer = {
-  type: "kv";
-  namespace: string;
-  key: string;
-};
-
-export const kvStoragePointer = v.object({
-  type: v.literal("kv"),
-  namespace: v.string(),
-  key: v.string(),
-});
-
-export interface AssetStoragePointer {
-  type: "asset";
-  path: string;
-}
-
-export const assetStoragePointer = v.object({
-  type: v.literal("asset"),
-  path: v.string(),
-});
-
-export type StoragePointer =
-  | R2StoragePointer
-  | KvStoragePointer
-  | AssetStoragePointer;
-
-export const storagePointer = v.union([
-  r2StoragePointer,
-  kvStoragePointer,
-  assetStoragePointer,
-]);
-
-export interface ImageColumn<S> {
-  width: number;
-  height: number;
-  content_type: string;
-  blurhash: null | string;
-  hash: string;
-  pointer: S;
-}
-
-export function imageColumn<S extends v.GenericSchema<StoragePointer>>(
-  pointer: S,
-) {
-  return v.object({
-    width: v.number(),
-    height: v.number(),
-    content_type: v.string(),
-    blurhash: v.nullable(v.string()),
-    hash: v.string(),
-    pointer,
-  });
 }
 
 export interface FootnoteDefinition<K> {
@@ -193,44 +116,51 @@ export interface MarkdownDocument<F, K> {
   root: MarkdownRoot<K>;
 }
 
-export interface MarkdownKvStorageColumn {
-  type: "kv";
-  hash: string;
+export type R2StoragePointer = {
+  type: "r2";
+  bucket: string;
   key: string;
-  pointer: KvStoragePointer;
+};
+
+export type KvStoragePointer = {
+  type: "kv";
+  namespace: string;
+  key: string;
+};
+
+export interface AssetStoragePointer {
+  type: "asset";
+  path: string;
 }
 
-export interface MarkdownInlineStorageColumn<K> {
+export interface InlineStoragePointer {
   type: "inline";
-  content: {
-    footnotes: FootnoteDefinition<K>[];
-    sections: MarkdownSection[];
-    root: MarkdownRoot<K>;
-  };
-  hash: string;
+  content: string;
+  base64: boolean;
 }
 
-export const markdownKvStorageColumn = v.object({
-  type: v.literal("kv"),
-  hash: v.string(),
-  key: v.string(),
-  pointer: kvStoragePointer,
-});
+export type StoragePointer =
+  | R2StoragePointer
+  | KvStoragePointer
+  | AssetStoragePointer
+  | InlineStoragePointer;
 
-export interface FileStorageColumn<S> {
+export interface ObjectReference<M, S> {
+  hash: string;
   size: number;
   content_type: string;
+  meta: M;
   pointer: S;
-  hash: string;
 }
 
-export function fileStorage<S extends v.GenericSchema<StoragePointer>>(
-  pointer: S,
-) {
-  return v.object({
-    size: v.number(),
-    content_type: v.string(),
-    pointer,
-    hash: v.string(),
-  });
+export interface ImageReferenceMeta {
+  width: number;
+  height: number;
+  blurhash: string | null;
+  derived_id: string;
 }
+
+export type ImageReference<S> = ObjectReference<ImageReferenceMeta, S>;
+
+export type FileReference<S> = ObjectReference<null, S>;
+export type MarkdownReference<S> = ObjectReference<null, S>;
