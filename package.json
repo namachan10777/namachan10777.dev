@@ -33,6 +33,7 @@
     "@iconify-json/iconoir": "^1.2.9",
     "@iconify/json": "^2.2.386",
     "@qwik-ui/headless": "^0.6.8",
+    "@svgx/core": "^1.0.1",
     "@types/node": "24.0.13",
     "bun-types": "^1.2.22",
     "eslint": "9.25.1",
@@ -45,10 +46,10 @@
     "typescript-eslint": "8.26.1",
     "undici": "^7.16.0",
     "unplugin-icons": "^22.3.0",
+    "valibot": "^1.1.0",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^4.3.2",
-    "wrangler": "^4.38.0",
-    "valibot": "^1.1.0"
+    "wrangler": "^4.38.0"
   },
   "dependencies": {}
 }
