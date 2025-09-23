@@ -5,10 +5,6 @@
     border: 1px solid var(--uchu-yin-9);
   }
 
-  .markdown {
-    padding-bottom: 2rem;
-  }
-
   .markdown th {
     border-bottom: 1px solid var(--uchu-yin-9);
     margin: 0;

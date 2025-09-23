@@ -10,12 +10,24 @@ import { NotFound } from "~/components/not-found";
 import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
 import { Footnotes, Markdown } from "~/components/markdown/root";
+import { GoodButton } from "~/components/good-button";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
-    const kv = env.get("KV");
-    const value = kv && (await kv.get(params.id, { type: "json" }));
-    return value as posts.BodyDocument;
+    console.log(env.get("DB"), env.get("KV"));
+    const [body, likes] = await Promise.all([
+      await env.get("KV")!.get(params.id, { type: "json" }),
+      await env
+        .get("DB")!
+        .prepare("SELECT count FROM likes WHERE post_id = ?")
+        .bind(params.id)
+        .first()
+        .catch(() => ({ count: 0 })),
+    ]);
+    return {
+      body: body as posts.BodyDocument,
+      likes: likes ? v.parse(v.object({ count: v.number() }), likes).count : 0,
+    };
   } catch (error) {
     console.warn(JSON.stringify(error, null, "  "));
     status(404);
@@ -26,30 +38,33 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
 export default component$(() => {
   const page = usePost();
   if (page.value) {
+    const body = page.value.body;
     return (
       <>
         <article data-pagefind-body>
           <header class={styles.header}>
-            <h1 data-pagefind-meta={`date:${page.value.frontmatter.date}`}>
-              {page.value.frontmatter.title}
+            <h1 data-pagefind-meta={`date:${body.frontmatter.date}`}>
+              {body.frontmatter.title}
             </h1>
-            <p>{page.value.frontmatter.description}</p>
-            <div
-              data-pagefind-meta={`tags:${page.value.frontmatter.tags.join(",")}`}
-            >
-              <Tags
-                tags={page.value.frontmatter.tags.map((record) => record.tag)}
-              />
+            <p>{body.frontmatter.description}</p>
+            <div data-pagefind-meta={`tags:${body.frontmatter.tags.join(",")}`}>
+              <Tags tags={body.frontmatter.tags.map((record) => record.tag)} />
             </div>
           </header>
-          {page.value.root.type === "html" ? (
-            <div dangerouslySetInnerHTML={page.value.root.content} />
+          {body.root.type === "html" ? (
+            <div dangerouslySetInnerHTML={body.root.content} />
           ) : (
-            <Markdown root={page.value.root} />
+            <Markdown root={body.root} />
           )}
-          {page.value.footnotes.length > 0 && (
-            <Footnotes footnotes={page.value.footnotes} />
+          {body.footnotes.length > 0 && (
+            <Footnotes footnotes={body.footnotes} />
           )}
+          <div class={styles.goodContainer}>
+            <GoodButton
+              id={page.value.body.frontmatter.id}
+              initial={page.value.likes}
+            />
+          </div>
         </article>
       </>
     );
@@ -77,8 +92,8 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
 };
 
 export const head: DocumentHead = ({ params, url, resolveValue }) => {
-  const post = resolveValue(usePost);
-  if (post === null) {
+  const post = resolveValue(usePost)?.body;
+  if (!post) {
     return {
       title: "Not found",
       meta: [

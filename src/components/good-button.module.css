@@ -1,0 +1,17 @@
+.goodButton {
+  outline: none;
+  border: none;
+  background-color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0;
+}
+
+.icon {
+  font-size: large;
+}
+
+.count {
+  font-size: 1rem;
+}
