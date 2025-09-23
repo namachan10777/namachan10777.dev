@@ -37,6 +37,3 @@ CREATE TABLE IF NOT EXISTS post_images (
 );
 CREATE INDEX IF NOT EXISTS index_post_images_src_id ON post_images(src_id);
 CREATE INDEX IF NOT EXISTS index_post_images_image ON post_images(image->>'hash');
-
-
-
