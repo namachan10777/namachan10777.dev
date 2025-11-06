@@ -1,0 +1,53 @@
+glob: "**/*.mdx"
+name: posts
+table: posts
+database_id: 94e88de8-fcfa-4cc4-825d-d8c22f3e82e4
+syntax:
+  type: markdown
+  column: body
+schema:
+  id:
+    type: id
+  body:
+    required: true
+    type: markdown
+    image:
+      table: post_images
+      inherit_ids: [post_id]
+      embed_svg_threshold: 8192
+      storage:
+        type: r2
+        bucket: namachan10777dev-preview
+        prefix: image/pictures
+    config: {}
+    storage:
+      type: kv
+      namespace: b986f9deaca54fa2866fa3ffa74a2e4e
+  title:
+    type: string
+    required: true
+  description:
+    type: string
+    required: true
+  date:
+    type: date
+    index: true
+    required: true
+  publish:
+    index: true
+    type: boolean
+  tags:
+    type: records
+    inherit_ids: [post_id]
+    table: post_tags
+    schema:
+      tag:
+        type: id
+  hash:
+    type: hash
+  og_image:
+    type: image
+    storage:
+      type: r2
+      bucket: namachan10777dev-preview
+      prefix: image/og

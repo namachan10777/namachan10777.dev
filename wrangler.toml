@@ -20,11 +20,13 @@ remote = true
 [[kv_namespaces]]
 binding = "KV"
 id = "d2c3b9591768403db8b733704da4b3d2"
+preview_id = "b986f9deaca54fa2866fa3ffa74a2e4e"
 remote = true
 
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "namachan10777dev"
+preview_bucket_name = "namachan10777dev-preview"
 remote = true
 
 [images]
