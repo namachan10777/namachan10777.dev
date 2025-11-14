@@ -1,0 +1,25 @@
+name: Check and deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download rudis-cms
+        run: |
+          set -euo pipefail
+          curl -fSL -o rudis-cms https://github.com/namachan10777/rudis-cms/releases/download/v0.2.6/rudis-cms-linux-amd64
+          chmod +x rudis-cms
+
+      - name: Run rudis-cms batch
+        run: ./rudis-cms -c content/config.yaml batch
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          RUST_LOG: rudis_cms=Debug
