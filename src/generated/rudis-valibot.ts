@@ -1,7 +1,5 @@
 import * as v from "valibot";
 import * as rudis from "./rudis";
-import type { DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_IMG_SRC_TYPES } from "react";
-import type { TextInsertion } from "typescript";
 
 export function markdownNode<TInput = unknown, TOutput = TInput>(
   keep: v.GenericSchema<TInput, TOutput>,
