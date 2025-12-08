@@ -10,6 +10,7 @@ export const Header = component$(() => {
           namachan10777.dev
         </Link>
       </div>
+      <div class={styles.borderLine} aria-hidden="true" />
     </header>
   );
 });
