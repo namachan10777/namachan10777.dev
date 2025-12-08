@@ -4,11 +4,16 @@ export const useDebouncerQrl = <A extends unknown[], R>(
   fn: QRL<(...args: A) => R>,
   delay: number,
 ): QRL<(...args: A) => void> => {
-  const timeoutId = useSignal<number>();
+  const timeoutId = useSignal<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   return $((...args: A): void => {
-    window.clearTimeout(timeoutId.value);
-    timeoutId.value = window.setTimeout((): void => {
+    if (typeof window === "undefined") return;
+    if (timeoutId.value !== undefined) {
+      clearTimeout(timeoutId.value);
+    }
+    timeoutId.value = setTimeout((): void => {
       void fn(...args);
     }, delay);
   });

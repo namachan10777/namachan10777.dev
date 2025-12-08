@@ -15,7 +15,7 @@ const validator = v.object({
 export const GoodButton = component$((props: Props) => {
   const countState = useSignal(props.initial);
   const handle = $(async () => {
-    const response = await fetch(`${window.origin}/api/like/${props.id}`, {
+    const response = await fetch(`/api/like/${props.id}`, {
       method: "POST",
     });
     const { count } = v.parse(validator, await response.json());
