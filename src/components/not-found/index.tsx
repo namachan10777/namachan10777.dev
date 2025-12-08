@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import styles from "./not-found.module.css";
+import styles from "./styles.module.css";
 
 export const NotFound = component$(() => {
   return (

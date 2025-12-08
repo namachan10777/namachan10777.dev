@@ -1,7 +1,7 @@
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { CodeBlock } from "~/components/code-block";
-import { MdNode } from "../root";
+import { MdNode } from "..";
 
 export const CodeblockKeep = ({
   keep,

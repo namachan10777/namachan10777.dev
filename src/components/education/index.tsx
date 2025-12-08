@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import styles from "./education.module.css";
+import styles from "./styles.module.css";
 
 export interface EducationProps {
   degree: string;

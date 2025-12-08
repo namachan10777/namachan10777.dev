@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import styles from "./publication.module.css";
+import styles from "./styles.module.css";
 
 export type Author = string | { me: string };
 

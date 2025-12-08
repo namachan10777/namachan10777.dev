@@ -1,5 +1,5 @@
 import { Slot, component$, $, useSignal, Signal } from "@builder.io/qwik";
-import styles from "./code-block.module.css";
+import styles from "./styles.module.css";
 import { useDebouncer$ } from "~/lib/qwik";
 import Copy from "~icons/iconoir/copy";
 import Check from "~icons/iconoir/check";

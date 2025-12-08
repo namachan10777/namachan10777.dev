@@ -1,7 +1,7 @@
 import { Slot, component$ } from "@builder.io/qwik";
-import { PostList } from "./post-list";
-import { PaginationNav } from "./pagination-nav";
-import styles from "./paginated-post-list.module.css";
+import { PostList } from "~/components/post-list";
+import { PaginationNav } from "~/components/pagination-nav";
+import styles from "./styles.module.css";
 
 interface PaginatedPostListProps {
   contents: {

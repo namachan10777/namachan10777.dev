@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import styles from "./tags.module.css";
+import styles from "./styles.module.css";
 import { Link } from "@builder.io/qwik-city";
 
 export interface TagsProps {

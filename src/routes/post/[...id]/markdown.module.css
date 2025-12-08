@@ -10,7 +10,7 @@
     font-size: xx-large;
   }
 
-  .goodContainer {
+  .likeContainer {
     display: flex;
     flex-direction: column;
     align-items: center;

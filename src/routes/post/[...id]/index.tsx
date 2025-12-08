@@ -9,8 +9,8 @@ import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
-import { Footnotes, Markdown } from "~/components/markdown/root";
-import { GoodButton } from "~/components/good-button";
+import { Footnotes, Markdown } from "~/components/markdown";
+import { LikeButton } from "~/components/like-button";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -59,8 +59,8 @@ export default component$(() => {
           {body.footnotes.length > 0 && (
             <Footnotes footnotes={body.footnotes} />
           )}
-          <div class={styles.goodContainer}>
-            <GoodButton
+          <div class={styles.likeContainer}>
+            <LikeButton
               id={page.value.body.frontmatter.id}
               initial={page.value.likes}
             />

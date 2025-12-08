@@ -1,7 +1,7 @@
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
-import { Heading } from "../heading";
-import styles from "./root.module.css";
+import { Heading } from "~/components/heading";
+import styles from "./styles.module.css";
 import { component$ } from "@builder.io/qwik";
 import { Alert } from "./keep/alert";
 import { CodeblockKeep } from "./keep/codeblock";

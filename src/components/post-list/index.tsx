@@ -1,9 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import { Tags } from "./tags";
-import styles from "./post-list.module.css";
+import { Tags } from "~/components/tags";
+import styles from "./styles.module.css";
 import { Link } from "@builder.io/qwik-city";
 
-export interface PostSumaryProps {
+export interface PostSummaryProps {
   title: string;
   description: string;
   published: Date;
@@ -11,7 +11,7 @@ export interface PostSumaryProps {
   id: string;
 }
 
-export const PostList = component$((props: { posts: PostSumaryProps[] }) => {
+export const PostList = component$((props: { posts: PostSummaryProps[] }) => {
   return (
     <ol class={styles.list}>
       {props.posts.map((post) => (

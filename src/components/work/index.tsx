@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import styles from "./work.module.css";
+import styles from "./styles.module.css";
 
 export interface WorkProps {
   company: {

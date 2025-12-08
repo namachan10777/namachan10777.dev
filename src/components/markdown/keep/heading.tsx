@@ -1,7 +1,7 @@
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { Heading, HeadingTag } from "~/components/heading";
-import { MdNode } from "../root";
+import { MdNode } from "..";
 
 export const HeadingKeep = ({
   keep,
