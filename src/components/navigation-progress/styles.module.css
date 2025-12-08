@@ -1,0 +1,28 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+}
+
+.visible {
+  opacity: 1;
+}
+
+.bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--uchu-blue-5) 0%,
+    var(--uchu-purple-5) 100%
+  );
+  transform-origin: left;
+  transition: transform 0.2s ease-out;
+  box-shadow: 0 0 8px var(--uchu-blue-5);
+}
