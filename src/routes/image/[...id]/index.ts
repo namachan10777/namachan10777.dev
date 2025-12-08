@@ -1,7 +1,7 @@
 import { RequestHandler } from "@builder.io/qwik-city";
 import * as v from "valibot";
 
-const allowedWidths = new Set([300, 500, 800, 1000]);
+const allowedWidths = new Set([400, 800, 1200, 1600]);
 const formatValidator = v.union([
   v.literal("avif"),
   v.literal("webp"),
@@ -13,10 +13,10 @@ const formatValidator = v.union([
   v.literal("svg"),
 ]);
 const widthValidator = v.union([
-  v.literal(300),
-  v.literal(500),
+  v.literal(400),
   v.literal(800),
-  v.literal(1000),
+  v.literal(1200),
+  v.literal(1600),
 ]);
 
 function parseUrl(
@@ -50,10 +50,12 @@ export const onGet: RequestHandler = async ({ request, send }) => {
           fit: "contain",
         },
         cacheEverything: true,
-        cacheTtl: 60,
+        cacheTtl: 31536000,
       },
     });
-    send(response);
+    const headers = new Headers(response.headers);
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    send(new Response(response.body, { status: response.status, headers }));
   } catch (error) {
     console.warn(error);
     send(404, "");
