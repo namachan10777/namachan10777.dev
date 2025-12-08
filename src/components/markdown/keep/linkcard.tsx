@@ -1,7 +1,13 @@
+import { component$ } from "@builder.io/qwik";
 import { LinkCard } from "~/components/link-card";
 import * as rudis from "~/generated/rudis";
 
-export const LinkCardKeep = ({ keep }: { keep: rudis.LinkCardKeep }) => {
+interface LinkCardKeepProps {
+  keep: rudis.LinkCardKeep;
+}
+
+export const LinkCardKeep = component$((props: LinkCardKeepProps) => {
+  const { keep } = props;
   return (
     <LinkCard
       href={keep.href}
@@ -10,4 +16,4 @@ export const LinkCardKeep = ({ keep }: { keep: rudis.LinkCardKeep }) => {
       favicon={keep.favicon ?? null}
     />
   );
-};
+});

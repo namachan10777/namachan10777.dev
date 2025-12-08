@@ -10,13 +10,13 @@ import { ImageKeep } from "./keep/image";
 import { LinkCardKeep } from "./keep/linkcard";
 import { FootnoteKeep } from "./keep/footnote";
 
-const Keep = ({
-  keep,
-  inner,
-}: {
+interface KeepProps {
   keep: posts.BodyKeep;
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
-}) => {
+}
+
+const Keep = component$((props: KeepProps) => {
+  const { keep, inner } = props;
   switch (keep.type) {
     case "alert":
       return <Alert alert={keep} inner={inner} />;
@@ -32,16 +32,17 @@ const Keep = ({
       return <FootnoteKeep keep={keep} />;
   }
   return <div></div>;
-};
+});
 
-export const MdNode = ({
-  node,
-}: {
+interface MdNodeProps {
   node: rudis.MarkdownNode<posts.BodyKeep>;
-}) => {
+}
+
+export const MdNode = component$((props: MdNodeProps) => {
+  const { node } = props;
   switch (node.type) {
     case "text":
-      return node.text;
+      return <>{node.text}</>;
     case "eager": {
       const Tag = node.tag as "div";
       return <Tag {...node.attrs} dangerouslySetInnerHTML={node.content} />;
@@ -71,7 +72,7 @@ export const MdNode = ({
         />
       );
   }
-};
+});
 
 const Footnote = component$(
   ({ footnote }: { footnote: rudis.FootnoteDefinition<posts.BodyKeep> }) => {

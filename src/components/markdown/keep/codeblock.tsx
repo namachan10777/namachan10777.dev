@@ -1,15 +1,16 @@
+import { component$ } from "@builder.io/qwik";
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { CodeBlock } from "~/components/code-block";
 import { MdNode } from "..";
 
-export const CodeblockKeep = ({
-  keep,
-  inner,
-}: {
+interface CodeblockKeepProps {
   keep: rudis.CodeblockKeep;
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
-}) => {
+}
+
+export const CodeblockKeep = component$((props: CodeblockKeepProps) => {
+  const { keep, inner } = props;
   if (inner.type === "html") {
     return (
       <CodeBlock lines={keep.lines} title={keep.title || "notitle"}>
@@ -27,4 +28,4 @@ export const CodeblockKeep = ({
       </CodeBlock>
     );
   }
-};
+});

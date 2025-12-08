@@ -1,15 +1,16 @@
+import { component$ } from "@builder.io/qwik";
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { Heading, HeadingTag } from "~/components/heading";
 import { MdNode } from "..";
 
-export const HeadingKeep = ({
-  keep,
-  inner,
-}: {
+interface HeadingKeepProps {
   keep: rudis.HeadingKeep;
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
-}) => {
+}
+
+export const HeadingKeep = component$((props: HeadingKeepProps) => {
+  const { keep, inner } = props;
   if (inner.type === "html") {
     return (
       <Heading tag={`h${keep.level}` as HeadingTag} slug={keep.slug}>
@@ -25,4 +26,4 @@ export const HeadingKeep = ({
       </Heading>
     );
   }
-};
+});
