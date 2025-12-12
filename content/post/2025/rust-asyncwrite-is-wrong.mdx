@@ -1,0 +1,110 @@
+
+
+---
+id: 2025/rust-asyncwrite-is-wrong
+tags: ["tech", "rust"]
+date: 2025-12-12
+description: RustのAsyncWrite/AsyncReadトレイトが本質的に非効率である理由
+title: AsyncWriteは間違っている
+publish: true
+---
+
+AsyncWriteはこういうやつ。
+
+```rust
+pub trait AsyncWrite {
+    // Required methods
+    fn poll_write(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<Result<usize, Error>>;
+    fn poll_flush(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Error>>;
+    fn poll_close(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Error>>;
+
+    // Provided method
+    fn poll_write_vectored(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        bufs: &[IoSlice<'_>],
+    ) -> Poll<Result<usize, Error>> { ... }
+}
+```
+
+これだとちょっと分かりづらいが、このトレイトが実装されいていると（tokioの場合）`AsyncWriteExt`で`.write(&buf).await?`のようなコードが書けるようになる。
+stdのWriteがそのままAsyncになったインターフェースになっていて便利。`async-std`とかもこういうノリだった。
+ただこのインターフェースはそのまま実装すると普通にメモリ危険になり、安全になるように実装すればコピーが増える。
+
+## 非同期I/Oとcancel safety
+
+非同期I/OではI/Oリクエストを投げて、それが完了するのを待つAPIを使う。
+`epoll`なら`O_NONBLOCK`とかでリクエストを発行してepollで待つし、
+それ以外の非同期I/O、SPDKとかibverbs、io_uringはもっと直接的にsubmission queueにIOを投入し、completion queueから完了したI/Oを取得する。
+そして投入されたI/Oは基本的にはもはやAPI利用側からは見えず、
+そのI/Oで使用するバッファはI/Oが完了するまで必ず保持しなければいけない。
+
+![async taskが所有するバッファでI/Oを行った場合、そのasync taskごとdropするとI/Oキューにダングリングポインタが残る](./rust-asyncwrite-is-wrong/unsafe_async_io.drawio.svg "async taskのdropがdangling pointerを作る")
+
+図にするとこうなる。async taskが所有するバッファでI/Oを発行し、そのあとI/Oが完了する前にasync taskをdropする。
+すると、インターフェース上はlifetimeは違反していないにも関わらず、OSのI/Oキューには無効なポインタを参照するリクエストが残ってしまう。
+これは明確なメモリ安全性への違反になる。
+そしてasync taskのdropは簡単に発生する。まずawaitを使わずに直接pollを呼ぶような場合は当然簡単に発生させられるし、
+そうでなくとも`tokio::select!`とかでそうした状況が発生するケースがある。
+このasync taskを安全にDrop可能なことを`cancel safety`と呼ぶ。
+
+単純に動作が狂うとかならまだいいのだが、メモリ安全性が消滅するならそれは`unsafe`とマークされなければならない。
+が、こんなことやりだすとあらゆるI/O APIがunsafeだらけになり、それはRustとしてどうなんだと言いたくなるコードになるだろう。
+
+ではどうすれば良いのか？
+単純な解決策として、こうしたio_uringやSPDKのキューよりもバッファの参照のlifetimeが長いことを保証すればいい。
+キューのlifetimeを型にエンコードし、`'q`みたいにする。そしてバッファのライフタイムを`'b`とした時、`'b: 'q`となれば良い。
+ただこれをやるとその場で確保したバッファに対する書き込みや読み込みが出来なくなる。正直実用的ではない。
+cancelをすると即panicも一応アリだ。ただ、マルチスレッドになった場合は確実にpanicを間に合わせるのは難しいし、selectが使えないのは明らかに不便だろう。
+キューに入ったI/O要求をキャンセルするのは簡単ではない。一応そうしたAPIは存在するが、Dropで解放される前に確実にキャンセルを掛けられる保証はない。
+SSDのコントローラが、ホストのメモリからPCIe経由でReadしてデータを取得するような実装だった場合、メモリオーダリングを守ってキャンセルするのは中々に厳しいものがある。
+
+I/Oが完了するまでDropをさせないのようにしても安全にはなる。selectでタイムアウトは出来なくなるが。
+ただ、こちらの場合でもやはり`[u8]`を使うのは難しい。バッファを何かしらの型でwrapして、
+対応するI/Oが完了するまでDropをブロックさせるしかない。しかし、Dropは現状syncなのでI/O完了までCPUを占有することにもなり、
+asyncの意味がない。やっぱりダメみたいですね。一応async dropが議論されているので、こちらが進めばCPUを占有せずに安全にdrop出来る。
+selectでtimeoutするのはやっぱり難しいけど。
+
+最も良いのはバッファの所有権ごとキューを管理する構造体にmoveしてしまうことだ。
+キューを管理する構造体はpendingなバッファについてはキューをdropした後にdropするようにしておけば、
+とりあえずキューに入っているエントリが無効なバッファを参照することはなくなる。
+一時的に作ったバッファについてもmoveされているので問題なく扱えるし、
+async taskをdropして問題ない。I/Oが完了した時点で、それを待っているasync taskが無いため何もせずにバッファをdropすれば良い。
+所有権によってメモリ安全性が保護されたAsyncインタフェースだ。
+つまり、writeは以下のようになる。
+
+```
+trait AsyncWrite {
+    async fn write<B: IoBuffer>(&mut self, buf: B) -> (B, io::Result<usize>);
+}
+```
+
+実際、io_uringを使う[monoio](https://github.com/monoio-rs/monoio)はこれとほとんど同じインターフェースになっている。
+
+ではtokioはどうやって参照を取りながらcancel safeかつ安全なasyncwriteを提供しているのか？
+答えは簡単で、毎回バッファをコピーしている。
+Writeに関してはユーザから提供されたバッファの中身を全部コピーしておく。こうすればasync taskがdropされても安全だ。
+Readに関しても内部のバッファで全部済ませた後、ユーザが提供したバッファにコピーすれば良い。
+現実的にtokioを使うようなユースケースではバッファのコピーが性能上のボトルネックになることは少ないため大きな問題にはならないだろう。
+
+## まとめ
+
+`async-std`はstdをそのままasyncに置き換えることを目標としていた。tokioにおいても大筋は似たようなインターフェース設計がなされている。
+asyncへの移行のハードルを下げるのには役立ったし、実際性能上大きな問題となるケースはあまり多くはない。
+とはいえasync関数はasync taskを生成する関数であって非同期に実行される関数ではない。
+ソフトウェアで簡単に実行を中断出来るということは、CPUとOSによって提供される命令ストリームの一貫性を損ない、
+Rustのインタフェース設計の前提を破壊する。結果として全然zero-costではない抽象化が発生し、
+まあ正直Goでもいいよねって感じのパフォーマンスになる。
+
+個人の意見としてはasync周りについては、`Waker`がマルチスレッド前提であることも含めて失敗が多いと思う。
+今後に設計される非同期ランタイムでは、asyncと通常の関数が全く異なるものであるということを前提とした効率的な設計を期待する。
