@@ -170,7 +170,7 @@ export const CommentForm = component$<Props>(
             class={styles.submitButton}
             disabled={isSubmitting.value}
           >
-            {isSubmitting.value ? "送信中..." : "コメントを投稿"}
+            {isSubmitting.value ? "送信中..." : "投稿"}
           </button>
         </div>
       </form>
