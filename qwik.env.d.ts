@@ -11,5 +11,7 @@ declare module "@builder.io/qwik-city/middleware/request-handler" {
     get(key: "KV"): KVNamespace | undefined;
     get(key: "IMAGES"): ImagesBinding | undefined;
     get(key: "R2"): R2Bucket | undefined;
+    get(key: "TURNSTILE_SECRET_KEY"): string | undefined;
+    get(key: "TURNSTILE_SITE_KEY"): string | undefined;
   }
 }

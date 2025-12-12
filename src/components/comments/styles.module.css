@@ -1,0 +1,122 @@
+.commentSection {
+  margin-top: 2rem;
+}
+
+.commentSection h2 {
+  margin-bottom: 1rem;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.comment {
+  padding: 0.75rem 0;
+}
+
+.comment:not(:last-child) {
+  border-bottom: 1px dashed var(--uchu-gray-5);
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.commentName {
+  font-weight: bold;
+}
+
+.commentDate {
+  font-size: 0.875rem;
+  color: var(--uchu-gray-7);
+}
+
+.commentContent {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.noComments {
+  color: var(--uchu-gray-7);
+  font-style: italic;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.formInput {
+  padding: 0.5rem;
+  border: 1px solid var(--uchu-yin-9);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.formInput:focus {
+  outline: none;
+}
+
+.formTextarea {
+  padding: 0.5rem;
+  border: 1px solid var(--uchu-yin-9);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.formTextarea:focus {
+  outline: none;
+}
+
+.formActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submitButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--uchu-yin-9);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: var(--uchu-gray-2);
+}
+
+.submitButton:focus {
+  outline: none;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  color: var(--uchu-red-5);
+  font-size: 0.875rem;
+}
+
+.turnstileContainer {
+  min-height: 64px;
+}

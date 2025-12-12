@@ -10,23 +10,43 @@ import { NotFound } from "~/components/not-found";
 import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
 import { Footnotes, Markdown } from "~/components/markdown";
-import { LikeButton } from "~/components/like-button";
+import { CommentSection } from "~/components/comments";
+import type { Comment } from "~/routes/api/comments/[...id]";
+
+const CommentSchema = v.object({
+  post_id: v.string(),
+  id: v.string(),
+  created_at: v.string(),
+  name: v.string(),
+  content: v.string(),
+});
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
     console.log(env.get("DB"), env.get("KV"));
-    const [body, likes] = await Promise.all([
-      await env.get("KV")!.get(params.id, { type: "json" }),
-      await env
+    const [body, commentsResult] = await Promise.all([
+      env.get("KV")!.get(params.id, { type: "json" }),
+      env
         .get("DB")!
-        .prepare("SELECT count FROM likes WHERE post_id = ?")
+        .prepare(
+          "SELECT post_id, id, created_at, name, content FROM comments WHERE post_id = ? ORDER BY created_at DESC",
+        )
         .bind(params.id)
-        .first()
-        .catch(() => ({ count: 0 })),
+        .all()
+        .catch(() => ({ results: [] })),
     ]);
+
+    const comments = v.parse(
+      v.array(CommentSchema),
+      commentsResult.results,
+    ) as Comment[];
+
+    const turnstileSiteKey = env.get("TURNSTILE_SITE_KEY") || "";
+
     return {
       body: body as posts.BodyDocument,
-      likes: likes ? v.parse(v.object({ count: v.number() }), likes).count : 0,
+      comments,
+      turnstileSiteKey,
     };
   } catch (error) {
     console.warn(JSON.stringify(error, null, "  "));
@@ -59,13 +79,12 @@ export default component$(() => {
           {body.footnotes.length > 0 && (
             <Footnotes footnotes={body.footnotes} />
           )}
-          <div class={styles.likeContainer}>
-            <LikeButton
-              id={page.value.body.frontmatter.id}
-              initial={page.value.likes}
-            />
-          </div>
         </article>
+        <CommentSection
+          postId={page.value.body.frontmatter.id}
+          initialComments={page.value.comments}
+          turnstileSiteKey={page.value.turnstileSiteKey}
+        />
       </>
     );
   } else {
