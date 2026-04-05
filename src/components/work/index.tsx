@@ -1,4 +1,5 @@
 import { component$ } from "@qwik.dev/core";
+import { formatYearMonth } from "~/lib/format";
 import styles from "./styles.module.css";
 
 export interface WorkProps {
@@ -20,14 +21,14 @@ export const Work = component$((props: WorkProps) => {
         <a href={props.company.href}>
           <strong>{props.company.name}</strong>
         </a>
-        <date dateTime={props.start.toISOString()}>
-          {props.start.getUTCFullYear()}/{props.start.getUTCMonth() + 1}
-        </date>
+        <time dateTime={props.start.toISOString()}>
+          {formatYearMonth(props.start)}
+        </time>
         -
         {props.retire ? (
-          <date dateTime={props.retire.toISOString()}>
-            {props.retire.getUTCFullYear()}/{props.retire.getUTCMonth() + 1}
-          </date>
+          <time dateTime={props.retire.toISOString()}>
+            {formatYearMonth(props.retire)}
+          </time>
         ) : (
           <em>present</em>
         )}

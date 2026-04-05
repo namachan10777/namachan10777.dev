@@ -1,25 +1,17 @@
 import { component$ } from "@qwik.dev/core";
 import { Tags } from "~/components/tags";
+import { formatDateEn } from "~/lib/format";
+import type { PostSummary } from "~/lib/posts";
 import styles from "./styles.module.css";
 import { Link } from "@qwik.dev/router";
 
-export interface PostSummaryProps {
-  title: string;
-  description: string;
-  published: Date;
-  tags: string[];
-  id: string;
-}
-
-export const PostList = component$((props: { posts: PostSummaryProps[] }) => {
+export const PostList = component$((props: { posts: PostSummary[] }) => {
   return (
     <ol class={styles.list}>
       {props.posts.map((post) => (
         <li key={post.id}>
           <time dateTime={post.published.toString()}>
-            {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(
-              post.published,
-            )}
+            {formatDateEn(post.published)}
           </time>
           <h3>
             <Link href={`/post/${post.id}`}>{post.title}</Link>

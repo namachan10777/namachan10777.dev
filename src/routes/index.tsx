@@ -5,33 +5,13 @@ import styles from "./index.module.css";
 import { Education } from "~/components/education";
 import { Work } from "~/components/work";
 import { Book, Workshop } from "~/components/publication";
-
-const tsukubaGraduateSchool = {
-  name: "Systems and Information Engineering, University of Tsukuba",
-  href: "https://www.cs.tsukuba.ac.jp/",
-};
-
-const tsukubaUniv = {
-  name: "College of Information Science, University of Tsukuba",
-  href: "https://www.cs.tsukuba.ac.jp/",
-};
-
-const nitk = {
-  name: "National Insitite of Technology, Kagawa College (KOSEN)",
-  href: "https://www.kagawa-nct.ac.jp/",
-};
-
-const otatebe = {
-  name: "Osamu Tatebe",
-  href: "https://www.hpcs.cs.tsukuba.ac.jp/~tatebe/index.html",
-  position: "Prof.",
-};
-
-const dkitamura = {
-  name: "Daichi Kitamura",
-  href: "http://d-kitamura.net/",
-  position: "Assistant Prof.",
-};
+import {
+  tsukubaGraduateSchool,
+  tsukubaUniv,
+  nitk,
+  otatebe,
+  dkitamura,
+} from "./index.data";
 
 export default component$(() => {
   return (

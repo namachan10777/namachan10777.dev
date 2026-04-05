@@ -5,7 +5,7 @@ import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
 
 import * as v from "valibot";
-import { postWithTagsSchema, PAGE_SIZE, paginate } from "~/lib/posts";
+import { postWithTagsSchema, PAGE_SIZE, paginate, toPostSummary } from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -108,15 +108,7 @@ export default component$(() => {
   }
   return (
     <PaginatedPostList
-      contents={page.value.contents.map((post) => {
-        return {
-          id: post.id,
-          title: post.title,
-          description: post.description,
-          published: new Date(post.date),
-          tags: post.tags,
-        };
-      })}
+      contents={page.value.contents.map(toPostSummary)}
       prev={
         page.value.prev
           ? `/post/tag/${page.value.tag}/page/${page.value.prev}`

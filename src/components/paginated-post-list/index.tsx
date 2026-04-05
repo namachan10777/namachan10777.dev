@@ -1,16 +1,11 @@
 import { Slot, component$ } from "@qwik.dev/core";
 import { PostList } from "~/components/post-list";
 import { PaginationNav } from "~/components/pagination-nav";
+import type { PostSummary } from "~/lib/posts";
 import styles from "./styles.module.css";
 
 interface PaginatedPostListProps {
-  contents: {
-    id: string;
-    title: string;
-    description: string;
-    published: Date;
-    tags: string[];
-  }[];
+  contents: PostSummary[];
   prev?: string;
   next?: string;
 }

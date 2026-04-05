@@ -21,7 +21,7 @@ const LinkIcon = component$((props: LinkIconProps) => {
 export const Footer = component$(() => {
   return (
     <footer class={styles.footer}>
-      <div class={styles.content}>
+      <address class={styles.content}>
         <small>@namachan10777</small>
         <nav class={styles.nav}>
           <LinkIcon
@@ -43,7 +43,7 @@ export const Footer = component$(() => {
             <IconLinkedIn />
           </LinkIcon>
         </nav>
-      </div>
+      </address>
     </footer>
   );
 });

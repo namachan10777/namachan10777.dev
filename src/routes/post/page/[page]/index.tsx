@@ -3,7 +3,7 @@ import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import * as v from "valibot";
-import { postWithTagsSchema, PAGE_SIZE, paginate } from "~/lib/posts";
+import { postWithTagsSchema, PAGE_SIZE, paginate, toPostSummary } from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -83,15 +83,7 @@ export default component$(() => {
   }
   return (
     <PaginatedPostList
-      contents={page.value.contents.map((post) => {
-        return {
-          id: post.id,
-          title: post.title,
-          description: post.description,
-          published: new Date(post.date),
-          tags: post.tags,
-        };
-      })}
+      contents={page.value.contents.map(toPostSummary)}
       prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
       next={page.value.next ? `/post/page/${page.value.next}` : undefined}
     >

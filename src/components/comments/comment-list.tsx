@@ -1,18 +1,11 @@
 import { component$ } from "@qwik.dev/core";
 import type { Comment } from "~/lib/comments";
+import { formatDateTimeJa } from "~/lib/format";
 import styles from "./styles.module.css";
 
 interface Props {
   comments: Comment[];
 }
-
-const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-});
 
 export const CommentList = component$((props: Props) => {
   if (props.comments.length === 0) {
@@ -22,15 +15,18 @@ export const CommentList = component$((props: Props) => {
   return (
     <div class={styles.commentList}>
       {props.comments.map((comment) => (
-        <div key={comment.id} class={styles.comment}>
-          <div class={styles.commentHeader}>
+        <article key={comment.id} class={styles.comment}>
+          <header class={styles.commentHeader}>
             <span class={styles.commentName}>{comment.name}</span>
-            <span class={styles.commentDate}>
-              {dateFormatter.format(new Date(comment.created_at))}
-            </span>
-          </div>
+            <time
+              class={styles.commentDate}
+              dateTime={new Date(comment.created_at).toISOString()}
+            >
+              {formatDateTimeJa(new Date(comment.created_at))}
+            </time>
+          </header>
           <div class={styles.commentContent}>{comment.content}</div>
-        </div>
+        </article>
       ))}
     </div>
   );
