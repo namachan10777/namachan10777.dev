@@ -3,16 +3,7 @@ import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts-valibot";
-
-const recordSchema = v.intersect([
-  posts.table,
-  v.object({
-    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
-  }),
-]);
-
-const pageSize = 16;
+import { postWithTagsSchema, PAGE_SIZE, paginate } from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -31,14 +22,14 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     const results =
       d1 &&
       (await d1.batch([
-        d1.prepare(q1).bind(pageSize, pageSize * (current - 1)),
+        d1.prepare(q1).bind(PAGE_SIZE, PAGE_SIZE * (current - 1)),
         d1.prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;"),
       ]));
 
     const parser = v.tuple([
       v.object({
         success: v.literal(true),
-        results: v.array(recordSchema),
+        results: v.array(postWithTagsSchema),
       }),
       v.object({
         success: v.literal(true),
@@ -54,9 +45,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
 
     return {
       contents,
-      current,
-      next: count.count > pageSize * current ? current + 1 : undefined,
-      prev: current > 1 ? current - 1 : undefined,
+      ...paginate(count.count, current),
     };
   } catch (error) {
     console.warn(error);

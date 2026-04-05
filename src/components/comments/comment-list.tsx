@@ -1,5 +1,5 @@
 import { component$ } from "@qwik.dev/core";
-import type { Comment } from "~/routes/api/comments/[...id]";
+import type { Comment } from "~/lib/comments";
 import styles from "./styles.module.css";
 
 interface Props {

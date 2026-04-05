@@ -11,15 +11,7 @@ import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
-import type { Comment } from "~/routes/api/comments/[...id]";
-
-const CommentSchema = v.object({
-  post_id: v.string(),
-  id: v.string(),
-  created_at: v.string(),
-  name: v.string(),
-  content: v.string(),
-});
+import { CommentSchema, type Comment } from "~/lib/comments";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {

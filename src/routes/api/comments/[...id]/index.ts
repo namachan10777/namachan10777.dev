@@ -1,16 +1,7 @@
 import { RequestHandler } from "@qwik.dev/router";
 import * as v from "valibot";
 import { verifyTurnstileToken } from "~/lib/turnstile";
-
-const CommentSchema = v.object({
-  post_id: v.string(),
-  id: v.string(),
-  created_at: v.string(),
-  name: v.string(),
-  content: v.string(),
-});
-
-export type Comment = v.InferOutput<typeof CommentSchema>;
+import { CommentSchema, type Comment } from "~/lib/comments";
 
 const PostBodySchema = v.object({
   name: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),

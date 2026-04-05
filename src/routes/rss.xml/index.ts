@@ -1,14 +1,7 @@
 import { type RequestHandler } from "@qwik.dev/router";
 import { XMLBuilder } from "fast-xml-parser";
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts-valibot";
-
-const recordSchema = v.intersect([
-  posts.table,
-  v.object({
-    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
-  }),
-]);
+import { postWithTagsSchema } from "~/lib/posts";
 
 interface RssItem {
   title: string;
@@ -87,7 +80,7 @@ export const onGet: RequestHandler = async ({ request, send, env }) => {
 
   const xml = genRss({
     ...base,
-    items: v.parse(v.array(recordSchema), posts).map((post) => {
+    items: v.parse(v.array(postWithTagsSchema), posts).map((post) => {
       return {
         title: post.title,
         description: post.description,

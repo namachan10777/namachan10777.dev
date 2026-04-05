@@ -5,16 +5,7 @@ import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
 
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts-valibot";
-
-const pageSize = 16;
-
-const recordSchema = v.intersect([
-  posts.table,
-  v.object({
-    tags: v.pipe(v.string(), v.parseJson(), v.array(v.string())),
-  }),
-]);
+import { postWithTagsSchema, PAGE_SIZE, paginate } from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -42,13 +33,13 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
     const results =
       d1 &&
       (await d1.batch([
-        d1.prepare(meta_q).bind(params.tag, pageSize, pageSize * (index - 1)),
+        d1.prepare(meta_q).bind(params.tag, PAGE_SIZE, PAGE_SIZE * (index - 1)),
         d1.prepare(count_q).bind(params.tag),
       ]));
 
     const s = v.tuple([
       v.object({
-        results: v.array(recordSchema),
+        results: v.array(postWithTagsSchema),
       }),
       v.object({
         results: v.tuple([
@@ -67,9 +58,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
 
     return {
       contents: posts,
-      current: index,
-      next: count.count > pageSize * index ? index + 1 : undefined,
-      prev: index > 1 ? index - 1 : undefined,
+      ...paginate(count.count, index),
       tag: params.tag,
     };
   } catch (error) {
@@ -102,7 +91,7 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
 
   return {
     params: counts.flatMap((count) => {
-      return Array.from({ length: Math.ceil(count.count / pageSize) }).map(
+      return Array.from({ length: Math.ceil(count.count / PAGE_SIZE) }).map(
         (_, index) => ({
           tag: count.tag,
           page: `${index + 1}`,
