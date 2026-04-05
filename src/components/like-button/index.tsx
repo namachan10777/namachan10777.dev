@@ -1,4 +1,4 @@
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@qwik.dev/core";
 import Like from "~icons/iconoir/thumbs-up";
 import * as v from "valibot";
 import styles from "./styles.module.css";

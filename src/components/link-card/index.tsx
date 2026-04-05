@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 import LinkIcon from "~icons/iconoir/www";
 import Internet from "~icons/iconoir/internet";

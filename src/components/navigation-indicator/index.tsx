@@ -1,5 +1,5 @@
-import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import { useLocation } from "@builder.io/qwik-city";
+import { component$, useSignal, useVisibleTask$ } from "@qwik.dev/core";
+import { useLocation } from "@qwik.dev/router";
 import styles from "./styles.module.css";
 
 export const NavigationIndicator = component$(() => {

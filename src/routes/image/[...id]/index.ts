@@ -1,4 +1,4 @@
-import { RequestHandler } from "@builder.io/qwik-city";
+import { RequestHandler } from "@qwik.dev/router";
 import * as v from "valibot";
 
 const allowedWidths = new Set([400, 800, 1200, 1600]);

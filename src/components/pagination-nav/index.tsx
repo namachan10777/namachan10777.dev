@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 import RightIcon from "~icons/iconoir/arrow-right";
 import LeftIcon from "~icons/iconoir/arrow-left";

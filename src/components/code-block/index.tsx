@@ -1,4 +1,4 @@
-import { Slot, component$, $, useSignal, Signal } from "@builder.io/qwik";
+import { Slot, component$, $, useSignal, Signal } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 import { useDebouncer$ } from "~/lib/qwik";
 import Copy from "~icons/iconoir/copy";

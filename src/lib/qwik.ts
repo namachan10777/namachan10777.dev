@@ -1,4 +1,4 @@
-import { $, QRL, implicit$FirstArg, useSignal } from "@builder.io/qwik";
+import { $, QRL, implicit$FirstArg, useSignal } from "@qwik.dev/core";
 
 export const useDebouncerQrl = <A extends unknown[], R>(
   fn: QRL<(...args: A) => R>,

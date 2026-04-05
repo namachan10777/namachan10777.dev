@@ -1,5 +1,5 @@
-import { Slot, component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+import { Slot, component$ } from "@qwik.dev/core";
+import { Link } from "@qwik.dev/router";
 import IconGitHub from "~icons/iconoir/github";
 import IconX from "~icons/iconoir/x";
 import IconLinkedIn from "~icons/iconoir/linkedin";

@@ -1,9 +1,9 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import {
   StaticGenerateHandler,
   routeLoader$,
   type DocumentHead,
-} from "@builder.io/qwik-city";
+} from "@qwik.dev/router";
 import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";

@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import { LinkCard } from "~/components/link-card";
 import * as rudis from "~/generated/rudis";
 

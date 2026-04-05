@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import type { Comment } from "~/routes/api/comments/[...id]";
 import styles from "./styles.module.css";
 

@@ -2,7 +2,7 @@ import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { Heading } from "~/components/heading";
 import styles from "./styles.module.css";
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import { Alert } from "./keep/alert";
 import { CodeblockKeep } from "./keep/codeblock";
 import { HeadingKeep } from "./keep/heading";

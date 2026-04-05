@@ -1,4 +1,4 @@
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@qwik.dev/core";
 import type { Comment } from "~/routes/api/comments/[...id]";
 import { CommentList } from "./comment-list";
 import { CommentForm } from "./comment-form";

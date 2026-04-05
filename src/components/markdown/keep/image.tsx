@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 
 interface ImageKeepProps {

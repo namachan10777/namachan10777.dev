@@ -1,7 +1,7 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import { Tags } from "~/components/tags";
 import styles from "./styles.module.css";
-import { Link } from "@builder.io/qwik-city";
+import { Link } from "@qwik.dev/router";
 
 export interface PostSummaryProps {
   title: string;

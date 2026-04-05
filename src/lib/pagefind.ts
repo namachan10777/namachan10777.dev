@@ -8,7 +8,7 @@ import {
   noSerialize,
   useStore,
   useVisibleTask$,
-} from "@builder.io/qwik";
+} from "@qwik.dev/core";
 
 /** Global index options that can be passed to pagefind.options() */
 export type PagefindIndexOptions = {

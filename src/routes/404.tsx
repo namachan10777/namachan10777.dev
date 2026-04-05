@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { DocumentHead } from "@builder.io/qwik-city";
+import { component$ } from "@qwik.dev/core";
+import { DocumentHead } from "@qwik.dev/router";
 import { NotFound } from "~/components/not-found";
 
 export default component$(() => {

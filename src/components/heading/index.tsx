@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 import Link from "~icons/iconoir/link";
 

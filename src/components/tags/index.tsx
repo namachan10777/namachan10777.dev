@@ -1,6 +1,6 @@
-import { component$ } from "@builder.io/qwik";
+import { component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
-import { Link } from "@builder.io/qwik-city";
+import { Link } from "@qwik.dev/router";
 
 export interface TagsProps {
   tags: string[];

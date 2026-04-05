@@ -1,4 +1,4 @@
-import { type RequestHandler } from "@builder.io/qwik-city";
+import { type RequestHandler } from "@qwik.dev/router";
 import { XMLBuilder } from "fast-xml-parser";
 import * as v from "valibot";
 import * as posts from "~/generated/posts/posts-valibot";

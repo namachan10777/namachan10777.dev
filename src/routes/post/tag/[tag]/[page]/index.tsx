@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { StaticGenerateHandler, routeLoader$ } from "@builder.io/qwik-city";
+import { component$ } from "@qwik.dev/core";
+import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";

@@ -1,10 +1,10 @@
 import {
   $,
   component$,
-  type PropFunction,
+  type QRL,
   useSignal,
   useVisibleTask$,
-} from "@builder.io/qwik";
+} from "@qwik.dev/core";
 import styles from "./styles.module.css";
 
 declare global {
@@ -28,7 +28,7 @@ declare global {
 interface Props {
   postId: string;
   turnstileSiteKey: string;
-  onSubmit$: PropFunction<() => void>;
+  onSubmit$: QRL<() => void>;
 }
 
 export const CommentForm = component$<Props>(

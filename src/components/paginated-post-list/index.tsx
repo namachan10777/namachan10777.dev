@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@qwik.dev/core";
 import { PostList } from "~/components/post-list";
 import { PaginationNav } from "~/components/pagination-nav";
 import styles from "./styles.module.css";

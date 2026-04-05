@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@qwik.dev/core";
 import { Header } from "~/components/header";
 import { Footer } from "~/components/footer";
 import { NavigationIndicator } from "~/components/navigation-indicator";

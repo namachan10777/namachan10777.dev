@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import { component$ } from "@qwik.dev/core";
+import { Link, type DocumentHead } from "@qwik.dev/router";
 import IconImage from "~/assets/icon.webp?jsx";
 import styles from "./index.module.css";
 import { Education } from "~/components/education";
