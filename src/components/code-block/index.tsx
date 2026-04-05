@@ -35,7 +35,11 @@ const CopyButton = component$(
       }
     });
     return (
-      <button class={styles.copyButton} onClick$={clickHandler} aria-label="コードをコピー">
+      <button
+        class={styles.copyButton}
+        onClick$={clickHandler}
+        aria-label="コードをコピー"
+      >
         {showCopiedMessage.value ? (
           <>
             <span>Copied</span>

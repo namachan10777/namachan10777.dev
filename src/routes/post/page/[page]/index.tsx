@@ -3,7 +3,12 @@ import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
 import { NotFound } from "~/components/not-found";
 import { PaginatedPostList } from "~/components/paginated-post-list";
 import * as v from "valibot";
-import { postWithTagsSchema, PAGE_SIZE, paginate, toPostSummary } from "~/lib/posts";
+import {
+  postWithTagsSchema,
+  PAGE_SIZE,
+  paginate,
+  toPostSummary,
+} from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {

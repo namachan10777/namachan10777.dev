@@ -34,7 +34,6 @@ Rustの場合デフォルトではframe pointerからデバッグ情報を取れ
 また、OS標準のaddr2lineだとRustのシンボルをうまく拾えない。[addr2line](https://crates.io/crates/addr2line)の
 CLIを使うといい感じに出来る（よくわかんない）ので標準より優先されるようにPATHに入れる。
 
-
 ```sh
 sudo perf record -g --call-graph dwarf ./target/release/binary
 cargo install addr2line --features bin
@@ -42,7 +41,6 @@ cargo install addr2line --features bin
 sudo env PATH="$PATH:/home/namachan10777/.cargo/bin" perf report
 sudo perf script report flamegraph
 ```
-
 
 また、`/usr/libexec/perf-core/`以下にLinuxの`tools/perf/scripts`ディレクトリをコピーしておくと`perf script report flamegraph`で
 `flamegraph.html`が生成される。カーネルランドとユーザランドが色分けされるのもあり、Brendan Gregg先生のスクリプトより若干便利。
@@ -54,7 +52,6 @@ sudo perf script report flamegraph
 左上の検索ボックスを使うことで手軽に全体に占めるCPU実行時間の比率を分析出来るので便利。
 
 より詳細な情報についてはperfのannotateを使う。`perf report`で開いて関数をannotateするのが便利。
-
 
 ![perf annotate](./perf/annotate.png "perf annotateの結果。movups命令が支配的なことが分かる")
 

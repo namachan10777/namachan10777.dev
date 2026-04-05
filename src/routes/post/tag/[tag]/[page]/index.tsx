@@ -5,7 +5,12 @@ import styles from "./index.module.css";
 import { NotFound } from "~/components/not-found";
 
 import * as v from "valibot";
-import { postWithTagsSchema, PAGE_SIZE, paginate, toPostSummary } from "~/lib/posts";
+import {
+  postWithTagsSchema,
+  PAGE_SIZE,
+  paginate,
+  toPostSummary,
+} from "~/lib/posts";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
