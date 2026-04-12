@@ -4,7 +4,7 @@
  */
 import { defineConfig, type UserConfig } from "vite";
 import { qwikVite } from "@qwik.dev/core/optimizer";
-import { qwikCity } from "@qwik.dev/router/vite";
+import { qwikRouter } from "@qwik.dev/router/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import pkg from "./package.json";
 import Icons from "unplugin-icons/vite";
@@ -24,7 +24,7 @@ export default defineConfig((): UserConfig => {
   return {
     plugins: [
       tsconfigPaths(),
-      qwikCity(),
+      qwikRouter(),
       qwikVite(),
       Icons({ compiler: "qwik" }),
     ],
