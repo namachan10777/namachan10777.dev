@@ -15,7 +15,7 @@
     "fast-xml-parser": "^5.5.11",
     "globals": "16.5.0",
     "jiti": "^2.6.1",
-    "prettier": "3.3.3",
+    "prettier": "3.8.2",
     "ts-morph": "^27.0.2",
     "typescript": "5.4.5",
     "typescript-eslint": "^8.58.1",
