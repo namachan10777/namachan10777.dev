@@ -5,7 +5,6 @@
 import { defineConfig, type UserConfig } from "vite";
 import { qwikVite } from "@qwik.dev/core/optimizer";
 import { qwikCity } from "@qwik.dev/router/vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import pkg from "./package.json";
 import Icons from "unplugin-icons/vite";
 type PkgDep = Record<string, string>;
@@ -26,7 +25,6 @@ export default defineConfig((): UserConfig => {
       qwikCity(),
       qwikVite(),
       Icons({ compiler: "qwik" }),
-      tsconfigPaths(),
     ],
     resolve: {
       tsconfigPaths: true,
