@@ -13,7 +13,7 @@
     "eslint": "9.39.4",
     "eslint-plugin-qwik": "^1.19.2",
     "fast-xml-parser": "^5.5.11",
-    "globals": "16.5.0",
+    "globals": "17.5.0",
     "jiti": "^2.6.1",
     "prettier": "3.8.2",
     "ts-morph": "^27.0.2",
