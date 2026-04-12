@@ -3,7 +3,6 @@ import {
   component$,
   type QRL,
   useSignal,
-  useVisibleTask$,
 } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 
@@ -37,48 +36,89 @@ export const CommentForm = component$<Props>(
     const content = useSignal("");
     const turnstileToken = useSignal("");
     const isSubmitting = useSignal(false);
+    const isLoadingTurnstile = useSignal(false);
     const error = useSignal("");
     const widgetId = useSignal<string>("");
 
-    // eslint-disable-next-line qwik/no-use-visible-task
-    useVisibleTask$(({ cleanup }) => {
+    const renderTurnstile = $(() => {
       const container = document.getElementById("turnstile-container");
-      if (!container) return;
+      if (!container || !window.turnstile || widgetId.value) return;
 
-      const script = document.createElement("script");
-      script.src =
-        "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.defer = true;
-
-      script.onload = () => {
-        if (window.turnstile) {
-          widgetId.value = window.turnstile.render(container, {
-            sitekey: turnstileSiteKey,
-            callback: (token: string) => {
-              turnstileToken.value = token;
-            },
-            "expired-callback": () => {
-              turnstileToken.value = "";
-            },
-            "error-callback": () => {
-              error.value = "Turnstile の読み込みに失敗しました";
-            },
-          });
-        }
-      };
-
-      document.head.appendChild(script);
-
-      cleanup(() => {
-        if (window.turnstile && widgetId.value) {
-          window.turnstile.remove(widgetId.value);
-        }
-        script.remove();
+      widgetId.value = window.turnstile.render(container, {
+        sitekey: turnstileSiteKey,
+        callback: (token: string) => {
+          turnstileToken.value = token;
+        },
+        "expired-callback": () => {
+          turnstileToken.value = "";
+        },
+        "error-callback": () => {
+          error.value = "Turnstile の読み込みに失敗しました";
+        },
       });
     });
 
+    const ensureTurnstileLoaded = $(async () => {
+      if (widgetId.value) return;
+
+      if (window.turnstile) {
+        await renderTurnstile();
+        return;
+      }
+
+      if (isLoadingTurnstile.value) return;
+
+      isLoadingTurnstile.value = true;
+
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        'script[src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"]',
+      );
+
+      if (existingScript) {
+        await new Promise<void>((resolve, reject) => {
+          existingScript.addEventListener("load", () => resolve(), {
+            once: true,
+          });
+          existingScript.addEventListener(
+            "error",
+            () => reject(new Error("Turnstile の読み込みに失敗しました")),
+            { once: true },
+          );
+        }).catch((e) => {
+          error.value =
+            e instanceof Error ? e.message : "Turnstile の読み込みに失敗しました";
+        });
+      } else {
+        const script = document.createElement("script");
+        script.src =
+          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        script.async = true;
+        script.defer = true;
+
+        await new Promise<void>((resolve, reject) => {
+          script.addEventListener("load", () => resolve(), { once: true });
+          script.addEventListener(
+            "error",
+            () => reject(new Error("Turnstile の読み込みに失敗しました")),
+            { once: true },
+          );
+          document.head.appendChild(script);
+        }).catch((e) => {
+          error.value =
+            e instanceof Error ? e.message : "Turnstile の読み込みに失敗しました";
+        });
+      }
+
+      isLoadingTurnstile.value = false;
+
+      if (window.turnstile) {
+        await renderTurnstile();
+      }
+    });
+
     const handleSubmit = $(async () => {
+      await ensureTurnstileLoaded();
+
       if (!turnstileToken.value) {
         error.value = "認証を完了してください";
         return;
@@ -143,6 +183,7 @@ export const CommentForm = component$<Props>(
             type="text"
             class={styles.formInput}
             value={name.value}
+            onFocus$={ensureTurnstileLoaded}
             onInput$={(e) => {
               name.value = (e.target as HTMLInputElement).value;
             }}
@@ -155,6 +196,7 @@ export const CommentForm = component$<Props>(
           <textarea
             class={styles.formTextarea}
             value={content.value}
+            onFocus$={ensureTurnstileLoaded}
             onInput$={(e) => {
               content.value = (e.target as HTMLTextAreaElement).value;
             }}
