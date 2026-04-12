@@ -1,6 +1,6 @@
 name = "namachan10777dev"
 main = "./dist/_worker.js"
-compatibility_date = "2025-07-12"
+compatibility_date = "2026-04-12"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
 [assets]
