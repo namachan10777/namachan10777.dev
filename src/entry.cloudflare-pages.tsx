@@ -7,12 +7,11 @@
  * - https://qwik.dev/docs/deployments/cloudflare-pages/
  *
  */
-import { createQwikCity } from "@qwik.dev/router/middleware/cloudflare-pages";
-import qwikCityPlan from "@qwik-city-plan";
+import { createQwikRouter } from "@qwik.dev/router/middleware/node";
 import render from "./entry.ssr";
 
 declare global {}
 
-const fetch = createQwikCity({ render, qwikCityPlan });
+const fetch = createQwikRouter({ render });
 
 export { fetch };
