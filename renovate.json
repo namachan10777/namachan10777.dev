@@ -5,7 +5,8 @@
   ],
   "packageRules": [
     {
-      "matchManagers": [
+      "description": "Auto-merge npm package updates",
+      "matchDatasources": [
         "npm"
       ],
       "matchUpdateTypes": [
