@@ -7,7 +7,7 @@
  * - https://qwik.dev/docs/deployments/cloudflare-pages/
  *
  */
-import { createQwikRouter } from "@qwik.dev/router/middleware/node";
+import { createQwikRouter } from "@qwik.dev/router/middleware/cloudflare-pages";
 import render from "./entry.ssr";
 
 declare global {}
