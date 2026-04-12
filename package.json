@@ -52,5 +52,8 @@
   "overrides": {
     "vite": "7.3.2"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "vite-tsconfig-paths": "^6.1.1"
+  }
 }
