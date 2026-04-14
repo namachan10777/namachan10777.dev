@@ -1,9 +1,4 @@
-import {
-  $,
-  component$,
-  type QRL,
-  useSignal,
-} from "@qwik.dev/core";
+import { $, component$, type QRL, useSignal } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 
 declare global {
@@ -86,7 +81,9 @@ export const CommentForm = component$<Props>(
           );
         }).catch((e) => {
           error.value =
-            e instanceof Error ? e.message : "Turnstile の読み込みに失敗しました";
+            e instanceof Error
+              ? e.message
+              : "Turnstile の読み込みに失敗しました";
         });
       } else {
         const script = document.createElement("script");
@@ -105,7 +102,9 @@ export const CommentForm = component$<Props>(
           document.head.appendChild(script);
         }).catch((e) => {
           error.value =
-            e instanceof Error ? e.message : "Turnstile の読み込みに失敗しました";
+            e instanceof Error
+              ? e.message
+              : "Turnstile の読み込みに失敗しました";
         });
       }
 
