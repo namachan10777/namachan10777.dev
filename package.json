@@ -22,7 +22,7 @@
     "undici": "^8.0.0",
     "unplugin-icons": "^23.0.0",
     "valibot": "^1.3.1",
-    "vite": "8.0.9",
+    "vite": "7.1.12",
     "wrangler": "^4.81.1"
   },
   "description": "Blank project with routing included",
@@ -50,7 +50,7 @@
     "qwik": "qwik"
   },
   "overrides": {
-    "vite": "8.0.9"
+    "vite": "7.1.12"
   },
   "type": "module",
   "dependencies": {
