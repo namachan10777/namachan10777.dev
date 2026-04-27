@@ -92,7 +92,7 @@ export default component$(() => {
       prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
       next={page.value.next ? `/post/page/${page.value.next}` : undefined}
     >
-      <p>概ね本当の話と、概ね本当だと思っている話と、嘘の話を書く</p>
+      <p>特記事項のない限り、全ての記事は個人的に趣味で書いたものであり、所属組織とは関係がありません</p>
       <h1>Post ({page.value.current})</h1>
     </PaginatedPostList>
   );
