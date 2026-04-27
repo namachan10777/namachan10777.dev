@@ -46,14 +46,14 @@ export default component$(() => {
           Links
         </h2>
         <nav>
-          <ol>
+          <ul>
             <li>
               <Link href="/post/page/1">Posts (ja)</Link>
             </li>
             <li>
-              <li><Link href="/">SSH pubkey</Link></li>
+              <Link href="/id.pub">SSH pubkey</Link>
             </li>
-          </ol>
+          </ul>
         </nav>
       </section>
       <section>
