@@ -4,7 +4,6 @@ import IconImage from "~/assets/icon.webp?jsx";
 import styles from "./index.module.css";
 import { Education } from "~/components/education";
 import { Work } from "~/components/work";
-import { Book, Workshop } from "~/components/publication";
 import {
   tsukubaGraduateSchool,
   tsukubaUniv,
@@ -44,8 +43,18 @@ export default component$(() => {
       </section>
       <section>
         <h2>
-          <Link href="/post/page/1">Posts (ja)</Link>
+          Links
         </h2>
+        <nav>
+          <ol>
+            <li>
+              <Link href="/post/page/1">Posts (ja)</Link>
+            </li>
+            <li>
+              <li><Link href="/">SSH pubkey</Link></li>
+            </li>
+          </ol>
+        </nav>
       </section>
       <section>
         <h2>Education</h2>
@@ -82,82 +91,20 @@ export default component$(() => {
         </ol>
       </section>
       <section>
-        <h2>Professional tranings</h2>
+        <h2>Work experience</h2>
         <ol>
           <li>
             <Work
-              start={new Date("2024-10")}
+              start={new Date("2026-04")}
               company={{
                 name: "Preferred Networks, Inc.",
                 href: "https://www.preferred.jp/",
               }}
-              position="Part-time engineer"
+              position="Storage engineer"
               topic="Storage system"
             />
           </li>
-          <li>
-            <Work
-              start={new Date("2022-08")}
-              company={{
-                name: "ArkEdge Space Inc.",
-                href: "https://arkedgespace.com",
-              }}
-              position="Part-time engineer"
-              topic="Ground system"
-            />
-          </li>
-          <li>
-            <Work
-              start={new Date("2021-09")}
-              company={{
-                name: "Cookpad Inc.",
-                href: "https://info.cookpad.com",
-              }}
-              retire={new Date("2022-03")}
-              position="Part-time engineer"
-              topic="SRE"
-            />
-          </li>
         </ol>
-      </section>
-      <section>
-        <h2>Publications</h2>
-        <section>
-          <h3>Workshop</h3>
-          <ol>
-            <li>
-              <Workshop
-                authors={[{ me: "中野将生" }, "建部修見"]}
-                title="RustのUCXラッパーasync-ucxの性能評価 "
-                year={2023}
-                workshop="第192回 HPC研究会"
-              />
-            </li>
-            <li>
-              <Workshop
-                authors={[{ me: "中野将生" }, "北村大地"]}
-                title="ユーザーからの補助情報を用いるインタラクティブ音源分離システム"
-                year={2020}
-                workshop="日本音響学会春季研究発表会"
-              />
-            </li>
-          </ol>
-        </section>
-        <section>
-          <h3>Book</h3>
-          <ol>
-            <li>
-              <Book
-                authors={["Maxwell Flitton", "Caroline Morton"]}
-                translators={["中田 秀基"]}
-                comment="Reviwer"
-                title="Async Rust"
-                publisher="O'Reilly Japan"
-                year={2025}
-              />
-            </li>
-          </ol>
-        </section>
       </section>
     </>
   );
