@@ -27,6 +27,7 @@
     "src",
     "./*.d.ts",
     "./*.config.ts",
+    "./*.config.mjs",
     "adapters",
     "vite.config.ts",
     "assetsignore.ts"

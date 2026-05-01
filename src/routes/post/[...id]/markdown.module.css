@@ -35,8 +35,7 @@
 
   .footnotes {
     display: grid;
-    grid-gap: 1rem;
-    row-gap: 1rem;
+    gap: 1rem;
     padding-inline: 0;
     grid-template-columns: auto 1fr;
   }
