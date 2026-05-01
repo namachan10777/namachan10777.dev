@@ -1,11 +1,12 @@
 import { RequestHandler } from "@qwik.dev/router";
+import { getBinding } from "~/lib/cloudflare";
 
-export const onPost: RequestHandler = async ({ request, env, json }) => {
+export const onPost: RequestHandler = async (event) => {
+  const { request, json } = event;
   try {
     const url = new URL(request.url);
     const id = url.pathname.match(/^\/api\/like\/(.+)$/)![1];
-    const row = await env
-      .get("DB")!
+    const row = await getBinding<D1Database>(event, "DB")!
       .prepare(
         `
           INSERT INTO likes (post_id, count)

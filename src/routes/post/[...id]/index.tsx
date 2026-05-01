@@ -15,16 +15,18 @@ import * as postsSchema from "~/generated/posts/posts-valibot";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
 import { CommentPostSchema, CommentSchema, type Comment } from "~/lib/comments";
+import { getBinding } from "~/lib/cloudflare";
 import { logServerError } from "~/lib/server-log";
 import { verifyTurnstileToken } from "~/lib/turnstile";
 
-export const usePost = routeLoader$(async ({ params, status, env }) => {
+export const usePost = routeLoader$(async (event) => {
+  const { params, status } = event;
   try {
-    console.log(env.get("DB"), env.get("KV"));
+    const db = getBinding<D1Database>(event, "DB");
+    const kv = getBinding<KVNamespace>(event, "KV");
     const [body, commentsResult] = await Promise.all([
-      env.get("KV")!.get(params.id, { type: "json" }),
-      env
-        .get("DB")!
+      kv!.get(params.id, { type: "json" }),
+      db!
         .prepare(
           "SELECT post_id, id, created_at, name, content FROM comments WHERE post_id = ? ORDER BY created_at DESC",
         )
@@ -35,7 +37,8 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
 
     const comments = v.parse(v.array(CommentSchema), commentsResult.results);
 
-    const turnstileSiteKey = env.get("TURNSTILE_SITE_KEY") || "";
+    const turnstileSiteKey =
+      getBinding<string>(event, "TURNSTILE_SITE_KEY") || "";
 
     return {
       body: v.parse(postsSchema.bodyDocument, body),
@@ -50,8 +53,9 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
 });
 
 export const useSubmitComment = routeAction$(
-  async ({ name, content, turnstileToken }, { env, fail, params }) => {
-    const secretKey = env.get("TURNSTILE_SECRET_KEY");
+  async ({ name, content, turnstileToken }, event) => {
+    const { fail, params } = event;
+    const secretKey = getBinding<string>(event, "TURNSTILE_SECRET_KEY");
     if (!secretKey) {
       return fail(500, { message: "Turnstile not configured" });
     }
@@ -64,8 +68,7 @@ export const useSubmitComment = routeAction$(
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
 
-    await env
-      .get("DB")!
+    await getBinding<D1Database>(event, "DB")!
       .prepare(
         "INSERT INTO comments (post_id, id, created_at, name, content) VALUES (?, ?, ?, ?, ?)",
       )
@@ -129,8 +132,8 @@ export default component$(() => {
   }
 });
 
-export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
-  const d1 = env.get("DB");
+export const onStaticGenerate: StaticGenerateHandler = async (event) => {
+  const d1 = getBinding<D1Database>(event, "DB");
   const schema = v.nullish(
     v.array(
       v.object({

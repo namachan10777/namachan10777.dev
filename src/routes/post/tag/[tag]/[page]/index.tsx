@@ -11,12 +11,14 @@ import {
   paginate,
   toPostSummary,
 } from "~/lib/posts";
+import { getBinding } from "~/lib/cloudflare";
 import { logServerError } from "~/lib/server-log";
 
-export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
+export const usePostsPages = routeLoader$(async (event) => {
+  const { params, status } = event;
   try {
     const index = parseInt(params.page, 10);
-    const d1 = env.get("DB");
+    const d1 = getBinding<D1Database>(event, "DB");
     const meta_q = `
       SELECT posts.*, json_group_array(post_tags.tag) AS tags
       FROM post_tags AS tag_filter
@@ -77,7 +79,7 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   }
 });
 
-export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
+export const onStaticGenerate: StaticGenerateHandler = async (event) => {
   const q = `
     SELECT COUNT(posts) AS count, tag
     FROM post_tags
@@ -85,7 +87,7 @@ export const onStaticGenerate: StaticGenerateHandler = async ({ env }) => {
     WHERE posts.publish
     GROUP BY post_tags.tag;
   `;
-  const d1 = env.get("DB");
+  const d1 = getBinding<D1Database>(event, "DB");
   if (d1 === undefined) {
     return { params: [] };
   }
