@@ -42,9 +42,7 @@ export default component$(() => {
         </ul>
       </section>
       <section>
-        <h2>
-          Links
-        </h2>
+        <h2>Links</h2>
         <nav>
           <ul>
             <li>
