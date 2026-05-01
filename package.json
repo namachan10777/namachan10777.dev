@@ -40,7 +40,7 @@
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "cf-typegen": "wrangler types",
-    "check": "bun run fmt.check && bun run lint && bun run lint:css && bun run lint:sql && bun run build.types",
+    "check": "bun run cf-typegen && bun run fmt.check && bun run lint && bun run lint:css && bun run lint:sql && bun run build.types",
     "ci": "bun run check",
     "deploy": "bun run build && bun run ./assetsignore.ts && wrangler deploy",
     "dev": "vite --mode ssr",
