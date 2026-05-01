@@ -24,13 +24,13 @@ const CopyButton = component$(
     const setDoneIcon = useDebouncer$(() => {
       showCopiedMessage.value = false;
     }, 1000);
-    const clickHandler = $(() => {
+    const clickHandler = $(async () => {
       if (props.preRef.value) {
         const text = props.preRef.value.textContent;
         if (text) {
-          navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(text);
           showCopiedMessage.value = true;
-          setDoneIcon();
+          void setDoneIcon();
         }
       }
     });

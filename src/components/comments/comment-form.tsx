@@ -150,7 +150,7 @@ export const CommentForm = component$<Props>(
         });
 
         if (!response.ok) {
-          const data = (await response.json()) as { error?: string };
+          const data = await response.json<{ error?: string }>();
           throw new Error(data.error || "コメントの投稿に失敗しました");
         }
 

@@ -12,7 +12,7 @@ import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
-import { CommentSchema, type Comment } from "~/lib/comments";
+import { CommentSchema } from "~/lib/comments";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -29,10 +29,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
         .catch(() => ({ results: [] })),
     ]);
 
-    const comments = v.parse(
-      v.array(CommentSchema),
-      commentsResult.results,
-    ) as Comment[];
+    const comments = v.parse(v.array(CommentSchema), commentsResult.results);
 
     const turnstileSiteKey = env.get("TURNSTILE_SITE_KEY") || "";
 
@@ -56,11 +53,17 @@ export default component$(() => {
       <>
         <article data-pagefind-body>
           <header class={styles.header}>
-            <h1 data-pagefind-meta={`date:${body.frontmatter.date}`}>
+            <h1
+              data-pagefind-meta={`date:${body.frontmatter.date.toISOString()}`}
+            >
               {body.frontmatter.title}
             </h1>
             <p>{body.frontmatter.description}</p>
-            <div data-pagefind-meta={`tags:${body.frontmatter.tags.join(",")}`}>
+            <div
+              data-pagefind-meta={`tags:${body.frontmatter.tags
+                .map((record) => record.tag)
+                .join(",")}`}
+            >
               <Tags tags={body.frontmatter.tags.map((record) => record.tag)} />
             </div>
           </header>

@@ -41,6 +41,7 @@ const ignores = [
   "**/package-lock.json",
   "**/yarn.lock",
   "**/server",
+  "**/worker-configuration.d.ts",
   "eslint.config.js",
 ];
 
@@ -48,6 +49,7 @@ export default tseslint.config(
   globalIgnores(ignores),
   js.configs.recommended,
   tseslint.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
   qwikEslint9Plugin.configs.recommended,
   {
     languageOptions: {

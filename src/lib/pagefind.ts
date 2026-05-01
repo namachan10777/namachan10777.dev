@@ -313,10 +313,10 @@ export type Pagefind = {
 
 async function loadPagefind(): Promise<Pagefind> {
   const path = "/pagefind/pagefind.js";
-  const module = import.meta.env.DEV
+  const module: unknown = import.meta.env.DEV
     ? await import(/* @vite-ignore */ "/pagefind/pagefind.js?url")
     : await import(/* @vite-ignore */ path);
-  return module as unknown as Pagefind;
+  return module as Pagefind;
 }
 
 export function usePagefind(options?: PagefindIndexOptions): {
