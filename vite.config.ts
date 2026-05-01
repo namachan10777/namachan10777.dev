@@ -3,6 +3,7 @@
  * When building, the adapter config is used which loads this file and extends it.
  */
 import { defineConfig, type UserConfig } from "vite";
+import { getPlatformProxy } from "wrangler";
 import { qwikVite } from "@qwik.dev/core/optimizer";
 import { qwikRouter } from "@qwik.dev/router/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -20,11 +21,14 @@ errorOnDuplicatesPkgDeps(devDependencies, dependencies);
  */
 
 
-export default defineConfig((): UserConfig => {
+export default defineConfig(async ({ command }): Promise<UserConfig> => {
+  const platform =
+    command === "serve" ? await getPlatformProxy<Env>() : undefined;
+
   return {
     plugins: [
       tsconfigPaths(),
-      qwikRouter(),
+      qwikRouter(platform ? { platform } : undefined),
       qwikVite({ experimental: ["valibot"] }),
       Icons({ compiler: "qwik" }),
     ],

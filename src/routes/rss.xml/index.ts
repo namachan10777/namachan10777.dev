@@ -1,6 +1,7 @@
 import { type RequestHandler } from "@qwik.dev/router";
 import { XMLBuilder } from "fast-xml-parser";
 import * as v from "valibot";
+import { getBinding } from "~/lib/cloudflare";
 import { postWithTagsSchema } from "~/lib/posts";
 
 interface RssItem {
@@ -49,8 +50,9 @@ function genRss(rss: RssProps): string {
   return builder.build(obj);
 }
 
-export const onGet: RequestHandler = async ({ request, send, env }) => {
-  const d1 = env.get("DB");
+export const onGet: RequestHandler = async (event) => {
+  const { request, send } = event;
+  const d1 = getBinding<D1Database>(event, "DB");
   const url = new URL(request.url);
   const base = {
     title: "namachan10777.dev",
