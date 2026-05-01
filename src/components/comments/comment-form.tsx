@@ -1,4 +1,6 @@
 import { $, component$, type QRL, useSignal } from "@qwik.dev/core";
+import { Form, type ActionStore } from "@qwik.dev/router";
+import type { CommentPostInput, CommentSubmitValue } from "~/lib/comments";
 import styles from "./styles.module.css";
 
 declare global {
@@ -20,17 +22,31 @@ declare global {
 }
 
 interface Props {
-  postId: string;
   turnstileSiteKey: string;
+  submitAction: ActionStore<CommentSubmitValue, CommentPostInput, false>;
   onSubmit$: QRL<() => void>;
 }
 
+const getFormString = (formData: FormData | undefined, name: string) => {
+  const value = formData?.get(name);
+  return typeof value === "string" ? value : undefined;
+};
+
+const getSubmitError = (value: CommentSubmitValue | undefined) => {
+  if (!value || !("failed" in value)) {
+    return undefined;
+  }
+
+  if ("message" in value) {
+    return value.message;
+  }
+
+  return "コメントの投稿に失敗しました";
+};
+
 export const CommentForm = component$<Props>(
-  ({ postId, turnstileSiteKey, onSubmit$ }) => {
-    const name = useSignal("");
-    const content = useSignal("");
+  ({ turnstileSiteKey, submitAction, onSubmit$ }) => {
     const turnstileToken = useSignal("");
-    const isSubmitting = useSignal(false);
     const isLoadingTurnstile = useSignal(false);
     const error = useSignal("");
     const widgetId = useSignal<string>("");
@@ -115,65 +131,32 @@ export const CommentForm = component$<Props>(
       }
     });
 
-    const handleSubmit = $(async () => {
-      await ensureTurnstileLoaded();
-
+    const handleSubmit = $(() => {
       if (!turnstileToken.value) {
         error.value = "認証を完了してください";
+        void ensureTurnstileLoaded();
         return;
       }
 
-      if (!name.value.trim()) {
-        error.value = "名前を入力してください";
-        return;
-      }
-
-      if (!content.value.trim()) {
-        error.value = "コメントを入力してください";
-        return;
-      }
-
-      isSubmitting.value = true;
       error.value = "";
+    });
 
-      try {
-        const response = await fetch(`/api/comments/${postId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name.value.trim(),
-            content: content.value.trim(),
-            turnstileToken: turnstileToken.value,
-          }),
-        });
+    const handleSubmitCompleted = $(async () => {
+      turnstileToken.value = "";
 
-        if (!response.ok) {
-          const data = await response.json<{ error?: string }>();
-          throw new Error(data.error || "コメントの投稿に失敗しました");
-        }
-
-        name.value = "";
-        content.value = "";
-        turnstileToken.value = "";
-
-        if (window.turnstile && widgetId.value) {
-          window.turnstile.reset(widgetId.value);
-        }
-
-        await onSubmit$();
-      } catch (e) {
-        error.value = e instanceof Error ? e.message : "エラーが発生しました";
-      } finally {
-        isSubmitting.value = false;
+      if (window.turnstile && widgetId.value) {
+        window.turnstile.reset(widgetId.value);
       }
+
+      await onSubmit$();
     });
 
     return (
-      <form
-        preventdefault:submit
+      <Form
+        action={submitAction}
         onSubmit$={handleSubmit}
+        onSubmitCompleted$={handleSubmitCompleted}
+        spaReset
         class={styles.commentForm}
       >
         <label class={styles.formLabel}>
@@ -181,11 +164,9 @@ export const CommentForm = component$<Props>(
           <input
             type="text"
             class={styles.formInput}
-            value={name.value}
+            name="name"
+            value={getFormString(submitAction.formData, "name")}
             onFocus$={ensureTurnstileLoaded}
-            onInput$={(e) => {
-              name.value = (e.target as HTMLInputElement).value;
-            }}
             maxLength={100}
             required
           />
@@ -194,27 +175,35 @@ export const CommentForm = component$<Props>(
           コメント
           <textarea
             class={styles.formTextarea}
-            value={content.value}
+            name="content"
+            value={getFormString(submitAction.formData, "content")}
             onFocus$={ensureTurnstileLoaded}
-            onInput$={(e) => {
-              content.value = (e.target as HTMLTextAreaElement).value;
-            }}
             maxLength={10000}
             required
           />
         </label>
         <div class={styles.formActions}>
           <div id="turnstile-container" class={styles.turnstileContainer} />
+          <input
+            type="hidden"
+            name="turnstileToken"
+            value={turnstileToken.value}
+          />
           {error.value && <p class={styles.errorMessage}>{error.value}</p>}
+          {getSubmitError(submitAction.value) && (
+            <p class={styles.errorMessage}>
+              {getSubmitError(submitAction.value)}
+            </p>
+          )}
           <button
             type="submit"
             class={styles.submitButton}
-            disabled={isSubmitting.value}
+            disabled={submitAction.isRunning || !turnstileToken.value}
           >
-            {isSubmitting.value ? "送信中..." : "投稿"}
+            {submitAction.isRunning ? "送信中..." : "投稿"}
           </button>
         </div>
-      </form>
+      </Form>
     );
   },
 );

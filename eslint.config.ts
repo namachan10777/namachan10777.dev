@@ -74,7 +74,7 @@ export default tseslint.config(
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      // eslint-plugin-qwik's valid-lexical-scope crashes with recent typescript-eslint (TypeFlags undefined)
+      // eslint-plugin-qwik still crashes with current ESLint/typescript-eslint (TypeFlags undefined).
       "qwik/valid-lexical-scope": "off",
     },
   },

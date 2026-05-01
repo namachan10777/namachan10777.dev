@@ -25,7 +25,7 @@ export default defineConfig((): UserConfig => {
     plugins: [
       tsconfigPaths(),
       qwikRouter(),
-      qwikVite(),
+      qwikVite({ experimental: ["valibot"] }),
       Icons({ compiler: "qwik" }),
     ],
     // This tells Vite which dependencies to pre-build in dev mode.

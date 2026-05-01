@@ -1,8 +1,10 @@
 import { component$ } from "@qwik.dev/core";
 import {
   StaticGenerateHandler,
+  routeAction$,
   routeLoader$,
   type DocumentHead,
+  valibot$,
 } from "@qwik.dev/router";
 import { buildPostHead } from "~/lib/post-head";
 import styles from "./markdown.module.css";
@@ -12,7 +14,8 @@ import * as v from "valibot";
 import * as posts from "~/generated/posts/posts";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
-import { CommentSchema } from "~/lib/comments";
+import { CommentPostSchema, CommentSchema, type Comment } from "~/lib/comments";
+import { verifyTurnstileToken } from "~/lib/turnstile";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -45,8 +48,45 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
   }
 });
 
+export const useSubmitComment = routeAction$(
+  async ({ name, content, turnstileToken }, { env, fail, params }) => {
+    const secretKey = env.get("TURNSTILE_SECRET_KEY");
+    if (!secretKey) {
+      return fail(500, { message: "Turnstile not configured" });
+    }
+
+    const verification = await verifyTurnstileToken(turnstileToken, secretKey);
+    if (!verification.success) {
+      return fail(400, { message: "Turnstile verification failed" });
+    }
+
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+
+    await env
+      .get("DB")!
+      .prepare(
+        "INSERT INTO comments (post_id, id, created_at, name, content) VALUES (?, ?, ?, ?, ?)",
+      )
+      .bind(params.id, id, createdAt, name, content)
+      .run();
+
+    const comment: Comment = {
+      post_id: params.id,
+      id,
+      created_at: createdAt,
+      name,
+      content,
+    };
+
+    return { comment };
+  },
+  valibot$(CommentPostSchema),
+);
+
 export default component$(() => {
   const page = usePost();
+  const submitCommentAction = useSubmitComment();
   if (page.value) {
     const body = page.value.body;
     return (
@@ -80,6 +120,7 @@ export default component$(() => {
           postId={page.value.body.frontmatter.id}
           initialComments={page.value.comments}
           turnstileSiteKey={page.value.turnstileSiteKey}
+          submitAction={submitCommentAction}
         />
       </>
     );
