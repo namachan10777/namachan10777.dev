@@ -1,5 +1,6 @@
 import { RequestHandler } from "@qwik.dev/router";
 import * as v from "valibot";
+import { logServerError } from "~/lib/server-log";
 
 const allowedWidths = new Set([400, 800, 1200, 1600]);
 const formatValidator = v.union([
@@ -57,7 +58,9 @@ export const onGet: RequestHandler = async ({ request, send }) => {
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     send(new Response(response.body, { status: response.status, headers }));
   } catch (error) {
-    console.warn(error);
+    logServerError("warn", "Failed to serve image", error, {
+      url: request.url,
+    });
     send(404, "");
   }
 };

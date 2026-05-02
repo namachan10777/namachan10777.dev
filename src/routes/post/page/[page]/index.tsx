@@ -9,6 +9,7 @@ import {
   paginate,
   toPostSummary,
 } from "~/lib/posts";
+import { logServerError } from "~/lib/server-log";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -53,7 +54,9 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       ...paginate(count.count, current),
     };
   } catch (error) {
-    console.warn(error);
+    logServerError("warn", "Failed to load post page", error, {
+      page: params.page,
+    });
     status(404);
     return undefined;
   }

@@ -1,11 +1,13 @@
 import { RequestHandler } from "@qwik.dev/router";
 import * as v from "valibot";
 import { CommentSchema } from "~/lib/comments";
+import { logServerError } from "~/lib/server-log";
 
 export const onGet: RequestHandler = async ({ request, env, json }) => {
+  let postId: string | undefined;
   try {
     const url = new URL(request.url);
-    const postId = url.pathname.match(/^\/api\/comments\/(.+)$/)![1];
+    postId = url.pathname.match(/^\/api\/comments\/(.+)$/)![1];
 
     const result = await env
       .get("DB")!
@@ -18,7 +20,7 @@ export const onGet: RequestHandler = async ({ request, env, json }) => {
     const comments = v.parse(v.array(CommentSchema), result.results);
     json(200, { comments });
   } catch (error) {
-    console.error("Failed to fetch comments:", error);
+    logServerError("error", "Failed to fetch comments", error, { postId });
     json(500, { error: "Failed to fetch comments" });
   }
 };

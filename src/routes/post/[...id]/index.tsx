@@ -15,6 +15,7 @@ import * as postsSchema from "~/generated/posts/posts-valibot";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
 import { CommentPostSchema, CommentSchema, type Comment } from "~/lib/comments";
+import { logServerError } from "~/lib/server-log";
 import { verifyTurnstileToken } from "~/lib/turnstile";
 
 export const usePost = routeLoader$(async ({ params, status, env }) => {
@@ -42,7 +43,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
       turnstileSiteKey,
     };
   } catch (error) {
-    console.warn(JSON.stringify(error, null, "  "));
+    logServerError("warn", "Failed to load post", error, { id: params.id });
     status(404);
     return null;
   }

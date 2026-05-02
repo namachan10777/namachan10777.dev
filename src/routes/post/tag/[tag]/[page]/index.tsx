@@ -11,6 +11,7 @@ import {
   paginate,
   toPostSummary,
 } from "~/lib/posts";
+import { logServerError } from "~/lib/server-log";
 
 export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
   try {
@@ -67,7 +68,10 @@ export const usePostsPages = routeLoader$(async ({ params, status, env }) => {
       tag: params.tag,
     };
   } catch (error) {
-    console.warn(error);
+    logServerError("warn", "Failed to load tagged post page", error, {
+      tag: params.tag,
+      page: params.page,
+    });
     status(404);
     return undefined;
   }
