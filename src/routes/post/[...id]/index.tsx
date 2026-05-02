@@ -11,7 +11,7 @@ import styles from "./markdown.module.css";
 import { Tags } from "~/components/tags";
 import { NotFound } from "~/components/not-found";
 import * as v from "valibot";
-import * as posts from "~/generated/posts/posts";
+import * as postsSchema from "~/generated/posts/posts-valibot";
 import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
 import { CommentPostSchema, CommentSchema, type Comment } from "~/lib/comments";
@@ -37,7 +37,7 @@ export const usePost = routeLoader$(async ({ params, status, env }) => {
     const turnstileSiteKey = env.get("TURNSTILE_SITE_KEY") || "";
 
     return {
-      body: body as posts.BodyDocument,
+      body: v.parse(postsSchema.bodyDocument, body),
       comments,
       turnstileSiteKey,
     };
@@ -89,13 +89,12 @@ export default component$(() => {
   const submitCommentAction = useSubmitComment();
   if (page.value) {
     const body = page.value.body;
+    const published = new Date(body.frontmatter.date);
     return (
       <>
         <article data-pagefind-body>
           <header class={styles.header}>
-            <h1
-              data-pagefind-meta={`date:${body.frontmatter.date.toISOString()}`}
-            >
+            <h1 data-pagefind-meta={`date:${published.toISOString()}`}>
               {body.frontmatter.title}
             </h1>
             <p>{body.frontmatter.description}</p>
