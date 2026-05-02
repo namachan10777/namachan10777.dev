@@ -49,7 +49,7 @@ export default component$(() => {
               <Link href="/post/page/1">Posts (ja)</Link>
             </li>
             <li>
-              <Link href="/id.pub">SSH pubkey</Link>
+              <a href="/id.pub">SSH pubkey</a>
             </li>
           </ul>
         </nav>
