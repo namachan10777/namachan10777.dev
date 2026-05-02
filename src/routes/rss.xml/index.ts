@@ -62,7 +62,7 @@ export const onGet: RequestHandler = async (event) => {
     items: [],
   };
   if (d1 === undefined) {
-    genRss(base);
+    send(200, genRss(base));
     return;
   }
 
