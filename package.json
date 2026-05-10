@@ -15,6 +15,7 @@
     "fast-xml-parser": "^5.5.11",
     "globals": "17.6.0",
     "jiti": "^2.6.1",
+    "katex": "^0.16.45",
     "prettier": "3.8.3",
     "stylelint": "17.11.0",
     "stylelint-config-standard": "40.0.0",
@@ -35,7 +36,7 @@
   "engines-annotation": "Mostly required by sharp which needs a Node-API v9 compatible runtime",
   "private": true,
   "scripts": {
-    "build": "bun run cf-typegen && qwik build && bun run ./assetsignore.ts",
+    "build": "bun run cf-typegen && qwik build && bun run ./assetsignore.ts && cp node_modules/katex/dist/katex.min.css dist/ && cp -r node_modules/katex/dist/fonts dist/",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
