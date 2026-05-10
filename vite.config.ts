@@ -8,6 +8,7 @@ import { qwikVite } from "@qwik.dev/core/optimizer";
 import { qwikRouter } from "@qwik.dev/router/vite";
 import pkg from "./package.json";
 import Icons from "unplugin-icons/vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg as any as {
   dependencies: PkgDep;
@@ -25,10 +26,8 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
     command === "serve" ? await getPlatformProxy<Env>() : undefined;
 
   return {
-    resolve: {
-      tsconfigPaths: true
-    },
     plugins: [
+      tsconfigPaths(),
       qwikRouter(platform ? { platform } : undefined),
       qwikVite({ experimental: ["valibot"] }),
       Icons({ compiler: "qwik" }),
