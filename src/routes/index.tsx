@@ -51,6 +51,9 @@ export default component$(() => {
             <li>
               <a href="/id.pub">SSH pubkey</a>
             </li>
+            <li>
+              <a href="/admin.asc">PGP pubkey</a>
+            </li>
           </ul>
         </nav>
       </section>
