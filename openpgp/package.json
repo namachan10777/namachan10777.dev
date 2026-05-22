@@ -1,0 +1,9 @@
+{
+  "name": "openpgp-wkd",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run build.ts",
+    "deploy": "bun run build && wrangler pages deploy dist"
+  }
+}

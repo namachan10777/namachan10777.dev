@@ -30,6 +30,7 @@
     "./*.config.mjs",
     "adapters",
     "vite.config.ts",
-    "assetsignore.ts"
+    "assetsignore.ts",
+    "openpgp/build.ts"
   ]
 }
