@@ -15,7 +15,7 @@
     "fast-xml-parser": "^5.5.11",
     "globals": "17.6.0",
     "jiti": "^2.6.1",
-    "katex": "^0.16.45",
+    "katex": "^0.17.0",
     "prettier": "3.8.3",
     "stylelint": "17.11.1",
     "stylelint-config-standard": "40.0.0",
