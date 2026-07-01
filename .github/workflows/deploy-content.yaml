@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,7 +13,7 @@ jobs:
       - name: Download rudis-cms
         run: |
           set -euo pipefail
-          curl -fSL -o rudis-cms https://github.com/namachan10777/rudis-cms/releases/download/v0.3.1/rudis-cms-linux-amd64
+          curl -fSL -o rudis-cms https://github.com/namachan10777/rudis-cms/releases/download/v0.5.0/rudis-cms-linux-amd64
           chmod +x rudis-cms
 
       - name: Run rudis-cms batch
