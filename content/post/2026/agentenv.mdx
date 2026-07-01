@@ -1,0 +1,246 @@
+---
+id: 2026/agentenv
+tags: ["tech"]
+date: 2026-07-01
+title: Coding Agentのコンテキストを切り替えるツールを作った
+description: 業務用と個人用で異なるアカウントでCoding Agentを使う際に、ブラウザのプロファイルのように切り替える仕組みが欲しかったので作った
+publish: true
+---
+
+私は個人でChatGPT PlusとClaude Maxを契約しているが、会社でもCoding Agentの契約がある。
+当然、個人アカウントで業務をしてはいけないし、逆も然り。
+
+ブラウザではプロファイル設定で簡単に切り替えられるもののローカルで動くCoding agentはそうもいかない。業務開始時に毎回ログインし直せばいいが、切り替えを忘れると事故になるしそもそも毎回のログインが面倒くさい。業務用に切り替えようと思ったら個人用のブラウザで認証画面が開いて……、面倒。
+
+これを解決する良い手段がある。Claude Codeは`CLAUDE_CONFIG_DIR`、Codexは`CODEX_HOME`をそれぞれ認証情報とかのベースディレクトリとして使用する。つまり、この環境変数を一発で切り替え、別でシェルを開いても現在使っている`CLAUDE_CONFIG_DIR`がそのまま使われるようにすれば良い。そうすれば朝に一発切り替え、退勤後に切り替えるだけで話が済む。
+
+## 実装
+
+```sh
+DEFAULT_ENV=default
+BASE_DIR="$HOME/.local/share/agentenv"
+STATE_FILE="$HOME/.local/state/agentenv/current"
+
+# ---- path helpers ---------------------------------------------------------
+
+env_claude_dir() {
+  if [ "$1" = "$DEFAULT_ENV" ]; then printf '%s\n' "$HOME/.claude";
+  else printf '%s\n' "$BASE_DIR/$1/claude"; fi
+}
+env_codex_dir() {
+  if [ "$1" = "$DEFAULT_ENV" ]; then printf '%s\n' "$HOME/.codex";
+  else printf '%s\n' "$BASE_DIR/$1/codex"; fi
+}
+
+list_envs() {
+  {
+    printf '%s\n' "$DEFAULT_ENV"
+    if [ -d "$BASE_DIR" ]; then
+      for d in "$BASE_DIR"/*/; do
+        [ -d "$d" ] || continue
+        basename "$d"
+      done
+    fi
+  } | sort -u
+}
+
+env_exists() {
+  [ "$1" = "$DEFAULT_ENV" ] && return 0
+  [ -d "$BASE_DIR/$1" ]
+}
+
+current_env() {
+  if [ -s "$STATE_FILE" ]; then head -n1 "$STATE_FILE"; else printf '%s\n' "$DEFAULT_ENV"; fi
+}
+
+# ---- seeding --------------------------------------------------------------
+
+# Create an environment's config dirs and seed declarative defaults: Claude
+# always gets WebSearch allowed; non-default envs also get their own plan dir
+# in additionalDirectories. Codex gets the web_search tool. Idempotent
+# (jq unique / grep guard), so it is safe to re-run on every rebuild.
+seed_env() {
+  local name="$1" claude codex plans tmp
+  claude="$(env_claude_dir "$name")"
+  codex="$(env_codex_dir "$name")"
+  plans="$claude/plans"
+  mkdir -p "$claude" "$codex" "$plans"
+
+  [ -s "$claude/settings.json" ] || echo '{}' > "$claude/settings.json"
+  tmp="$(mktemp)"
+  if [ "$name" = "$DEFAULT_ENV" ]; then
+    jq '
+      .permissions = (.permissions // {})
+      | .permissions.allow = (((.permissions.allow // []) + ["WebSearch"]) | unique)
+    ' "$claude/settings.json" > "$tmp" && mv "$tmp" "$claude/settings.json"
+  else
+    jq --arg plans "$plans" '
+      .permissions = (.permissions // {})
+      | .permissions.allow = (((.permissions.allow // []) + ["WebSearch"]) | unique)
+      | .permissions.additionalDirectories =
+          (((.permissions.additionalDirectories // []) + [$plans]) | unique)
+    ' "$claude/settings.json" > "$tmp" && mv "$tmp" "$claude/settings.json"
+  fi
+
+  # Codex config is TOML (no jq equivalent); append a [tools] table guarded
+  # by grep. Assumes Codex does not add its own [tools] table (it does not
+  # today); if it ever does, this would need to edit under it instead.
+  local cfg="$codex/config.toml"
+  [ -f "$cfg" ] || : > "$cfg"
+  if ! grep -qE '^[[:space:]]*web_search[[:space:]]*=' "$cfg"; then
+    printf '\n[tools]\nweb_search = true\n' >> "$cfg"
+  fi
+}
+
+# ---- shell code emission --------------------------------------------------
+
+# Print eval-able code that points the shell at $1's profile. Default unsets
+# everything (tools fall back to ~/.claude, ~/.codex; starship badge hides);
+# other envs export the three vars.
+print_exports() {
+  local name="$1" shell="$2" claude codex
+  if [ "$name" = "$DEFAULT_ENV" ]; then
+    if [ "$shell" = fish ]; then
+      printf 'set -e CLAUDE_CONFIG_DIR\nset -e CODEX_HOME\nset -e AGENTENV\n'
+    else
+      printf 'unset CLAUDE_CONFIG_DIR CODEX_HOME AGENTENV\n'
+    fi
+    return
+  fi
+  claude="$(env_claude_dir "$name")"
+  codex="$(env_codex_dir "$name")"
+  if [ "$shell" = fish ]; then
+    printf 'set -gx CLAUDE_CONFIG_DIR %q\nset -gx CODEX_HOME %q\nset -gx AGENTENV %q\n' \
+      "$claude" "$codex" "$name"
+  else
+    printf 'export CLAUDE_CONFIG_DIR=%q\nexport CODEX_HOME=%q\nexport AGENTENV=%q\n' \
+      "$claude" "$codex" "$name"
+  fi
+}
+
+# ---- .agentenv resolution -------------------------------------------------
+
+# Walk up from PWD looking for a .agentenv file; its first non-empty line is
+# the env name. Fall back to the saved state, then to default.
+resolve_load_env() {
+  local dir="$PWD" name
+  while [ -n "$dir" ]; do
+    if [ -f "$dir/.agentenv" ]; then
+      name="$(grep -m1 -v '^[[:space:]]*$' "$dir/.agentenv" 2>/dev/null | tr -d '[:space:]' || true)"
+      if [ -n "$name" ]; then printf '%s\n' "$name"; return; fi
+    fi
+    [ "$dir" = "/" ] && break
+    dir="$(dirname "$dir")"
+  done
+  current_env
+}
+
+select_env() {
+  list_envs | "''${AGENTENV_SELECTOR:-sk}" || true
+}
+
+write_state() {
+  mkdir -p "$(dirname "$STATE_FILE")"
+  printf '%s\n' "$1" > "$STATE_FILE"
+}
+
+# ---- subcommands ----------------------------------------------------------
+
+cmd_switch() {
+  local name="$1"
+  if [ -z "$name" ]; then
+    name="$(select_env)"
+    [ -n "$name" ] || return 0
+  fi
+  if ! env_exists "$name"; then
+    seed_env "$name"
+    printf 'created environment: %s\n' "$name" >&2
+  fi
+  write_state "$name"
+  printf 'switched to: %s\n' "$name" >&2
+  print_exports "$name" "$SHELL_KIND"
+}
+
+cmd_load() {
+  local name
+  name="$(resolve_load_env)"
+  env_exists "$name" || seed_env "$name"
+  # Skip redundant re-exports (e.g. chpwd hook firing without a real change).
+  [ "$name" = "''${AGENTENV:-$DEFAULT_ENV}" ] && return 0
+  print_exports "$name" "$SHELL_KIND"
+}
+
+cmd_delete() {
+  local name="$1"
+  if [ -z "$name" ]; then
+    name="$(select_env)"
+    [ -n "$name" ] || return 0
+  fi
+  if [ "$name" = "$DEFAULT_ENV" ]; then
+    printf 'refusing to delete the default environment\n' >&2
+    return 1
+  fi
+  if ! env_exists "$name"; then
+    printf 'unknown environment: %s\n' "$name" >&2
+    return 1
+  fi
+  rm -rf "''${BASE_DIR:?}/$name"
+  printf 'deleted environment: %s\n' "$name" >&2
+  if [ "$name" = "$(current_env)" ]; then
+    write_state "$DEFAULT_ENV"
+    print_exports "$DEFAULT_ENV" "$SHELL_KIND"
+  fi
+}
+
+cmd_list() {
+  # --raw prints bare names (one per line), for scripting / shell completion.
+  if [ "''${1:-}" = "--raw" ]; then
+    list_envs
+    return
+  fi
+  local cur
+  cur="$(current_env)"
+  while IFS= read -r name; do
+    if [ "$name" = "$cur" ]; then printf '* %s\n' "$name"; else printf '  %s\n' "$name"; fi
+  done < <(list_envs)
+}
+
+usage() {
+  cat <<'USAGE'
+Usage: agentenv <command> [name]
+
+Commands:
+  switch [name]   Switch to (and create if missing) an environment.
+                  With no name, pick one with $AGENTENV_SELECTOR (default sk).
+  delete [name]   Delete an environment (the default environment is protected).
+  load            Apply the env from a parent .agentenv file or saved state.
+  list [--raw]    List environments; the current one is marked with '*'.
+                  --raw prints bare names, one per line.
+
+With no command, behaves like `switch`.
+USAGE
+}
+
+# ---- argument parsing -----------------------------------------------------
+
+SHELL_KIND=posix
+ARGS=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --shell) SHELL_KIND="$2"; shift 2 ;;
+    --shell=*) SHELL_KIND="''${1#--shell=}"; shift ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+set -- "''${ARGS[@]:-}"
+
+case "''${1:-switch}" in
+  switch) cmd_switch "''${2:-}" ;;
+  load) cmd_load ;;
+  delete) cmd_delete "''${2:-}" ;;
+  list) cmd_list "''${2:-}" ;;
+  _seed) seed_env "''${2:?_seed requires a name}" ;;
+  -h | --help | help) usage ;;
+  *) usage >&2; exit 1 ;;
+esac
+```
