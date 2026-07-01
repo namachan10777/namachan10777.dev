@@ -93,3 +93,12 @@
 .root pre > code :global .string {
   color: var(--uchu-orange-7);
 }
+
+.root pre > code :global .comment {
+  color: var(--uchu-gray-9);
+  font-style: italic;
+}
+
+.root pre > code :global .variable {
+  color: var(--uchu-purple-7);
+}
