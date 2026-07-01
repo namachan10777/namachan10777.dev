@@ -16,6 +16,13 @@ publish: true
 
 ## 実装
 
+本実装は公開リポジトリにある。
+
+https://github.com/namachan10777/env
+
+やっていることは単純で、`$HOME/.local/state/agentenv/current`に現在の環境名を記録して、
+`agentenv load`でその環境がロードされる。`switch`サブコマンドを使うと切り替えられる。
+
 ```sh
 DEFAULT_ENV=default
 BASE_DIR="$HOME/.local/share/agentenv"
@@ -53,43 +60,13 @@ current_env() {
   if [ -s "$STATE_FILE" ]; then head -n1 "$STATE_FILE"; else printf '%s\n' "$DEFAULT_ENV"; fi
 }
 
-# ---- seeding --------------------------------------------------------------
+# ---- environment creation -------------------------------------------------
 
-# Create an environment's config dirs and seed declarative defaults: Claude
-# always gets WebSearch allowed; non-default envs also get their own plan dir
-# in additionalDirectories. Codex gets the web_search tool. Idempotent
-# (jq unique / grep guard), so it is safe to re-run on every rebuild.
-seed_env() {
-  local name="$1" claude codex plans tmp
-  claude="$(env_claude_dir "$name")"
-  codex="$(env_codex_dir "$name")"
-  plans="$claude/plans"
-  mkdir -p "$claude" "$codex" "$plans"
-
-  [ -s "$claude/settings.json" ] || echo '{}' > "$claude/settings.json"
-  tmp="$(mktemp)"
-  if [ "$name" = "$DEFAULT_ENV" ]; then
-    jq '
-      .permissions = (.permissions // {})
-      | .permissions.allow = (((.permissions.allow // []) + ["WebSearch"]) | unique)
-    ' "$claude/settings.json" > "$tmp" && mv "$tmp" "$claude/settings.json"
-  else
-    jq --arg plans "$plans" '
-      .permissions = (.permissions // {})
-      | .permissions.allow = (((.permissions.allow // []) + ["WebSearch"]) | unique)
-      | .permissions.additionalDirectories =
-          (((.permissions.additionalDirectories // []) + [$plans]) | unique)
-    ' "$claude/settings.json" > "$tmp" && mv "$tmp" "$claude/settings.json"
-  fi
-
-  # Codex config is TOML (no jq equivalent); append a [tools] table guarded
-  # by grep. Assumes Codex does not add its own [tools] table (it does not
-  # today); if it ever does, this would need to edit under it instead.
-  local cfg="$codex/config.toml"
-  [ -f "$cfg" ] || : > "$cfg"
-  if ! grep -qE '^[[:space:]]*web_search[[:space:]]*=' "$cfg"; then
-    printf '\n[tools]\nweb_search = true\n' >> "$cfg"
-  fi
+# Create a named environment's Claude/Codex config dirs. The directories
+# alone are what make the env exist (env_exists checks for the dir); each CLI
+# populates its own config on first run. Idempotent.
+create_env() {
+  mkdir -p "$(env_claude_dir "$1")" "$(env_codex_dir "$1")"
 }
 
 # ---- shell code emission --------------------------------------------------
@@ -153,7 +130,7 @@ cmd_switch() {
     [ -n "$name" ] || return 0
   fi
   if ! env_exists "$name"; then
-    seed_env "$name"
+    create_env "$name"
     printf 'created environment: %s\n' "$name" >&2
   fi
   write_state "$name"
@@ -164,7 +141,7 @@ cmd_switch() {
 cmd_load() {
   local name
   name="$(resolve_load_env)"
-  env_exists "$name" || seed_env "$name"
+  env_exists "$name" || create_env "$name"
   # Skip redundant re-exports (e.g. chpwd hook firing without a real change).
   [ "$name" = "''${AGENTENV:-$DEFAULT_ENV}" ] && return 0
   print_exports "$name" "$SHELL_KIND"
@@ -239,8 +216,118 @@ case "''${1:-switch}" in
   load) cmd_load ;;
   delete) cmd_delete "''${2:-}" ;;
   list) cmd_list "''${2:-}" ;;
-  _seed) seed_env "''${2:?_seed requires a name}" ;;
   -h | --help | help) usage ;;
   *) usage >&2; exit 1 ;;
 esac
+```
+
+これだけでは毎回`agentenv load`を打つ必要があって面倒なので補完とhookを設定する。自分はnix-darwinを使っているので下記のように設定している。
+
+```nix
+{
+  lib,
+  pkgs,
+  ...
+}:
+let
+  # agentenv switches the Claude Code / Codex profile of the current shell
+  # between named environments (see derivations/agentenv). `default` maps to the
+  # tools' own ~/.claude / ~/.codex and is protected; other envs live under
+  # ~/.local/share/agentenv/<name>.
+  agentenv = pkgs.callPackage ../derivations/agentenv { };
+in
+{
+  home = {
+    packages = [ agentenv ];
+
+    # fish completions: subcommands, then existing env names (switch also accepts
+    # new names, so the list is just a hint).
+    file.".config/fish/completions/agentenv.fish".text = ''
+      complete -c agentenv -f
+      complete -c agentenv -n __fish_use_subcommand -a switch -d 'Switch to (and create) an environment'
+      complete -c agentenv -n __fish_use_subcommand -a delete -d 'Delete an environment'
+      complete -c agentenv -n __fish_use_subcommand -a load -d 'Apply the env from .agentenv or saved state'
+      complete -c agentenv -n __fish_use_subcommand -a list -d 'List environments'
+      complete -c agentenv -n '__fish_seen_subcommand_from switch delete' -a '(command agentenv list --raw)'
+    '';
+  };
+
+  # The binary cannot mutate its parent shell, so the wrappers eval the eval-able
+  # code it prints to stdout (switch / load only); human messages go to stderr.
+  # The hooks call `agentenv load` on startup and on every directory change so a
+  # parent .agentenv file or the saved state is applied automatically.
+  programs = {
+    zsh.initContent = ''
+      agentenv() {
+        case "''${1:-}" in
+          switch | load | "")
+            local _out
+            _out="$(command agentenv --shell posix "$@")" || return
+            [ -n "$_out" ] && eval "$_out"
+            ;;
+          *)
+            command agentenv "$@"
+            ;;
+        esac
+      }
+      _agentenv_load() {
+        local _out
+        _out="$(command agentenv load --shell posix)" || return
+        [ -n "$_out" ] && eval "$_out"
+      }
+      autoload -Uz add-zsh-hook
+      add-zsh-hook chpwd _agentenv_load
+      _agentenv_load
+
+      _agentenv() {
+        local -a subcmds
+        subcmds=(
+          'switch:Switch to (and create) an environment'
+          'delete:Delete an environment'
+          'load:Apply the env from .agentenv or saved state'
+          'list:List environments'
+        )
+        if (( CURRENT == 2 )); then
+          _describe -t commands 'agentenv command' subcmds
+        elif (( CURRENT == 3 )); then
+          case $words[2] in
+            switch | delete) compadd -- ''${(f)"$(command agentenv list --raw)"} ;;
+          esac
+        fi
+      }
+      compdef _agentenv agentenv
+    '';
+
+    fish = {
+      functions = {
+        agentenv = {
+          description = "Switch the Claude/Codex profile of the current shell";
+          # Pipe to `source` (not `eval (...)`) so multi-line output keeps its
+          # newlines; fish command substitution would collapse them into spaces.
+          body = ''
+            switch "$argv[1]"
+              case switch load ""
+                command agentenv --shell fish $argv | source
+              case "*"
+                command agentenv $argv
+            end
+          '';
+        };
+        _agentenv_load = {
+          description = "Apply the agentenv profile for the current directory";
+          onVariable = "PWD";
+          body = ''
+            command agentenv load --shell fish | source
+          '';
+        };
+      };
+
+      # Run the initial load after fish.nix's interactiveShellInit so the saved
+      # state / .agentenv is applied at startup (the PWD hook only fires on change).
+      interactiveShellInit = lib.mkAfter ''
+        _agentenv_load
+      '';
+    };
+  };
+}
 ```
