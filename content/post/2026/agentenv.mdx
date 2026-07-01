@@ -23,7 +23,7 @@ https://github.com/namachan10777/env
 やっていることは単純で、`$HOME/.local/state/agentenv/current`に現在の環境名を記録して、
 `agentenv load`でその環境がロードされる。`switch`サブコマンドを使うと切り替えられる。
 
-```sh
+```bash title=agentenv.sh
 DEFAULT_ENV=default
 BASE_DIR="$HOME/.local/share/agentenv"
 STATE_FILE="$HOME/.local/state/agentenv/current"
@@ -223,7 +223,7 @@ esac
 
 これだけでは毎回`agentenv load`を打つ必要があって面倒なので補完とhookを設定する。自分はnix-darwinを使っているので下記のように設定している。
 
-```nix
+```nix title=agentenv.nix
 {
   lib,
   pkgs,
