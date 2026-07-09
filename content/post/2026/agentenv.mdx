@@ -16,318 +16,41 @@ publish: true
 
 ## 実装
 
-本実装は公開リポジトリにある。
+元々はシェルスクリプトとして実装していたが、色々機能追加したくなったのでRustで書き直した。
 
-https://github.com/namachan10777/env
+https://github.com/namachan10777/agentenv
 
-やっていることは単純で、`$HOME/.local/state/agentenv/current`に現在の環境名を記録して、
-`agentenv load`でその環境がロードされる。`switch`サブコマンドを使うと切り替えられる。
+```title="agentenv --help"
+# agentenv --help                                                                                      ☸ yh1-user (n2-system) 󰂄 36%
+Switch Claude Code / Codex profiles (CLAUDE_CONFIG_DIR / CODEX_HOME) per shell. switch, load and remove print eval-able code to stdout; set up the wrapper that evals it with agentenv hook --shell <your-shell>
 
-```bash title=agentenv.sh
-DEFAULT_ENV=default
-BASE_DIR="$HOME/.local/share/agentenv"
-STATE_FILE="$HOME/.local/state/agentenv/current"
-
-# ---- path helpers ---------------------------------------------------------
-
-env_claude_dir() {
-  if [ "$1" = "$DEFAULT_ENV" ]; then printf '%s\n' "$HOME/.claude";
-  else printf '%s\n' "$BASE_DIR/$1/claude"; fi
-}
-env_codex_dir() {
-  if [ "$1" = "$DEFAULT_ENV" ]; then printf '%s\n' "$HOME/.codex";
-  else printf '%s\n' "$BASE_DIR/$1/codex"; fi
-}
-
-list_envs() {
-  {
-    printf '%s\n' "$DEFAULT_ENV"
-    if [ -d "$BASE_DIR" ]; then
-      for d in "$BASE_DIR"/*/; do
-        [ -d "$d" ] || continue
-        basename "$d"
-      done
-    fi
-  } | sort -u
-}
-
-env_exists() {
-  [ "$1" = "$DEFAULT_ENV" ] && return 0
-  [ -d "$BASE_DIR/$1" ]
-}
-
-current_env() {
-  if [ -s "$STATE_FILE" ]; then head -n1 "$STATE_FILE"; else printf '%s\n' "$DEFAULT_ENV"; fi
-}
-
-# ---- environment creation -------------------------------------------------
-
-# Create a named environment's Claude/Codex config dirs. The directories
-# alone are what make the env exist (env_exists checks for the dir); each CLI
-# populates its own config on first run. Idempotent.
-create_env() {
-  mkdir -p "$(env_claude_dir "$1")" "$(env_codex_dir "$1")"
-}
-
-# ---- shell code emission --------------------------------------------------
-
-# Print eval-able code that points the shell at $1's profile. Default unsets
-# everything (tools fall back to ~/.claude, ~/.codex; starship badge hides);
-# other envs export the three vars.
-print_exports() {
-  local name="$1" shell="$2" claude codex
-  if [ "$name" = "$DEFAULT_ENV" ]; then
-    if [ "$shell" = fish ]; then
-      printf 'set -e CLAUDE_CONFIG_DIR\nset -e CODEX_HOME\nset -e AGENTENV\n'
-    else
-      printf 'unset CLAUDE_CONFIG_DIR CODEX_HOME AGENTENV\n'
-    fi
-    return
-  fi
-  claude="$(env_claude_dir "$name")"
-  codex="$(env_codex_dir "$name")"
-  if [ "$shell" = fish ]; then
-    printf 'set -gx CLAUDE_CONFIG_DIR %q\nset -gx CODEX_HOME %q\nset -gx AGENTENV %q\n' \
-      "$claude" "$codex" "$name"
-  else
-    printf 'export CLAUDE_CONFIG_DIR=%q\nexport CODEX_HOME=%q\nexport AGENTENV=%q\n' \
-      "$claude" "$codex" "$name"
-  fi
-}
-
-# ---- .agentenv resolution -------------------------------------------------
-
-# Walk up from PWD looking for a .agentenv file; its first non-empty line is
-# the env name. Fall back to the saved state, then to default.
-resolve_load_env() {
-  local dir="$PWD" name
-  while [ -n "$dir" ]; do
-    if [ -f "$dir/.agentenv" ]; then
-      name="$(grep -m1 -v '^[[:space:]]*$' "$dir/.agentenv" 2>/dev/null | tr -d '[:space:]' || true)"
-      if [ -n "$name" ]; then printf '%s\n' "$name"; return; fi
-    fi
-    [ "$dir" = "/" ] && break
-    dir="$(dirname "$dir")"
-  done
-  current_env
-}
-
-select_env() {
-  list_envs | "''${AGENTENV_SELECTOR:-sk}" || true
-}
-
-write_state() {
-  mkdir -p "$(dirname "$STATE_FILE")"
-  printf '%s\n' "$1" > "$STATE_FILE"
-}
-
-# ---- subcommands ----------------------------------------------------------
-
-cmd_switch() {
-  local name="$1"
-  if [ -z "$name" ]; then
-    name="$(select_env)"
-    [ -n "$name" ] || return 0
-  fi
-  if ! env_exists "$name"; then
-    create_env "$name"
-    printf 'created environment: %s\n' "$name" >&2
-  fi
-  write_state "$name"
-  printf 'switched to: %s\n' "$name" >&2
-  print_exports "$name" "$SHELL_KIND"
-}
-
-cmd_load() {
-  local name
-  name="$(resolve_load_env)"
-  env_exists "$name" || create_env "$name"
-  # Skip redundant re-exports (e.g. chpwd hook firing without a real change).
-  [ "$name" = "''${AGENTENV:-$DEFAULT_ENV}" ] && return 0
-  print_exports "$name" "$SHELL_KIND"
-}
-
-cmd_delete() {
-  local name="$1"
-  if [ -z "$name" ]; then
-    name="$(select_env)"
-    [ -n "$name" ] || return 0
-  fi
-  if [ "$name" = "$DEFAULT_ENV" ]; then
-    printf 'refusing to delete the default environment\n' >&2
-    return 1
-  fi
-  if ! env_exists "$name"; then
-    printf 'unknown environment: %s\n' "$name" >&2
-    return 1
-  fi
-  rm -rf "''${BASE_DIR:?}/$name"
-  printf 'deleted environment: %s\n' "$name" >&2
-  if [ "$name" = "$(current_env)" ]; then
-    write_state "$DEFAULT_ENV"
-    print_exports "$DEFAULT_ENV" "$SHELL_KIND"
-  fi
-}
-
-cmd_list() {
-  # --raw prints bare names (one per line), for scripting / shell completion.
-  if [ "''${1:-}" = "--raw" ]; then
-    list_envs
-    return
-  fi
-  local cur
-  cur="$(current_env)"
-  while IFS= read -r name; do
-    if [ "$name" = "$cur" ]; then printf '* %s\n' "$name"; else printf '  %s\n' "$name"; fi
-  done < <(list_envs)
-}
-
-usage() {
-  cat <<'USAGE'
-Usage: agentenv <command> [name]
+Usage: agentenv [OPTIONS] [COMMAND]
 
 Commands:
-  switch [name]   Switch to (and create if missing) an environment.
-                  With no name, pick one with $AGENTENV_SELECTOR (default sk).
-  delete [name]   Delete an environment (the default environment is protected).
-  load            Apply the env from a parent .agentenv file or saved state.
-  list [--raw]    List environments; the current one is marked with '*'.
-                  --raw prints bare names, one per line.
+  switch      Switch to (and create if missing) an environment; picks with skim when no name is given
+  remove      Remove an environment (the default environment is protected)
+  list        List environments; the current one is marked with '*'
+  load        Emit eval-able code for the env selected by .agentenv, $AGENTENV_OVERRIDE or the saved state
+  hook        Print the shell hook (wrapper function + auto-load on cd)
+  completion  Print shell completions
+  prompt      Print a prompt segment for the current environment
+  starship    Print an example starship configuration
+  help        Print this message or the help of the given subcommand(s)
 
-With no command, behaves like `switch`.
-USAGE
-}
-
-# ---- argument parsing -----------------------------------------------------
-
-SHELL_KIND=posix
-ARGS=()
-while [ "$#" -gt 0 ]; do
-  case "$1" in
-    --shell) SHELL_KIND="$2"; shift 2 ;;
-    --shell=*) SHELL_KIND="''${1#--shell=}"; shift ;;
-    *) ARGS+=("$1"); shift ;;
-  esac
-done
-set -- "''${ARGS[@]:-}"
-
-case "''${1:-switch}" in
-  switch) cmd_switch "''${2:-}" ;;
-  load) cmd_load ;;
-  delete) cmd_delete "''${2:-}" ;;
-  list) cmd_list "''${2:-}" ;;
-  -h | --help | help) usage ;;
-  *) usage >&2; exit 1 ;;
-esac
+Options:
+      --shell <SHELL>  Shell the emitted code / hook / completion targets [default: posix] [possible values: posix, bash, zsh, fish]
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 
-これだけでは毎回`agentenv load`を打つ必要があって面倒なので補完とhookを設定する。自分はnix-darwinを使っているので下記のように設定している。
+hookで`agentenv`をラップして、switchやloadなどを打った際に`agentenv`が出力するシェルスクリプトを`source`することで実装している。
+プロジェクトローカルの`.agentenv`ファイルもしくは`$XDG_CONFIG_HOME/agentenv/config.toml`でどの環境を使うかを設定出来るようにしてある。
+常に`.agentenv`を置けるようなリポジトリばかりではないため……。
 
-```nix title=agentenv.nix
-{
-  lib,
-  pkgs,
-  ...
-}:
-let
-  # agentenv switches the Claude Code / Codex profile of the current shell
-  # between named environments (see derivations/agentenv). `default` maps to the
-  # tools' own ~/.claude / ~/.codex and is protected; other envs live under
-  # ~/.local/share/agentenv/<name>.
-  agentenv = pkgs.callPackage ../derivations/agentenv { };
-in
-{
-  home = {
-    packages = [ agentenv ];
+使い方としては、`agentenv hook --shell fish`を打ってその出力をシェルの設定ファイルに入れておくだけ。
+あとは以下のような感じでパスごとに環境を列挙してあげれば自動でclaudeやcodexの環境が切り替わるようになる。
 
-    # fish completions: subcommands, then existing env names (switch also accepts
-    # new names, so the list is just a hint).
-    file.".config/fish/completions/agentenv.fish".text = ''
-      complete -c agentenv -f
-      complete -c agentenv -n __fish_use_subcommand -a switch -d 'Switch to (and create) an environment'
-      complete -c agentenv -n __fish_use_subcommand -a delete -d 'Delete an environment'
-      complete -c agentenv -n __fish_use_subcommand -a load -d 'Apply the env from .agentenv or saved state'
-      complete -c agentenv -n __fish_use_subcommand -a list -d 'List environments'
-      complete -c agentenv -n '__fish_seen_subcommand_from switch delete' -a '(command agentenv list --raw)'
-    '';
-  };
-
-  # The binary cannot mutate its parent shell, so the wrappers eval the eval-able
-  # code it prints to stdout (switch / load only); human messages go to stderr.
-  # The hooks call `agentenv load` on startup and on every directory change so a
-  # parent .agentenv file or the saved state is applied automatically.
-  programs = {
-    zsh.initContent = ''
-      agentenv() {
-        case "''${1:-}" in
-          switch | load | "")
-            local _out
-            _out="$(command agentenv --shell posix "$@")" || return
-            [ -n "$_out" ] && eval "$_out"
-            ;;
-          *)
-            command agentenv "$@"
-            ;;
-        esac
-      }
-      _agentenv_load() {
-        local _out
-        _out="$(command agentenv load --shell posix)" || return
-        [ -n "$_out" ] && eval "$_out"
-      }
-      autoload -Uz add-zsh-hook
-      add-zsh-hook chpwd _agentenv_load
-      _agentenv_load
-
-      _agentenv() {
-        local -a subcmds
-        subcmds=(
-          'switch:Switch to (and create) an environment'
-          'delete:Delete an environment'
-          'load:Apply the env from .agentenv or saved state'
-          'list:List environments'
-        )
-        if (( CURRENT == 2 )); then
-          _describe -t commands 'agentenv command' subcmds
-        elif (( CURRENT == 3 )); then
-          case $words[2] in
-            switch | delete) compadd -- ''${(f)"$(command agentenv list --raw)"} ;;
-          esac
-        fi
-      }
-      compdef _agentenv agentenv
-    '';
-
-    fish = {
-      functions = {
-        agentenv = {
-          description = "Switch the Claude/Codex profile of the current shell";
-          # Pipe to `source` (not `eval (...)`) so multi-line output keeps its
-          # newlines; fish command substitution would collapse them into spaces.
-          body = ''
-            switch "$argv[1]"
-              case switch load ""
-                command agentenv --shell fish $argv | source
-              case "*"
-                command agentenv $argv
-            end
-          '';
-        };
-        _agentenv_load = {
-          description = "Apply the agentenv profile for the current directory";
-          onVariable = "PWD";
-          body = ''
-            command agentenv load --shell fish | source
-          '';
-        };
-      };
-
-      # Run the initial load after fish.nix's interactiveShellInit so the saved
-      # state / .agentenv is applied at startup (the PWD hook only fires on change).
-      interactiveShellInit = lib.mkAfter ''
-        _agentenv_load
-      '';
-    };
-  };
-}
+```toml title="$XDG_CONFIG_HOME/agentenv/config.toml"
+[path."$HOME/ghq/github.com/namachan10777"]
+env = "default"
 ```
