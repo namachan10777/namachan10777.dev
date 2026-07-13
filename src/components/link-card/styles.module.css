@@ -3,7 +3,7 @@
   flex-direction: row;
   align-items: center;
   padding: 0.5rem;
-  border: 1px solid var(--uchu-yin-9);
+  border: 1px solid var(--color-border);
   margin-block: 0.5rem;
   text-decoration: none;
   transition: 0.1s background-color ease;
@@ -35,7 +35,7 @@
   flex-direction: column;
   padding-left: 0.4rem;
   margin-left: 0.4rem;
-  border-left: 1px solid var(--uchu-yin-9);
+  border-left: 1px solid var(--color-border);
 }
 
 .title {
@@ -45,7 +45,7 @@
 }
 
 .description {
-  color: var(--uchu-yin-7);
+  color: var(--color-text-muted);
   margin-block: 0.2rem;
 }
 

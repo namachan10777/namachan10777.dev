@@ -2,7 +2,7 @@
   max-width: 12rem;
   border-radius: 9999px;
   overflow: hidden;
-  border: 1px solid var(--uchu-yin-9);
+  border: 1px solid var(--color-border);
 }
 
 .iconWrapper > img {

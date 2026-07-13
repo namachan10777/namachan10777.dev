@@ -58,30 +58,24 @@
   gap: 0.25rem;
 }
 
-.formInput {
+.formInput,
+.formTextarea {
   padding: 0.5rem;
-  border: 1px solid var(--uchu-yin-9);
+  border: 1px solid var(--color-border);
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: inherit;
 }
 
-.formInput:focus {
+.formInput:focus,
+.formTextarea:focus,
+.submitButton:focus {
   outline: none;
 }
 
 .formTextarea {
-  padding: 0.5rem;
-  border: 1px solid var(--uchu-yin-9);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: inherit;
   min-height: 100px;
   resize: vertical;
-}
-
-.formTextarea:focus {
-  outline: none;
 }
 
 .formActions {
@@ -93,18 +87,14 @@
 
 .submitButton {
   padding: 0.5rem 1rem;
-  border: 1px solid var(--uchu-yin-9);
+  border: 1px solid var(--color-border);
   background-color: var(--color-bg);
   color: var(--color-text);
   cursor: pointer;
 }
 
 .submitButton:hover {
-  background-color: var(--uchu-gray-2);
-}
-
-.submitButton:focus {
-  outline: none;
+  background-color: var(--color-surface-subtle);
 }
 
 .submitButton:disabled {

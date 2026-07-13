@@ -2,17 +2,17 @@
   .markdown table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid var(--uchu-yin-9);
+    border: 1px solid var(--color-border);
   }
 
   .markdown th {
-    border-bottom: 1px solid var(--uchu-yin-9);
+    border-bottom: 1px solid var(--color-border);
     margin: 0;
   }
 
   .markdown th:nth-child(1),
   td:nth-child(1) {
-    border-right: 1px solid var(--uchu-yin-9);
+    border-right: 1px solid var(--color-border);
   }
 
   .markdown th,
@@ -23,7 +23,7 @@
 
   .markdown :not(pre) > code {
     background-color: var(--uchu-yin-2);
-    color: var(--uchu-yin-9);
+    color: var(--color-border);
     padding-inline: 0.2em;
     margin-inline: 0.1em;
     padding-block: 0.1em;
@@ -55,12 +55,12 @@
     align-items: center;
     width: 100%;
     gap: 0.5em;
-    border: 1px solid var(--uchu-yin-9);
+    border: 1px solid var(--color-border);
     margin-inline: 0;
   }
 
   .markdown figcaption {
-    border-top: 1px dashed var(--uchu-yin-9);
+    border-top: 1px dashed var(--color-border);
     display: block;
     width: 100%;
     text-align: center;

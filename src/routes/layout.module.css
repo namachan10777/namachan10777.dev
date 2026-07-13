@@ -12,8 +12,8 @@
 }
 
 .content {
-  max-width: 52rem;
-  margin-inline: 1rem;
-  width: calc(100% - 2rem);
+  width: calc(100% - 2 * var(--content-gutter));
+  max-width: var(--content-max-width);
   height: 100%;
+  margin-inline: var(--content-gutter);
 }

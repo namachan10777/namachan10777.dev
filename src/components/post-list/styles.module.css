@@ -5,13 +5,13 @@
 
 .list > li {
   display: grid;
-  border-top: var(--uchu-yin-7) 1px dashed;
+  border-top: var(--color-text-muted) 1px dashed;
   padding-block: 0.5rem;
 }
 
 .list time {
   font-size: smaller;
-  color: var(--uchu-yin-7);
+  color: var(--color-text-muted);
 }
 
 .list h3 {
