@@ -1,25 +1,24 @@
-import { RequestHandler } from "@qwik.dev/router";
+import { data, type ActionFunctionArgs } from "react-router";
 import { getBinding } from "~/lib/cloudflare";
 
-export const onPost: RequestHandler = async (event) => {
-  const { request, json } = event;
+export async function action({ params, context }: ActionFunctionArgs) {
+  const id = params["*"];
+  if (!id) return data({ count: 0 }, 404);
+
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.match(/^\/api\/like\/(.+)$/)![1];
-    const row = await getBinding<D1Database>(event, "DB")!
+    const row = await getBinding(context, "DB")
       .prepare(
         `
           INSERT INTO likes (post_id, count)
           VALUES (?, 1)
-          ON CONFLICT (post_id) DO UPDATE SET
-            count = count + 1
-          RETURNING count;
+          ON CONFLICT (post_id) DO UPDATE SET count = count + 1
+          RETURNING count
         `,
       )
       .bind(id)
       .first();
-    json(200, row);
+    return data(row);
   } catch {
-    json(404, { count: 0 });
+    return data({ count: 0 }, 404);
   }
-};
+}

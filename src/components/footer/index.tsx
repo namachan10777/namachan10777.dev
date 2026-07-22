@@ -1,29 +1,31 @@
-import { Slot, component$ } from "@qwik.dev/core";
-import { Link } from "@qwik.dev/router";
+import type { ReactNode } from "react";
 import IconGitHub from "~icons/iconoir/github";
-import IconX from "~icons/iconoir/x";
 import IconLinkedIn from "~icons/iconoir/linkedin";
+import IconX from "~icons/iconoir/x";
 import styles from "./styles.module.css";
 
-interface LinkIconProps {
+function LinkIcon({
+  href,
+  label,
+  children,
+}: {
   href: string;
   label: string;
+  children: ReactNode;
+}) {
+  return (
+    <a href={href} className={styles.linkIcon} aria-label={label}>
+      {children}
+    </a>
+  );
 }
 
-const LinkIcon = component$((props: LinkIconProps) => {
+export function Footer() {
   return (
-    <Link href={props.href} class={styles.linkIcon} aria-label={props.label}>
-      <Slot />
-    </Link>
-  );
-});
-
-export const Footer = component$(() => {
-  return (
-    <footer class={styles.footer}>
-      <address class={styles.content}>
+    <footer className={styles.footer}>
+      <address className={styles.content}>
         <small>@namachan10777</small>
-        <nav class={styles.nav}>
+        <nav className={styles.nav}>
           <LinkIcon
             href="https://github.com/namachan10777"
             label="GitHubのアカウントへのリンク"
@@ -46,4 +48,4 @@ export const Footer = component$(() => {
       </address>
     </footer>
   );
-});
+}

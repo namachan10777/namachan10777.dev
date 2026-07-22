@@ -1,16 +1,15 @@
-import { component$ } from "@qwik.dev/core";
-import { Link } from "@qwik.dev/router";
+import { Link } from "react-router";
 import styles from "./styles.module.css";
 
-export const Header = component$(() => {
+export function Header() {
   return (
-    <header class={styles.header}>
-      <div class={styles.content}>
-        <Link class={styles.link} href="/">
+    <header className={styles.header}>
+      <div className={styles.content}>
+        <Link className={styles.link} to="/">
           namachan10777.dev
         </Link>
       </div>
-      <div class={styles.borderLine} aria-hidden="true" />
+      <div className={styles.borderLine} aria-hidden="true" />
     </header>
   );
-});
+}

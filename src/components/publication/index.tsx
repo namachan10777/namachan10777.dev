@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 
 export type Author = string | { me: string };
@@ -19,9 +18,9 @@ export interface WorkshopProps {
   year: number;
 }
 
-const Authors = component$((props: { authors: Author[] }) => {
+function Authors(props: { authors: Author[] }) {
   return (
-    <ol class={styles.authors}>
+    <ol className={styles.authors}>
       {props.authors.map((a) =>
         typeof a === "string" ? (
           <li key={a}>{a}</li>
@@ -33,9 +32,9 @@ const Authors = component$((props: { authors: Author[] }) => {
       )}
     </ol>
   );
-});
+}
 
-export const Book = component$((props: BookProps) => {
+export function Book(props: BookProps) {
   return (
     <div>
       {props.comment ? <strong>({props.comment})</strong> : null}
@@ -56,9 +55,9 @@ export const Book = component$((props: BookProps) => {
       <time dateTime={props.year.toString()}>{props.year}</time>
     </div>
   );
-});
+}
 
-export const Workshop = component$((props: WorkshopProps) => {
+export function Workshop(props: WorkshopProps) {
   return (
     <div>
       <Authors authors={props.authors} />
@@ -67,4 +66,4 @@ export const Workshop = component$((props: WorkshopProps) => {
       <time dateTime={props.year.toString()}>{props.year}</time>
     </div>
   );
-});
+}

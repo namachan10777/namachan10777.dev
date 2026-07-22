@@ -1,11 +1,10 @@
-import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 
 interface ImageKeepProps {
   keep: rudis.ImageKeep<rudis.R2StoragePointer>;
 }
 
-export const ImageKeep = component$((props: ImageKeepProps) => {
+export function ImageKeep(props: ImageKeepProps) {
   const { keep } = props;
   const srcset = [
     `/${keep.storage.key}?format=webp&width=400 400w`,
@@ -16,7 +15,7 @@ export const ImageKeep = component$((props: ImageKeepProps) => {
   return (
     <img
       src={`/${keep.storage.key}?width=800&format=webp`}
-      srcset={srcset}
+      srcSet={srcset}
       sizes="(max-width: 52rem) calc(100vw - 3rem), 49rem"
       alt={keep.alt}
       width={keep.width}
@@ -25,4 +24,4 @@ export const ImageKeep = component$((props: ImageKeepProps) => {
       decoding="async"
     />
   );
-});
+}

@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { Heading } from "~/components/heading";
@@ -9,12 +8,12 @@ interface HeadingKeepProps {
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
 }
 
-export const HeadingKeep = component$((props: HeadingKeepProps) => {
+export function HeadingKeep(props: HeadingKeepProps) {
   const { keep, inner } = props;
   if (inner.type === "html") {
     return (
       <Heading tag={`h${keep.level}`} slug={keep.slug}>
-        <span dangerouslySetInnerHTML={inner.content} />
+        <span dangerouslySetInnerHTML={{ __html: inner.content }} />
       </Heading>
     );
   } else {
@@ -26,4 +25,4 @@ export const HeadingKeep = component$((props: HeadingKeepProps) => {
       </Heading>
     );
   }
-});
+}

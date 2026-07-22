@@ -5,7 +5,7 @@
     "module": "ES2022",
     "lib": ["es2022", "DOM", "WebWorker", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@qwik.dev/core",
+    "jsxImportSource": "react",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
@@ -15,22 +15,28 @@
     "incremental": true,
     "isolatedModules": true,
     "outDir": "tmp",
+    "rootDirs": [".", "./.react-router/types"],
     "noEmit": true,
     "paths": {
       "~/*": ["./src/*"],
-      "eslint-plugin-qwik": ["./src/types/eslint-plugin-qwik.d.ts"],
       "remark-attr": ["./src/types/remark-attr.d.ts"]
     },
-    "types": ["unplugin-icons/types/qwik", "bun-types", "./qwik.env.d.ts"]
+    "types": [
+      "unplugin-icons/types/react",
+      "bun-types",
+      "./worker-configuration.d.ts",
+      "vite/client"
+    ]
   },
   "include": [
     "src",
     "./*.d.ts",
     "./*.config.ts",
     "./*.config.mjs",
-    "adapters",
+    "workers",
+    ".react-router/types/**/*",
     "vite.config.ts",
-    "assetsignore.ts",
+    "vitest.config.ts",
     "openpgp/build.ts"
   ]
 }

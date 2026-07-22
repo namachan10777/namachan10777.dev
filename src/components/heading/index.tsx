@@ -1,29 +1,29 @@
-import { Slot, component$ } from "@qwik.dev/core";
+import type { ReactNode } from "react";
+import LinkIcon from "~icons/iconoir/link";
 import styles from "./styles.module.css";
-import Link from "~icons/iconoir/link";
 
 export type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
-export const Heading = component$(
-  ({
-    tag,
-    slug,
-  }: {
-    tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-    slug: string;
-  }) => {
-    const Tag = tag;
-    return (
-      <Tag id={slug} class={styles.heading}>
-        <Slot />
-        <a
-          href={`#${slug}`}
-          class={styles.headingAnchor}
-          aria-label={`このセクション(${slug})へのリンク`}
-        >
-          <Link />
-        </a>
-      </Tag>
-    );
-  },
-);
+export function Heading({
+  tag,
+  slug,
+  children,
+}: {
+  tag: HeadingTag;
+  slug: string;
+  children: ReactNode;
+}) {
+  const Tag = tag;
+  return (
+    <Tag id={slug} className={styles.heading}>
+      {children}
+      <a
+        href={`#${slug}`}
+        className={styles.headingAnchor}
+        aria-label={`このセクション(${slug})へのリンク`}
+      >
+        <LinkIcon />
+      </a>
+    </Tag>
+  );
+}

@@ -1,11 +1,10 @@
-import { component$ } from "@qwik.dev/core";
 import styles from "./styles.module.css";
 
-export const NotFound = component$(() => {
+export function NotFound() {
   return (
-    <section class={styles.container}>
+    <section className={styles.container}>
       <h1>Page Not Found</h1>
       <p>ページが見つかりません</p>
     </section>
   );
-});
+}

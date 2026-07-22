@@ -1,140 +1,100 @@
-import { component$ } from "@qwik.dev/core";
-import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
-import { PaginatedPostList } from "~/components/paginated-post-list";
-import styles from "./index.module.css";
-import { NotFound } from "~/components/not-found";
-
+import type { LoaderFunctionArgs } from "react-router";
 import * as v from "valibot";
+import { PaginatedPostList } from "~/components/paginated-post-list";
+import { getBinding } from "~/lib/cloudflare";
 import {
-  postWithTagsSchema,
   PAGE_SIZE,
   paginate,
+  postWithTagsSchema,
   toPostSummary,
 } from "~/lib/posts";
-import { getBinding } from "~/lib/cloudflare";
 import { logServerError } from "~/lib/server-log";
+import styles from "./index.module.css";
 
-export const usePostsPages = routeLoader$(async (event) => {
-  const { params, status } = event;
+export async function loader({ params, context }: LoaderFunctionArgs) {
   try {
-    const index = parseInt(params.page, 10);
-    const d1 = getBinding<D1Database>(event, "DB");
-    const meta_q = `
-      SELECT posts.*, json_group_array(post_tags.tag) AS tags
-      FROM post_tags AS tag_filter
-      JOIN posts ON posts.id = tag_filter.post_id
-      LEFT JOIN post_tags ON posts.id = post_tags.post_id
-      WHERE tag_filter.tag = ? AND posts.publish
-      GROUP BY posts.id
-      ORDER BY posts.date DESC
-      LIMIT ?
-      OFFSET ?
-    `;
+    const current = Number.parseInt(params.page ?? "", 10);
+    const tag = params.tag;
+    if (!tag || !Number.isInteger(current) || current < 1) {
+      throw new Error("Invalid tag page");
+    }
 
-    const count_q = `
-      SELECT COUNT(*) AS count
-      FROM post_tags
-      JOIN posts ON posts.id = post_tags.post_id
-      WHERE post_tags.tag = ? AND posts.publish;
-    `;
+    const d1 = getBinding(context, "DB");
+    const results = await d1.batch([
+      d1
+        .prepare(
+          `
+            SELECT posts.*, json_group_array(post_tags.tag) AS tags
+            FROM post_tags AS tag_filter
+            JOIN posts ON posts.id = tag_filter.post_id
+            LEFT JOIN post_tags ON posts.id = post_tags.post_id
+            WHERE tag_filter.tag = ? AND posts.publish
+            GROUP BY posts.id
+            ORDER BY posts.date DESC
+            LIMIT ?
+            OFFSET ?
+          `,
+        )
+        .bind(tag, PAGE_SIZE, PAGE_SIZE * (current - 1)),
+      d1
+        .prepare(
+          `
+            SELECT COUNT(*) AS count
+            FROM post_tags
+            JOIN posts ON posts.id = post_tags.post_id
+            WHERE post_tags.tag = ? AND posts.publish
+          `,
+        )
+        .bind(tag),
+    ]);
 
-    const results =
-      d1 &&
-      (await d1.batch([
-        d1.prepare(meta_q).bind(params.tag, PAGE_SIZE, PAGE_SIZE * (index - 1)),
-        d1.prepare(count_q).bind(params.tag),
-      ]));
-
-    const s = v.tuple([
-      v.object({
-        results: v.array(postWithTagsSchema),
-      }),
-      v.object({
-        results: v.tuple([
-          v.object({
-            count: v.number(),
-          }),
-        ]),
-      }),
+    const parser = v.tuple([
+      v.object({ results: v.array(postWithTagsSchema) }),
+      v.object({ results: v.tuple([v.object({ count: v.number() })]) }),
     ]);
     const [
-      { results: posts },
+      { results: contents },
       {
         results: [count],
       },
-    ] = v.parse(s, results);
+    ] = v.parse(parser, results);
 
-    return {
-      contents: posts,
-      ...paginate(count.count, index),
-      tag: params.tag,
-    };
+    if (contents.length === 0) throw new Error("Tag page not found");
+    return { contents, tag, ...paginate(count.count, current) };
   } catch (error) {
     logServerError("warn", "Failed to load tagged post page", error, {
       tag: params.tag,
       page: params.page,
     });
-    status(404);
-    return undefined;
+    throw new Response("Not Found", { status: 404 });
   }
-});
+}
 
-export const onStaticGenerate: StaticGenerateHandler = async (event) => {
-  const q = `
-    SELECT COUNT(posts) AS count, tag
-    FROM post_tags
-    LEFT JOIN posts ON posts.id = post_tags.post_id
-    WHERE posts.publish
-    GROUP BY post_tags.tag;
-  `;
-  const d1 = getBinding<D1Database>(event, "DB");
-  if (d1 === undefined) {
-    return { params: [] };
-  }
+type LoaderData = Awaited<ReturnType<typeof loader>>;
 
-  const s = v.array(
-    v.object({
-      tag: v.string(),
-      count: v.number(),
-    }),
-  );
-  const counts = v.parse(s, (await d1.prepare(q).run()).results);
-
-  return {
-    params: counts.flatMap((count) => {
-      return Array.from({ length: Math.ceil(count.count / PAGE_SIZE) }).map(
-        (_, index) => ({
-          tag: count.tag,
-          page: `${index + 1}`,
-        }),
-      );
-    }),
-  };
-};
-
-export default component$(() => {
-  const page = usePostsPages();
-  if (!page.value) {
-    return <NotFound />;
-  }
+export default function TaggedPostPage({
+  loaderData,
+}: {
+  loaderData: LoaderData;
+}) {
   return (
     <PaginatedPostList
-      contents={page.value.contents.map(toPostSummary)}
+      contents={loaderData.contents.map(toPostSummary)}
       prev={
-        page.value.prev
-          ? `/post/tag/${page.value.tag}/page/${page.value.prev}`
+        loaderData.prev
+          ? `/post/tag/${loaderData.tag}/${loaderData.prev}`
           : undefined
       }
       next={
-        page.value.next
-          ? `/post/tag/${page.value.tag}/page/${page.value.next}`
+        loaderData.next
+          ? `/post/tag/${loaderData.tag}/${loaderData.next}`
           : undefined
       }
     >
       <h1>
-        Post <span class={styles.tagInHeading}>#{page.value.tag}</span> (
-        {page.value.current})
+        Post <span className={styles.tagInHeading}>#{loaderData.tag}</span> (
+        {loaderData.current})
       </h1>
     </PaginatedPostList>
   );
-});
+}

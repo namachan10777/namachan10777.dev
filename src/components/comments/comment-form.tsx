@@ -1,6 +1,6 @@
-import { $, component$, type QRL, useSignal } from "@qwik.dev/core";
-import { Form, type ActionStore } from "@qwik.dev/router";
-import type { CommentPostInput, CommentSubmitValue } from "~/lib/comments";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFetcher } from "react-router";
+import type { CommentSubmitValue } from "~/lib/comments";
 import styles from "./styles.module.css";
 
 declare global {
@@ -21,93 +21,65 @@ declare global {
   }
 }
 
-interface Props {
-  turnstileSiteKey: string;
-  submitAction: ActionStore<CommentSubmitValue, CommentPostInput, false>;
-  onSubmit$: QRL<() => void>;
+const TURNSTILE_SCRIPT =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+function getSubmitError(value: CommentSubmitValue | undefined) {
+  if (!value || !("failed" in value)) return undefined;
+  return "message" in value ? value.message : "コメントの投稿に失敗しました";
 }
 
-const getFormString = (formData: FormData | undefined, name: string) => {
-  const value = formData?.get(name);
-  return typeof value === "string" ? value : undefined;
-};
+export function CommentForm({
+  turnstileSiteKey,
+  onSubmitted,
+}: {
+  turnstileSiteKey: string;
+  onSubmitted: () => void | Promise<void>;
+}) {
+  const fetcher = useFetcher<CommentSubmitValue>();
+  const formRef = useRef<HTMLFormElement>(null);
+  const widgetId = useRef("");
+  const loadingTurnstile = useRef(false);
+  const lastSubmittedComment = useRef("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [error, setError] = useState("");
 
-const getSubmitError = (value: CommentSubmitValue | undefined) => {
-  if (!value || !("failed" in value)) {
-    return undefined;
-  }
-
-  if ("message" in value) {
-    return value.message;
-  }
-
-  return "コメントの投稿に失敗しました";
-};
-
-export const CommentForm = component$<Props>(
-  ({ turnstileSiteKey, submitAction, onSubmit$ }) => {
-    const turnstileToken = useSignal("");
-    const isLoadingTurnstile = useSignal(false);
-    const error = useSignal("");
-    const widgetId = useSignal<string>("");
-
-    const renderTurnstile = $(() => {
-      const container = document.getElementById("turnstile-container");
-      if (!container || !window.turnstile || widgetId.value) return;
-
-      widgetId.value = window.turnstile.render(container, {
-        sitekey: turnstileSiteKey,
-        callback: (token: string) => {
-          turnstileToken.value = token;
-        },
-        "expired-callback": () => {
-          turnstileToken.value = "";
-        },
-        "error-callback": () => {
-          error.value = "Turnstile の読み込みに失敗しました";
-        },
-      });
+  const renderTurnstile = useCallback(() => {
+    const container = document.getElementById("turnstile-container");
+    if (!container || !window.turnstile || widgetId.current) return;
+    widgetId.current = window.turnstile.render(container, {
+      sitekey: turnstileSiteKey,
+      callback: (token) => {
+        setTurnstileToken(token);
+        setError("");
+      },
+      "expired-callback": () => setTurnstileToken(""),
+      "error-callback": () => setError("Turnstile の読み込みに失敗しました"),
     });
+  }, [turnstileSiteKey]);
 
-    const ensureTurnstileLoaded = $(async () => {
-      if (widgetId.value) return;
+  const ensureTurnstileLoaded = useCallback(async () => {
+    if (widgetId.current) return;
+    if (window.turnstile) {
+      renderTurnstile();
+      return;
+    }
+    if (loadingTurnstile.current) return;
+    loadingTurnstile.current = true;
 
-      if (window.turnstile) {
-        await renderTurnstile();
-        return;
-      }
+    let script = document.querySelector<HTMLScriptElement>(
+      `script[src="${TURNSTILE_SCRIPT}"]`,
+    );
+    if (!script) {
+      script = document.createElement("script");
+      script.src = TURNSTILE_SCRIPT;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
 
-      if (isLoadingTurnstile.value) return;
-
-      isLoadingTurnstile.value = true;
-
-      const existingScript = document.querySelector<HTMLScriptElement>(
-        'script[src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"]',
-      );
-
-      if (existingScript) {
-        await new Promise<void>((resolve, reject) => {
-          existingScript.addEventListener("load", () => resolve(), {
-            once: true,
-          });
-          existingScript.addEventListener(
-            "error",
-            () => reject(new Error("Turnstile の読み込みに失敗しました")),
-            { once: true },
-          );
-        }).catch((e) => {
-          error.value =
-            e instanceof Error
-              ? e.message
-              : "Turnstile の読み込みに失敗しました";
-        });
-      } else {
-        const script = document.createElement("script");
-        script.src =
-          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-        script.async = true;
-        script.defer = true;
-
+    try {
+      if (!window.turnstile) {
         await new Promise<void>((resolve, reject) => {
           script.addEventListener("load", () => resolve(), { once: true });
           script.addEventListener(
@@ -115,95 +87,93 @@ export const CommentForm = component$<Props>(
             () => reject(new Error("Turnstile の読み込みに失敗しました")),
             { once: true },
           );
-          document.head.appendChild(script);
-        }).catch((e) => {
-          error.value =
-            e instanceof Error
-              ? e.message
-              : "Turnstile の読み込みに失敗しました";
         });
       }
+      renderTurnstile();
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Turnstile の読み込みに失敗しました",
+      );
+    } finally {
+      loadingTurnstile.current = false;
+    }
+  }, [renderTurnstile]);
 
-      isLoadingTurnstile.value = false;
+  useEffect(() => {
+    const data = fetcher.data;
+    if (!data || !("comment" in data)) return;
+    if (lastSubmittedComment.current === data.comment.id) return;
+    lastSubmittedComment.current = data.comment.id;
+    setTurnstileToken("");
+    formRef.current?.reset();
+    if (window.turnstile && widgetId.current) {
+      window.turnstile.reset(widgetId.current);
+    }
+    void onSubmitted();
+  }, [fetcher.data, onSubmitted]);
 
-      if (window.turnstile) {
-        await renderTurnstile();
+  useEffect(
+    () => () => {
+      if (window.turnstile && widgetId.current) {
+        window.turnstile.remove(widgetId.current);
       }
-    });
+    },
+    [],
+  );
 
-    const handleSubmit = $(() => {
-      if (!turnstileToken.value) {
-        error.value = "認証を完了してください";
+  return (
+    <fetcher.Form
+      ref={formRef}
+      method="post"
+      className={styles.commentForm}
+      onSubmit={(event) => {
+        if (turnstileToken) {
+          setError("");
+          return;
+        }
+        event.preventDefault();
+        setError("認証を完了してください");
         void ensureTurnstileLoaded();
-        return;
-      }
-
-      error.value = "";
-    });
-
-    const handleSubmitCompleted = $(async () => {
-      turnstileToken.value = "";
-
-      if (window.turnstile && widgetId.value) {
-        window.turnstile.reset(widgetId.value);
-      }
-
-      await onSubmit$();
-    });
-
-    return (
-      <Form
-        action={submitAction}
-        onSubmit$={handleSubmit}
-        onSubmitCompleted$={handleSubmitCompleted}
-        spaReset
-        class={styles.commentForm}
-      >
-        <label class={styles.formLabel}>
-          名前
-          <input
-            type="text"
-            class={styles.formInput}
-            name="name"
-            value={getFormString(submitAction.formData, "name")}
-            onFocus$={ensureTurnstileLoaded}
-            maxLength={100}
-            required
-          />
-        </label>
-        <label class={styles.formLabel}>
-          コメント
-          <textarea
-            class={styles.formTextarea}
-            name="content"
-            value={getFormString(submitAction.formData, "content")}
-            onFocus$={ensureTurnstileLoaded}
-            maxLength={10000}
-            required
-          />
-        </label>
-        <div class={styles.formActions}>
-          <div id="turnstile-container" class={styles.turnstileContainer} />
-          <input
-            type="hidden"
-            name="turnstileToken"
-            value={turnstileToken.value}
-          />
-          {error.value && <p class={styles.errorMessage}>{error.value}</p>}
-          {getSubmitError(submitAction.value) && (
-            <p class={styles.errorMessage}>
-              {getSubmitError(submitAction.value)}
-            </p>
-          )}
-          <button
-            type="submit"
-            class={styles.submitButton}
-            disabled={submitAction.isRunning || !turnstileToken.value}
-          >
-            {submitAction.isRunning ? "送信中..." : "投稿"}
-          </button>
-        </div>
-      </Form>
-    );
-  },
-);
+      }}
+    >
+      <label className={styles.formLabel}>
+        名前
+        <input
+          type="text"
+          className={styles.formInput}
+          name="name"
+          onFocus={() => void ensureTurnstileLoaded()}
+          maxLength={100}
+          required
+        />
+      </label>
+      <label className={styles.formLabel}>
+        コメント
+        <textarea
+          className={styles.formTextarea}
+          name="content"
+          onFocus={() => void ensureTurnstileLoaded()}
+          maxLength={10000}
+          required
+        />
+      </label>
+      <div className={styles.formActions}>
+        <div id="turnstile-container" className={styles.turnstileContainer} />
+        <input type="hidden" name="turnstileToken" value={turnstileToken} />
+        {error && <p className={styles.errorMessage}>{error}</p>}
+        {getSubmitError(fetcher.data) && (
+          <p className={styles.errorMessage}>{getSubmitError(fetcher.data)}</p>
+        )}
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={fetcher.state !== "idle" || !turnstileToken}
+        >
+          {fetcher.state !== "idle" ? "送信中..." : "投稿"}
+        </button>
+      </div>
+    </fetcher.Form>
+  );
+}

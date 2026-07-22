@@ -1,47 +1,38 @@
-import { $, component$, useSignal } from "@qwik.dev/core";
-import type { ActionStore } from "@qwik.dev/router";
-import { CommentList } from "./comment-list";
-import { CommentForm } from "./comment-form";
-import styles from "./styles.module.css";
+import { useCallback, useState } from "react";
 import * as v from "valibot";
-import {
-  CommentsResponseSchema,
-  type Comment,
-  type CommentPostInput,
-  type CommentSubmitValue,
-} from "~/lib/comments";
+import { CommentsResponseSchema, type Comment } from "~/lib/comments";
+import { CommentForm } from "./comment-form";
+import { CommentList } from "./comment-list";
+import styles from "./styles.module.css";
 
 interface Props {
   postId: string;
   initialComments: Comment[];
   turnstileSiteKey: string;
-  submitAction: ActionStore<CommentSubmitValue, CommentPostInput, false>;
 }
 
-export const CommentSection = component$((props: Props) => {
-  const comments = useSignal<Comment[]>(props.initialComments);
+export function CommentSection(props: Props) {
+  const [comments, setComments] = useState(props.initialComments);
 
-  const refreshComments = $(async () => {
+  const refreshComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/comments/${props.postId}`);
-      if (response.ok) {
-        const data = v.parse(CommentsResponseSchema, await response.json());
-        comments.value = data.comments;
-      }
-    } catch (e) {
-      console.error("Failed to refresh comments:", e);
+      if (!response.ok) return;
+      const data = v.parse(CommentsResponseSchema, await response.json());
+      setComments(data.comments);
+    } catch (error) {
+      console.error("Failed to refresh comments:", error);
     }
-  });
+  }, [props.postId]);
 
   return (
-    <section class={styles.commentSection}>
+    <section className={styles.commentSection}>
       <h2>コメント</h2>
       <CommentList comments={comments} />
       <CommentForm
         turnstileSiteKey={props.turnstileSiteKey}
-        submitAction={props.submitAction}
-        onSubmit$={refreshComments}
+        onSubmitted={refreshComments}
       />
     </section>
   );
-});
+}

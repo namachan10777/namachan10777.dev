@@ -1,5 +1,7 @@
 # Build
 /dist
+/build
+/.react-router
 /lib
 /lib-types
 /server

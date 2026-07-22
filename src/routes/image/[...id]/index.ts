@@ -1,4 +1,4 @@
-import { RequestHandler } from "@qwik.dev/router";
+import type { LoaderFunctionArgs } from "react-router";
 import * as v from "valibot";
 import { logServerError } from "~/lib/server-log";
 
@@ -20,47 +20,43 @@ const widthValidator = v.union([
   v.literal(1600),
 ]);
 
-function parseUrl(
-  url: URL,
-): [
-  string,
-  v.InferOutput<typeof widthValidator>,
-  v.InferOutput<typeof formatValidator>,
-] {
-  const width = parseInt(url.searchParams.get("width")!, 10);
-  const format = url.searchParams.get("format")!;
-  if (!allowedWidths.has(width)) {
-    throw new Error("Invalid width or format");
-  }
-  return [
-    url.pathname.substring(1),
-    v.parse(widthValidator, width),
-    v.parse(formatValidator, format),
-  ];
+function parseUrl(url: URL) {
+  const width = Number.parseInt(url.searchParams.get("width") ?? "", 10);
+  if (!allowedWidths.has(width)) throw new Error("Invalid width");
+  return {
+    key: url.pathname.substring(1),
+    width: v.parse(widthValidator, width),
+    format: v.parse(formatValidator, url.searchParams.get("format")),
+  };
 }
 
-export const onGet: RequestHandler = async ({ request, send }) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const url = new URL(request.url);
-    const [key, width, format] = parseUrl(url);
-    const response = await fetch(`https://assets.namachan10777.dev/${key}`, {
-      cf: {
-        image: {
-          format,
-          width,
-          fit: "contain",
+    const parsed = parseUrl(new URL(request.url));
+    const response = await fetch(
+      `https://assets.namachan10777.dev/${parsed.key}`,
+      {
+        cf: {
+          image: {
+            format: parsed.format,
+            width: parsed.width,
+            fit: "contain",
+          },
+          cacheEverything: true,
+          cacheTtl: 31536000,
         },
-        cacheEverything: true,
-        cacheTtl: 31536000,
       },
-    });
+    );
     const headers = new Headers(response.headers);
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
-    send(new Response(response.body, { status: response.status, headers }));
+    return new Response(response.body, {
+      status: response.status,
+      headers,
+    });
   } catch (error) {
     logServerError("warn", "Failed to serve image", error, {
       url: request.url,
     });
-    send(404, "");
+    return new Response("", { status: 404 });
   }
-};
+}

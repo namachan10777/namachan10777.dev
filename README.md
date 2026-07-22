@@ -4,8 +4,8 @@
 
 ## 技術スタック
 
-- **フレームワーク**: [Qwik](https://qwik.dev/) + [QwikCity](https://qwik.dev/qwikcity/overview/)
-- **ホスティング**: Cloudflare Pages
+- **フレームワーク**: [React Router](https://reactrouter.com/) Framework Mode (Remix successor)
+- **ホスティング**: Cloudflare Workers
 - **CMS**: [rudis-cms](https://github.com/namachan10777/rudis-cms) (自作)
 - **画像配信**: Cloudflare Images
 

@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import { globalIgnores } from "eslint/config";
-import { qwikEslint9Plugin } from "eslint-plugin-qwik";
 
 const ignores = [
   "**/*.log",
@@ -38,6 +37,7 @@ const ignores = [
   "**/*.spec.ts",
   "**/.netlify",
   "**/.wrangler/**",
+  "**/.react-router/**",
   "**/pnpm-lock.yaml",
   "**/package-lock.json",
   "**/yarn.lock",
@@ -51,7 +51,6 @@ export default tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
-  qwikEslint9Plugin.configs.recommended,
   {
     languageOptions: {
       globals: {
@@ -75,8 +74,12 @@ export default tseslint.config(
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      // eslint-plugin-qwik still crashes with current ESLint/typescript-eslint (TypeFlags undefined).
-      "qwik/valid-lexical-scope": "off",
+    },
+  },
+  {
+    files: ["src/routes/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/only-throw-error": "off",
     },
   },
 );

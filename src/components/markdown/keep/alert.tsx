@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 
@@ -7,7 +6,7 @@ interface AlertProps {
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
 }
 
-export const Alert = component$((props: AlertProps) => {
+export function Alert(props: AlertProps) {
   const { alert } = props;
   return <div>{alert.kind}</div>;
-});
+}

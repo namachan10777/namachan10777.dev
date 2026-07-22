@@ -1,21 +1,20 @@
-import { component$ } from "@qwik.dev/core";
+import { Link } from "react-router";
 import styles from "./styles.module.css";
-import { Link } from "@qwik.dev/router";
 
 export interface TagsProps {
   tags: string[];
 }
 
-export const Tags = component$((props: TagsProps) => {
+export function Tags({ tags }: TagsProps) {
   return (
     <nav>
-      <ul class={styles.tags}>
-        {props.tags.map((tag) => (
+      <ul className={styles.tags}>
+        {tags.map((tag) => (
           <li key={tag}>
-            <Link href={`/post/tag/${tag}/1`}>{tag}</Link>
+            <Link to={`/post/tag/${tag}/1`}>{tag}</Link>
           </li>
         ))}
       </ul>
     </nav>
   );
-});
+}

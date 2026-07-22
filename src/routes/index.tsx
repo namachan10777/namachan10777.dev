@@ -1,23 +1,35 @@
-import { component$ } from "@qwik.dev/core";
-import { Link, type DocumentHead } from "@qwik.dev/router";
-import IconImage from "~/assets/icon.webp?jsx";
-import styles from "./index.module.css";
+import { Link } from "react-router";
+import iconUrl from "~/assets/icon.webp?url";
 import { Education } from "~/components/education";
 import { Work } from "~/components/work";
 import {
-  tsukubaGraduateSchool,
-  tsukubaUniv,
+  dkitamura,
   nitk,
   otatebe,
-  dkitamura,
+  tsukubaGraduateSchool,
+  tsukubaUniv,
 } from "./index.data";
+import styles from "./index.module.css";
 
-export default component$(() => {
+export const meta = () => [
+  { title: "namachan10777.dev" },
+  {
+    name: "description",
+    content: "namachan10777's personal website and blog",
+  },
+];
+
+export default function Index() {
   return (
     <>
-      <section class={styles.top}>
-        <div class={styles.iconWrapper}>
-          <IconImage alt="namachan10777のアイコン画像。目のついた緑の箱がデフォルメされている。" />
+      <section className={styles.top}>
+        <div className={styles.iconWrapper}>
+          <img
+            src={iconUrl}
+            width={350}
+            height={350}
+            alt="namachan10777のアイコン画像。目のついた緑の箱がデフォルメされている。"
+          />
         </div>
         <h1>Masaki Nakano</h1>
         <p>
@@ -46,7 +58,7 @@ export default component$(() => {
         <nav>
           <ul>
             <li>
-              <Link href="/post/page/1">Posts (ja)</Link>
+              <Link to="/post/page/1">Posts (ja)</Link>
             </li>
             <li>
               <a href="/id.pub">SSH pubkey</a>
@@ -66,7 +78,7 @@ export default component$(() => {
               school={tsukubaGraduateSchool}
               advisor={otatebe}
               start={new Date("2024-04")}
-              topic={"RPC over RDMA, Large parallel filesystem architecture."}
+              topic="RPC over RDMA, Large parallel filesystem architecture."
             />
           </li>
           <li>
@@ -76,7 +88,7 @@ export default component$(() => {
               advisor={otatebe}
               start={new Date("2020-04")}
               acquisition={new Date("2024-03")}
-              topic={"Lightweight thread"}
+              topic="Lightweight thread"
             />
           </li>
           <li>
@@ -86,7 +98,7 @@ export default component$(() => {
               advisor={dkitamura}
               start={new Date("2015-04")}
               acquisition={new Date("2020-03")}
-              topic={"Blind audio source separation"}
+              topic="Blind audio source separation"
             />
           </li>
         </ol>
@@ -109,14 +121,4 @@ export default component$(() => {
       </section>
     </>
   );
-});
-
-export const head: DocumentHead = {
-  title: "namachan10777.dev",
-  meta: [
-    {
-      name: "description",
-      content: "Qwik site description",
-    },
-  ],
-};
+}

@@ -1,12 +1,20 @@
-import type { RequestEventBase } from "@qwik.dev/router/middleware/request-handler";
+import type { RouterContextProvider } from "react-router";
+import { cloudflareContext } from "~/lib/context";
 
-type PlatformWithEnv = {
-  env?: Record<string, unknown>;
-};
+export function getOptionalBinding<K extends keyof Env>(
+  context: Readonly<RouterContextProvider>,
+  key: K,
+): Env[K] {
+  return context.get(cloudflareContext).env[key];
+}
 
-export type BindingEvent = Pick<RequestEventBase<PlatformWithEnv>, "env"> &
-  Partial<Pick<RequestEventBase<PlatformWithEnv>, "platform">>;
-
-export function getBinding<T>(event: BindingEvent, key: string): T | undefined {
-  return (event.platform?.env?.[key] ?? event.env.get(key)) as T | undefined;
+export function getBinding<K extends keyof Env>(
+  context: Readonly<RouterContextProvider>,
+  key: K,
+): Required<Env>[K] {
+  const binding = getOptionalBinding(context, key);
+  if (binding === undefined) {
+    throw new Error(`Missing Cloudflare binding: ${key}`);
+  }
+  return binding as Required<Env>[K];
 }

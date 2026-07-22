@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import { formatYearMonth } from "~/lib/format";
 import styles from "./styles.module.css";
 
@@ -18,9 +17,9 @@ export interface EducationProps {
   topic: string;
 }
 
-export const Education = component$((props: EducationProps) => {
+export function Education(props: EducationProps) {
   return (
-    <div class={styles.entry}>
+    <div className={styles.entry}>
       <span>
         <strong>{props.degree}</strong>,
         <a href={props.school.href}>{props.school.name}</a>,
@@ -33,7 +32,7 @@ export const Education = component$((props: EducationProps) => {
             {formatYearMonth(props.acquisition)}
           </time>
         ) : (
-          <em class="present">present</em>
+          <em className="present">present</em>
         )}
       </span>
       <span>
@@ -50,4 +49,4 @@ export const Education = component$((props: EducationProps) => {
       </span>
     </div>
   );
-});
+}

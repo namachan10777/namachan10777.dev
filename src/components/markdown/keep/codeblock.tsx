@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 import * as posts from "~/generated/posts/posts";
 import { CodeBlock } from "~/components/code-block";
@@ -9,12 +8,12 @@ interface CodeblockKeepProps {
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
 }
 
-export const CodeblockKeep = component$((props: CodeblockKeepProps) => {
+export function CodeblockKeep(props: CodeblockKeepProps) {
   const { keep, inner } = props;
   if (inner.type === "html") {
     return (
       <CodeBlock lines={keep.lines} title={keep.title || "notitle"}>
-        <code dangerouslySetInnerHTML={inner.content} />
+        <code dangerouslySetInnerHTML={{ __html: inner.content }} />
       </CodeBlock>
     );
   } else {
@@ -28,4 +27,4 @@ export const CodeblockKeep = component$((props: CodeblockKeepProps) => {
       </CodeBlock>
     );
   }
-});
+}

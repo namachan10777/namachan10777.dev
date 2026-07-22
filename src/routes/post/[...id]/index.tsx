@@ -1,162 +1,166 @@
-import { component$ } from "@qwik.dev/core";
-import {
-  StaticGenerateHandler,
-  routeAction$,
-  routeLoader$,
-  type DocumentHead,
-  valibot$,
-} from "@qwik.dev/router";
-import { buildPostHead } from "~/lib/post-head";
-import styles from "./markdown.module.css";
-import { Tags } from "~/components/tags";
-import { NotFound } from "~/components/not-found";
+import { data, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 import * as v from "valibot";
-import * as postsSchema from "~/generated/posts/posts-valibot";
-import { Footnotes, Markdown } from "~/components/markdown";
 import { CommentSection } from "~/components/comments";
-import { CommentPostSchema, CommentSchema, type Comment } from "~/lib/comments";
-import { getBinding } from "~/lib/cloudflare";
+import { Footnotes, Markdown } from "~/components/markdown";
+import { Tags } from "~/components/tags";
+import * as postsSchema from "~/generated/posts/posts-valibot";
+import { getBinding, getOptionalBinding } from "~/lib/cloudflare";
+import {
+  CommentPostSchema,
+  CommentSchema,
+  type Comment,
+  type CommentSubmitValue,
+} from "~/lib/comments";
+import { buildPostHead } from "~/lib/post-head";
 import { logServerError } from "~/lib/server-log";
 import { verifyTurnstileToken } from "~/lib/turnstile";
+import styles from "./markdown.module.css";
 
-export const usePost = routeLoader$(async (event) => {
-  const { params, status } = event;
+export async function loader({ params, context, request }: LoaderFunctionArgs) {
+  const id = params["*"];
+  if (!id) throw new Response("Not Found", { status: 404 });
+
   try {
-    const db = getBinding<D1Database>(event, "DB");
-    const kv = getBinding<KVNamespace>(event, "KV");
+    const db = getBinding(context, "DB");
+    const kv = getBinding(context, "KV");
     const [body, commentsResult] = await Promise.all([
-      kv!.get(params.id, { type: "json" }),
-      db!
+      kv.get(id, { type: "json" }),
+      db
         .prepare(
           "SELECT post_id, id, created_at, name, content FROM comments WHERE post_id = ? ORDER BY created_at DESC",
         )
-        .bind(params.id)
+        .bind(id)
         .all()
         .catch(() => ({ results: [] })),
     ]);
 
-    const comments = v.parse(v.array(CommentSchema), commentsResult.results);
-
-    const turnstileSiteKey =
-      getBinding<string>(event, "TURNSTILE_SITE_KEY") || "";
-
     return {
+      id,
+      url: request.url,
       body: v.parse(postsSchema.bodyDocument, body),
-      comments,
-      turnstileSiteKey,
+      comments: v.parse(v.array(CommentSchema), commentsResult.results),
+      turnstileSiteKey: getOptionalBinding(context, "TURNSTILE_SITE_KEY") || "",
     };
   } catch (error) {
-    logServerError("warn", "Failed to load post", error, { id: params.id });
-    status(404);
-    return null;
+    logServerError("warn", "Failed to load post", error, { id });
+    throw new Response("Not Found", { status: 404 });
   }
-});
+}
 
-export const useSubmitComment = routeAction$(
-  async ({ name, content, turnstileToken }, event) => {
-    const { fail, params } = event;
-    const secretKey = getBinding<string>(event, "TURNSTILE_SECRET_KEY");
+export async function action({ params, context, request }: LoaderFunctionArgs) {
+  const id = params["*"];
+  if (!id)
+    return data<CommentSubmitValue>(
+      { failed: true, message: "Not found" },
+      404,
+    );
+
+  try {
+    const formData = await request.formData();
+    const parsed = v.safeParse(CommentPostSchema, {
+      name: formData.get("name"),
+      content: formData.get("content"),
+      turnstileToken: formData.get("turnstileToken"),
+    });
+    if (!parsed.success) {
+      return data<CommentSubmitValue>(
+        { failed: true, message: "コメントの入力内容を確認してください" },
+        400,
+      );
+    }
+
+    const secretKey = getOptionalBinding(context, "TURNSTILE_SECRET_KEY");
     if (!secretKey) {
-      return fail(500, { message: "Turnstile not configured" });
+      return data<CommentSubmitValue>(
+        { failed: true, message: "Turnstile not configured" },
+        500,
+      );
     }
 
-    const verification = await verifyTurnstileToken(turnstileToken, secretKey);
+    const verification = await verifyTurnstileToken(
+      parsed.output.turnstileToken,
+      secretKey,
+    );
     if (!verification.success) {
-      return fail(400, { message: "Turnstile verification failed" });
+      return data<CommentSubmitValue>(
+        { failed: true, message: "Turnstile verification failed" },
+        400,
+      );
     }
 
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-
-    await getBinding<D1Database>(event, "DB")!
+    const comment: Comment = {
+      post_id: id,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      name: parsed.output.name,
+      content: parsed.output.content,
+    };
+    await getBinding(context, "DB")
       .prepare(
         "INSERT INTO comments (post_id, id, created_at, name, content) VALUES (?, ?, ?, ?, ?)",
       )
-      .bind(params.id, id, createdAt, name, content)
+      .bind(
+        comment.post_id,
+        comment.id,
+        comment.created_at,
+        comment.name,
+        comment.content,
+      )
       .run();
 
-    const comment: Comment = {
-      post_id: params.id,
-      id,
-      created_at: createdAt,
-      name,
-      content,
-    };
-
-    return { comment };
-  },
-  valibot$(CommentPostSchema),
-);
-
-export default component$(() => {
-  const page = usePost();
-  const submitCommentAction = useSubmitComment();
-  if (page.value) {
-    const body = page.value.body;
-    const published = new Date(body.frontmatter.date);
-    return (
-      <>
-        <article data-pagefind-body>
-          <header class={styles.header}>
-            <h1 data-pagefind-meta={`date:${published.toISOString()}`}>
-              {body.frontmatter.title}
-            </h1>
-            <p>{body.frontmatter.description}</p>
-            <div
-              data-pagefind-meta={`tags:${body.frontmatter.tags
-                .map((record) => record.tag)
-                .join(",")}`}
-            >
-              <Tags tags={body.frontmatter.tags.map((record) => record.tag)} />
-            </div>
-          </header>
-          {body.root.type === "html" ? (
-            <div dangerouslySetInnerHTML={body.root.content} />
-          ) : (
-            <Markdown root={body.root} />
-          )}
-          {body.footnotes.length > 0 && (
-            <Footnotes footnotes={body.footnotes} />
-          )}
-        </article>
-        <CommentSection
-          postId={page.value.body.frontmatter.id}
-          initialComments={page.value.comments}
-          turnstileSiteKey={page.value.turnstileSiteKey}
-          submitAction={submitCommentAction}
-        />
-      </>
+    return data<CommentSubmitValue>({ comment });
+  } catch (error) {
+    logServerError("error", "Failed to submit comment", error, { id });
+    return data<CommentSubmitValue>(
+      { failed: true, message: "コメントの投稿に失敗しました" },
+      500,
     );
-  } else {
-    return <NotFound />;
   }
-});
+}
 
-export const onStaticGenerate: StaticGenerateHandler = async (event) => {
-  const d1 = getBinding<D1Database>(event, "DB");
-  const schema = v.nullish(
-    v.array(
-      v.object({
-        id: v.string(),
-      }),
-    ),
-  );
-  const ids = v.parse(
-    schema,
-    d1 && (await d1.prepare("SELECT id FROM posts WHERE posts.publish;").run()),
-  );
-  return {
-    params: ids || [],
-  };
+type LoaderData = Awaited<ReturnType<typeof loader>>;
+
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
+  if (!loaderData) {
+    return [
+      { title: "Not found" },
+      { name: "description", content: "Not found" },
+    ];
+  }
+  return buildPostHead(loaderData.body, loaderData.id, new URL(loaderData.url));
 };
 
-export const head: DocumentHead = ({ params, url, resolveValue }) => {
-  const post = resolveValue(usePost)?.body;
-  if (!post) {
-    return {
-      title: "Not found",
-      meta: [{ name: "description", content: "Not found" }],
-    };
-  }
-  return buildPostHead(post, params, url);
-};
+export default function Post({ loaderData }: { loaderData: LoaderData }) {
+  const body = loaderData.body;
+  const published = new Date(body.frontmatter.date);
+  return (
+    <>
+      <article data-pagefind-body>
+        <header className={styles.header}>
+          <h1 data-pagefind-meta={`date:${published.toISOString()}`}>
+            {body.frontmatter.title}
+          </h1>
+          <p>{body.frontmatter.description}</p>
+          <div
+            data-pagefind-meta={`tags:${body.frontmatter.tags
+              .map((record) => record.tag)
+              .join(",")}`}
+          >
+            <Tags tags={body.frontmatter.tags.map((record) => record.tag)} />
+          </div>
+        </header>
+        {body.root.type === "html" ? (
+          <div dangerouslySetInnerHTML={{ __html: body.root.content }} />
+        ) : (
+          <Markdown root={body.root} />
+        )}
+        {body.footnotes.length > 0 && <Footnotes footnotes={body.footnotes} />}
+      </article>
+      <CommentSection
+        postId={body.frontmatter.id}
+        initialComments={loaderData.comments}
+        turnstileSiteKey={loaderData.turnstileSiteKey}
+      />
+    </>
+  );
+}

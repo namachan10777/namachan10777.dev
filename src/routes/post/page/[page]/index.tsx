@@ -1,38 +1,38 @@
-import { component$ } from "@qwik.dev/core";
-import { StaticGenerateHandler, routeLoader$ } from "@qwik.dev/router";
-import { NotFound } from "~/components/not-found";
-import { PaginatedPostList } from "~/components/paginated-post-list";
+import type { LoaderFunctionArgs } from "react-router";
 import * as v from "valibot";
+import { PaginatedPostList } from "~/components/paginated-post-list";
+import { getBinding } from "~/lib/cloudflare";
 import {
-  postWithTagsSchema,
   PAGE_SIZE,
   paginate,
+  postWithTagsSchema,
   toPostSummary,
 } from "~/lib/posts";
-import { getBinding } from "~/lib/cloudflare";
 import { logServerError } from "~/lib/server-log";
 
-export const usePostsPages = routeLoader$(async (event) => {
-  const { params, status } = event;
+export async function loader({ params, context }: LoaderFunctionArgs) {
   try {
-    const current = parseInt(params.page, 10);
-    const d1 = getBinding<D1Database>(event, "DB");
-    const q1 = `
-      SELECT posts.*, json_group_array(post_tags.tag) AS tags
-      FROM posts LEFT JOIN post_tags ON posts.id = post_tags.post_id
-      WHERE posts.publish
-      GROUP BY posts.id
-      ORDER BY posts.date DESC
-      LIMIT ?
-      OFFSET ?
-    `;
+    const current = Number.parseInt(params.page ?? "", 10);
+    if (!Number.isInteger(current) || current < 1)
+      throw new Error("Invalid page");
 
-    const results =
-      d1 &&
-      (await d1.batch([
-        d1.prepare(q1).bind(PAGE_SIZE, PAGE_SIZE * (current - 1)),
-        d1.prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;"),
-      ]));
+    const d1 = getBinding(context, "DB");
+    const results = await d1.batch([
+      d1
+        .prepare(
+          `
+            SELECT posts.*, json_group_array(post_tags.tag) AS tags
+            FROM posts LEFT JOIN post_tags ON posts.id = post_tags.post_id
+            WHERE posts.publish
+            GROUP BY posts.id
+            ORDER BY posts.date DESC
+            LIMIT ?
+            OFFSET ?
+          `,
+        )
+        .bind(PAGE_SIZE, PAGE_SIZE * (current - 1)),
+      d1.prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;"),
+    ]);
 
     const parser = v.tuple([
       v.object({
@@ -51,56 +51,29 @@ export const usePostsPages = routeLoader$(async (event) => {
       },
     ] = v.parse(parser, results);
 
-    return {
-      contents,
-      ...paginate(count.count, current),
-    };
+    if (current > 1 && contents.length === 0) throw new Error("Page not found");
+    return { contents, ...paginate(count.count, current) };
   } catch (error) {
     logServerError("warn", "Failed to load post page", error, {
       page: params.page,
     });
-    status(404);
-    return undefined;
+    throw new Response("Not Found", { status: 404 });
   }
-});
+}
 
-export const onStaticGenerate: StaticGenerateHandler = async (event) => {
-  const d1 = getBinding<D1Database>(event, "DB");
-  if (d1) {
-    const s = v.tuple([v.object({ count: v.number() })]);
-    const [count] = v.parse(
-      s,
-      await d1
-        .prepare("SELECT COUNT(*) AS count FROM posts WHERE posts.publish;")
-        .run(),
-    );
-    return {
-      params: Array.from({
-        length: count.count,
-      }).map((_, index) => {
-        return { page: `${index + 1}` };
-      }),
-    };
-  } else {
-    return { params: [] };
-  }
-};
+type LoaderData = Awaited<ReturnType<typeof loader>>;
 
-export default component$(() => {
-  const page = usePostsPages();
-  if (!page.value) {
-    return <NotFound />;
-  }
+export default function PostPage({ loaderData }: { loaderData: LoaderData }) {
   return (
     <PaginatedPostList
-      contents={page.value.contents.map(toPostSummary)}
-      prev={page.value.prev ? `/post/page/${page.value.prev}` : undefined}
-      next={page.value.next ? `/post/page/${page.value.next}` : undefined}
+      contents={loaderData.contents.map(toPostSummary)}
+      prev={loaderData.prev ? `/post/page/${loaderData.prev}` : undefined}
+      next={loaderData.next ? `/post/page/${loaderData.next}` : undefined}
     >
       <p>
         特記事項のない限り、全ての記事は個人的に趣味で書いたものであり、所属組織とは関係がありません
       </p>
-      <h1>Post ({page.value.current})</h1>
+      <h1>Post ({loaderData.current})</h1>
     </PaginatedPostList>
   );
-});
+}

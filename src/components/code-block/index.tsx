@@ -1,81 +1,90 @@
-import { Slot, component$, $, useSignal, Signal } from "@qwik.dev/core";
-import styles from "./styles.module.css";
-import { useDebouncer$ } from "~/lib/qwik";
-import Copy from "~icons/iconoir/copy";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import Check from "~icons/iconoir/check";
-interface Props {
-  lines: number;
-  title: string;
-}
+import Copy from "~icons/iconoir/copy";
+import styles from "./styles.module.css";
 
-const Lines = component$((props: { lines: number }) => {
+function Lines({ lines }: { lines: number }) {
   return (
-    <ol aria-hidden="true" class={styles.lines}>
-      {Array.from({ length: props.lines }).map((_, index) => (
+    <ol aria-hidden="true" className={styles.lines}>
+      {Array.from({ length: lines }).map((_, index) => (
         <li key={index}>{index + 1}</li>
       ))}
     </ol>
   );
-});
+}
 
-const CopyButton = component$(
-  (props: { preRef: Signal<Element | undefined> }) => {
-    const showCopiedMessage = useSignal(false);
-    const setDoneIcon = useDebouncer$(() => {
-      showCopiedMessage.value = false;
-    }, 1000);
-    const clickHandler = $(async () => {
-      if (props.preRef.value) {
-        const text = props.preRef.value.textContent;
-        if (text) {
-          await navigator.clipboard.writeText(text);
-          showCopiedMessage.value = true;
-          void setDoneIcon();
-        }
-      }
-    });
-    return (
-      <button
-        class={styles.copyButton}
-        onClick$={clickHandler}
-        aria-label="コードをコピー"
-      >
-        {showCopiedMessage.value ? (
-          <>
-            <span>Copied</span>
-            <Check />
-          </>
-        ) : (
-          <>
-            <span>Copy</span>
-            <Copy />
-          </>
-        )}
-      </button>
-    );
-  },
-);
+function CopyButton({
+  preRef,
+}: {
+  preRef: React.RefObject<HTMLElement | null>;
+}) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-export const CodeBlock = component$((props: Props) => {
-  const preRef = useSignal<Element>();
+  useEffect(
+    () => () => {
+      if (timeoutRef.current !== undefined) clearTimeout(timeoutRef.current);
+    },
+    [],
+  );
+
+  const handleClick = async () => {
+    const text = preRef.current?.textContent;
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    if (timeoutRef.current !== undefined) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setCopied(false), 1000);
+  };
+
   return (
-    <>
-      <div class={styles.root}>
-        {props.title && (
-          <header class={styles.header}>
-            <span class={styles.headerTitle}>{props.title}</span>
-            <CopyButton preRef={preRef} />
-          </header>
-        )}
-        <Lines lines={props.lines} />
-        <div class={styles.codeBody}>
-          <div class={styles.scrollBox}>
-            <pre ref={preRef} class={styles.root}>
-              <Slot />
-            </pre>
-          </div>
+    <button
+      className={styles.copyButton}
+      onClick={() => void handleClick()}
+      aria-label="コードをコピー"
+    >
+      {copied ? (
+        <>
+          <span>Copied</span>
+          <Check />
+        </>
+      ) : (
+        <>
+          <span>Copy</span>
+          <Copy />
+        </>
+      )}
+    </button>
+  );
+}
+
+export function CodeBlock({
+  lines,
+  title,
+  children,
+}: {
+  lines: number;
+  title: string;
+  children: ReactNode;
+}) {
+  const preRef = useRef<HTMLPreElement>(null);
+  return (
+    <div className={styles.root}>
+      {title && (
+        <header className={styles.header}>
+          <span className={styles.headerTitle}>{title}</span>
+          <CopyButton preRef={preRef} />
+        </header>
+      )}
+      <Lines lines={lines} />
+      <div className={styles.codeBody}>
+        <div className={styles.scrollBox}>
+          <pre ref={preRef} className={styles.root}>
+            {children}
+          </pre>
         </div>
       </div>
-    </>
+    </div>
   );
-});
+}

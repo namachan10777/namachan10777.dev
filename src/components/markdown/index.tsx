@@ -1,22 +1,21 @@
-import * as rudis from "~/generated/rudis";
-import * as posts from "~/generated/posts/posts";
+import type { JSX } from "react";
 import { Heading } from "~/components/heading";
-import styles from "./styles.module.css";
-import { component$ } from "@qwik.dev/core";
+import * as posts from "~/generated/posts/posts";
+import * as rudis from "~/generated/rudis";
 import { Alert } from "./keep/alert";
 import { CodeblockKeep } from "./keep/codeblock";
+import { FootnoteKeep } from "./keep/footnote";
 import { HeadingKeep } from "./keep/heading";
 import { ImageKeep } from "./keep/image";
 import { LinkCardKeep } from "./keep/linkcard";
-import { FootnoteKeep } from "./keep/footnote";
+import styles from "./styles.module.css";
 
 interface KeepProps {
   keep: posts.BodyKeep;
   inner: rudis.MarkdownRoot<posts.BodyKeep>;
 }
 
-const Keep = component$((props: KeepProps) => {
-  const { keep, inner } = props;
+function Keep({ keep, inner }: KeepProps) {
   switch (keep.type) {
     case "alert":
       return <Alert alert={keep} inner={inner} />;
@@ -31,26 +30,31 @@ const Keep = component$((props: KeepProps) => {
     case "footnote_reference":
       return <FootnoteKeep keep={keep} />;
   }
-  return <div></div>;
-});
-
-interface MdNodeProps {
-  node: rudis.MarkdownNode<posts.BodyKeep>;
 }
 
-export const MdNode = component$((props: MdNodeProps) => {
-  const { node } = props;
+function normalizeAttrs(attrs: Record<string, string | number | boolean>) {
+  if (!("class" in attrs)) return attrs;
+  const { class: className, ...rest } = attrs;
+  return { ...rest, className };
+}
+
+export function MdNode({ node }: { node: rudis.MarkdownNode<posts.BodyKeep> }) {
   switch (node.type) {
     case "text":
       return <>{node.text}</>;
     case "eager": {
-      const Tag = node.tag as "div";
-      return <Tag {...node.attrs} dangerouslySetInnerHTML={node.content} />;
+      const Tag = node.tag as keyof JSX.IntrinsicElements;
+      return (
+        <Tag
+          {...normalizeAttrs(node.attrs)}
+          dangerouslySetInnerHTML={{ __html: node.content }}
+        />
+      );
     }
     case "lazy": {
-      const Tag = node.tag as "div";
+      const Tag = node.tag as keyof JSX.IntrinsicElements;
       return (
-        <Tag {...node.attrs}>
+        <Tag {...normalizeAttrs(node.attrs)}>
           {node.children.map((child) => (
             <MdNode key={child.hash} node={child} />
           ))}
@@ -72,73 +76,73 @@ export const MdNode = component$((props: MdNodeProps) => {
         />
       );
   }
-});
+}
 
-const Footnote = component$(
-  ({ footnote }: { footnote: rudis.FootnoteDefinition<posts.BodyKeep> }) => {
+function Footnote({
+  footnote,
+}: {
+  footnote: rudis.FootnoteDefinition<posts.BodyKeep>;
+}) {
+  return (
+    <li className={styles.footnote}>
+      <a
+        className={styles.footnoteLink}
+        id={`footnote-${footnote.id}`}
+        href={`#footnote-reference-${footnote.id}`}
+      >
+        {footnote.reference}.
+      </a>
+      {footnote.content.type === "html" ? (
+        <div
+          className={styles.footnoteBody}
+          dangerouslySetInnerHTML={{ __html: footnote.content.content }}
+        />
+      ) : (
+        footnote.content.children.map((child) => (
+          <MdNode node={child} key={child.hash} />
+        ))
+      )}
+    </li>
+  );
+}
+
+export function Footnotes({
+  footnotes,
+}: {
+  footnotes: rudis.FootnoteDefinition<posts.BodyKeep>[];
+}) {
+  return (
+    <section>
+      <Heading slug="footnote" tag="h2">
+        Footnote
+      </Heading>
+      <ol className={styles.footnotes}>
+        {footnotes.map((footnote) => (
+          <Footnote footnote={footnote} key={footnote.id} />
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+export function Markdown({
+  root,
+}: {
+  root: rudis.MarkdownRoot<posts.BodyKeep>;
+}) {
+  if (root.type === "html") {
     return (
-      <li class={styles.footnote}>
-        <a
-          class={styles.footnoteLink}
-          id={`footnote-${footnote.id}`}
-          href={`#footnote-reference-${footnote.id}`}
-        >
-          {footnote.reference}.
-        </a>
-        {footnote.content.type === "html" ? (
-          <div
-            class={styles.footnoteBody}
-            dangerouslySetInnerHTML={footnote.content.content}
-          />
-        ) : (
-          footnote.content.children.map((child) => (
-            <MdNode node={child} key={child.hash} />
-          ))
-        )}
-      </li>
+      <div
+        dangerouslySetInnerHTML={{ __html: root.content }}
+        className={styles.markdown}
+      />
     );
-  },
-);
-
-export const Footnotes = component$(
-  ({
-    footnotes,
-  }: {
-    footnotes: rudis.FootnoteDefinition<posts.BodyKeep>[];
-  }) => {
-    return (
-      <section>
-        <Heading slug="footnote" tag="h2">
-          Footnote
-        </Heading>
-        <ol class={styles.footnotes}>
-          {footnotes.map((footnote) => (
-            <Footnote footnote={footnote} key={footnote.id} />
-          ))}
-        </ol>
-      </section>
-    );
-  },
-);
-
-export const Markdown = component$(
-  ({ root }: { root: rudis.MarkdownRoot<posts.BodyKeep> }) => {
-    if (root.type === "html") {
-      return (
-        <>
-          <div dangerouslySetInnerHTML={root.content} class={styles.markdown} />
-        </>
-      );
-    } else {
-      return (
-        <>
-          <div class={styles.markdown}>
-            {root.children.map((node) => (
-              <MdNode node={node} key={node.hash} />
-            ))}
-          </div>
-        </>
-      );
-    }
-  },
-);
+  }
+  return (
+    <div className={styles.markdown}>
+      {root.children.map((node) => (
+        <MdNode node={node} key={node.hash} />
+      ))}
+    </div>
+  );
+}

@@ -1,25 +1,29 @@
-import { component$ } from "@qwik.dev/core";
-import styles from "./styles.module.css";
-import RightIcon from "~icons/iconoir/arrow-right";
+import { Link } from "react-router";
 import LeftIcon from "~icons/iconoir/arrow-left";
+import RightIcon from "~icons/iconoir/arrow-right";
+import styles from "./styles.module.css";
 
-export const PaginationNav = component$(
-  (props: { next?: string; prev?: string }) => {
-    return (
-      <nav class={styles.nav}>
-        {props.prev && (
-          <a class={styles.prev} href={props.prev}>
-            <LeftIcon />
-            Prev
-          </a>
-        )}
-        {props.next && (
-          <a class={styles.next} href={props.next}>
-            Next
-            <RightIcon />
-          </a>
-        )}
-      </nav>
-    );
-  },
-);
+export function PaginationNav({
+  next,
+  prev,
+}: {
+  next?: string;
+  prev?: string;
+}) {
+  return (
+    <nav className={styles.nav}>
+      {prev && (
+        <Link className={styles.prev} to={prev}>
+          <LeftIcon />
+          Prev
+        </Link>
+      )}
+      {next && (
+        <Link className={styles.next} to={next}>
+          Next
+          <RightIcon />
+        </Link>
+      )}
+    </nav>
+  );
+}

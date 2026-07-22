@@ -1,4 +1,3 @@
-import { component$ } from "@qwik.dev/core";
 import { formatYearMonth } from "~/lib/format";
 import styles from "./styles.module.css";
 
@@ -13,9 +12,9 @@ export interface WorkProps {
   topic: string;
 }
 
-export const Work = component$((props: WorkProps) => {
+export function Work(props: WorkProps) {
   return (
-    <div class={styles.entry}>
+    <div className={styles.entry}>
       <span>
         <strong>{props.position}</strong>,
         <a href={props.company.href}>
@@ -36,4 +35,4 @@ export const Work = component$((props: WorkProps) => {
       <span>{props.topic}</span>
     </div>
   );
-});
+}

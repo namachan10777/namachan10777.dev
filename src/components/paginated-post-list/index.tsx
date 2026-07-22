@@ -1,27 +1,26 @@
-import { Slot, component$ } from "@qwik.dev/core";
-import { PostList } from "~/components/post-list";
+import type { ReactNode } from "react";
 import { PaginationNav } from "~/components/pagination-nav";
+import { PostList } from "~/components/post-list";
 import type { PostSummary } from "~/lib/posts";
 import styles from "./styles.module.css";
 
 interface PaginatedPostListProps {
+  children: ReactNode;
   contents: PostSummary[];
   prev?: string;
   next?: string;
 }
 
-export const PaginatedPostList = component$((props: PaginatedPostListProps) => {
+export function PaginatedPostList(props: PaginatedPostListProps) {
   return (
-    <div class={styles.container}>
-      <div>
-        <Slot />
-      </div>
+    <div className={styles.container}>
+      <div>{props.children}</div>
       <div>
         <PostList posts={props.contents} />
       </div>
-      <div class={styles.navContainer}>
+      <div className={styles.navContainer}>
         <PaginationNav prev={props.prev} next={props.next} />
       </div>
     </div>
   );
-});
+}

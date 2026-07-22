@@ -1,11 +1,10 @@
-import { component$ } from "@qwik.dev/core";
 import * as rudis from "~/generated/rudis";
 
 interface FootnoteKeepProps {
   keep: rudis.FootnoteReferenceKeep;
 }
 
-export const FootnoteKeep = component$((props: FootnoteKeepProps) => {
+export function FootnoteKeep(props: FootnoteKeepProps) {
   const { keep } = props;
   return (
     <sup>
@@ -14,4 +13,4 @@ export const FootnoteKeep = component$((props: FootnoteKeepProps) => {
       </a>
     </sup>
   );
-});
+}
