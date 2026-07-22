@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Tags } from "~/components/tags";
 import { formatDateEn } from "~/lib/format";
 import type { PostSummary } from "~/lib/posts";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export function PostList({ posts }: { posts: PostSummary[] }) {
   return (

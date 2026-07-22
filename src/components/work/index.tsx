@@ -1,5 +1,5 @@
 import { formatYearMonth } from "~/lib/format";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export interface WorkProps {
   company: {

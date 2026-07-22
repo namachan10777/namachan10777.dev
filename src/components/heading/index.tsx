@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import LinkIcon from "~icons/iconoir/link";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 

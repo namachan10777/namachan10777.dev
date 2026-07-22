@@ -3,7 +3,7 @@ import * as v from "valibot";
 import { CommentsResponseSchema, type Comment } from "~/lib/comments";
 import { CommentForm } from "./comment-form";
 import { CommentList } from "./comment-list";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 interface Props {
   postId: string;

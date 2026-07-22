@@ -9,7 +9,7 @@ import {
   toPostSummary,
 } from "~/lib/posts";
 import { logServerError } from "~/lib/server-log";
-import styles from "./index.module.css";
+import * as styles from "./index.css";
 
 export async function loader({ params, context }: LoaderFunctionArgs) {
   try {

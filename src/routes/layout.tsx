@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
 import { NavigationIndicator } from "~/components/navigation-indicator";
-import styles from "./layout.module.css";
+import * as styles from "./layout.css";
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (

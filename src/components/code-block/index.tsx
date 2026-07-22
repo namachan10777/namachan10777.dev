@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Check from "~icons/iconoir/check";
 import Copy from "~icons/iconoir/copy";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 function Lines({ lines }: { lines: number }) {
   return (
@@ -77,10 +77,10 @@ export function CodeBlock({
           <CopyButton preRef={preRef} />
         </header>
       )}
-      <Lines lines={lines} />
       <div className={styles.codeBody}>
+        <Lines lines={lines} />
         <div className={styles.scrollBox}>
-          <pre ref={preRef} className={styles.root}>
+          <pre ref={preRef} className={styles.pre}>
             {children}
           </pre>
         </div>

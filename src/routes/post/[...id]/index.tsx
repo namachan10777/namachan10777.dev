@@ -14,7 +14,7 @@ import {
 import { buildPostHead } from "~/lib/post-head";
 import { logServerError } from "~/lib/server-log";
 import { verifyTurnstileToken } from "~/lib/turnstile";
-import styles from "./markdown.module.css";
+import * as styles from "./markdown.css";
 
 export async function loader({ params, context, request }: LoaderFunctionArgs) {
   const id = params["*"];

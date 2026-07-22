@@ -1,5 +1,5 @@
 import { useNavigation } from "react-router";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export function NavigationIndicator() {
   const navigation = useNavigation();

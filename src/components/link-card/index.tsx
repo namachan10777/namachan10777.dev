@@ -1,4 +1,4 @@
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 import LinkIcon from "~icons/iconoir/www";
 import Internet from "~icons/iconoir/internet";
 import * as rudis from "~/generated/rudis";

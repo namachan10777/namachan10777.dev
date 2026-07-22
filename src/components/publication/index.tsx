@@ -1,4 +1,4 @@
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export type Author = string | { me: string };
 

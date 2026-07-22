@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import IconGitHub from "~icons/iconoir/github";
 import IconLinkedIn from "~icons/iconoir/linkedin";
 import IconX from "~icons/iconoir/x";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 function LinkIcon({
   href,

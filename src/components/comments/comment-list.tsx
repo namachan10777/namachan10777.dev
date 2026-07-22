@@ -1,6 +1,6 @@
 import type { Comment } from "~/lib/comments";
 import { formatDateTimeJa } from "~/lib/format";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export function CommentList({ comments }: { comments: Comment[] }) {
   if (comments.length === 0) {

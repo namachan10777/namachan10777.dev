@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as v from "valibot";
 import Like from "~icons/iconoir/thumbs-up";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 const validator = v.object({ count: v.number() });
 

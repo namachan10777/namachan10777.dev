@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import LeftIcon from "~icons/iconoir/arrow-left";
 import RightIcon from "~icons/iconoir/arrow-right";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 export function PaginationNav({
   next,

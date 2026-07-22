@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { PaginationNav } from "~/components/pagination-nav";
 import { PostList } from "~/components/post-list";
 import type { PostSummary } from "~/lib/posts";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 interface PaginatedPostListProps {
   children: ReactNode;

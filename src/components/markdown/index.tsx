@@ -8,7 +8,7 @@ import { FootnoteKeep } from "./keep/footnote";
 import { HeadingKeep } from "./keep/heading";
 import { ImageKeep } from "./keep/image";
 import { LinkCardKeep } from "./keep/linkcard";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 interface KeepProps {
   keep: posts.BodyKeep;

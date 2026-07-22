@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type { CommentSubmitValue } from "~/lib/comments";
-import styles from "./styles.module.css";
+import * as styles from "./styles.css";
 
 declare global {
   interface Window {
@@ -11,6 +11,7 @@ declare global {
         options: {
           sitekey: string;
           callback: (token: string) => void;
+          theme?: "auto" | "light" | "dark";
           "expired-callback"?: () => void;
           "error-callback"?: () => void;
         },
@@ -49,6 +50,7 @@ export function CommentForm({
     if (!container || !window.turnstile || widgetId.current) return;
     widgetId.current = window.turnstile.render(container, {
       sitekey: turnstileSiteKey,
+      theme: "auto",
       callback: (token) => {
         setTurnstileToken(token);
         setError("");

@@ -9,7 +9,7 @@ import {
   tsukubaGraduateSchool,
   tsukubaUniv,
 } from "./index.data";
-import styles from "./index.module.css";
+import * as styles from "./index.css";
 
 export const meta = () => [
   { title: "namachan10777.dev" },

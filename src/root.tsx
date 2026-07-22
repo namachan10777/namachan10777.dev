@@ -12,7 +12,7 @@ import {
 } from "react-router";
 import { NotFound } from "~/components/not-found";
 import { SiteLayout } from "~/routes/layout";
-import "./global.css";
+import "./styles/global.css";
 
 export function loader({ request }: LoaderFunctionArgs) {
   return { origin: new URL(request.url).origin };
