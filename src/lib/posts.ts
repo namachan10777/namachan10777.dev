@@ -24,7 +24,7 @@ export interface PostSummary {
   id: string;
   title: string;
   description: string;
-  published: Date;
+  createdAt: Date;
   tags: string[];
 }
 
@@ -33,7 +33,7 @@ export function toPostSummary(post: PostWithTags): PostSummary {
     id: post.id,
     title: post.title,
     description: post.description,
-    published: new Date(post.date),
+    createdAt: post.created_at,
     tags: post.tags,
   };
 }

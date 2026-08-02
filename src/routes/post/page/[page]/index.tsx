@@ -25,7 +25,7 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
             FROM posts LEFT JOIN post_tags ON posts.id = post_tags.post_id
             WHERE posts.publish
             GROUP BY posts.id
-            ORDER BY posts.date DESC
+            ORDER BY posts.created_at DESC
             LIMIT ?
             OFFSET ?
           `,

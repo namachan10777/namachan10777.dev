@@ -30,10 +30,6 @@ schema:
   description:
     type: string
     required: true
-  date:
-    type: date
-    index: true
-    required: true
   publish:
     index: true
     type: boolean
@@ -52,3 +48,9 @@ schema:
       type: r2
       bucket: namachan10777dev
       prefix: image/og
+  created_at:
+    type: created_at
+    index: true
+  updated_at:
+    type: updated_at
+    index: true

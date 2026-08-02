@@ -9,8 +9,8 @@ export function PostList({ posts }: { posts: PostSummary[] }) {
     <ol className={styles.list}>
       {posts.map((post) => (
         <li key={post.id}>
-          <time dateTime={post.published.toString()}>
-            {formatDateEn(post.published)}
+          <time dateTime={post.createdAt.toISOString()}>
+            {formatDateEn(post.createdAt)}
           </time>
           <h3>
             <Link to={`/post/${post.id}`}>{post.title}</Link>

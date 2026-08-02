@@ -8,7 +8,7 @@ interface RssItem {
   title: string;
   description: string;
   link: string;
-  date: Date;
+  createdAt: Date;
   categories: string[];
 }
 
@@ -36,7 +36,7 @@ function genRss(rss: {
           title: item.title,
           link: item.link,
           description: item.description,
-          pubDate: item.date.toISOString(),
+          pubDate: item.createdAt.toISOString(),
           category: item.categories.join(","),
         })),
       },
@@ -68,7 +68,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     items: v.parse(v.array(postWithTagsSchema), posts).map((post) => ({
       title: post.title,
       description: post.description,
-      date: post.date,
+      createdAt: post.created_at,
       link: `${url.origin}/post/${post.id}/`,
       categories: post.tags,
     })),

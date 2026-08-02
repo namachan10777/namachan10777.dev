@@ -23,8 +23,12 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
   try {
     const db = getBinding(context, "DB");
     const kv = getBinding(context, "KV");
-    const [body, commentsResult] = await Promise.all([
+    const [body, createdAtValue, commentsResult] = await Promise.all([
       kv.get(id, { type: "json" }),
+      db
+        .prepare("SELECT created_at FROM posts WHERE id = ?")
+        .bind(id)
+        .first<string>("created_at"),
       db
         .prepare(
           "SELECT post_id, id, created_at, name, content FROM comments WHERE post_id = ? ORDER BY created_at DESC",
@@ -34,9 +38,15 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
         .catch(() => ({ results: [] })),
     ]);
 
+    const createdAt = new Date(v.parse(v.string(), createdAtValue));
+    if (Number.isNaN(createdAt.getTime())) {
+      throw new Error("Invalid post created_at");
+    }
+
     return {
       id,
       url: request.url,
+      createdAt,
       body: v.parse(postsSchema.bodyDocument, body),
       comments: v.parse(v.array(CommentSchema), commentsResult.results),
       turnstileSiteKey: getOptionalBinding(context, "TURNSTILE_SITE_KEY") || "",
@@ -132,12 +142,11 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
 
 export default function Post({ loaderData }: { loaderData: LoaderData }) {
   const body = loaderData.body;
-  const published = new Date(body.frontmatter.date);
   return (
     <>
       <article data-pagefind-body>
         <header className={styles.header}>
-          <h1 data-pagefind-meta={`date:${published.toISOString()}`}>
+          <h1 data-pagefind-meta={`date:${loaderData.createdAt.toISOString()}`}>
             {body.frontmatter.title}
           </h1>
           <p>{body.frontmatter.description}</p>

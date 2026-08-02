@@ -5,11 +5,6 @@ export const frontmatter = v.object({
   id: v.string(),
   title: v.string(),
   description: v.string(),
-  date: v.pipe(
-    v.string(),
-    v.isoDate(),
-    v.transform((date) => new Date(date)),
-  ),
   publish: v.nullable(v.boolean()),
   tags: v.array(post_tags.frontmatterWithMarkdownColumns),
   hash: v.string(),
@@ -32,11 +27,6 @@ export const table = v.object({
   body: v.pipe(v.string(), v.parseJson(), bodyColumn),
   title: v.string(),
   description: v.string(),
-  date: v.pipe(
-    v.string(),
-    v.isoDate(),
-    v.transform((date) => new Date(date)),
-  ),
   publish: v.nullable(
     v.pipe(
       v.number(),
@@ -47,17 +37,20 @@ export const table = v.object({
   ),
   hash: v.string(),
   og_image: v.nullable(v.pipe(v.string(), v.parseJson(), ogImageColumn)),
+  created_at: v.pipe(
+    v.string(),
+    v.transform((datetime) => new Date(datetime)),
+  ),
+  updated_at: v.pipe(
+    v.string(),
+    v.transform((datetime) => new Date(datetime)),
+  ),
 });
 export const frontmatterWithMarkdownColumns = v.object({
   id: v.string(),
   body: bodyColumn,
   title: v.string(),
   description: v.string(),
-  date: v.pipe(
-    v.string(),
-    v.isoDate(),
-    v.transform((date) => new Date(date)),
-  ),
   publish: v.nullable(v.boolean()),
   tags: v.array(post_tags.frontmatterWithMarkdownColumns),
   hash: v.string(),

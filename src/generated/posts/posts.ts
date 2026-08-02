@@ -16,16 +16,16 @@ export interface Table {
   body: BodyColumn;
   title: string;
   description: string;
-  date: Date;
   publish: boolean | null;
   hash: string;
   og_image: OgImageColumn | null;
+  created_at: Date;
+  updated_at: Date;
 }
 export interface Frontmatter {
   id: string;
   title: string;
   description: string;
-  date: Date;
   publish: boolean | null;
   tags: post_tags.FrontmatterWithMarkdownColumns[];
   hash: string;
@@ -36,7 +36,6 @@ export interface FrontmatterWithMarkdownColumns {
   body: BodyColumn;
   title: string;
   description: string;
-  date: Date;
   publish: boolean | null;
   tags: post_tags.FrontmatterWithMarkdownColumns[];
   hash: string;

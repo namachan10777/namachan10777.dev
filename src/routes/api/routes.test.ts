@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RouterContextProvider, type LoaderFunctionArgs } from "react-router";
 import { cloudflareContext } from "~/lib/context";
-import { action as submitComment } from "~/routes/post/[...id]/index";
+import {
+  action as submitComment,
+  loader as servePost,
+} from "~/routes/post/[...id]/index";
 import { loader as getComments } from "./comments/[...id]/index";
 import { action as addLike } from "./like/[...id]/index";
 import { loader as serveImage } from "../image/[...id]/index";
@@ -147,10 +150,11 @@ describe("resource routes", () => {
       }),
       title: "Test post",
       description: "Description",
-      date: "2026-07-22",
       publish: 1,
       hash: "hash",
       og_image: null,
+      created_at: "2026-07-22T00:00:00.000Z",
+      updated_at: "2026-07-23T00:00:00.000Z",
       tags: JSON.stringify(["tech"]),
     };
     const run = vi.fn().mockResolvedValue({ results: [post] });
@@ -166,5 +170,54 @@ describe("resource routes", () => {
     );
     expect(xml).toContain("Test post");
     expect(xml).toContain("https://example.com/post/2026/test/");
+    expect(xml).toContain("2026-07-22T00:00:00.000Z");
+  });
+
+  it("loads a post creation timestamp from D1", async () => {
+    const body = {
+      frontmatter: {
+        id: "2026/test",
+        title: "Test post",
+        description: "Description",
+        publish: true,
+        tags: [],
+        hash: "hash",
+        og_image: null,
+      },
+      footnotes: [],
+      sections: [],
+      root: { type: "html", content: "<p>Body</p>" },
+    };
+    const prepare = vi.fn().mockImplementation((sql: string) => {
+      if (sql.includes("FROM posts")) {
+        return {
+          bind: vi.fn().mockReturnValue({
+            first: vi.fn().mockResolvedValue("2026-07-22T00:00:00.000Z"),
+          }),
+        };
+      }
+      return {
+        bind: vi.fn().mockReturnValue({
+          all: vi.fn().mockResolvedValue({ results: [] }),
+        }),
+      };
+    });
+    const context = contextWith({
+      DB: { prepare } as unknown as D1Database,
+      KV: {
+        get: vi.fn().mockResolvedValue(body),
+      } as unknown as KVNamespace,
+    });
+
+    const result = await servePost(
+      loaderArgs(new Request("https://example.com/post/2026/test"), context, {
+        "*": "2026/test",
+      }),
+    );
+
+    expect(result.createdAt.toISOString()).toBe("2026-07-22T00:00:00.000Z");
+    expect(prepare).toHaveBeenCalledWith(
+      "SELECT created_at FROM posts WHERE id = ?",
+    );
   });
 });
