@@ -16,6 +16,15 @@ jobs:
           curl -fSL -o rudis-cms https://github.com/namachan10777/rudis-cms/releases/download/v0.6.0/rudis-cms-linux-musl-amd64
           chmod +x rudis-cms
 
+      - name: Run rudis-cms batch (preview)
+        run: ./rudis-cms -c content/preview.yaml batch
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          RUST_LOG: rudis_cms=Debug
+
       - name: Run rudis-cms batch
         run: ./rudis-cms -c content/config.yaml batch
         env:
