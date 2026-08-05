@@ -38,17 +38,33 @@ function normalizeAttrs(attrs: Record<string, string | number | boolean>) {
   return { ...rest, className };
 }
 
+const voidElements = new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
 export function MdNode({ node }: { node: rudis.MarkdownNode<posts.BodyKeep> }) {
   switch (node.type) {
     case "text":
       return <>{node.text}</>;
     case "eager": {
       const Tag = node.tag as keyof JSX.IntrinsicElements;
+      const attrs = normalizeAttrs(node.attrs);
+      if (voidElements.has(node.tag)) return <Tag {...attrs} />;
       return (
-        <Tag
-          {...normalizeAttrs(node.attrs)}
-          dangerouslySetInnerHTML={{ __html: node.content }}
-        />
+        <Tag {...attrs} dangerouslySetInnerHTML={{ __html: node.content }} />
       );
     }
     case "lazy": {
