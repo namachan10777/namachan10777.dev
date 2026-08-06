@@ -1,7 +1,12 @@
-import { Link } from "react-router";
+import { Link, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 import iconUrl from "~/assets/icon.webp?url";
 import { Education } from "~/components/education";
 import { Work } from "~/components/work";
+import {
+  buildProfilePageStructuredData,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+} from "~/lib/structured-data";
 import {
   dkitamura,
   nitk,
@@ -11,12 +16,16 @@ import {
 } from "./index.data";
 import * as styles from "./index.css";
 
-export const meta = () => [
-  { title: "namachan10777.dev" },
-  {
-    name: "description",
-    content: "namachan10777's personal website and blog",
-  },
+export function loader({ request }: LoaderFunctionArgs) {
+  return { origin: new URL(request.url).origin };
+}
+
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
+  { title: SITE_NAME },
+  { name: "description", content: SITE_DESCRIPTION },
+  ...(loaderData
+    ? [buildProfilePageStructuredData(loaderData.origin, iconUrl)]
+    : []),
 ];
 
 export default function Index() {

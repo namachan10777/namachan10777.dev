@@ -173,7 +173,7 @@ describe("resource routes", () => {
     expect(xml).toContain("2026-07-22T00:00:00.000Z");
   });
 
-  it("loads a post creation timestamp from D1", async () => {
+  it("loads post creation and modification timestamps from D1", async () => {
     const body = {
       frontmatter: {
         id: "2026/test",
@@ -192,7 +192,10 @@ describe("resource routes", () => {
       if (sql.includes("FROM posts")) {
         return {
           bind: vi.fn().mockReturnValue({
-            first: vi.fn().mockResolvedValue("2026-07-22T00:00:00.000Z"),
+            first: vi.fn().mockResolvedValue({
+              created_at: "2026-07-22T00:00:00.000Z",
+              updated_at: "2026-07-23T12:34:56.000Z",
+            }),
           }),
         };
       }
@@ -216,8 +219,9 @@ describe("resource routes", () => {
     );
 
     expect(result.createdAt.toISOString()).toBe("2026-07-22T00:00:00.000Z");
+    expect(result.updatedAt.toISOString()).toBe("2026-07-23T12:34:56.000Z");
     expect(prepare).toHaveBeenCalledWith(
-      "SELECT created_at FROM posts WHERE id = ?",
+      "SELECT created_at, updated_at FROM posts WHERE id = ?",
     );
   });
 });

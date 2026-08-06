@@ -1,10 +1,17 @@
 import type { MetaDescriptor } from "react-router";
 import type * as posts from "~/generated/posts/posts";
+import { buildBlogPostingStructuredData } from "~/lib/structured-data";
+
+interface PostTimestamps {
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export function buildPostHead(
   post: posts.BodyDocument,
   id: string,
   url: URL,
+  timestamps: PostTimestamps,
 ): MetaDescriptor[] {
   const meta: MetaDescriptor[] = [
     { title: post.frontmatter.title },
@@ -21,5 +28,16 @@ export function buildPostHead(
       content: `${url.origin}/${post.frontmatter.og_image.pointer.key}?width=1200&format=webp`,
     });
   }
+  meta.push(
+    buildBlogPostingStructuredData(url.origin, {
+      id,
+      title: post.frontmatter.title,
+      description: post.frontmatter.description,
+      createdAt: timestamps.createdAt,
+      updatedAt: timestamps.updatedAt,
+      tags: post.frontmatter.tags.map((record) => record.tag),
+      imageKey: post.frontmatter.og_image?.pointer.key,
+    }),
+  );
   return meta;
 }

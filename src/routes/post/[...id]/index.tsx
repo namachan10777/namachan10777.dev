@@ -23,12 +23,12 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
   try {
     const db = getBinding(context, "DB");
     const kv = getBinding(context, "KV");
-    const [body, createdAtValue, commentsResult] = await Promise.all([
+    const [body, timestampsValue, commentsResult] = await Promise.all([
       kv.get(id, { type: "json" }),
       db
-        .prepare("SELECT created_at FROM posts WHERE id = ?")
+        .prepare("SELECT created_at, updated_at FROM posts WHERE id = ?")
         .bind(id)
-        .first<string>("created_at"),
+        .first(),
       db
         .prepare(
           "SELECT post_id, id, created_at, name, content FROM comments WHERE post_id = ? ORDER BY created_at DESC",
@@ -38,15 +38,24 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
         .catch(() => ({ results: [] })),
     ]);
 
-    const createdAt = new Date(v.parse(v.string(), createdAtValue));
-    if (Number.isNaN(createdAt.getTime())) {
-      throw new Error("Invalid post created_at");
+    const timestamps = v.parse(
+      v.object({ created_at: v.string(), updated_at: v.string() }),
+      timestampsValue,
+    );
+    const createdAt = new Date(timestamps.created_at);
+    const updatedAt = new Date(timestamps.updated_at);
+    if (
+      Number.isNaN(createdAt.getTime()) ||
+      Number.isNaN(updatedAt.getTime())
+    ) {
+      throw new Error("Invalid post timestamps");
     }
 
     return {
       id,
       url: request.url,
       createdAt,
+      updatedAt,
       body: v.parse(postsSchema.bodyDocument, body),
       comments: v.parse(v.array(CommentSchema), commentsResult.results),
       turnstileSiteKey: getOptionalBinding(context, "TURNSTILE_SITE_KEY") || "",
@@ -137,7 +146,15 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
       { name: "description", content: "Not found" },
     ];
   }
-  return buildPostHead(loaderData.body, loaderData.id, new URL(loaderData.url));
+  return buildPostHead(
+    loaderData.body,
+    loaderData.id,
+    new URL(loaderData.url),
+    {
+      createdAt: loaderData.createdAt,
+      updatedAt: loaderData.updatedAt,
+    },
+  );
 };
 
 export default function Post({ loaderData }: { loaderData: LoaderData }) {
