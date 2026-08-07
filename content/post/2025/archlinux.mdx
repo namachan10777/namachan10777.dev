@@ -50,7 +50,7 @@ LABEL=SWAP      	swap      	defaults  	0 0
 
 `systemd-boot`を使った。単純だし最初からArchに入っているので楽。
 
-```conf {title=arch.conf}
+```conf {title="arch.conf"}
 title           Arch Linux
 linux           /vmlinuz-linux
 initrd          /intel-ucode.img
@@ -369,7 +369,7 @@ include /etc/sway/config.d/*
 fcitx5などのIMEの起動はswayの設定内で`exec`を使うのが一般的だが、なんとなくデーモンは全てsystemdに集約したい（再起動とか楽）ので、
 `~/.config/systemd/user/fcitx5.service`を作りsystemd userで起動する。
 
-```systemd {title=fcitx5.service}
+```systemd {title="fcitx5.service"}
 [Unit]
 Description=Fcitx5 input method
 After=graphical.target

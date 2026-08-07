@@ -19,7 +19,7 @@ publish: true
 
 https://github.com/namachan10777/agentenv
 
-```title="agentenv --help"
+```{title="agentenv --help"}
 # agentenv --help
 Switch Claude Code / Codex profiles (CLAUDE_CONFIG_DIR / CODEX_HOME) per shell. switch, load and remove print eval-able code to stdout; set up the wrapper that evals it with agentenv hook --shell <your-shell>
 
@@ -49,7 +49,7 @@ hookで`agentenv`をラップして、switchやloadなどを打った際に`agen
 使い方としては、`agentenv hook --shell fish`を打ってその出力をシェルの設定ファイルに入れておくだけ。
 あとは以下のような感じでパスごとに環境を列挙してあげれば自動でclaudeやcodexの環境が切り替わるようになる。
 
-```toml title="$XDG_CONFIG_HOME/agentenv/config.toml"
+```toml {title="$XDG_CONFIG_HOME/agentenv/config.toml"}
 [path."$HOME/ghq/github.com/namachan10777"]
 env = "default"
 ```
