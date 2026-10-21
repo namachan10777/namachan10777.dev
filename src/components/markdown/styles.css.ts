@@ -3,22 +3,41 @@ import { vars } from "~/styles/theme.css";
 
 export const markdown = style({});
 
+globalStyle(`${markdown} h2`, {
+  marginBlock: `${vars.space.xxl} ${vars.space.lg}`,
+  paddingBlockStart: vars.space.lg,
+  borderTop: `${vars.border.thin} solid ${vars.color.line}`,
+  fontSize: "1.5rem",
+});
+
+globalStyle(`${markdown} h3`, {
+  marginBlock: `${vars.space.xl} ${vars.space.md}`,
+  fontSize: "1.2rem",
+});
+
+globalStyle(`${markdown} blockquote`, {
+  marginInline: 0,
+  paddingInline: vars.space.lg,
+  borderInlineStart: `2px solid ${vars.color.line}`,
+  color: vars.color.muted,
+});
+
 globalStyle(`${markdown} table`, {
   width: "100%",
   display: "block",
   overflowX: "auto",
   borderCollapse: "collapse",
-  border: `${vars.border.thin} solid ${vars.color.border}`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 globalStyle(`${markdown} th`, {
-  borderBottom: `${vars.border.thin} solid ${vars.color.border}`,
+  borderBottom: `${vars.border.thin} solid ${vars.color.line}`,
   margin: 0,
   backgroundColor: vars.color.surface,
 });
 
 globalStyle(`${markdown} th:first-child, ${markdown} td:first-child`, {
-  borderRight: `${vars.border.thin} solid ${vars.color.border}`,
+  borderRight: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 globalStyle(`${markdown} th, ${markdown} td`, {
@@ -36,7 +55,7 @@ globalStyle(`${markdown} :not(pre) > code`, {
 
 globalStyle(`${markdown} hr`, {
   border: 0,
-  borderTop: `${vars.border.thin} solid ${vars.color.border}`,
+  borderTop: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 globalStyle(`${markdown} img`, {
@@ -61,13 +80,15 @@ globalStyle(`${markdown} figure`, {
   alignItems: "center",
   width: "100%",
   gap: vars.space.sm,
-  border: `${vars.border.thin} solid currentColor`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
   marginInline: 0,
   overflow: "hidden",
 });
 
 globalStyle(`${markdown} figcaption`, {
-  borderTop: `${vars.border.thin} solid currentColor`,
+  fontSize: vars.fontSize.small,
+  color: vars.color.muted,
+  borderTop: `${vars.border.thin} solid ${vars.color.line}`,
   display: "block",
   width: "100%",
   textAlign: "center",

@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 import { vars } from "~/styles/theme.css";
 
 export const likeButton = style({
-  border: `${vars.border.thin} solid ${vars.color.border}`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
   backgroundColor: "transparent",
   color: vars.color.text,
   display: "flex",

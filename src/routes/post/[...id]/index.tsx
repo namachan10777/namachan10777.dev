@@ -11,6 +11,7 @@ import {
   type Comment,
   type CommentSubmitValue,
 } from "~/lib/comments";
+import { formatDateEn } from "~/lib/format";
 import { buildPostHead } from "~/lib/post-head";
 import { logServerError } from "~/lib/server-log";
 import { verifyTurnstileToken } from "~/lib/turnstile";
@@ -163,6 +164,12 @@ export default function Post({ loaderData }: { loaderData: LoaderData }) {
     <>
       <article data-pagefind-body>
         <header className={styles.header}>
+          <time
+            className={styles.meta}
+            dateTime={loaderData.createdAt.toISOString()}
+          >
+            {formatDateEn(loaderData.createdAt)}
+          </time>
           <h1 data-pagefind-meta={`date:${loaderData.createdAt.toISOString()}`}>
             {body.frontmatter.title}
           </h1>
@@ -182,11 +189,13 @@ export default function Post({ loaderData }: { loaderData: LoaderData }) {
         )}
         {body.footnotes.length > 0 && <Footnotes footnotes={body.footnotes} />}
       </article>
-      <CommentSection
-        postId={body.frontmatter.id}
-        initialComments={loaderData.comments}
-        turnstileSiteKey={loaderData.turnstileSiteKey}
-      />
+      <div className={styles.comments}>
+        <CommentSection
+          postId={body.frontmatter.id}
+          initialComments={loaderData.comments}
+          turnstileSiteKey={loaderData.turnstileSiteKey}
+        />
+      </div>
     </>
   );
 }

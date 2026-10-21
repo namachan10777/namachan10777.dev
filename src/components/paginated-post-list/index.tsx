@@ -14,7 +14,7 @@ interface PaginatedPostListProps {
 export function PaginatedPostList(props: PaginatedPostListProps) {
   return (
     <div className={styles.container}>
-      <div>{props.children}</div>
+      <div className={styles.header}>{props.children}</div>
       <div>
         <PostList posts={props.contents} />
       </div>

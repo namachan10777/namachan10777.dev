@@ -1,5 +1,6 @@
 import { style } from "@vanilla-extract/css";
-import { contentContainer } from "~/styles/shared.css";
+import { rail } from "~/styles/shared.css";
+import { vars } from "~/styles/theme.css";
 
 export const container = style({
   display: "grid",
@@ -15,8 +16,11 @@ export const main = style({
 });
 
 export const content = style([
-  contentContainer,
+  rail,
   {
-    height: "100%",
+    flexGrow: 1,
+    counterReset: "section",
+    paddingInline: vars.layout.contentPadding,
+    paddingBlockEnd: vars.space.xxl,
   },
 ]);

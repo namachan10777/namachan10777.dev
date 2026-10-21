@@ -13,7 +13,8 @@ export const root = style({
   fontFamily: vars.font.mono,
   display: "flex",
   flexDirection: "column",
-  border: `${vars.border.thin} solid ${vars.color.border}`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
+  backgroundColor: vars.color.codeBackground,
   overflow: "hidden",
 });
 
@@ -39,7 +40,7 @@ export const lines = style({
   lineHeight: vars.lineHeight.body,
   listStyle: "none",
   color: vars.color.syntax.comment,
-  borderRight: `${vars.border.thin} solid ${vars.color.border}`,
+  borderRight: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 globalStyle(`${lines} li`, {
@@ -50,20 +51,22 @@ export const header = style({
   display: "grid",
   gridTemplateColumns: "1fr auto",
   minHeight: "1.75rem",
-  borderBottom: `${vars.border.thin} solid ${vars.color.border}`,
+  backgroundColor: vars.color.background,
+  borderBottom: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 export const headerTitle = style({
   gridColumn: "1",
   paddingInline: vars.space.sm,
   alignSelf: "center",
-  fontSize: vars.fontSize.small,
+  fontSize: vars.fontSize.xsmall,
+  color: vars.color.muted,
   lineHeight: "1",
 });
 
 export const copyButton = style({
   border: 0,
-  borderLeft: `${vars.border.thin} solid ${vars.color.border}`,
+  borderLeft: `${vars.border.thin} solid ${vars.color.line}`,
   backgroundColor: "transparent",
   color: vars.color.text,
   display: "flex",

@@ -24,7 +24,7 @@ export function Footer() {
   return (
     <footer className={styles.footer}>
       <address className={styles.content}>
-        <small>@namachan10777</small>
+        <small className={styles.handle}>@namachan10777</small>
         <nav className={styles.nav}>
           <LinkIcon
             href="https://github.com/namachan10777"

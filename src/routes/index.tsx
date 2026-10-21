@@ -14,6 +14,7 @@ import {
   tsukubaGraduateSchool,
   tsukubaUniv,
 } from "./index.data";
+import * as shared from "~/styles/shared.css";
 import * as styles from "./index.css";
 
 export function loader({ request }: LoaderFunctionArgs) {
@@ -31,28 +32,33 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
 export default function Index() {
   return (
     <>
-      <section className={styles.top}>
-        <div className={styles.iconWrapper}>
-          <img
-            src={iconUrl}
-            width={350}
-            height={350}
-            alt="namachan10777のアイコン画像。目のついた緑の箱がデフォルメされている。"
-          />
+      <section className={styles.section}>
+        <div className={styles.profile}>
+          <div className={styles.iconWrapper}>
+            <img
+              src={iconUrl}
+              width={350}
+              height={350}
+              alt="namachan10777のアイコン画像。目のついた緑の箱がデフォルメされている。"
+            />
+          </div>
+          <div className={styles.profileText}>
+            <span className={shared.label}>@namachan10777</span>
+            <h1>Masaki Nakano</h1>
+            <p>
+              I am a master's student in Computer Science. I beglong to{" "}
+              <a href="https://www.hpcs.cs.tsukuba.ac.jp">
+                High-Performance Computing System (HPCS) laboratory
+              </a>{" "}
+              in University of Tsukuba, and mainly researching architectures to
+              leverage scalability of parallel filesystem.
+            </p>
+          </div>
         </div>
-        <h1>Masaki Nakano</h1>
-        <p>
-          I am a master's student in Computer Science. I beglong to
-          <a href="https://www.hpcs.cs.tsukuba.ac.jp">
-            High-Performance Computing System (HPCS) laboratory
-          </a>
-          in University of Tsukuba, and mainly researching architectures to
-          leverage scalability of parallel filesystem.
-        </p>
       </section>
-      <section>
-        <h2>Skills and Interests</h2>
-        <ul>
+      <section className={styles.section}>
+        <h2 className={shared.sectionLabel}>Skills and Interests</h2>
+        <ul className={styles.rows}>
           <li>
             Distributed storage, high performance interconnects, storage I/O.
           </li>
@@ -62,10 +68,10 @@ export default function Index() {
           <li>Electoronic circuit design</li>
         </ul>
       </section>
-      <section>
-        <h2>Links</h2>
+      <section className={styles.section}>
+        <h2 className={shared.sectionLabel}>Links</h2>
         <nav>
-          <ul>
+          <ul className={styles.linkGrid}>
             <li>
               <Link to="/post/page/1">Posts (ja)</Link>
             </li>
@@ -78,9 +84,9 @@ export default function Index() {
           </ul>
         </nav>
       </section>
-      <section>
-        <h2>Education</h2>
-        <ol>
+      <section className={styles.section}>
+        <h2 className={shared.sectionLabel}>Education</h2>
+        <ol className={styles.timeline}>
           <li>
             <Education
               degree="Master's student"
@@ -112,9 +118,9 @@ export default function Index() {
           </li>
         </ol>
       </section>
-      <section>
-        <h2>Work experience</h2>
-        <ol>
+      <section className={styles.section}>
+        <h2 className={shared.sectionLabel}>Work experience</h2>
+        <ol className={styles.timeline}>
           <li>
             <Work
               start={new Date("2026-04")}
