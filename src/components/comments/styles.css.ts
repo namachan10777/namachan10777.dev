@@ -1,11 +1,12 @@
 import { globalStyle, style } from "@vanilla-extract/css";
-import { interactiveSurface } from "~/styles/shared.css";
+import { interactiveSurface, labelText } from "~/styles/shared.css";
 import { media, vars } from "~/styles/theme.css";
 
-export const commentSection = style({ marginTop: vars.space.xxl });
+export const commentSection = style({});
 
 globalStyle(`${commentSection} h2`, {
-  marginBottom: vars.space.lg,
+  ...labelText,
+  marginBlock: `0 ${vars.space.lg}`,
 });
 
 export const commentList = style({
@@ -18,7 +19,7 @@ export const comment = style({
   paddingBlock: vars.space.md,
   selectors: {
     "&:not(:last-child)": {
-      borderBottom: `${vars.border.thin} solid ${vars.color.muted}`,
+      borderBottom: `${vars.border.thin} dashed ${vars.color.line}`,
     },
   },
 });
@@ -33,7 +34,8 @@ export const commentHeader = style({
 
 export const commentName = style({ fontWeight: 700 });
 export const commentDate = style({
-  fontSize: vars.fontSize.small,
+  fontFamily: vars.font.mono,
+  fontSize: vars.fontSize.xsmall,
   color: vars.color.muted,
 });
 export const commentContent = style({
@@ -59,7 +61,7 @@ export const formLabel = style({
 
 const formControl = style({
   padding: vars.space.sm,
-  border: `${vars.border.thin} solid ${vars.color.border}`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
   backgroundColor: vars.color.background,
   color: vars.color.text,
   transition: `border-color ${vars.motion.fast} ${vars.motion.easing}`,
@@ -91,7 +93,9 @@ export const formActions = style({
 
 export const submitButton = style([
   interactiveSurface,
+  labelText,
   {
+    color: vars.color.text,
     padding: `${vars.space.sm} ${vars.space.lg}`,
     selectors: {
       "&:disabled": {

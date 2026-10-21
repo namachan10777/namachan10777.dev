@@ -5,17 +5,21 @@ import {
 } from "@vanilla-extract/css";
 
 const lightColors = {
-  background: "oklch(95.57% 0.003 286.35)",
-  surface: "oklch(92.04% 0.002 197.12)",
-  text: "oklch(14.38% 0.007 256.88)",
-  muted: "oklch(43.87% 0.005 271.3)",
-  border: "oklch(25.11% 0.006 258.36)",
+  background: "oklch(98.5% 0.002 260)",
+  backdrop: "oklch(96.5% 0.003 260)",
+  surface: "oklch(95% 0.004 260)",
+  text: "oklch(18% 0.008 260)",
+  muted: "oklch(48% 0.008 260)",
+  border: "oklch(30% 0.008 260)",
+  line: "oklch(87% 0.006 260)",
+  grid: "oklch(91.5% 0.005 260)",
+  marker: "oklch(40% 0.01 260)",
   accent: "oklch(47.36% 0.185 259.89)",
   accentHover: "oklch(51.15% 0.204 260.17)",
   visited: "oklch(42.77% 0.181 298.49)",
   danger: "oklch(58.63% 0.231 19.6)",
   focus: "oklch(47.36% 0.185 259.89)",
-  codeBackground: "oklch(84.61% 0.004 286.31)",
+  codeBackground: "oklch(94% 0.004 260)",
   codeText: "oklch(25.11% 0.006 258.36)",
   syntax: {
     function: "oklch(47.36% 0.185 259.89)",
@@ -28,17 +32,21 @@ const lightColors = {
 };
 
 const darkColors = {
-  background: "oklch(18% 0.018 258)",
-  surface: "oklch(23% 0.02 258)",
-  text: "oklch(93% 0.006 258)",
-  muted: "oklch(72% 0.018 258)",
-  border: "oklch(52% 0.025 258)",
+  background: "oklch(16% 0.008 260)",
+  backdrop: "oklch(13.5% 0.008 260)",
+  surface: "oklch(21% 0.01 260)",
+  text: "oklch(94% 0.004 260)",
+  muted: "oklch(70% 0.01 260)",
+  border: "oklch(62% 0.012 260)",
+  line: "oklch(28% 0.01 260)",
+  grid: "oklch(19% 0.008 260)",
+  marker: "oklch(72% 0.01 260)",
   accent: "oklch(74% 0.14 255)",
   accentHover: "oklch(80% 0.13 255)",
   visited: "oklch(78% 0.14 300)",
   danger: "oklch(72% 0.17 20)",
   focus: "oklch(74% 0.14 255)",
-  codeBackground: "oklch(27% 0.028 258)",
+  codeBackground: "oklch(21% 0.01 260)",
   codeText: "oklch(90% 0.01 258)",
   syntax: {
     function: "oklch(76% 0.12 255)",
@@ -56,7 +64,12 @@ export const vars = createGlobalTheme(":root", {
     body: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     mono: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Roboto Mono", monospace',
   },
+  letterSpacing: {
+    label: "0.08em",
+    heading: "-0.02em",
+  },
   fontSize: {
+    label: "0.6875rem",
     xsmall: "0.75rem",
     small: "0.875rem",
     body: "clamp(0.9rem, 0.9rem + 0.1vw, 1rem)",
@@ -78,6 +91,9 @@ export const vars = createGlobalTheme(":root", {
   layout: {
     contentMaxWidth: "52rem",
     contentGutter: "clamp(0.75rem, 3vw, 1rem)",
+    contentPadding: "clamp(1rem, 4vw, 2rem)",
+    gridPitch: "32px",
+    markerSize: "9px",
   },
   border: {
     thin: "1px",

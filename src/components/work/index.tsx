@@ -1,5 +1,5 @@
 import { formatYearMonth } from "~/lib/format";
-import * as styles from "./styles.css";
+import * as shared from "~/styles/shared.css";
 
 export interface WorkProps {
   company: {
@@ -14,16 +14,12 @@ export interface WorkProps {
 
 export function Work(props: WorkProps) {
   return (
-    <div className={styles.entry}>
-      <span>
-        <strong>{props.position}</strong>,
-        <a href={props.company.href}>
-          <strong>{props.company.name}</strong>
-        </a>
+    <div className={shared.timelineEntry}>
+      <span className={shared.timelinePeriod}>
         <time dateTime={props.start.toISOString()}>
           {formatYearMonth(props.start)}
         </time>
-        -
+        {" — "}
         {props.retire ? (
           <time dateTime={props.retire.toISOString()}>
             {formatYearMonth(props.retire)}
@@ -32,7 +28,14 @@ export function Work(props: WorkProps) {
           <em>present</em>
         )}
       </span>
-      <span>{props.topic}</span>
+      <div className={shared.timelineBody}>
+        <strong className={shared.timelineTitle}>{props.position}</strong>
+        <a href={props.company.href}>{props.company.name}</a>
+        <dl className={shared.timelineMeta}>
+          <dt className={shared.timelineMetaKey}>Topic</dt>
+          <dd className={shared.timelineMetaValue}>{props.topic}</dd>
+        </dl>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,10 @@ import { vars } from "./theme.css";
 const reset = globalLayer("reset");
 const base = globalLayer("base");
 
+globalStyle("*, *::before, *::after", {
+  "@layer": { [reset]: { boxSizing: "border-box" } },
+});
+
 globalStyle("html", {
   "@layer": {
     [reset]: {
@@ -11,6 +15,7 @@ globalStyle("html", {
       maxWidth: "100vw",
       padding: 0,
       margin: 0,
+      overflowX: "clip",
     },
   },
 });
@@ -23,9 +28,13 @@ globalStyle("body", {
       maxWidth: "100vw",
       padding: 0,
       margin: 0,
+      overflowX: "clip",
     },
     [base]: {
-      backgroundColor: vars.color.background,
+      backgroundColor: vars.color.backdrop,
+      backgroundImage: `linear-gradient(to right, ${vars.color.grid} 1px, transparent 1px), linear-gradient(to bottom, ${vars.color.grid} 1px, transparent 1px)`,
+      backgroundSize: `${vars.layout.gridPitch} ${vars.layout.gridPitch}`,
+      backgroundPosition: "center top",
       color: vars.color.text,
       fontFamily: vars.font.body,
       fontSize: vars.fontSize.body,
@@ -39,6 +48,25 @@ globalStyle("p", {
     [base]: {
       overflowWrap: "anywhere",
       lineHeight: vars.lineHeight.content,
+    },
+  },
+});
+
+globalStyle("h1, h2, h3, h4", {
+  "@layer": {
+    [base]: {
+      letterSpacing: vars.letterSpacing.heading,
+      lineHeight: "1.3",
+    },
+  },
+});
+
+globalStyle("h1", {
+  "@layer": {
+    [base]: {
+      fontSize: vars.fontSize.title,
+      fontWeight: 700,
+      lineHeight: "1.15",
     },
   },
 });

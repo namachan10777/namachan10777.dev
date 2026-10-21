@@ -6,13 +6,15 @@ export const root = style({
   flexDirection: "row",
   alignItems: "center",
   padding: vars.space.sm,
-  border: `${vars.border.thin} solid ${vars.color.border}`,
+  border: `${vars.border.thin} solid ${vars.color.line}`,
   marginBlock: vars.space.sm,
+  backgroundColor: vars.color.background,
   color: vars.color.text,
   textDecoration: "none",
-  transition: `border-color ${vars.motion.fast} ${vars.motion.easing}, color ${vars.motion.fast} ${vars.motion.easing}`,
+  transition: `border-color ${vars.motion.fast} ${vars.motion.easing}, color ${vars.motion.fast} ${vars.motion.easing}, background-color ${vars.motion.fast} ${vars.motion.easing}`,
   ":hover": {
     borderColor: vars.color.accent,
+    backgroundColor: vars.color.surface,
     color: vars.color.accent,
   },
 });
@@ -39,7 +41,7 @@ export const textWrapper = style({
   flexDirection: "column",
   paddingLeft: vars.space.sm,
   marginLeft: vars.space.sm,
-  borderLeft: `${vars.border.thin} solid ${vars.color.border}`,
+  borderLeft: `${vars.border.thin} solid ${vars.color.line}`,
 });
 
 export const title = style({
@@ -54,6 +56,9 @@ export const description = style({
 });
 
 export const domain = style({
+  fontFamily: vars.font.mono,
+  fontSize: vars.fontSize.xsmall,
+  color: vars.color.muted,
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
